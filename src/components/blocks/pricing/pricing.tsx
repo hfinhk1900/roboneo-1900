@@ -1,3 +1,5 @@
+'use client';
+
 import { HeaderSection } from '@/components/layout/header-section';
 import { PricingTable } from '@/components/pricing/pricing-table';
 import { useTranslations } from 'next-intl';

@@ -3,22 +3,24 @@ import { getDb } from '@/db';
 import { payment, session, user } from '@/db/schema';
 import {
   findPlanByPlanId,
-  findPlanByPriceId,
   findPriceInPlan,
 } from '@/lib/price-plan';
 import { sendNotification } from '@/notification/notification';
 import { desc, eq } from 'drizzle-orm';
 import { Stripe } from 'stripe';
+import { websiteConfig } from '@/config/website';
 import {
   type CheckoutResult,
   type CreateCheckoutParams,
   type CreatePortalParams,
   type PaymentProvider,
   type PaymentStatus,
+  type PaymentType,
   PaymentTypes,
   type PlanInterval,
   PlanIntervals,
   type PortalResult,
+  type Price,
   type Subscription,
   type getSubscriptionsParams,
 } from '../types';
@@ -186,12 +188,20 @@ export class StripeProvider implements PaymentProvider {
       // Get plan and price
       const plan = findPlanByPlanId(planId);
       if (!plan) {
+        console.error(`StripeProvider: Plan with ID ${planId} not found`);
         throw new Error(`Plan with ID ${planId} not found`);
       }
 
       // Find price in plan
       const price = findPriceInPlan(planId, priceId);
       if (!price) {
+        console.error(`StripeProvider: Price ID ${priceId} not found in plan ${planId}`);
+        console.error(`StripeProvider: Available plans:`, websiteConfig.price.plans);
+        if (planId === 'pro') {
+          console.error('Pro plan prices:', websiteConfig.price.plans.pro.prices.map(p => ({priceId: p.priceId, interval: p.interval})));
+        } else if (planId === 'ultimate') {
+          console.error('Ultimate plan prices:', websiteConfig.price.plans.ultimate.prices.map(p => ({priceId: p.priceId, interval: p.interval})));
+        }
         throw new Error(`Price ID ${priceId} not found in plan ${planId}`);
       }
 
@@ -203,6 +213,7 @@ export class StripeProvider implements PaymentProvider {
         customerEmail,
         userName
       );
+      console.log(`StripeProvider: Got customerId: ${customerId}`);
 
       // Add planId and priceId to metadata, so we can get it in the webhook event
       const customMetadata = {
@@ -218,6 +229,7 @@ export class StripeProvider implements PaymentProvider {
           quantity: 1,
         },
       ];
+      console.log(`StripeProvider: Set up lineItems with price: ${priceId}`);
 
       // Create checkout session parameters
       const checkoutParams: Stripe.Checkout.SessionCreateParams = {
@@ -265,16 +277,24 @@ export class StripeProvider implements PaymentProvider {
         }
       }
 
+      console.log(`StripeProvider: Creating checkout session with params:`, JSON.stringify({
+        mode: checkoutParams.mode,
+        customer: checkoutParams.customer,
+        line_items: checkoutParams.line_items,
+      }, null, 2));
+
       // Create the checkout session
       const session =
         await this.stripe.checkout.sessions.create(checkoutParams);
+
+      console.log(`StripeProvider: Created session with ID: ${session.id}`);
 
       return {
         url: session.url!,
         id: session.id,
       };
     } catch (error) {
-      console.error('Create checkout session error:', error);
+      console.error('StripeProvider: Create checkout session error:', error);
       throw new Error('Failed to create checkout session');
     }
   }

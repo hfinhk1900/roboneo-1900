@@ -10,7 +10,7 @@ import {
   type PricePlan,
 } from '@/payment/types';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PricingCard } from './pricing-card';
 
 interface PricingTableProps {
@@ -34,6 +34,12 @@ export function PricingTable({
 }: PricingTableProps) {
   const t = useTranslations('PricingPage');
   const [interval, setInterval] = useState<PlanInterval>(PlanIntervals.MONTH);
+  const [isClient, setIsClient] = useState(false);
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Get price plans with translations
   const pricePlans = getPricePlans();
@@ -84,6 +90,10 @@ export function PricingTable({
   const handleIntervalChange = (value: string) => {
     setInterval(value as PlanInterval);
   };
+
+  if (!isClient) {
+    return <div className="h-48 w-full"></div>; // Simple placeholder until client-side render
+  }
 
   return (
     <div className={cn('flex flex-col gap-12', className)}>

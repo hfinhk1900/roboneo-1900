@@ -1,6 +1,27 @@
 import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import type { WebsiteConfig } from '@/types';
 
+// 打印环境变量以进行调试
+console.log('Stripe price env variables:', {
+  PRO_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
+  PRO_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY,
+  ULTIMATE_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY,
+  ULTIMATE_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY
+});
+
+// 打印实际传递给价格配置的值
+const proMonthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!;
+const proYearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!;
+const ultimateMonthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!;
+const ultimateYearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!;
+
+console.log('Price IDs actually used in config:', {
+  proMonthlyPriceId,
+  proYearlyPriceId,
+  ultimateMonthlyPriceId,
+  ultimateYearlyPriceId
+});
+
 /**
  * website config, without translations
  *
@@ -38,7 +59,7 @@ export const websiteConfig: WebsiteConfig = {
     enableAffonsoAffiliate: false,
     enablePromotekitAffiliate: false,
     enableDatafastRevenueTrack: false,
-    enableTurnstileCaptcha: true,
+    enableTurnstileCaptcha: false,
   },
   routes: {
     defaultLoginRedirect: '/dashboard',
@@ -70,8 +91,8 @@ export const websiteConfig: WebsiteConfig = {
   },
   mail: {
     provider: 'resend',
-    fromEmail: 'MkSaaS <support@mksaas.com>',
-    supportEmail: 'MkSaaS <support@mksaas.com>',
+    fromEmail: 'Roboneo Art <hi@roboneo.art>',
+    supportEmail: 'Roboneo Art <hi@roboneo.art>',
   },
   newsletter: {
     provider: 'resend',
@@ -85,26 +106,42 @@ export const websiteConfig: WebsiteConfig = {
   },
   price: {
     plans: {
-      free: {
-        id: 'free',
-        prices: [],
-        isFree: true,
-        isLifetime: false,
-      },
       pro: {
         id: 'pro',
         prices: [
           {
             type: PaymentTypes.SUBSCRIPTION,
             priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
-            amount: 990,
+            amount: 1000, // $10.00
             currency: 'USD',
             interval: PlanIntervals.MONTH,
           },
           {
             type: PaymentTypes.SUBSCRIPTION,
             priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
-            amount: 9900,
+            amount: 9600, // $96.00
+            currency: 'USD',
+            interval: PlanIntervals.YEAR,
+          },
+        ],
+        isFree: false,
+        isLifetime: false,
+        recommended: false,
+      },
+      ultimate: {
+        id: 'ultimate',
+        prices: [
+          {
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!,
+            amount: 2000, // $20.00
+            currency: 'USD',
+            interval: PlanIntervals.MONTH,
+          },
+          {
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!,
+            amount: 19200, // $192.00
             currency: 'USD',
             interval: PlanIntervals.YEAR,
           },
@@ -112,20 +149,6 @@ export const websiteConfig: WebsiteConfig = {
         isFree: false,
         isLifetime: false,
         recommended: true,
-      },
-      lifetime: {
-        id: 'lifetime',
-        prices: [
-          {
-            type: PaymentTypes.ONE_TIME,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME!,
-            amount: 19900,
-            currency: 'USD',
-            allowPromotionCode: true,
-          },
-        ],
-        isFree: false,
-        isLifetime: true,
       },
     },
   },

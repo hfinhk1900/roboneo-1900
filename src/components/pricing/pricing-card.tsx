@@ -88,11 +88,16 @@ export function PricingCard({
     formattedPrice = t('freePrice');
   } else if (price && price.amount > 0) {
     // price is available
-    formattedPrice = formatPrice(price.amount, price.currency);
     if (interval === PlanIntervals.MONTH) {
+      formattedPrice = formatPrice(price.amount, price.currency);
       priceLabel = t('perMonth');
     } else if (interval === PlanIntervals.YEAR) {
-      priceLabel = t('perYear');
+      // 显示月均价格（年付总价÷12）
+      const monthlyPrice = Math.round(price.amount / 12);
+      formattedPrice = formatPrice(monthlyPrice, price.currency);
+      priceLabel = t('perMonth');
+    } else {
+      formattedPrice = formatPrice(price.amount, price.currency);
     }
   } else {
     formattedPrice = t('notAvailable');
@@ -146,6 +151,12 @@ export function PricingCard({
           {priceLabel && <span className="text-2xl">{priceLabel}</span>}
         </div>
 
+        {interval === PlanIntervals.YEAR && (
+          <p className="text-sm text-muted-foreground -mt-2 mb-2">
+            {t('yearlyBilled')}
+          </p>
+        )}
+
         <CardDescription>
           <p className="text-sm">{plan.description}</p>
         </CardDescription>
@@ -166,7 +177,7 @@ export function PricingCard({
         ) : isCurrentPlan ? (
           <Button
             disabled
-            className="mt-4 w-full bg-blue-100 dark:bg-blue-800 
+            className="mt-4 w-full bg-blue-100 dark:bg-blue-800
           text-blue-700 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-800 border border-blue-200 dark:border-blue-700"
           >
             {t('yourCurrentPlan')}
@@ -203,7 +214,7 @@ export function PricingCard({
         {hasTrialPeriod && (
           <div className="my-4">
             <span
-              className="inline-block px-2.5 py-1.5 text-xs font-medium rounded-md 
+              className="inline-block px-2.5 py-1.5 text-xs font-medium rounded-md
             bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800 shadow-sm"
             >
               {t('daysTrial', { days: price.trialPeriodDays as number })}

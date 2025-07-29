@@ -31,6 +31,7 @@ export const createCheckoutAction = actionClient
   .schema(checkoutSchema)
   .action(async ({ parsedInput }) => {
     const { userId, planId, priceId, metadata } = parsedInput;
+    console.log('Server: Creating checkout session for:', { userId, planId, priceId });
 
     // Get the current user session for authorization
     const session = await getSession();
@@ -62,6 +63,7 @@ export const createCheckoutAction = actionClient
       // Check if plan exists
       const plan = findPlanByPlanId(planId);
       if (!plan) {
+        console.error(`Plan with ID ${planId} not found`);
         return {
           success: false,
           error: 'Plan not found',
@@ -101,14 +103,15 @@ export const createCheckoutAction = actionClient
         locale,
       };
 
+      console.log('Server: Calling createCheckout with:', JSON.stringify(params, null, 2));
       const result = await createCheckout(params);
-      // console.log('create checkout session result:', result);
+      console.log('Server: createCheckout result:', JSON.stringify(result, null, 2));
       return {
         success: true,
         data: result,
       };
     } catch (error) {
-      console.error('create checkout session error:', error);
+      console.error('Server: create checkout session error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Something went wrong',

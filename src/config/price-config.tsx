@@ -57,19 +57,19 @@ export function getPricePlans(): Record<string, PricePlan> {
     };
   }
 
-  if (priceConfig.plans.lifetime) {
-    plans.lifetime = {
-      ...priceConfig.plans.lifetime,
-      name: t('lifetime.name'),
-      description: t('lifetime.description'),
+  if (priceConfig.plans.ultimate) {
+    plans.ultimate = {
+      ...priceConfig.plans.ultimate,
+      name: t('ultimate.name'),
+      description: t('ultimate.description'),
       features: [
-        t('lifetime.features.feature-1'),
-        t('lifetime.features.feature-2'),
-        t('lifetime.features.feature-3'),
-        t('lifetime.features.feature-4'),
-        t('lifetime.features.feature-5'),
-        t('lifetime.features.feature-6'),
-        t('lifetime.features.feature-7'),
+        t('ultimate.features.feature-1'),
+        t('ultimate.features.feature-2'),
+        t('ultimate.features.feature-3'),
+        t('ultimate.features.feature-4'),
+        t('ultimate.features.feature-5'),
+        t('ultimate.features.feature-6'),
+        t('ultimate.features.feature-7'),
       ],
       limits: [],
     };
