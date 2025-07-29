@@ -22,9 +22,15 @@ import { PlanIntervals } from '@/payment/types';
 import { Routes } from '@/routes';
 import { RefreshCwIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
 
 export default function BillingCard() {
   const t = useTranslations('Dashboard.settings.billing');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const {
     isLoading: isLoadingPayment,
@@ -65,6 +71,22 @@ export default function BillingCard() {
   // Determine if we are in a loading state
   const isPageLoading = isLoadingPayment || isLoadingSession;
   // console.log('billing card, isLoadingPayment', isLoadingPayment, 'isLoadingSession', isLoadingSession);
+
+  // 如果在客户端渲染之前，返回一个简单的加载状态
+  if (!isClient) {
+    return (
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-6 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Render loading skeleton
   if (isPageLoading) {
@@ -121,11 +143,7 @@ export default function BillingCard() {
   if (!currentPlanFromStore) {
     return (
       <div className="grid gap-8 md:grid-cols-2">
-        <Card
-          className={cn(
-            'w-full max-w-lg md:max-w-xl overflow-hidden pt-6 pb-0 flex flex-col'
-          )}
-        >
+        <Card className="w-full max-w-lg md:max-w-xl overflow-hidden pt-6 pb-0 flex flex-col">
           <CardHeader>
             <CardTitle>{t('currentPlan.title')}</CardTitle>
             <CardDescription>{t('currentPlan.description')}</CardDescription>
@@ -145,17 +163,9 @@ export default function BillingCard() {
     );
   }
 
-  // console.log('billing card, currentPlan', currentPlan);
-  // console.log('billing card, subscription', subscription);
-  // console.log('billing card, currentUser', currentUser);
-
   return (
     <div className="grid md:grid-cols-2 gap-8">
-      <Card
-        className={cn(
-          'w-full max-w-lg md:max-w-xl overflow-hidden pt-6 pb-0 flex flex-col'
-        )}
-      >
+      <Card className="w-full max-w-lg md:max-w-xl overflow-hidden pt-6 pb-0 flex flex-col">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
             {t('currentPlan.title')}
