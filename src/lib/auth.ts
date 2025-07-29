@@ -79,10 +79,10 @@ export const auth = betterAuth({
   },
   socialProviders: {
     // https://www.better-auth.com/docs/authentication/github
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
+    // github: {
+    //   clientId: process.env.GITHUB_CLIENT_ID!,
+    //   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    // },
     // https://www.better-auth.com/docs/authentication/google
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -93,7 +93,7 @@ export const auth = betterAuth({
     // https://www.better-auth.com/docs/concepts/users-accounts#account-linking
     accountLinking: {
       enabled: true,
-      trustedProviders: ['google', 'github'],
+      trustedProviders: ['google'],
     },
   },
   user: {

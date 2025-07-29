@@ -70,7 +70,7 @@ export const websiteConfig: WebsiteConfig = {
   },
   auth: {
     enableGoogleLogin: true,
-    enableGithubLogin: true,
+    enableGithubLogin: false,
   },
   i18n: {
     defaultLocale: 'en',
@@ -156,6 +156,21 @@ export const websiteConfig: WebsiteConfig = {
         isFree: false,
         isLifetime: false,
         recommended: true,
+      },
+      lifetime: {
+        id: 'lifetime',
+        prices: [
+          {
+            type: PaymentTypes.ONE_TIME,
+            priceId: 'price_lifetime', // 占位符，可以在需要时替换为实际的Stripe价格ID
+            amount: 29900, // $299.00
+            currency: 'USD',
+            // 对于一次性付款，不需要指定interval
+          },
+        ],
+        isFree: false,
+        isLifetime: true,
+        recommended: false,
       },
     },
   },
