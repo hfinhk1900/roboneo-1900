@@ -1,4 +1,5 @@
 import {
+  Barlow,
   Bricolage_Grotesque,
   Inter,
   Noto_Sans,
@@ -71,4 +72,12 @@ export const fontBricolageGrotesque = Bricolage_Grotesque({
   display: 'swap',
   variable: '--font-bricolage-grotesque',
   weight: ['400', '500', '600', '700'],
+});
+
+// https://fonts.google.com/specimen/Barlow
+export const fontBarlow = Barlow({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-barlow',
+  weight: ['400', '500', '600', '700', '800'],
 });

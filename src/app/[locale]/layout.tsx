@@ -1,5 +1,6 @@
 import { Analytics } from '@/analytics/analytics';
 import {
+  fontBarlow,
   fontBricolageGrotesque,
   fontInter,
   fontNotoSans,
@@ -55,7 +56,8 @@ export default async function LocaleLayout({
           fontInter.className,
           fontNotoSerif.variable,
           fontNotoSansMono.variable,
-          fontBricolageGrotesque.variable
+          fontBricolageGrotesque.variable,
+          fontBarlow.variable
         )}
       >
         <NextIntlClientProvider>

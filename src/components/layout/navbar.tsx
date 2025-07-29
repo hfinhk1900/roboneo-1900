@@ -75,7 +75,7 @@ export function Navbar({ scroll }: NavBarProps) {
           <div className="flex items-center">
             <LocaleLink href="/" className="flex items-center space-x-2">
               <Logo />
-              <span className="text-xl font-semibold">
+              <span className="text-xl font-extrabold font-barlow">
                 {t('Metadata.name')}
               </span>
             </LocaleLink>
