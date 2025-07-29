@@ -106,6 +106,13 @@ export const websiteConfig: WebsiteConfig = {
   },
   price: {
     plans: {
+      free: {
+        id: 'free',
+        prices: [],
+        isFree: true,
+        isLifetime: false,
+        recommended: false,
+      },
       pro: {
         id: 'pro',
         prices: [

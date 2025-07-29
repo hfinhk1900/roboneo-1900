@@ -56,6 +56,21 @@
     }
   },
   "PricePlans": {
+    "free": {
+      "name": "免费版",
+      "description": "个人使用的基本功能",
+      "features": {
+        "feature-1": "最多3个项目",
+        "feature-2": "1GB存储空间",
+        "feature-3": "基础分析功能",
+        "feature-4": "社区支持"
+      },
+      "limits": {
+        "limit-1": "功能访问受限",
+        "limit-2": "不支持自定义域名",
+        "limit-3": "基础AI功能"
+      }
+    },
     "pro": {
       "name": "专业版",
       "description": "专业人士的高级功能",

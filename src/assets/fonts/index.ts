@@ -1,5 +1,6 @@
 import {
   Bricolage_Grotesque,
+  Inter,
   Noto_Sans,
   Noto_Sans_Mono,
   Noto_Serif,
@@ -32,6 +33,14 @@ import {
  * - CSS and font files are downloaded at build time and self-hosted with the rest of your static assets.
  * https://nextjs.org/docs/app/building-your-application/optimizing/fonts#google-fonts
  */
+// https://fonts.google.com/specimen/Inter
+export const fontInter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+});
+
 // https://fonts.google.com/noto/specimen/Noto+Sans
 export const fontNotoSans = Noto_Sans({
   subsets: ['latin'],

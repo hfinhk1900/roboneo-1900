@@ -10,6 +10,7 @@ import { eq } from 'drizzle-orm';
 import { getLocale } from 'next-intl/server';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
+import { payment } from '@/db/schema';
 
 // Create a safe action client
 const actionClient = createSafeActionClient();
@@ -55,6 +56,9 @@ export const createPortalAction = actionClient
     }
 
     try {
+      // Get the current locale from the request
+      const locale = await getLocale();
+
       // Get the user's customer ID from the database
       const db = await getDb();
       const customerResult = await db
@@ -63,16 +67,55 @@ export const createPortalAction = actionClient
         .where(eq(user.id, session.user.id))
         .limit(1);
 
+      console.log(`查询用户 ${session.user.id} 的客户ID结果:`, customerResult);
+
       if (customerResult.length <= 0 || !customerResult[0].customerId) {
-        console.error(`No customer found for user ${session.user.id}`);
+        console.error(`未找到用户 ${session.user.id} 的客户ID`);
+
+        // 检查用户是否有任何支付记录
+        const paymentResults = await db
+          .select()
+          .from(payment)
+          .where(eq(payment.userId, session.user.id))
+          .limit(1);
+
+        console.log(`用户 ${session.user.id} 的支付记录:`, paymentResults);
+
+        if (paymentResults.length > 0) {
+          // 用户有支付记录但没有客户ID，尝试更新用户的客户ID
+          const stripeCustomerId = paymentResults[0].customerId;
+          console.log(`从支付记录中找到客户ID: ${stripeCustomerId}，尝试更新用户记录`);
+
+          if (stripeCustomerId) {
+            await db.update(user)
+              .set({ customerId: stripeCustomerId })
+              .where(eq(user.id, session.user.id));
+
+            console.log(`已更新用户 ${session.user.id} 的客户ID为 ${stripeCustomerId}`);
+
+            // 使用找到的客户ID继续创建门户
+            const returnUrlWithLocale =
+              returnUrl || getUrlWithLocale('/settings/billing', locale);
+            const params: CreatePortalParams = {
+              customerId: stripeCustomerId,
+              returnUrl: returnUrlWithLocale,
+              locale,
+            };
+
+            console.log(`使用从支付记录中找到的客户ID创建客户门户:`, params);
+            const result = await createCustomerPortal(params);
+            return {
+              success: true,
+              data: result,
+            };
+          }
+        }
+
         return {
           success: false,
-          error: 'No customer found for user',
+          error: '未找到用户的客户ID，请先订阅或进行付款',
         };
       }
-
-      // Get the current locale from the request
-      const locale = await getLocale();
 
       // Create the portal session with localized URL if no custom return URL is provided
       const returnUrlWithLocale =
@@ -83,8 +126,10 @@ export const createPortalAction = actionClient
         locale,
       };
 
+      console.log(`创建客户门户的参数:`, params);
       const result = await createCustomerPortal(params);
-      // console.log('create customer portal result:', result);
+      console.log('创建客户门户的结果:', result);
+
       return {
         success: true,
         data: result,

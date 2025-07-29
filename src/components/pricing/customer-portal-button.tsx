@@ -46,6 +46,7 @@ export function CustomerPortalButton({
   const handleClick = async () => {
     try {
       setIsLoading(true);
+      console.log(`尝试为用户 ${userId} 创建客户门户会话`);
 
       // Create customer portal session using server action
       const result = await createPortalAction({
@@ -53,15 +54,22 @@ export function CustomerPortalButton({
         returnUrl,
       });
 
+      console.log('客户门户创建结果:', result);
+
       // Redirect to customer portal
       if (result?.data?.success && result.data.data?.url) {
+        console.log(`成功获取客户门户URL，准备重定向到: ${result.data.data.url}`);
         window.location.href = result.data.data?.url;
       } else {
-        console.error('Create customer portal error, result:', result);
-        toast.error(t('createCustomerPortalFailed'));
+        console.error('创建客户门户失败，返回结果:', JSON.stringify(result, null, 2));
+        if (result?.data?.error) {
+          toast.error(`${t('createCustomerPortalFailed')}: ${result.data.error}`);
+        } else {
+          toast.error(t('createCustomerPortalFailed'));
+        }
       }
     } catch (error) {
-      console.error('Create customer portal error:', error);
+      console.error('创建客户门户时发生错误:', error);
       toast.error(t('createCustomerPortalFailed'));
     } finally {
       setIsLoading(false);

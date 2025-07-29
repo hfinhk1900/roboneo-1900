@@ -9,7 +9,17 @@ import { routing } from './routing';
 export { default as defaultMessages } from '../../messages/en.json';
 
 const importLocale = async (locale: Locale): Promise<Messages> => {
-  return (await import(`../../messages/${locale}.json`)).default as Messages;
+  try {
+    return (await import(`../../messages/${locale}.json`)).default as Messages;
+  } catch (error) {
+    console.error(`Failed to load locale ${locale}:`, error);
+    // Fall back to default locale if the requested one fails
+    if (locale !== routing.defaultLocale) {
+      console.warn(`Falling back to default locale ${routing.defaultLocale}`);
+      return (await import(`../../messages/${routing.defaultLocale}.json`)).default as Messages;
+    }
+    throw error; // Re-throw if we're already trying to load the default locale
+  }
 };
 
 // Instead of using top-level await, create a function to get default messages

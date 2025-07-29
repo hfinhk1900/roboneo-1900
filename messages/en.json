@@ -56,6 +56,21 @@
     }
   },
   "PricePlans": {
+    "free": {
+      "name": "Free",
+      "description": "Basic features for personal use",
+      "features": {
+        "feature-1": "Up to 3 projects",
+        "feature-2": "1 GB storage",
+        "feature-3": "Basic analytics",
+        "feature-4": "Community support"
+      },
+      "limits": {
+        "limit-1": "Limited access to features",
+        "limit-2": "No custom domains",
+        "limit-3": "Basic AI capabilities"
+      }
+    },
     "pro": {
       "name": "Pro",
       "description": "Advanced features for professionals",
