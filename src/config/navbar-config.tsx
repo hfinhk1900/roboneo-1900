@@ -50,6 +50,12 @@ export function getNavbarLinks(): NestedMenuItem[] {
 
   return [
     {
+      title: 'Text to Image',
+      href: Routes.AIImage,
+      external: false,
+      icon: <ImageIcon className="size-4 shrink-0" />,
+    },
+    {
       title: t('features.title'),
       href: Routes.Features,
       external: false,
