@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 /*
  * 1. Themes Documentation
  * https://mksaas.com/docs/themes
@@ -20,7 +18,59 @@
  * 3. How to Add a Theme Selector to Your Next.js App
  * https://ouassim.tech/notes/how-to-add-a-theme-selector-to-your-nextjs-app/
  */
-@theme inline {
+
+/* 将主题变量定义移至:root */
+
+:root {
+  /* 原始变量定义 */
+  --background: oklch(0.9900 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(0.9900 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.8553 0.1751 92.9734);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.9700 0.0010 106.4240);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.9700 0 0);
+  --muted-foreground: oklch(0.4400 0 0);
+  --accent: oklch(0.9400 0 0);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.6300 0.1900 23.0300);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9670 0.0010 286.3750);
+  --input: oklch(0.9400 0 0);
+  --ring: oklch(0 0 0);
+  --chart-1: oklch(0.8100 0.1700 75.3500);
+  --chart-2: oklch(0.5500 0.2200 264.5300);
+  --chart-3: oklch(0.7200 0 0);
+  --chart-4: oklch(0.9200 0 0);
+  --chart-5: oklch(0.5600 0 0);
+  --sidebar: oklch(0.9900 0 0);
+  --sidebar-foreground: oklch(0 0 0);
+  --sidebar-primary: oklch(0 0 0);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9400 0 0);
+  --sidebar-accent-foreground: oklch(0 0 0);
+  --sidebar-border: oklch(0.9400 0 0);
+  --sidebar-ring: oklch(0 0 0);
+  --font-sans: Geist, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Geist Mono, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+  --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+  --shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+  --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
+  --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
+  --shadow-xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
+  --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Tailwind使用的颜色变量映射 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -54,10 +104,10 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  --font-barlow: var(--font-barlow);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
-  --font-barlow: var(--font-barlow);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -184,55 +234,6 @@
   }
 }
 
-:root {
-  --background: oklch(0.9900 0 0);
-  --foreground: oklch(0 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0 0 0);
-  --popover: oklch(0.9900 0 0);
-  --popover-foreground: oklch(0 0 0);
-  --primary: oklch(0.8553 0.1751 92.9734);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.9700 0.0010 106.4240);
-  --secondary-foreground: oklch(0 0 0);
-  --muted: oklch(0.9700 0 0);
-  --muted-foreground: oklch(0.4400 0 0);
-  --accent: oklch(0.9400 0 0);
-  --accent-foreground: oklch(0 0 0);
-  --destructive: oklch(0.6300 0.1900 23.0300);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9670 0.0010 286.3750);
-  --input: oklch(0.9400 0 0);
-  --ring: oklch(0 0 0);
-  --chart-1: oklch(0.8100 0.1700 75.3500);
-  --chart-2: oklch(0.5500 0.2200 264.5300);
-  --chart-3: oklch(0.7200 0 0);
-  --chart-4: oklch(0.9200 0 0);
-  --chart-5: oklch(0.5600 0 0);
-  --sidebar: oklch(0.9900 0 0);
-  --sidebar-foreground: oklch(0 0 0);
-  --sidebar-primary: oklch(0 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9400 0 0);
-  --sidebar-accent-foreground: oklch(0 0 0);
-  --sidebar-border: oklch(0.9400 0 0);
-  --sidebar-ring: oklch(0 0 0);
-  --font-sans: Geist, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Geist Mono, monospace;
-  --radius: 0.5rem;
-  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
-  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
-  --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
-  --shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
-  --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
-  --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
-  --shadow-xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
-  --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-}
-
 .dark {
   --background: oklch(0 0 0);
   --foreground: oklch(1 0 0);
@@ -300,11 +301,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring, currentColor) 50%, transparent);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   .font-barlow {
@@ -313,7 +316,8 @@
 }
 
 body {
-  @apply overscroll-none bg-transparent;
+  overscroll-behavior: none;
+  background-color: transparent;
 }
 
 .text-gradient_indigo-purple {
@@ -331,48 +335,45 @@ body {
  * 2. we suggest always using the default theme for better user experience,
  * and then override the .theme-default to customize the theme
  */
-.theme-default {
-  /* default theme */
-}
 
 .theme-neutral {
   --primary: var(--color-neutral-600);
   --primary-foreground: var(--color-neutral-50);
+}
 
-  @variant dark {
-    --primary: var(--color-neutral-500);
-    --primary-foreground: var(--color-neutral-50);
-  }
+.dark .theme-neutral {
+  --primary: var(--color-neutral-500);
+  --primary-foreground: var(--color-neutral-50);
 }
 
 .theme-blue {
   --primary: var(--color-blue-600);
   --primary-foreground: var(--color-blue-50);
+}
 
-  @variant dark {
-    --primary: var(--color-blue-500);
-    --primary-foreground: var(--color-blue-50);
-  }
+.dark .theme-blue {
+  --primary: var(--color-blue-500);
+  --primary-foreground: var(--color-blue-50);
 }
 
 .theme-green {
   --primary: var(--color-lime-600);
   --primary-foreground: var(--color-lime-50);
+}
 
-  @variant dark {
-    --primary: var(--color-lime-600);
-    --primary-foreground: var(--color-lime-50);
-  }
+.dark .theme-green {
+  --primary: var(--color-lime-600);
+  --primary-foreground: var(--color-lime-50);
 }
 
 .theme-amber {
   --primary: var(--color-amber-600);
   --primary-foreground: var(--color-amber-50);
+}
 
-  @variant dark {
-    --primary: var(--color-amber-500);
-    --primary-foreground: var(--color-amber-50);
-  }
+.dark .theme-amber {
+  --primary: var(--color-amber-500);
+  --primary-foreground: var(--color-amber-50);
 }
 
 /**
@@ -405,4 +406,25 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
 /* Additional safety for any empty Fumadocs banner */
 [class*="fd-secondary"]:empty:not([data-banner-content]) {
   display: none !important;
+}
+
+/* 添加按钮样式直接覆盖 */
+
+/* 按钮样式覆盖 */
+button[data-slot="button"],
+.button[data-slot="button"] {
+  --tw-bg-opacity: 1;
+  background-color: oklch(0.8553 0.1751 92.9734) !important;
+}
+
+button[data-slot="button"]:hover,
+.button[data-slot="button"]:hover {
+  --tw-bg-opacity: 0.9;
+  background-color: oklch(0.8553 0.1751 92.9734 / var(--tw-bg-opacity)) !important;
+}
+
+.dark button[data-slot="button"],
+.dark .button[data-slot="button"] {
+  --tw-bg-opacity: 1;
+  background-color: oklch(1 0 0) !important;
 }

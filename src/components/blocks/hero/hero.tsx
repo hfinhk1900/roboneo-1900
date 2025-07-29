@@ -1,11 +1,18 @@
-import { Ripple } from '@/components/magicui/ripple';
+"use client";
+
+import { useImageGeneration } from '@/ai/image/hooks/use-image-generation';
+import { PROVIDER_ORDER, type ProviderKey, initializeProviderRecord } from '@/ai/image/lib/provider-config';
 import { AnimatedGroup } from '@/components/tailark/motion/animated-group';
 import { TextEffect } from '@/components/tailark/motion/text-effect';
 import { Button } from '@/components/ui/button';
-import { LocaleLink } from '@/i18n/navigation';
-import { ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { ImageIcon, LoaderIcon, SparklesIcon, UploadIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const transitionVariants = {
   item: {
@@ -29,160 +36,220 @@ const transitionVariants = {
 
 export default function HeroSection() {
   const t = useTranslations('HomePage.hero');
-  const linkIntroduction = 'https://x.com/mksaascom';
-  const linkPrimary = '/#pricing';
-  const linkSecondary = 'https://demo.mksaas.com';
+  const [prompt, setPrompt] = useState('');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState('ios');
+
+  // Initialize image generation hook
+  const {
+    images,
+    isLoading,
+    startGeneration,
+    resetState,
+  } = useImageGeneration();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedImage(file);
+
+    // Create a preview URL
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+
+    // Clean up the URL when component unmounts
+    return () => URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleGenerate = async () => {
+    resetState();
+
+    // For image to sticker, this would typically call a different API
+    // For now, we'll simulate with a timeout
+    // In a real implementation, you'd upload the image and get back a processed version
+  };
 
   return (
-    <>
-      <main id="hero" className="overflow-hidden">
-        {/* background, light shadows on top of the hero section */}
-        <div
-          aria-hidden
-          className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
-        >
-          <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
-          <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
-          <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
-        </div>
+    <main id="hero" className="overflow-hidden py-12">
+      {/* background, light shadows on top of the hero section */}
+      <div
+        aria-hidden
+        className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
+      >
+        <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
+        <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
+        <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
+      </div>
 
-        <section>
-          <div className="relative pt-12">
-            <div className="mx-auto max-w-7xl px-6">
-              <Ripple />
+      <div className="mx-auto max-w-7xl px-6">
+        <AnimatedGroup variants={transitionVariants}>
+          <div className="text-center sm:mx-auto lg:mr-auto">
+            {/* title */}
+            <TextEffect
+              per="line"
+              preset="fade-in-blur"
+              speedSegment={0.3}
+              as="h1"
+              className="text-balance text-3xl font-barlow font-extrabold md:text-4xl xl:text-5xl"
+            >
+              RoboNeo AI Image Generator - Text & Photo to Art in Seconds
+            </TextEffect>
 
-              <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
-                {/* introduction */}
-                <AnimatedGroup variants={transitionVariants}>
-                  <LocaleLink
-                    href={linkIntroduction}
-                    className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
+            {/* description */}
+            <TextEffect
+              per="line"
+              preset="fade-in-blur"
+              speedSegment={0.3}
+              delay={0.5}
+              as="p"
+              className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground"
+            >
+              Upload any photo—Roboneo's AI instantly crops, cartoonizes, and outlines it into a sticker. Fast, browser-based, and beginner-friendly.
+            </TextEffect>
+          </div>
+        </AnimatedGroup>
+
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left side: Image Input */}
+          <div>
+            <Card className="relative overflow-hidden border shadow-md rounded-2xl">
+              <CardContent className="pt-3 px-6 pb-6 space-y-5">
+                <div className="pb-1 pt-0">
+                  <h3 className="text-xl font-semibold mb-0.5">Image to Sticker</h3>
+                  <p className="text-muted-foreground">Transform your photos into beautiful stickers in seconds</p>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <Label htmlFor="image-upload" className="text-sm font-medium">Upload Image</Label>
+                    <div className={cn(
+                      "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2",
+                      "hover:bg-muted/50 transition-colors cursor-pointer h-48",
+                      previewUrl ? "border-primary" : "border-border"
+                    )}>
+                      {previewUrl ? (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={previewUrl}
+                            alt="Preview"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <UploadIcon className="h-10 w-10 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">Click or drag to upload</p>
+                        </>
+                      )}
+                      <Input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Style</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        variant={selectedStyle === 'ios' ? 'default' : 'outline'}
+                        className="justify-start gap-2 h-14"
+                        onClick={() => setSelectedStyle('ios')}
+                      >
+                        <span className="text-xl">🍎</span>
+                        IOS Sticker Style
+                      </Button>
+                      <Button
+                        variant={selectedStyle === 'cartoon' ? 'default' : 'outline'}
+                        className="justify-start gap-2 h-14"
+                        onClick={() => setSelectedStyle('cartoon')}
+                      >
+                        <span className="text-xl">🎨</span>
+                        Cartoon Style
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleGenerate}
+                    className="w-full font-semibold h-14 text-base"
+                    disabled={!selectedImage || isLoading}
                   >
-                    <span className="text-foreground text-sm">
-                      {t('introduction')}
-                    </span>
-                    {/* <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span> */}
+                    {isLoading ? (
+                      <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                    )}
+                    {isLoading ? 'Generating...' : 'Generate My Sticker'}
+                  </Button>
 
-                    <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                      <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                        <span className="flex size-6">
-                          <ArrowRight className="m-auto size-3" />
-                        </span>
-                        <span className="flex size-6">
-                          <ArrowRight className="m-auto size-3" />
-                        </span>
+                  {/* Credit info */}
+                  <div className="flex items-center justify-between pt-3 border-t text-sm text-muted-foreground">
+                    <span>1 Credit</span>
+                    <span>Powered by RoboNeo</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right side: Output */}
+          <div>
+            <Card className="border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl">
+              <CardContent className="p-6 flex-grow flex flex-col items-center justify-center space-y-4 relative">
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="relative h-16 w-16 animate-pulse">
+                      <LoaderIcon className="h-16 w-16 animate-spin text-primary" />
+                    </div>
+                    <p className="text-center text-muted-foreground">
+                      Generating your sticker...
+                    </p>
+                  </div>
+                ) : images.length > 0 && images[0]?.image ? (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <Image
+                      src={images[0].image}
+                      alt="Generated image"
+                      width={400}
+                      height={400}
+                      className="object-contain max-h-full rounded-lg shadow-md"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="rounded-full bg-muted p-4">
+                        <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                      </div>
+                      <div className="text-center space-y-1">
+                        <h3 className="text-lg font-medium">Image to Sticker</h3>
+                        <p className="text-sm text-muted-foreground px-4">
+                          Upload a photo to transform it into a beautiful sticker with AI
+                        </p>
                       </div>
                     </div>
-                  </LocaleLink>
-                </AnimatedGroup>
 
-                {/* title */}
-                <TextEffect
-                  per="line"
-                  preset="fade-in-blur"
-                  speedSegment={0.3}
-                  as="h1"
-                  className="mt-8 text-balance text-5xl font-bricolage-grotesque lg:mt-16 xl:text-[5rem]"
-                >
-                  {t('title')}
-                </TextEffect>
-
-                {/* description */}
-                <TextEffect
-                  per="line"
-                  preset="fade-in-blur"
-                  speedSegment={0.3}
-                  delay={0.5}
-                  as="p"
-                  className="mx-auto mt-8 max-w-4xl text-balance text-lg text-muted-foreground"
-                >
-                  {t('description')}
-                </TextEffect>
-
-                {/* action buttons */}
-                <AnimatedGroup
-                  variants={{
-                    container: {
-                      visible: {
-                        transition: {
-                          staggerChildren: 0.05,
-                          delayChildren: 0.75,
-                        },
-                      },
-                    },
-                    ...transitionVariants,
-                  }}
-                  className="mt-12 flex flex-row items-center justify-center gap-4"
-                >
-                  <div
-                    key={1}
-                    className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5"
-                  >
                     <Button
-                      asChild
-                      size="lg"
-                      className="rounded-xl px-5 text-base"
+                      variant="outline"
+                      className="mt-4 h-12"
                     >
-                      <LocaleLink href={linkPrimary}>
-                        <span className="text-nowrap">{t('primary')}</span>
-                      </LocaleLink>
+                      See examples
                     </Button>
-                  </div>
-                  <Button
-                    key={2}
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="h-10.5 rounded-xl px-5"
-                  >
-                    <LocaleLink href={linkSecondary}>
-                      <span className="text-nowrap">{t('secondary')}</span>
-                    </LocaleLink>
-                  </Button>
-                </AnimatedGroup>
-              </div>
-            </div>
-
-            {/* images */}
-            <AnimatedGroup
-              variants={{
-                container: {
-                  visible: {
-                    transition: {
-                      staggerChildren: 0.05,
-                      delayChildren: 0.75,
-                    },
-                  },
-                },
-                ...transitionVariants,
-              }}
-            >
-              <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
-                <div
-                  aria-hidden
-                  className="bg-linear-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
-                />
-                <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg shadow-zinc-950/15 ring-1">
-                  <Image
-                    className="bg-background relative hidden rounded-2xl dark:block"
-                    src="/blocks/music.png"
-                    alt="app screen"
-                    width={2796}
-                    height={2008}
-                  />
-                  <Image
-                    className="z-2 border-border/25 relative rounded-2xl border dark:hidden"
-                    src="/blocks/music-light.png"
-                    alt="app screen"
-                    width={2796}
-                    height={2008}
-                  />
-                </div>
-              </div>
-            </AnimatedGroup>
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </section>
-      </main>
-    </>
+        </div>
+      </div>
+    </main>
   );
 }
