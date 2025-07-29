@@ -37,7 +37,7 @@ export function PasswordCardWrapper() {
       try {
         // Get the user's linked accounts
         const accounts = await authClient.listAccounts();
-        // console.log('accounts', accounts);
+        console.log('用户关联账户:', accounts);
 
         // Check if the response is successful and contains accounts data
         if ('data' in accounts && Array.isArray(accounts.data)) {
@@ -45,10 +45,13 @@ export function PasswordCardWrapper() {
           const hasCredential = accounts.data.some(
             (account) => account.provider === 'credential'
           );
+          console.log('用户是否有密码凭证:', hasCredential, '账户类型:', accounts.data.map(acc => acc.provider));
           setHasCredentialProvider(hasCredential);
+        } else {
+          console.warn('获取用户账户失败，响应格式不符合预期:', accounts);
         }
       } catch (error) {
-        console.error('Error checking credential provider:', error);
+        console.error('检查用户凭证时出错:', error);
       } finally {
         setIsLoading(false);
       }

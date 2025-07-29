@@ -104,7 +104,16 @@ export function UpdatePasswordCard({ className }: UpdatePasswordCardProps) {
           // update password fail, display the error message
           // { "message": "Invalid password", "code": "INVALID_PASSWORD", "status": 400, "statusText": "BAD_REQUEST" }
           console.error('update password error:', ctx.error);
-          setError(`${ctx.error.status}: ${ctx.error.message}`);
+
+          // 改进错误处理，确保即使是空对象也能显示有意义的错误
+          if (ctx.error && Object.keys(ctx.error).length > 0) {
+            const errorMessage = ctx.error.message || ctx.error.code || JSON.stringify(ctx.error);
+            setError(`${ctx.error.status || ''}: ${errorMessage}`);
+          } else {
+            // 处理空错误对象的情况
+            setError('密码更新失败，请确保当前密码正确且新密码符合要求（至少8个字符）');
+          }
+
           toast.error(t('fail'));
         },
       }

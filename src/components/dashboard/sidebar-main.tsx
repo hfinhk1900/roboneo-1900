@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -16,6 +18,17 @@ import type { NestedMenuItem } from '@/types';
  */
 export function SidebarMain({ items }: { items: NestedMenuItem[] }) {
   const pathname = useLocalePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // 只在客户端渲染后再显示内容，避免水合不匹配
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 如果未挂载完成，返回占位结构
+  if (!mounted) {
+    return null;
+  }
 
   // Function to check if a path is active
   const isActive = (href: string | undefined): boolean => {
