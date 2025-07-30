@@ -229,26 +229,34 @@ export default function HeroSection() {
                     />
                   </div>
                 ) : (
-                  <>
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <div className="rounded-full bg-muted p-4">
-                        <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                      </div>
-                      <div className="text-center space-y-1">
-                        <h3 className="text-lg font-medium">Image to Sticker</h3>
-                        <p className="text-sm text-muted-foreground px-4">
-                          Upload a photo to transform it into a beautiful sticker with AI
-                        </p>
-                </div>
-              </div>
-
-                    <Button
-                      variant="outline"
-                      className="mt-4 h-[50px] rounded-2xl"
-                    >
-                      See examples
-                    </Button>
-                  </>
+          <div className="relative">
+            <Image
+              src="/hero-1.png"
+              alt="Example transformation - Photo to sticker"
+              width={400}
+              height={400}
+              className="object-contain max-h-full rounded-lg shadow-md"
+            />
+            <Image
+              src="/hero-2.png"
+              alt="Decorative camera icon"
+              width={120}
+              height={120}
+              className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
+            />
+            <Image
+              src="/hero-3.png"
+              alt="Decorative plant icon"
+              width={120}
+              height={120}
+              className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
+            />
+            <img
+              src="/hero-video2.gif"
+              alt="Hero animation"
+              className="absolute bottom-0 right-[-2rem] w-56 h-auto rounded-lg object-contain bg-transparent opacity-90"
+            />
+          </div>
                 )}
               </CardContent>
             </Card>
