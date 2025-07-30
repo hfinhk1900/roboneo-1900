@@ -251,9 +251,12 @@ export default function HeroSection() {
               height={120}
               className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
             />
-            <img
-              src="/hero-video2.gif"
-              alt="Hero animation"
+            <video
+              src="/hero-video2.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
               className="absolute bottom-0 right-[-2rem] w-56 h-auto rounded-lg object-contain bg-transparent opacity-90"
             />
           </div>
