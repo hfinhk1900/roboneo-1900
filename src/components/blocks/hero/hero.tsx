@@ -2,8 +2,6 @@
 
 import { useImageGeneration } from '@/ai/image/hooks/use-image-generation';
 import { PROVIDER_ORDER, type ProviderKey, initializeProviderRecord } from '@/ai/image/lib/provider-config';
-import { AnimatedGroup } from '@/components/tailark/motion/animated-group';
-import { TextEffect } from '@/components/tailark/motion/text-effect';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,26 +19,6 @@ const styleOptions = [
   { value: 'lego', label: 'LEGO Minifigure Style', icon: '/lego-style.png' },
   { value: 'snoopy', label: 'Snoopy Style', icon: '/snoopy-style.png' },
 ];
-
-const transitionVariants = {
-  item: {
-    hidden: {
-      opacity: 0,
-      filter: 'blur(12px)',
-      y: 12,
-    },
-    visible: {
-      opacity: 1,
-      filter: 'blur(0px)',
-      y: 0,
-      transition: {
-        type: 'spring',
-        bounce: 0.3,
-        duration: 1.5,
-      },
-    },
-  },
-};
 
 export default function HeroSection() {
   const t = useTranslations('HomePage.hero');
@@ -94,32 +72,17 @@ export default function HeroSection() {
         </div>
 
             <div className="mx-auto max-w-7xl px-6">
-                <AnimatedGroup variants={transitionVariants}>
           <div className="text-center sm:mx-auto lg:mr-auto">
                 {/* title */}
-                <TextEffect
-                  per="line"
-                  preset="fade-in-blur"
-                  speedSegment={0.3}
-                  as="h1"
-              className="text-balance text-3xl font-barlow font-extrabold md:text-4xl xl:text-5xl"
-                >
-              RoboNeo AI Image Generator - Text & Photo to Art in Seconds
-                </TextEffect>
+                <h1 className="text-balance text-3xl font-barlow font-extrabold md:text-4xl xl:text-5xl">
+                  RoboNeo AI Image Generator - Text & Photo to Art in Seconds
+                </h1>
 
                 {/* description */}
-                <TextEffect
-                  per="line"
-                  preset="fade-in-blur"
-                  speedSegment={0.3}
-                  delay={0.5}
-                  as="p"
-              className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground"
-                >
-              Upload any photo—Roboneo's AI instantly crops, cartoonizes, and outlines it into a sticker. Fast, browser-based, and beginner-friendly.
-                </TextEffect>
+                <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
+                  Upload any photo—Roboneo's AI instantly crops, cartoonizes, and outlines it into a sticker. Fast, browser-based, and beginner-friendly.
+                </p>
           </div>
-        </AnimatedGroup>
 
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Image Input */}
@@ -197,10 +160,9 @@ export default function HeroSection() {
                               value={option.value}
                               className={cn(
                                 "cursor-pointer h-[50px] py-2 px-3 transition-colors",
-                                "hover:bg-accent hover:text-accent-foreground",
-                                "focus:bg-accent focus:text-accent-foreground",
-                                "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-                                selectedStyle === option.value && "bg-accent/50 text-accent-foreground font-medium"
+                                "hover:bg-gray-100 hover:text-gray-900",
+                                "focus:bg-gray-100 focus:text-gray-900",
+                                "data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900"
                               )}
                             >
                               <div className="flex items-center gap-3">
