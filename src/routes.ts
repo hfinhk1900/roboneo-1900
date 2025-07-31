@@ -41,6 +41,9 @@ export enum Routes {
   AIImage = '/ai/image',
   AIVideo = '/ai/video',
   AIAudio = '/ai/audio',
+  AIIllustrator = '/ai/illustrator',
+  AISticker = '/ai/sticker',
+  AIPoster = '/ai/poster',
 
   // block routes
   MagicuiBlocks = '/magicui',

@@ -273,6 +273,23 @@
       "features": {
         "title": "首页"
       },
+      "textToImageGenerator": {
+        "title": "文本转图像生成器",
+        "items": {
+          "illustrator": {
+            "title": "AI 插画生成器",
+            "description": "使用 AI 创建精美插画"
+          },
+          "sticker": {
+            "title": "AI 贴纸生成器",
+            "description": "使用 AI 设计定制贴纸"
+          },
+          "poster": {
+            "title": "AI 海报生成器",
+            "description": "使用 AI 生成吸引眼球的海报"
+          }
+        }
+      },
       "pricing": {
         "title": "价格"
       },

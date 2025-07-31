@@ -61,6 +61,32 @@ export function getNavbarLinks(): NestedMenuItem[] {
       external: false,
     },
     {
+      title: t('textToImageGenerator.title'),
+      items: [
+        {
+          title: t('textToImageGenerator.items.illustrator.title'),
+          description: t('textToImageGenerator.items.illustrator.description'),
+          icon: <ImageIcon className="size-4 shrink-0" />,
+          href: Routes.AIIllustrator,
+          external: false,
+        },
+        {
+          title: t('textToImageGenerator.items.sticker.title'),
+          description: t('textToImageGenerator.items.sticker.description'),
+          icon: <SquarePenIcon className="size-4 shrink-0" />,
+          href: Routes.AISticker,
+          external: false,
+        },
+        {
+          title: t('textToImageGenerator.items.poster.title'),
+          description: t('textToImageGenerator.items.poster.description'),
+          icon: <WandSparklesIcon className="size-4 shrink-0" />,
+          href: Routes.AIPoster,
+          external: false,
+        },
+      ],
+    },
+    {
       title: t('pricing.title'),
       href: Routes.Pricing,
       external: false,
