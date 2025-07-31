@@ -101,36 +101,45 @@ export function PricingTable({
       {(hasMonthlyOption || hasYearlyOption) &&
         subscriptionPlans.length > 0 && (
           <div className="flex justify-center">
-            <ToggleGroup
-              size="sm"
-              type="single"
-              value={interval}
-              onValueChange={(value) => value && handleIntervalChange(value)}
-              className="border rounded-lg p-1"
-            >
-              {hasMonthlyOption && (
-                <ToggleGroupItem
-                  value="month"
-                  className={cn(
-                    'px-3 py-0 cursor-pointer text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
-                >
-                  {t('monthly')}
-                </ToggleGroupItem>
-              )}
+            <div className="relative">
+              <ToggleGroup
+                size="sm"
+                type="single"
+                value={interval}
+                onValueChange={(value) => value && handleIntervalChange(value)}
+                className="border rounded-lg p-1"
+              >
+                {hasMonthlyOption && (
+                  <ToggleGroupItem
+                    value="month"
+                    className={cn(
+                      'px-3 py-0 cursor-pointer text-sm rounded-md',
+                      'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                    )}
+                  >
+                    {t('monthly')}
+                  </ToggleGroupItem>
+                )}
+                {hasYearlyOption && (
+                  <ToggleGroupItem
+                    value="year"
+                    className={cn(
+                      'px-3 py-0 cursor-pointer text-sm rounded-md',
+                      'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                    )}
+                  >
+                    {t('yearly')}
+                  </ToggleGroupItem>
+                )}
+              </ToggleGroup>
+
+              {/* Save 20% 标签放在外面 */}
               {hasYearlyOption && (
-                <ToggleGroupItem
-                  value="year"
-                  className={cn(
-                    'px-3 py-0 cursor-pointer text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
-                >
-                  {t('yearly')}
-                </ToggleGroupItem>
+                <span className="absolute -top-2 -right-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 pointer-events-none z-10">
+                  {t('save20')}
+                </span>
               )}
-            </ToggleGroup>
+            </div>
           </div>
         )}
 
@@ -185,6 +194,13 @@ export function PricingTable({
           </div>
         );
       })()}
+
+      {/* Price disclaimer */}
+      <div className="flex justify-center mt-1">
+        <p className="text-sm text-muted-foreground">
+          {t('disclaimer')}
+        </p>
+      </div>
     </div>
   );
 }

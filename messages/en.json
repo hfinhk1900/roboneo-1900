@@ -36,17 +36,21 @@
     "subtitle": "Choose the plan that works best for you",
     "monthly": "Monthly",
     "yearly": "Yearly",
+    "save20": "Save 20%",
+    "disclaimer": "Prices in USD, VAT/GST may apply at checkout.",
     "PricingCard": {
       "freePrice": "$0",
       "perMonth": "/month",
       "perYear": "/year",
       "yearlyBilled": "billed annually",
-      "popular": "Popular",
+      "popular": "Most Popular",
       "currentPlan": "Current Plan",
       "yourCurrentPlan": "Your Current Plan",
       "getStartedForFree": "Get Started For Free",
       "getLifetimeAccess": "Get Lifetime Access",
       "getStarted": "Get Started",
+      "upgradeToPremium": "Upgrade to Premium",
+      "upgradeToUltimate": "Upgrade to Ultimate",
       "notAvailable": "Not Available",
       "daysTrial": "{days}-day free trial"
     },
@@ -72,31 +76,33 @@
       }
     },
     "pro": {
-      "name": "Pro",
-      "description": "Advanced features for professionals",
+      "name": "Premium",
+      "description": "Basic package for individual users",
       "features": {
-        "feature-1": "Unlimited projects",
-        "feature-2": "10 GB storage",
-        "feature-3": "Advanced analytics",
-        "feature-4": "Priority support",
-        "feature-5": "Custom domains"
+        "feature-1": "200 image generations per month",
+        "feature-2": "High-resolution image download",
+        "feature-3": "No ads",
+        "feature-4": "No watermark"
       },
       "limits": {
-        "limit-1": "Custom branding",
-        "limit-2": "Advanced AI features"
+        "limit-1": "Save 20% with annual billing"
       }
     },
     "ultimate": {
       "name": "Ultimate",
-      "description": "Premium features with advanced capabilities",
+      "description": "Full-featured unlimited package",
       "features": {
-        "feature-1": "All Pro features",
-        "feature-2": "100 GB storage",
-        "feature-3": "Dedicated support",
-        "feature-4": "Enterprise-grade security",
-        "feature-5": "Advanced integrations",
-        "feature-6": "Custom branding",
-        "feature-7": "Advanced AI capabilities"
+        "feature-1": "500 image generations per month",
+        "feature-2": "2.5× images + batch mode & priority queue",
+        "feature-3": "Multi-image generation support",
+        "feature-4": "High-resolution image download",
+        "feature-5": "Faster generation speed",
+        "feature-6": "Early access to new features",
+        "feature-7": "No ads",
+        "feature-8": "No watermark"
+      },
+      "limits": {
+        "limit-1": "Save 20% with annual billing"
       }
     }
   },
@@ -796,76 +802,40 @@
       "subtitle": "What our customers are saying",
       "items": {
         "item-1": {
-          "name": "Jonathan Yombo",
-          "role": "Software Engineer",
-          "image": "https://randomuser.me/api/portraits/men/1.jpg",
-          "quote": "MkSaaS is really extraordinary and very practical, no need to break your head. A real gold mine."
+          "name": "Sarah Chen",
+          "role": "Content Creator",
+          "image": "https://randomuser.me/api/portraits/women/1.jpg",
+          "quote": "RoboNeo transformed my social media game! I can turn any photo into amazing stickers in seconds. My followers love the iOS style stickers I create from our group photos."
         },
         "item-2": {
-          "name": "Yves Kalume",
-          "role": "GDE - Android",
+          "name": "Mike Rodriguez",
+          "role": "E-commerce Store Owner",
           "image": "https://randomuser.me/api/portraits/men/6.jpg",
-          "quote": "With no experience in webdesign I just redesigned my entire website in a few minutes with tailwindcss thanks to MkSaaS."
+          "quote": "Game changer for my product listings! I use RoboNeo to create clean, professional product stickers without backgrounds. Sales have increased 40% since I started using it."
         },
         "item-3": {
-          "name": "Yucel Faruksahan",
-          "role": "Tailkits Creator",
-          "image": "https://randomuser.me/api/portraits/men/7.jpg",
-          "quote": "Great work on MkSaaS template. This is one of the best personal website that I have seen so far :)"
+          "name": "Emma Thompson",
+          "role": "Marketing Manager",
+          "image": "https://randomuser.me/api/portraits/women/7.jpg",
+          "quote": "Our team saves hours every week with RoboNeo. We can quickly create branded stickers and graphics for campaigns. The LEGO style is perfect for our playful brand."
         },
         "item-4": {
-          "name": "Anonymous author",
-          "role": "Product Manager",
+          "name": "David Kim",
+          "role": "Freelance Designer",
           "image": "https://randomuser.me/api/portraits/men/8.jpg",
-          "quote": "I downloaded the one of MkSaaS template which is very clear to understand at the start and you could modify the codes/blocks to fit perfectly on your purpose of the page."
+          "quote": "As a designer, I'm impressed by the quality. RoboNeo's AI produces results that would take me hours in Photoshop. It's now an essential tool in my workflow."
         },
         "item-5": {
-          "name": "Shekinah Tshiokufila",
-          "role": "Senior Software Engineer",
-          "image": "https://randomuser.me/api/portraits/men/4.jpg",
-          "quote": "MkSaaS is redefining the standard of web design, with these blocks it provides an easy and efficient way for those who love beauty but may lack the time to implement it."
+          "name": "Jessica Park",
+          "role": "Instagram Influencer",
+          "image": "https://randomuser.me/api/portraits/women/4.jpg",
+          "quote": "My engagement skyrocketed after I started using RoboNeo stickers in my stories! The Snoopy style is so cute and unique. My audience always asks how I make them."
         },
         "item-6": {
-          "name": "Oketa Fred",
-          "role": "Fullstack Developer",
+          "name": "Alex Turner",
+          "role": "Small Business Owner",
           "image": "https://randomuser.me/api/portraits/men/2.jpg",
-          "quote": "I absolutely love MkSaaS! The component blocks are beautifully designed and easy to use, which makes creating a great-looking website a breeze."
-        },
-        "item-7": {
-          "name": "Zeki",
-          "role": "Founder of ChatExtend",
-          "image": "https://randomuser.me/api/portraits/men/5.jpg",
-          "quote": "MkSaaS is the perfect fusion of simplicity and versatility, enabling us to create UIs that are as stunning as they are user-friendly."
-        },
-        "item-8": {
-          "name": "Joseph Kitheka",
-          "role": "Fullstack Developer",
-          "image": "https://randomuser.me/api/portraits/men/9.jpg",
-          "quote": "MkSaaS has transformed the way I develop web applications. Their extensive collection of UI components, blocks, and templates has significantly accelerated my workflow."
-        },
-        "item-9": {
-          "name": "Khatab Wedaa",
-          "role": "MerakiUI Creator",
-          "image": "https://randomuser.me/api/portraits/men/10.jpg",
-          "quote": "MkSaaS is an elegant, clean, and responsive tailwind css components it's very helpful to start fast with your project."
-        },
-        "item-10": {
-          "name": "Rodrigo Aguilar",
-          "role": "TailwindAwesome Creator",
-          "image": "https://randomuser.me/api/portraits/men/11.jpg",
-          "quote": "I love MkSaaS ❤️. The component blocks are well-structured, simple to use, and beautifully designed. It makes it really easy to have a good-looking website in no time."
-        },
-        "item-11": {
-          "name": "Eric Ampire",
-          "role": "@GoogleDevExpert for Android",
-          "image": "https://randomuser.me/api/portraits/men/12.jpg",
-          "quote": "MkSaaS templates are the perfect solution for anyone who wants to create a beautiful and functional website without any web design experience."
-        },
-        "item-12": {
-          "name": "Roland Tubonge",
-          "role": "Software Engineer",
-          "image": "https://randomuser.me/api/portraits/men/13.jpg",
-          "quote": "MkSaaS is so well designed that even with a very poor knowledge of web design you can do miracles. Let yourself be seduced!"
+          "quote": "No design skills? No problem! RoboNeo made it possible for me to create professional marketing materials for my café. The quality is incredible and it's so easy to use."
         }
       }
     },

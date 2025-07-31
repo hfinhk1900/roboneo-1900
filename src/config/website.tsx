@@ -1,26 +1,7 @@
 import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import type { WebsiteConfig } from '@/types';
 
-// 打印环境变量以进行调试
-console.log('Stripe price env variables:', {
-  PRO_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
-  PRO_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY,
-  ULTIMATE_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY,
-  ULTIMATE_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY
-});
 
-// 打印实际传递给价格配置的值
-const proMonthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!;
-const proYearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!;
-const ultimateMonthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!;
-const ultimateYearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!;
-
-console.log('Price IDs actually used in config:', {
-  proMonthlyPriceId,
-  proYearlyPriceId,
-  ultimateMonthlyPriceId,
-  ultimateYearlyPriceId
-});
 
 /**
  * website config, without translations
@@ -112,6 +93,7 @@ export const websiteConfig: WebsiteConfig = {
         isFree: true,
         isLifetime: false,
         recommended: false,
+        disabled: true,
       },
       pro: {
         id: 'pro',
@@ -171,6 +153,7 @@ export const websiteConfig: WebsiteConfig = {
         isFree: false,
         isLifetime: true,
         recommended: false,
+        disabled: true,
       },
     },
   },

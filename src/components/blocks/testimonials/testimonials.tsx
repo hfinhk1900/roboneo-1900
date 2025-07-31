@@ -61,48 +61,9 @@ export default function TestimonialsSection() {
       image: t('items.item-6.image'),
       quote: t('items.item-6.quote'),
     },
-    {
-      name: t('items.item-7.name'),
-      role: t('items.item-7.role'),
-      image: t('items.item-7.image'),
-      quote: t('items.item-7.quote'),
-    },
-    {
-      name: t('items.item-8.name'),
-      role: t('items.item-8.role'),
-      image: t('items.item-8.image'),
-      quote: t('items.item-8.quote'),
-    },
-    {
-      name: t('items.item-9.name'),
-      role: t('items.item-9.role'),
-      image: t('items.item-9.image'),
-      quote: t('items.item-9.quote'),
-    },
-    {
-      name: t('items.item-10.name'),
-      role: t('items.item-10.role'),
-      image: t('items.item-10.image'),
-      quote: t('items.item-10.quote'),
-    },
-    {
-      name: t('items.item-11.name'),
-      role: t('items.item-11.role'),
-      image: t('items.item-11.image'),
-      quote: t('items.item-11.quote'),
-    },
-    {
-      name: t('items.item-12.name'),
-      role: t('items.item-12.role'),
-      image: t('items.item-12.image'),
-      quote: t('items.item-12.quote'),
-    },
   ];
 
-  const testimonialChunks = chunkArray(
-    testimonials,
-    Math.ceil(testimonials.length / 3)
-  );
+  const testimonialChunks = chunkArray(testimonials, 2);
 
   return (
     <section id="testimonials" className="px-4 py-16">

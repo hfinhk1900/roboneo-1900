@@ -20,7 +20,7 @@ import {
   type Price,
   type PricePlan,
 } from '@/payment/types';
-import { CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { CheckCircleIcon, XCircleIcon, Zap, HandCoins } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LoginWrapper } from '../auth/login-wrapper';
 import { CheckoutButton } from './create-checkout-button';
@@ -83,7 +83,10 @@ export function PricingCard({
 
   // generate formatted price and price label
   let formattedPrice = '';
+  let originalPrice = '';
   let priceLabel = '';
+  let yearlyInfo = '';
+
   if (plan.isFree) {
     formattedPrice = t('freePrice');
   } else if (price && price.amount > 0) {
@@ -92,10 +95,25 @@ export function PricingCard({
       formattedPrice = formatPrice(price.amount, price.currency);
       priceLabel = t('perMonth');
     } else if (interval === PlanIntervals.YEAR) {
-      // 显示月均价格（年付总价÷12）
-      const monthlyPrice = Math.round(price.amount / 12);
-      formattedPrice = formatPrice(monthlyPrice, price.currency);
-      priceLabel = t('perMonth');
+      // 获取月付价格作为原价
+      const monthlyPrice = plan.prices.find(p => p.interval === PlanIntervals.MONTH);
+      if (monthlyPrice) {
+        originalPrice = formatPrice(monthlyPrice.amount, monthlyPrice.currency);
+        // 显示年付月均价格（年付总价÷12）
+        const yearlyMonthlyPrice = Math.round(price.amount / 12);
+        formattedPrice = formatPrice(yearlyMonthlyPrice, price.currency);
+        priceLabel = t('perMonth');
+
+        // 计算年付信息和节省金额
+        const yearlyTotal = formatPrice(price.amount, price.currency);
+        const savingsAmount = (monthlyPrice.amount * 12) - price.amount;
+        const savingsPercentage = Math.round((savingsAmount / (monthlyPrice.amount * 12)) * 100);
+        yearlyInfo = `Billed ${yearlyTotal} yearly - Save ${savingsPercentage}%`;
+      } else {
+        const monthlyPrice = Math.round(price.amount / 12);
+        formattedPrice = formatPrice(monthlyPrice, price.currency);
+        priceLabel = t('perMonth');
+      }
     } else {
       formattedPrice = formatPrice(price.amount, price.currency);
     }
@@ -112,7 +130,7 @@ export function PricingCard({
     <Card
       className={cn(
         'flex flex-col h-full',
-        plan.recommended && 'relative',
+        plan.recommended && 'relative border-amber-400 shadow-lg shadow-amber-100 dark:shadow-amber-900/20',
         isCurrentPlan &&
           'border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20',
         className
@@ -122,7 +140,7 @@ export function PricingCard({
       {plan.recommended && (
         <span
           className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full px-3 py-1 text-xs font-medium border
-        bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200  border-purple-200 dark:border-purple-800 shadow-sm"
+        bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800 shadow-sm"
         >
           {t('popular')}
         </span>
@@ -144,16 +162,32 @@ export function PricingCard({
         </CardTitle>
 
         {/* show price and price label */}
-        <div className="flex items-baseline gap-2">
-          <span className="my-4 block text-4xl font-semibold">
-            {formattedPrice}
-          </span>
-          {priceLabel && <span className="text-2xl">{priceLabel}</span>}
-        </div>
+        {interval === PlanIntervals.YEAR && originalPrice ? (
+          <div className="my-4">
+            {/* 显示原价（划掉）和优惠价 */}
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl text-muted-foreground line-through">
+                {originalPrice}
+              </span>
+              <span className="text-4xl font-semibold">
+                {formattedPrice}
+              </span>
+              {priceLabel && <span className="text-2xl">{priceLabel}</span>}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-baseline gap-2">
+            <span className="my-4 block text-4xl font-semibold">
+              {formattedPrice}
+            </span>
+            {priceLabel && <span className="text-2xl">{priceLabel}</span>}
+          </div>
+        )}
 
-        {interval === PlanIntervals.YEAR && (
+        {/* 显示年付节省信息 */}
+        {interval === PlanIntervals.YEAR && yearlyInfo && (
           <p className="text-sm text-muted-foreground -mt-2 mb-2">
-            {t('yearlyBilled')}
+            {yearlyInfo}
           </p>
         )}
 
@@ -184,19 +218,37 @@ export function PricingCard({
           </Button>
         ) : isPaidPlan ? (
           currentUser ? (
-            <CheckoutButton
+                        <CheckoutButton
               userId={currentUser.id}
               planId={plan.id}
               priceId={price.priceId}
               metadata={metadata}
               className="mt-4 w-full cursor-pointer"
             >
-              {plan.isLifetime ? t('getLifetimeAccess') : t('getStarted')}
+              <div className="flex items-center justify-center gap-2">
+                {plan.isLifetime
+                  ? t('getLifetimeAccess')
+                  : plan.id === 'pro'
+                    ? t('upgradeToPremium')
+                    : plan.id === 'ultimate'
+                      ? t('upgradeToUltimate')
+                      : t('getStarted')
+                }
+                <Zap className="w-4 h-4" />
+              </div>
             </CheckoutButton>
           ) : (
-            <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
+                        <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
               <Button variant="default" className="mt-4 w-full cursor-pointer">
-                {t('getStarted')}
+                <div className="flex items-center justify-center gap-2">
+                  {plan.id === 'pro'
+                    ? t('upgradeToPremium')
+                    : plan.id === 'ultimate'
+                      ? t('upgradeToUltimate')
+                      : t('getStarted')
+                  }
+                  <Zap className="w-4 h-4" />
+                </div>
               </Button>
             </LoginWrapper>
           )
@@ -236,7 +288,11 @@ export function PricingCard({
         <ul className="list-outside space-y-4 text-sm">
           {plan.limits?.map((limit, i) => (
             <li key={i} className="flex items-center gap-2">
-              <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
+              {limit.toLowerCase().includes('save') || limit.toLowerCase().includes('省') ? (
+                <HandCoins className="size-4 text-amber-500 dark:text-amber-400" />
+              ) : (
+                <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
+              )}
               <span>{limit}</span>
             </li>
           ))}

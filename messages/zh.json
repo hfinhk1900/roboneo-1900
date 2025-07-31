@@ -36,17 +36,21 @@
     "subtitle": "选择最适合您的付费计划",
     "monthly": "月付",
     "yearly": "年付",
+    "save20": "省20%",
+    "disclaimer": "价格以美元为准，结账时可能需要缴纳增值税/消费税。",
     "PricingCard": {
       "freePrice": "$0",
       "perMonth": "/月",
       "perYear": "/年",
       "yearlyBilled": "按年付费",
-      "popular": "热门",
+      "popular": "最热门",
       "currentPlan": "当前方案",
       "yourCurrentPlan": "您的当前方案",
       "getStartedForFree": "开始免费使用",
       "getLifetimeAccess": "开启终身会员",
       "getStarted": "开始免费试用",
+      "upgradeToPremium": "升级到高级版",
+      "upgradeToUltimate": "升级到旗舰版",
       "notAvailable": "不可用",
       "daysTrial": "{days} 天试用期"
     },
@@ -72,32 +76,33 @@
       }
     },
     "pro": {
-      "name": "专业版",
-      "description": "专业人士的高级功能",
+      "name": "高级版",
+      "description": "个人用户基础套餐",
       "features": {
-        "feature-1": "无限项目",
-        "feature-2": "10GB存储空间",
-        "feature-3": "高级分析功能",
-        "feature-4": "优先支持",
-        "feature-5": "自定义域名"
+        "feature-1": "每月200次图像生成",
+        "feature-2": "高清图像下载",
+        "feature-3": "无广告",
+        "feature-4": "无水印"
       },
       "limits": {
-        "limit-1": "不支持自定义品牌",
-        "limit-2": "不支持高级AI功能"
+        "limit-1": "年付享8折优惠"
       }
     },
     "ultimate": {
       "name": "旗舰版",
-      "description": "具有高级功能的顶级版本",
+      "description": "功能齐全的无限套餐",
       "features": {
-        "feature-1": "所有专业版功能",
-        "feature-2": "100GB存储空间",
-        "feature-3": "专属支持",
-        "feature-4": "企业级安全",
-        "feature-5": "高级集成",
-        "feature-6": "自定义域名",
-        "feature-7": "自定义品牌",
-        "feature-8": "高级AI功能"
+        "feature-1": "每月500次图像生成",
+        "feature-2": "2.5倍图像 + 批量模式和优先队列",
+        "feature-3": "多图像生成支持",
+        "feature-4": "高清图像下载",
+        "feature-5": "更快的生成速度",
+        "feature-6": "抢先体验新功能",
+        "feature-7": "无广告",
+        "feature-8": "无水印"
+      },
+      "limits": {
+        "limit-1": "年付享8折优惠"
       }
     }
   },
@@ -797,76 +802,40 @@
       "subtitle": "我们的客户对我们的评价",
       "items": {
         "item-1": {
-          "name": "Jonathan Yombo",
-          "role": "软件工程师",
-          "image": "https://randomuser.me/api/portraits/men/1.jpg",
-          "quote": "MkSaaS 非常出色且实用，无需费心，一个真正的金矿。"
+          "name": "陈雅雯",
+          "role": "内容创作者",
+          "image": "https://randomuser.me/api/portraits/women/1.jpg",
+          "quote": "RoboNeo彻底改变了我的社交媒体游戏！我可以在几秒钟内将任何照片转换成令人惊叹的贴纸。我的粉丝们都很喜欢我用合影创造的iOS风格贴纸。"
         },
         "item-2": {
-          "name": "Yves Kalume",
-          "role": "Android GDE",
+          "name": "李明浩",
+          "role": "电商店主",
           "image": "https://randomuser.me/api/portraits/men/6.jpg",
-          "quote": "没有网页设计经验，我只需几分钟就可以用 Tailwindcss 重新设计我的整个网站，感谢 MkSaaS。"
+          "quote": "这对我的产品列表来说是个颠覆性的工具！我使用RoboNeo创建干净、专业的无背景产品贴纸。自从开始使用后，销量增长了40%。"
         },
         "item-3": {
-          "name": "Yucel Faruksahan",
-          "role": "Tailkits 创建者",
-          "image": "https://randomuser.me/api/portraits/men/7.jpg",
-          "quote": "MkSaaS 模板做得很好，这是我见过最好的 SaaS 模板，没有之一 :)"
+          "name": "王欣怡",
+          "role": "市场营销经理",
+          "image": "https://randomuser.me/api/portraits/women/7.jpg",
+          "quote": "我们团队每周通过RoboNeo节省了数小时的工作时间。我们可以快速为营销活动创建品牌贴纸和图形。LEGO风格非常适合我们的趣味品牌定位。"
         },
         "item-4": {
-          "name": "Anonymous author",
-          "role": "产品经理",
+          "name": "张大伟",
+          "role": "自由设计师",
           "image": "https://randomuser.me/api/portraits/men/8.jpg",
-          "quote": "我不熟悉 Tailwind，我想自己做一些页面，我在网上搜索了很多英雄页面和区块。然而，大多数都没有给我一个清晰的想法，或者需要一些 HTML/CSS 编码背景来从原始文件中做一些更改，或者太贵了。我下载了其中一个 MkSaaS 模板，它非常容易理解，你可以在开始时修改代码/区块以完美地适应你的页面目的。"
+          "quote": "作为设计师，我对这个质量印象深刻。RoboNeo的AI产生的结果需要我在Photoshop中花费数小时才能完成。它现在是我工作流程中必不可少的工具。"
         },
         "item-5": {
-          "name": "Shekinah Tshiokufila",
-          "role": "高级软件工程师",
-          "image": "https://randomuser.me/api/portraits/men/4.jpg",
-          "quote": "MkSaaS 正在重新定义网页设计标准，这些区块为那些喜欢美丽但可能缺乏时间实现它的人提供了简单且高效的方式。我只能推荐这个不可思议的奇迹。"
+          "name": "刘小美",
+          "role": "Instagram网红",
+          "image": "https://randomuser.me/api/portraits/women/4.jpg",
+          "quote": "自从我开始在故事中使用RoboNeo贴纸后，我的互动率飙升了！史努比风格太可爱太独特了。我的观众总是问我是怎么制作的。"
         },
         "item-6": {
-          "name": "Oketa Fred",
-          "role": "全栈开发工程师",
+          "name": "赵志强",
+          "role": "小企业主",
           "image": "https://randomuser.me/api/portraits/men/2.jpg",
-          "quote": "我绝对喜欢 MkSaaS！这些组件区块设计精美且易于使用，使创建一个出色的网站变得轻而易举。"
-        },
-        "item-7": {
-          "name": "Zeki",
-          "role": "ChatExtend 创始人",
-          "image": "https://randomuser.me/api/portraits/men/5.jpg",
-          "quote": "使用 MkSaaS 就像解锁了一个秘密的设计超能力。它是简单性和多功能性的完美融合，使我们能够创建既令人惊叹又用户友好的界面。"
-        },
-        "item-8": {
-          "name": "Joseph Kitheka",
-          "role": "全栈开发工程师",
-          "image": "https://randomuser.me/api/portraits/men/9.jpg",
-          "quote": "MkSaaS 改变了我的网页开发方式。他们的 UI 组件、区块和模板极大地加速了我的工作流程。定制每个方面的灵活性使我能够创建独特的用户体验。MkSaaS 是现代网页开发的游戏规则改变者！"
-        },
-        "item-9": {
-          "name": "Khatab Wedaa",
-          "role": "MerakiUI 创建者",
-          "image": "https://randomuser.me/api/portraits/men/10.jpg",
-          "quote": "MkSaaS 是一个优雅、干净且响应式的 SaaS 模板，它非常有助于快速开始您的项目。"
-        },
-        "item-10": {
-          "name": "Rodrigo Aguilar",
-          "role": "TailwindAwesome 创建者",
-          "image": "https://randomuser.me/api/portraits/men/11.jpg",
-          "quote": "我爱 MkSaaS ❤️。这些组件区块结构良好，易于使用，设计精美。它使创建一个出色的网站变得非常容易。"
-        },
-        "item-11": {
-          "name": "Eric Ampire",
-          "role": "Google 开发者专家",
-          "image": "https://randomuser.me/api/portraits/men/12.jpg",
-          "quote": "MkSaaS 模板是任何想要创建一个美丽且功能齐全的网站但没有网页设计经验的人的完美解决方案。这些模板易于使用，可定制，并且响应迅速。我强烈推荐 MkSaaS 模板给任何想要创建网站的人。"
-        },
-        "item-12": {
-          "name": "Roland Tubonge",
-          "role": "软件工程师",
-          "image": "https://randomuser.me/api/portraits/men/13.jpg",
-          "quote": "MkSaaS 设计得如此出色，即使没有网页设计经验，您也可以创造奇迹。让自己被吸引！"
+          "quote": "没有设计技能？没问题！RoboNeo让我能够为我的咖啡厅创建专业的营销材料。质量令人难以置信，而且使用起来非常简单。"
         }
       }
     },
