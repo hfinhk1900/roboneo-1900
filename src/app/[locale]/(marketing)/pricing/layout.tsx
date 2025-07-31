@@ -26,7 +26,7 @@ export default async function PricingPageLayout({
 }) {
   const t = await getTranslations('PricingPage');
   return (
-    <div className="mb-16 bg-[#F5F5F5]">
+    <div className="pb-16 bg-[#F5F5F5]">
       <div className="w-full flex flex-col items-center justify-center gap-8 pt-8">
         {/* Header */}
         <div className="space-y-4">
