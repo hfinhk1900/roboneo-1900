@@ -63,10 +63,13 @@ export function Navbar({ scroll }: NavBarProps) {
         'sticky inset-x-0 top-0 z-40 py-4 transition-all duration-300',
         scroll
           ? scrolled
-            ? 'bg-background/80 backdrop-blur-md border-b supports-backdrop-filter:bg-background/60'
-            : 'bg-transparent'
-          : 'border-b bg-background'
+            ? 'backdrop-blur-md border-b'
+            : 'bg-[#F5F5F5]'
+          : 'border-b bg-[#F5F5F5]'
       )}
+      style={{
+        backgroundColor: scroll && scrolled ? 'rgba(245, 245, 245, 0.6)' : '#F5F5F5'
+      }}
     >
       <Container className="px-4">
         {/* desktop navbar */}

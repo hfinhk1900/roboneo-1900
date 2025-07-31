@@ -23,6 +23,7 @@ interface CheckoutButtonProps {
     | null;
   size?: 'default' | 'sm' | 'lg' | 'icon' | null;
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
 }
 
@@ -42,6 +43,7 @@ export function CheckoutButton({
   variant = 'default',
   size = 'default',
   className,
+  style,
   children,
 }: CheckoutButtonProps) {
   const t = useTranslations('PricingPage.CheckoutButton');
@@ -160,6 +162,7 @@ export function CheckoutButton({
       variant={variant}
       size={size}
       className={className}
+      style={style}
       onClick={handleClick}
       disabled={isLoading}
     >

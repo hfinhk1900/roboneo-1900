@@ -67,7 +67,7 @@ export default function TestimonialsSection() {
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base/7 font-semibold text-indigo-600">{t('title')}</h2>
+          <h2 className="uppercase tracking-wider text-gradient_indigo-purple font-semibold font-mono">{t('title')}</h2>
           <p className="mt-2 text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
             {t('subtitle')}
           </p>

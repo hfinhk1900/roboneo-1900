@@ -856,10 +856,10 @@
       }
     },
     "calltoaction": {
-      "title": "Start Building",
-      "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
-      "primaryButton": "Get Started",
-      "secondaryButton": "See Demo"
+      "title": "Start Creating Amazing Art",
+      "description": "Transform your photos and ideas into stunning AI-generated artwork in seconds. Join thousands of creators who trust RoboNeo for their digital art needs.",
+      "primaryButton": "Create Your First Art",
+      "secondaryButton": "View Gallery"
     }
   },
   "AITextPage": {

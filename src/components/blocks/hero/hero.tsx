@@ -12,6 +12,8 @@ import { ChevronRightIcon, ImageIcon, ImagePlusIcon, LoaderIcon, SparklesIcon, U
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
+import { LocaleLink } from '@/i18n/navigation';
+import { WandSparklesIcon, ComponentIcon, CircleDollarSignIcon } from 'lucide-react';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.png' },
@@ -264,6 +266,20 @@ export default function HeroSection() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Demo Button */}
+        <div className="mt-8 text-center">
+          <LocaleLink href="/components-demo">
+            <Button
+              size="lg"
+              variant="outline"
+              className="group border-2 hover:bg-primary/5 transition-all duration-200"
+            >
+              <ComponentIcon className="mr-2 size-5 transition-transform group-hover:scale-110" />
+              🎨 查看高亮组件演示
+            </Button>
+          </LocaleLink>
         </div>
       </div>
       </main>

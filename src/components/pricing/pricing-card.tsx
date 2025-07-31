@@ -129,7 +129,7 @@ export function PricingCard({
   return (
     <Card
       className={cn(
-        'flex flex-col h-full',
+        'flex flex-col h-full bg-white',
         plan.recommended && 'relative border-amber-400 shadow-lg shadow-amber-100 dark:shadow-amber-900/20',
         isCurrentPlan &&
           'border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20',
@@ -166,7 +166,7 @@ export function PricingCard({
           <div className="my-4">
             {/* 显示原价（划掉）和优惠价 */}
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl text-muted-foreground line-through">
+              <span className="text-2xl text-gray-400 line-through">
                 {originalPrice}
               </span>
               <span className="text-4xl font-semibold">
@@ -198,12 +198,28 @@ export function PricingCard({
         {/* show action buttons based on plans */}
         {plan.isFree ? (
           currentUser ? (
-            <Button variant="outline" className="mt-4 w-full disabled">
+            <Button
+              variant="outline"
+              className="mt-4 w-full disabled"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderColor: 'var(--primary)'
+              }}
+            >
               {t('getStartedForFree')}
             </Button>
           ) : (
             <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
-              <Button variant="outline" className="mt-4 w-full cursor-pointer">
+              <Button
+                variant="outline"
+                className="mt-4 w-full cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  color: 'var(--primary-foreground)',
+                  borderColor: 'var(--primary)'
+                }}
+              >
                 {t('getStartedForFree')}
               </Button>
             </LoginWrapper>
@@ -224,6 +240,11 @@ export function PricingCard({
               priceId={price.priceId}
               metadata={metadata}
               className="mt-4 w-full cursor-pointer"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderColor: 'var(--primary)'
+              }}
             >
               <div className="flex items-center justify-center gap-2">
                 {plan.isLifetime
@@ -239,7 +260,15 @@ export function PricingCard({
             </CheckoutButton>
           ) : (
             <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
-              <Button variant="default" className="mt-4 w-full cursor-pointer">
+              <Button
+                variant="default"
+                className="mt-4 w-full cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  color: 'var(--primary-foreground)',
+                  borderColor: 'var(--primary)'
+                }}
+              >
                 <div className="flex items-center justify-center gap-2">
                   {plan.id === 'pro'
                     ? t('upgradeToPremium')
@@ -261,6 +290,15 @@ export function PricingCard({
 
       <CardContent className="space-y-4">
         <hr className="border-dashed" />
+
+        {/* show refund policy for paid subscription plans */}
+        {isPaidPlan && paymentType === PaymentTypes.SUBSCRIPTION && (
+          <div className="my-4">
+            <p className="text-xs text-muted-foreground text-center">
+              Cancel anytime. 7 days refund.
+            </p>
+          </div>
+        )}
 
         {/* show trial period if it exists */}
         {hasTrialPeriod && (

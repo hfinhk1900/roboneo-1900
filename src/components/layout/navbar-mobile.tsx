@@ -149,7 +149,8 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
   return (
     <div
       className="fixed w-full inset-0 z-50 mt-[64px] overflow-y-auto
-      bg-background backdrop-blur-md animate-in fade-in-0"
+      backdrop-blur-md animate-in fade-in-0"
+      style={{ backgroundColor: '#F5F5F5' }}
     >
       <div className="size-full flex flex-col items-start space-y-4">
         {/* action buttons */}

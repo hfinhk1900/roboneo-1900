@@ -33,7 +33,7 @@ export function PricingTable({
   className,
 }: PricingTableProps) {
   const t = useTranslations('PricingPage');
-  const [interval, setInterval] = useState<PlanInterval>(PlanIntervals.MONTH);
+  const [interval, setInterval] = useState<PlanInterval>(PlanIntervals.YEAR);
   const [isClient, setIsClient] = useState(false);
 
   // Avoid hydration mismatch
@@ -107,7 +107,7 @@ export function PricingTable({
               type="single"
               value={interval}
               onValueChange={(value) => value && handleIntervalChange(value)}
-              className="border rounded-lg p-1"
+              className="border rounded-lg p-1 bg-white"
             >
               {hasMonthlyOption && (
                 <ToggleGroupItem
@@ -116,7 +116,9 @@ export function PricingTable({
                   style={interval === 'month' ? {
                     backgroundColor: 'var(--primary)',
                     color: 'var(--primary-foreground)'
-                  } : {}}
+                  } : {
+                    backgroundColor: 'white'
+                  }}
                 >
                   {t('monthly')}
                 </ToggleGroupItem>
@@ -128,7 +130,9 @@ export function PricingTable({
                   style={interval === 'year' ? {
                     backgroundColor: 'var(--primary)',
                     color: 'var(--primary-foreground)'
-                  } : {}}
+                  } : {
+                    backgroundColor: 'white'
+                  }}
                 >
                   {t('yearly')}
                 </ToggleGroupItem>
