@@ -1,24 +1,12 @@
-import { HeaderSection } from '@/components/layout/header-section';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 
 type Testimonial = {
-  name: string;
-  role: string;
-  image: string;
-  quote: string;
-};
-
-const chunkArray = (
-  array: Testimonial[],
-  chunkSize: number
-): Testimonial[][] => {
-  const result: Testimonial[][] = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-    result.push(array.slice(i, i + chunkSize));
-  }
-  return result;
+  body: string;
+  author: {
+    name: string;
+    handle: string;
+    imageUrl: string;
+  };
 };
 
 export default function TestimonialsSection() {
@@ -26,92 +14,85 @@ export default function TestimonialsSection() {
 
   const testimonials: Testimonial[] = [
     {
-      name: t('items.item-1.name'),
-      role: t('items.item-1.role'),
-      image: t('items.item-1.image'),
-      quote: t('items.item-1.quote'),
+      body: t('items.item-1.quote'),
+      author: {
+        name: t('items.item-1.name'),
+        handle: t('items.item-1.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-1.image'),
+      },
     },
     {
-      name: t('items.item-2.name'),
-      role: t('items.item-2.role'),
-      image: t('items.item-2.image'),
-      quote: t('items.item-2.quote'),
+      body: t('items.item-2.quote'),
+      author: {
+        name: t('items.item-2.name'),
+        handle: t('items.item-2.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-2.image'),
+      },
     },
     {
-      name: t('items.item-3.name'),
-      role: t('items.item-3.role'),
-      image: t('items.item-3.image'),
-      quote: t('items.item-3.quote'),
+      body: t('items.item-3.quote'),
+      author: {
+        name: t('items.item-3.name'),
+        handle: t('items.item-3.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-3.image'),
+      },
     },
     {
-      name: t('items.item-4.name'),
-      role: t('items.item-4.role'),
-      image: t('items.item-4.image'),
-      quote: t('items.item-4.quote'),
+      body: t('items.item-4.quote'),
+      author: {
+        name: t('items.item-4.name'),
+        handle: t('items.item-4.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-4.image'),
+      },
     },
     {
-      name: t('items.item-5.name'),
-      role: t('items.item-5.role'),
-      image: t('items.item-5.image'),
-      quote: t('items.item-5.quote'),
+      body: t('items.item-5.quote'),
+      author: {
+        name: t('items.item-5.name'),
+        handle: t('items.item-5.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-5.image'),
+      },
     },
     {
-      name: t('items.item-6.name'),
-      role: t('items.item-6.role'),
-      image: t('items.item-6.image'),
-      quote: t('items.item-6.quote'),
+      body: t('items.item-6.quote'),
+      author: {
+        name: t('items.item-6.name'),
+        handle: t('items.item-6.role').toLowerCase().replace(' ', ''),
+        imageUrl: t('items.item-6.image'),
+      },
     },
   ];
 
-  const testimonialChunks = chunkArray(testimonials, 2);
-
   return (
-    <section id="testimonials" className="px-4 py-16">
-      <div className="mx-auto max-w-6xl">
-        <HeaderSection
-          title={t('title')}
-          titleAs="h2"
-          subtitle={t('subtitle')}
-          subtitleAs="p"
-        />
-
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 md:mt-12 lg:grid-cols-3">
-          {testimonialChunks.map((chunk, chunkIndex) => (
-            <div key={chunkIndex} className="space-y-3">
-              {chunk.map(({ name, role, quote, image }, index) => (
-                <Card key={index} className="shadow-none">
-                  <CardContent className="grid grid-cols-[auto_1fr] gap-3 pt-4">
-                    <Avatar className="size-9 border-2 border-gray-200">
-                      <AvatarImage
-                        alt={name}
-                        src={image}
-                        loading="lazy"
-                        width="120"
-                        height="120"
-                      />
-                      <AvatarFallback />
-                    </Avatar>
-
+    <div className="bg-white py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-base/7 font-semibold text-indigo-600">{t('title')}</h2>
+          <p className="mt-2 text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">
+            {t('subtitle')}
+          </p>
+        </div>
+        <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
+          <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.author.handle} className="pt-8 sm:inline-block sm:w-full sm:px-4">
+                <figure className="rounded-2xl bg-gray-50 p-8 text-sm/6">
+                  <blockquote className="text-gray-900">
+                    <p>{`"${testimonial.body}"`}</p>
+                  </blockquote>
+                  <figcaption className="mt-6 flex items-center gap-x-4">
+                    <img alt="" src={testimonial.author.imageUrl} className="size-10 rounded-full bg-gray-50" />
                     <div>
-                      <h3 className="font-medium">{name}</h3>
-
-                      <span className="text-muted-foreground block text-sm tracking-wide">
-                        {role}
-                      </span>
-
-                      <blockquote className="mt-3">
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {quote}
-                        </p>
-                      </blockquote>
+                      <div className="font-semibold text-gray-900">{testimonial.author.name}</div>
+                      <div className="text-gray-600">{`@${testimonial.author.handle}`}</div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ))}
+                  </figcaption>
+                </figure>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
-  );
+    </div>
+  )
 }

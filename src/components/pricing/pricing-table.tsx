@@ -112,10 +112,11 @@ export function PricingTable({
               {hasMonthlyOption && (
                 <ToggleGroupItem
                   value="month"
-                  className={cn(
-                    'px-3 py-0 cursor-pointer text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
+                  className="px-3 py-0 cursor-pointer text-sm rounded-md"
+                  style={interval === 'month' ? {
+                    backgroundColor: 'var(--primary)',
+                    color: 'var(--primary-foreground)'
+                  } : {}}
                 >
                   {t('monthly')}
                 </ToggleGroupItem>
@@ -123,10 +124,11 @@ export function PricingTable({
               {hasYearlyOption && (
                 <ToggleGroupItem
                   value="year"
-                  className={cn(
-                    'px-3 py-0 cursor-pointer text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
+                  className="px-3 py-0 cursor-pointer text-sm rounded-md"
+                  style={interval === 'year' ? {
+                    backgroundColor: 'var(--primary)',
+                    color: 'var(--primary-foreground)'
+                  } : {}}
                 >
                   {t('yearly')}
                 </ToggleGroupItem>

@@ -74,7 +74,7 @@ export default function HeroSection() {
             <div className="mx-auto max-w-7xl px-6">
           <div className="text-center sm:mx-auto lg:mr-auto">
                 {/* title */}
-                <h1 className="text-balance text-3xl font-barlow font-extrabold md:text-4xl xl:text-5xl">
+                <h1 className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif' }}>
                   RoboNeo AI Image Generator - Text & Photo to Art in Seconds
                 </h1>
 

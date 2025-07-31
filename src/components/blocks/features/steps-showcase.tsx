@@ -98,9 +98,14 @@ export default function StepsShowcaseSection() {
                 className={cn(
                   "group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-md h-32 flex items-center",
                   activeStep === step.id
-                    ? "border-primary bg-primary/5 shadow-sm"
+                    ? "shadow-sm"
                     : "border-border bg-white hover:border-primary/50"
                 )}
+                style={activeStep === step.id ? {
+                  borderColor: 'var(--primary)',
+                  backgroundColor: 'color-mix(in srgb, var(--primary) 10%, transparent)',
+                  boxShadow: '0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'
+                } : {}}
               >
                 <div className="flex items-start gap-4">
                   {/* Step Number */}
@@ -108,9 +113,14 @@ export default function StepsShowcaseSection() {
                     className={cn(
                       "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 font-bold transition-all duration-300",
                       activeStep === step.id
-                        ? "border-primary bg-primary text-primary-foreground"
+                        ? ""
                         : "border-muted bg-muted text-muted-foreground group-hover:border-primary/50"
                     )}
+                    style={activeStep === step.id ? {
+                      borderColor: 'var(--primary)',
+                      backgroundColor: 'var(--primary)',
+                      color: 'var(--primary-foreground)'
+                    } : {}}
                   >
                     {step.number}
                   </div>
@@ -122,9 +132,10 @@ export default function StepsShowcaseSection() {
                         className={cn(
                           "transition-colors duration-300",
                           activeStep === step.id
-                            ? "text-primary"
+                            ? ""
                             : "text-muted-foreground group-hover:text-primary"
                         )}
+                        style={activeStep === step.id ? { color: 'var(--primary)' } : {}}
                       >
                         {step.icon}
                       </span>
@@ -163,9 +174,14 @@ export default function StepsShowcaseSection() {
                   "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300",
                   "border-2 hover:scale-110",
                   isAutoPlaying
-                    ? "bg-primary border-primary text-primary-foreground"
+                    ? ""
                     : "bg-white border-gray-300 text-gray-600 hover:border-gray-400"
                 )}
+                style={isAutoPlaying ? {
+                  backgroundColor: 'var(--primary)',
+                  borderColor: 'var(--primary)',
+                  color: 'var(--primary-foreground)'
+                } : {}}
                 aria-label={isAutoPlaying ? "Pause auto-play" : "Start auto-play"}
               >
                 {isAutoPlaying ? (
@@ -184,9 +200,12 @@ export default function StepsShowcaseSection() {
                     className={cn(
                       "w-3 h-3 rounded-full transition-all duration-300",
                       activeStep === step.id
-                        ? "bg-primary scale-110"
+                        ? "scale-110"
                         : "bg-gray-300 hover:bg-gray-400"
                     )}
+                    style={activeStep === step.id ? {
+                      backgroundColor: 'var(--primary)'
+                    } : {}}
                     aria-label={`Go to step ${step.number}`}
                   />
                 ))}
@@ -203,7 +222,7 @@ export default function StepsShowcaseSection() {
                   alt={`Step ${currentStep.number}: ${currentStep.title}`}
                   width={400}
                   height={600}
-                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg shadow-lg"
+                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
                 />
               ) : (
                 <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">

@@ -5,6 +5,10 @@
  */
 
 /*
+ ---break---
+ */
+
+/*
  * 1. Themes Documentation
  * https://mksaas.com/docs/themes
  *
@@ -250,8 +254,6 @@
 
   --letter-spacing: 0em}
 
-
-
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -314,28 +316,20 @@ body {
   --primary-foreground: var(--color-neutral-50);
 }
 
-
-
 .theme-blue {
   --primary: var(--color-blue-600);
   --primary-foreground: var(--color-blue-50);
 }
-
-
 
 .theme-green {
   --primary: var(--color-lime-600);
   --primary-foreground: var(--color-lime-50);
 }
 
-
-
 .theme-amber {
   --primary: var(--color-amber-600);
   --primary-foreground: var(--color-amber-50);
 }
-
-
 
 /**
  * Hide scrollbar for layout shift when using the theme selector
@@ -384,13 +378,28 @@ button[data-slot="button"]:hover,
   background-color: oklch(0.8553 0.1751 92.9734 / var(--tw-bg-opacity)) !important;
 }
 
-
+/*
+ ---break---
+ */
 
 /*
  ---break---
  */
 
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
 
+/*
+ ---break---
+ */
 
 /*
  ---break---
