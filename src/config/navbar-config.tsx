@@ -57,7 +57,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
     // },
     {
       title: t('features.title'),
-      href: Routes.Features,
+      href: Routes.Root,
       external: false,
     },
     {
