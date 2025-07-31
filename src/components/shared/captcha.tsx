@@ -3,7 +3,6 @@
 import { FormMessage } from '@/components/ui/form';
 import { websiteConfig } from '@/config/website';
 import { useLocale } from 'next-intl';
-import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import type { ComponentProps } from 'react';
 
@@ -28,7 +27,6 @@ export const Captcha = ({ validationError, ...props }: Props) => {
     return null;
   }
 
-  const theme = useTheme();
   const locale = useLocale();
 
   return turnstileEnabled ? (
@@ -37,7 +35,7 @@ export const Captcha = ({ validationError, ...props }: Props) => {
         options={{
           size: 'flexible',
           language: locale,
-          theme: theme.theme === 'dark' ? 'dark' : 'light',
+          theme: 'light',
         }}
         {...props}
         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}

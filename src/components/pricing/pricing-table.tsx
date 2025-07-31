@@ -102,36 +102,36 @@ export function PricingTable({
         subscriptionPlans.length > 0 && (
           <div className="flex justify-center">
             <div className="relative">
-              <ToggleGroup
-                size="sm"
-                type="single"
-                value={interval}
-                onValueChange={(value) => value && handleIntervalChange(value)}
-                className="border rounded-lg p-1"
-              >
-                {hasMonthlyOption && (
-                  <ToggleGroupItem
-                    value="month"
-                    className={cn(
-                      'px-3 py-0 cursor-pointer text-sm rounded-md',
-                      'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                    )}
-                  >
-                    {t('monthly')}
-                  </ToggleGroupItem>
-                )}
-                {hasYearlyOption && (
-                  <ToggleGroupItem
-                    value="year"
-                    className={cn(
-                      'px-3 py-0 cursor-pointer text-sm rounded-md',
-                      'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                    )}
-                  >
-                    {t('yearly')}
-                  </ToggleGroupItem>
-                )}
-              </ToggleGroup>
+            <ToggleGroup
+              size="sm"
+              type="single"
+              value={interval}
+              onValueChange={(value) => value && handleIntervalChange(value)}
+              className="border rounded-lg p-1"
+            >
+              {hasMonthlyOption && (
+                <ToggleGroupItem
+                  value="month"
+                  className={cn(
+                    'px-3 py-0 cursor-pointer text-sm rounded-md',
+                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                  )}
+                >
+                  {t('monthly')}
+                </ToggleGroupItem>
+              )}
+              {hasYearlyOption && (
+                <ToggleGroupItem
+                  value="year"
+                  className={cn(
+                    'px-3 py-0 cursor-pointer text-sm rounded-md',
+                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                  )}
+                >
+                  {t('yearly')}
+                </ToggleGroupItem>
+              )}
+            </ToggleGroup>
 
               {/* Save 20% 标签放在外面 */}
               {hasYearlyOption && (

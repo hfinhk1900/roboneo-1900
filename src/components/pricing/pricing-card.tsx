@@ -110,9 +110,9 @@ export function PricingCard({
         const savingsPercentage = Math.round((savingsAmount / (monthlyPrice.amount * 12)) * 100);
         yearlyInfo = `Billed ${yearlyTotal} yearly - Save ${savingsPercentage}%`;
       } else {
-        const monthlyPrice = Math.round(price.amount / 12);
-        formattedPrice = formatPrice(monthlyPrice, price.currency);
-        priceLabel = t('perMonth');
+      const monthlyPrice = Math.round(price.amount / 12);
+      formattedPrice = formatPrice(monthlyPrice, price.currency);
+      priceLabel = t('perMonth');
       }
     } else {
       formattedPrice = formatPrice(price.amount, price.currency);
@@ -176,12 +176,12 @@ export function PricingCard({
             </div>
           </div>
         ) : (
-          <div className="flex items-baseline gap-2">
-            <span className="my-4 block text-4xl font-semibold">
-              {formattedPrice}
-            </span>
-            {priceLabel && <span className="text-2xl">{priceLabel}</span>}
-          </div>
+        <div className="flex items-baseline gap-2">
+          <span className="my-4 block text-4xl font-semibold">
+            {formattedPrice}
+          </span>
+          {priceLabel && <span className="text-2xl">{priceLabel}</span>}
+        </div>
         )}
 
         {/* 显示年付节省信息 */}
@@ -218,7 +218,7 @@ export function PricingCard({
           </Button>
         ) : isPaidPlan ? (
           currentUser ? (
-                        <CheckoutButton
+            <CheckoutButton
               userId={currentUser.id}
               planId={plan.id}
               priceId={price.priceId}
@@ -238,7 +238,7 @@ export function PricingCard({
               </div>
             </CheckoutButton>
           ) : (
-                        <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
+            <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
               <Button variant="default" className="mt-4 w-full cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   {plan.id === 'pro'
@@ -291,7 +291,7 @@ export function PricingCard({
               {limit.toLowerCase().includes('save') || limit.toLowerCase().includes('省') ? (
                 <HandCoins className="size-4 text-amber-500 dark:text-amber-400" />
               ) : (
-                <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
+              <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
               )}
               <span>{limit}</span>
             </li>

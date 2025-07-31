@@ -28,13 +28,9 @@ import type { User } from 'better-auth';
 import {
   ChevronsUpDown,
   Languages,
-  LaptopIcon,
   LogOut,
-  MoonIcon,
-  SunIcon,
 } from 'lucide-react';
 import { type Locale, useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
 import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
@@ -49,7 +45,6 @@ interface SidebarUserProps {
  * User navigation for the dashboard sidebar
  */
 export function SidebarUser({ user, className }: SidebarUserProps) {
-  const { setTheme } = useTheme();
   const router = useLocaleRouter();
   const { isMobile } = useSidebar();
   const pathname = useLocalePathname();
@@ -73,7 +68,7 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
     });
   };
 
-  const showModeSwitch = websiteConfig.metadata.mode?.enableSwitch ?? false;
+  const showModeSwitch = false; // Dark mode not supported
   const showLocaleSwitch = LOCALES.length > 1;
 
   const handleSignOut = async () => {
@@ -100,7 +95,7 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="cursor-pointer data-[state=open]:bg-sidebar-accent 
+              className="cursor-pointer data-[state=open]:bg-sidebar-accent
               data-[state=open]:text-sidebar-accent-foreground"
             >
               <UserAvatar
@@ -138,39 +133,7 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
 
             {(showModeSwitch || showLocaleSwitch) && <DropdownMenuSeparator />}
 
-            {showModeSwitch && (
-              <DropdownMenuGroup>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="cursor-pointer">
-                    <LaptopIcon className="mr-2 size-4" />
-                    <span>{t('Common.mode.label')}</span>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setTheme('light')}
-                    >
-                      <SunIcon className="mr-2 size-4" />
-                      <span>{t('Common.mode.light')}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setTheme('dark')}
-                    >
-                      <MoonIcon className="mr-2 size-4" />
-                      <span>{t('Common.mode.dark')}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => setTheme('system')}
-                    >
-                      <LaptopIcon className="mr-2 size-4" />
-                      <span>{t('Common.mode.system')}</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-              </DropdownMenuGroup>
-            )}
+
 
             {showLocaleSwitch && (
               <DropdownMenuGroup>

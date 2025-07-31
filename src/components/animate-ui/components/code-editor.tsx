@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useInView, type UseInViewOptions } from 'motion/react';
-import { useTheme } from 'next-themes';
+
 
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/animate-ui/buttons/copy';
@@ -54,7 +54,6 @@ function CodeEditor({
   onCopy,
   ...props
 }: CodeEditorProps) {
-  const { resolvedTheme } = useTheme();
 
   const editorRef = React.useRef<HTMLDivElement>(null);
   const [visibleCode, setVisibleCode] = React.useState('');
@@ -76,11 +75,7 @@ function CodeEditor({
 
         const highlighted = await codeToHtml(visibleCode, {
           lang,
-          themes: {
-            light: themes.light,
-            dark: themes.dark,
-          },
-          defaultColor: resolvedTheme === 'dark' ? 'dark' : 'light',
+          theme: themes.light,
         });
 
         setHighlightedCode(highlighted);
@@ -98,7 +93,6 @@ function CodeEditor({
     duration,
     delay,
     visibleCode,
-    resolvedTheme,
   ]);
 
   React.useEffect(() => {
