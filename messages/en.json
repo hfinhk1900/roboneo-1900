@@ -772,28 +772,40 @@
       "description": "Choose the plan that works best for you"
     },
     "faqs": {
-      "title": "FAQ",
-      "subtitle": "Frequently Asked Questions",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Get Answers to Your Questions About RoboNeo",
       "items": {
         "item-1": {
-          "question": "Do you offer a free trial?",
-          "answer": "Yes, we offer a 7-day free trial."
+          "question": "Is RoboNeo free to use?",
+          "answer": "Yes. Every registered user can generate 1 image or sticker per day for free (with a small watermark, perfect for trying the service). Need watermark-free, HD, or bulk generation? Upgrade to a Premium or Ultimate plan, or buy pay-as-you-go credits."
         },
         "item-2": {
-          "question": "How do I cancel my subscription?",
-          "answer": "You can cancel your subscription by visiting the billing page."
+          "question": "Can I use the images or stickers for commercial projects?",
+          "answer": "Absolutely. All content created with any paid plan or credit pack is yours to use commercially—social media, print, merchandising, you name it. Free-tier images are for personal, non-commercial use only."
         },
         "item-3": {
-          "question": "Can I change my plan?",
-          "answer": "Yes, you can change your plan at any time by visiting the billing page."
+          "question": "Will my uploaded photos be used to train the AI?",
+          "answer": "No. All uploads are auto-deleted within 24 hours and are never used for model training or shared with third parties."
         },
         "item-4": {
-          "question": "What is the refund policy?",
-          "answer": "We offer a 30-day money-back guarantee if you are not happy with our product."
+          "question": "What file formats are supported?",
+          "answer": "Input: JPEG and PNG (≤ 5 MB). Output: Transparent PNG or WebP (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
         },
         "item-5": {
-          "question": "Can't find what you're looking for?",
-          "answer": "Please contact our customer support team at support@mksaas.com"
+          "question": "How fast is the generation process?",
+          "answer": "Most images finish in 10–20 seconds. Paid users get priority queues and faster speeds, even during peak times."
+        },
+        "item-6": {
+          "question": "Can I cancel my subscription anytime?",
+          "answer": "Yes. Pause or cancel with one click in your account dashboard; 7-day money-back guarantee on all new subscriptions."
+        },
+        "item-7": {
+          "question": "Is payment secure, and what methods do you accept?",
+          "answer": "All transactions are protected with 256-bit SSL encryption. We accept Visa, Mastercard, and American Express, and we never store your full payment details."
+        },
+        "item-8": {
+          "question": "How can I get support or suggest new features?",
+          "answer": "Click Help → Contact in your dashboard or email support@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
         }
       }
     },
