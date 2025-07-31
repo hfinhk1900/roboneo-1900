@@ -14,12 +14,10 @@ const nextConfig: NextConfig = {
 
   // Set development server port to 3000
   experimental: {
-    serverComponentsExternalPackages: [],
+    // serverComponentsExternalPackages has been moved to serverExternalPackages
   },
 
-  server: {
-    port: 3000,
-  },
+  serverExternalPackages: [],
 
   // https://nextjs.org/docs/architecture/nextjs-compiler#remove-console
   // Remove all console.* calls in production only

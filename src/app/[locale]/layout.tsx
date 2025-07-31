@@ -52,7 +52,7 @@ export default async function LocaleLayout({
       <body
         suppressHydrationWarning
         className={cn(
-          'size-full antialiased',
+          'size-full antialiased theme-default',
           fontInter.className,
           fontNotoSerif.variable,
           fontNotoSansMono.variable,
