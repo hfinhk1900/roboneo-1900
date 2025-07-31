@@ -91,7 +91,10 @@ export const blog = defineCollections({
   type: 'doc',
   dir: 'content/blog',
   schema: frontmatterSchema.extend({
-    image: z.string(),
+    image: z.object({
+      url: z.string(),
+      alt: z.string(),
+    }),
     date: z.string().date(),
     published: z.boolean().default(true),
     categories: z.array(z.string()),

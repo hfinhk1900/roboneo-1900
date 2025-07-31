@@ -139,7 +139,7 @@ export function PricingCard({
       {/* show popular badge if plan is recommended */}
       {plan.recommended && (
         <span
-          className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full px-3 py-1 text-xs font-medium border
+          className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full px-3 py-1 text-sm font-medium border
         bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800 shadow-sm"
         >
           {t('popular')}
@@ -149,7 +149,7 @@ export function PricingCard({
       {/* show current plan badge if plan is current plan */}
       {isCurrentPlan && (
         <span
-          className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full px-3 py-1 text-xs font-medium border
+          className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full px-3 py-1 text-sm font-medium border
         bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 border-blue-200 dark:border-blue-800 shadow-sm"
         >
           {t('currentPlan')}
@@ -186,13 +186,13 @@ export function PricingCard({
 
         {/* 显示年付节省信息 */}
         {interval === PlanIntervals.YEAR && yearlyInfo && (
-          <p className="text-sm text-muted-foreground -mt-2 mb-2">
+          <p className="text-base text-muted-foreground -mt-2 mb-2">
             {yearlyInfo}
           </p>
         )}
 
         <CardDescription>
-          <p className="text-sm">{plan.description}</p>
+          <p className="text-base">{plan.description}</p>
         </CardDescription>
 
         {/* show action buttons based on plans */}
@@ -294,7 +294,7 @@ export function PricingCard({
         {/* show refund policy for paid subscription plans */}
         {isPaidPlan && paymentType === PaymentTypes.SUBSCRIPTION && (
           <div className="my-4">
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-sm text-muted-foreground text-center">
               Cancel anytime. 7 days refund.
             </p>
           </div>
@@ -304,7 +304,7 @@ export function PricingCard({
         {hasTrialPeriod && (
           <div className="my-4">
             <span
-              className="inline-block px-2.5 py-1.5 text-xs font-medium rounded-md
+              className="inline-block px-2.5 py-1.5 text-sm font-medium rounded-md
             bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800 shadow-sm"
             >
               {t('daysTrial', { days: price.trialPeriodDays as number })}
@@ -313,7 +313,7 @@ export function PricingCard({
         )}
 
         {/* show features of this plan */}
-        <ul className="list-outside space-y-4 text-sm">
+        <ul className="list-outside space-y-4 text-base">
           {plan.features?.map((feature, i) => (
             <li key={i} className="flex items-center gap-2">
               <CheckCircleIcon className="size-4 text-green-500 dark:text-green-400" />
@@ -323,7 +323,7 @@ export function PricingCard({
         </ul>
 
         {/* show limits of this plan */}
-        <ul className="list-outside space-y-4 text-sm">
+        <ul className="list-outside space-y-4 text-base">
           {plan.limits?.map((limit, i) => (
             <li key={i} className="flex items-center gap-2">
               {limit.toLowerCase().includes('save') || limit.toLowerCase().includes('省') ? (

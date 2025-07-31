@@ -1,5 +1,4 @@
 import { websiteConfig } from '@/config/website';
-import { getDb } from '@/db/index';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
@@ -8,8 +7,16 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin } from 'better-auth/plugins';
 import { parse as parseCookies } from 'cookie';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import type { Locale } from 'next-intl';
+import postgres from 'postgres';
+import * as schema from '@/db/schema';
 import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls/urls';
+
+// Initialize database connection synchronously
+const connectionString = process.env.DATABASE_URL!;
+const client = postgres(connectionString, { prepare: false });
+const db = drizzle(client, { schema });
 
 /**
  * Better Auth configuration
@@ -21,7 +28,7 @@ import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls/urls';
 export const auth = betterAuth({
   baseURL: getBaseUrl(),
   appName: defaultMessages.Metadata.name,
-  database: drizzleAdapter(await getDb(), {
+  database: drizzleAdapter(db, {
     provider: 'pg', // or "mysql", "sqlite"
   }),
   session: {

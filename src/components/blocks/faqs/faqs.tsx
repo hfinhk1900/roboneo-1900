@@ -24,33 +24,51 @@ export default function FaqSection() {
   const faqItems: FAQItem[] = [
     {
       id: 'item-1',
-      icon: 'calendar-clock',
+      icon: 'help-circle',
       question: t('items.item-1.question'),
       answer: t('items.item-1.answer'),
     },
     {
       id: 'item-2',
-      icon: 'wallet',
+      icon: 'briefcase',
       question: t('items.item-2.question'),
       answer: t('items.item-2.answer'),
     },
     {
       id: 'item-3',
-      icon: 'refresh-cw',
+      icon: 'shield-check',
       question: t('items.item-3.question'),
       answer: t('items.item-3.answer'),
     },
     {
       id: 'item-4',
-      icon: 'hand-coins',
+      icon: 'file-type',
       question: t('items.item-4.question'),
       answer: t('items.item-4.answer'),
     },
     {
       id: 'item-5',
-      icon: 'mail',
+      icon: 'zap',
       question: t('items.item-5.question'),
       answer: t('items.item-5.answer'),
+    },
+    {
+      id: 'item-6',
+      icon: 'x-circle',
+      question: t('items.item-6.question'),
+      answer: t('items.item-6.answer'),
+    },
+    {
+      id: 'item-7',
+      icon: 'credit-card',
+      question: t('items.item-7.question'),
+      answer: t('items.item-7.answer'),
+    },
+    {
+      id: 'item-8',
+      icon: 'headphones',
+      question: t('items.item-8.question'),
+      answer: t('items.item-8.answer'),
     },
   ];
 
@@ -70,17 +88,24 @@ export default function FaqSection() {
             collapsible
             className="ring-muted w-full rounded-2xl border px-8 py-3 shadow-sm ring-4 dark:ring-0"
           >
-            {faqItems.map((item) => (
+            {faqItems.map((item, index) => (
               <AccordionItem
                 key={item.id}
                 value={item.id}
                 className="border-dashed"
               >
                 <AccordionTrigger className="cursor-pointer text-base hover:no-underline">
+                  <span className="flex items-start gap-3">
+                    <span className="flex-shrink-0 text-primary font-semibold">
+                      {index + 1}.
+                    </span>
+                    <span className="flex-1">
                   {item.question}
+                    </span>
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-base text-muted-foreground">
+                  <p className="text-base text-muted-foreground ml-6">
                     {item.answer}
                   </p>
                 </AccordionContent>

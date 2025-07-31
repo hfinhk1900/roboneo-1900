@@ -25,11 +25,6 @@ export default function CallToActionSection() {
               </LocaleLink>
             </Button>
 
-            <Button asChild size="lg" variant="outline">
-              <LocaleLink href="/ai/image">
-                <span>{t('secondaryButton')}</span>
-              </LocaleLink>
-            </Button>
           </div>
         </div>
       </div>

@@ -112,7 +112,7 @@ export function PricingTable({
               {hasMonthlyOption && (
                 <ToggleGroupItem
                   value="month"
-                  className="px-3 py-0 cursor-pointer text-sm rounded-md"
+                  className="px-3 py-0 cursor-pointer text-base rounded-md"
                   style={interval === 'month' ? {
                     backgroundColor: 'var(--primary)',
                     color: 'var(--primary-foreground)'
@@ -126,7 +126,7 @@ export function PricingTable({
               {hasYearlyOption && (
                 <ToggleGroupItem
                   value="year"
-                  className="px-3 py-0 cursor-pointer text-sm rounded-md"
+                  className="px-3 py-0 cursor-pointer text-base rounded-md"
                   style={interval === 'year' ? {
                     backgroundColor: 'var(--primary)',
                     color: 'var(--primary-foreground)'
@@ -141,7 +141,7 @@ export function PricingTable({
 
               {/* Save 20% 标签放在外面 */}
               {hasYearlyOption && (
-                <span className="absolute -top-2 -right-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 pointer-events-none z-10">
+                <span className="absolute -top-2 -right-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 pointer-events-none z-10">
                   {t('save20')}
                 </span>
               )}
@@ -203,7 +203,7 @@ export function PricingTable({
 
       {/* Price disclaimer */}
       <div className="flex justify-center mt-1">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           {t('disclaimer')}
         </p>
       </div>
