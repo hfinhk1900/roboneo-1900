@@ -100,7 +100,7 @@ export function PricingTable({
       {/* Show interval toggle if there are subscription plans */}
       {(hasMonthlyOption || hasYearlyOption) &&
         subscriptionPlans.length > 0 && (
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-8">
             <div className="relative">
             <ToggleGroup
               size="sm"
