@@ -100,8 +100,7 @@ export function PricingTable({
       {/* Show interval toggle if there are subscription plans */}
       {(hasMonthlyOption || hasYearlyOption) &&
         subscriptionPlans.length > 0 && (
-          <div className="flex justify-center mt-8">
-            <div className="relative">
+          <div className="flex justify-center items-center mt-8">
             <ToggleGroup
               size="sm"
               type="single"
@@ -139,13 +138,12 @@ export function PricingTable({
               )}
             </ToggleGroup>
 
-              {/* Save 20% 标签放在外面 */}
-              {hasYearlyOption && (
-                <span className="absolute -top-2 -right-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 pointer-events-none z-10">
-                  {t('save20')}
-                </span>
-              )}
-            </div>
+            {/* Save 20% 标签放在外面 */}
+            {hasYearlyOption && (
+              <span className="ml-4 inline-flex items-center px-1.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 pointer-events-none z-10">
+                {t('save20')}
+              </span>
+            )}
           </div>
         )}
 
@@ -158,9 +156,9 @@ export function PricingTable({
             className={cn(
               'grid gap-6',
               // Universal solution that handles any number of cards
-              totalVisiblePlans === 1 && 'grid-cols-1 max-w-md mx-auto w-full',
+              totalVisiblePlans === 1 && 'grid-cols-1 max-w-lg mx-auto w-full',
               totalVisiblePlans === 2 &&
-                'grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto w-full',
+                'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto w-full',
               totalVisiblePlans >= 3 &&
                 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
             )}
