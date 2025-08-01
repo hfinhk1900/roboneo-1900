@@ -55,7 +55,6 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
 

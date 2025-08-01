@@ -88,9 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const postsInCategory = blogSource
         .getPages(locale)
         .filter((post) => post.data.published)
-        .filter((post) =>
-          Array.isArray(post.data.categories) &&
-          (post.data.categories as string[]).some((cat: string) => cat === category.slugs[0])
+        .filter(
+          (post) =>
+            Array.isArray(post.data.categories) &&
+            (post.data.categories as string[]).some(
+              (cat: string) => cat === category.slugs[0]
+            )
         );
       const totalPages = Math.max(
         1,

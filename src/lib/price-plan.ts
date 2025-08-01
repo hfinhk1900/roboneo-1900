@@ -1,5 +1,10 @@
 import { websiteConfig } from '@/config/website';
-import { PaymentTypes, PlanIntervals, type Price, type PricePlan } from '@/payment/types';
+import {
+  PaymentTypes,
+  PlanIntervals,
+  type Price,
+  type PricePlan,
+} from '@/payment/types';
 
 /**
  * Get all price plans (without translations, like name/description/features)
@@ -17,7 +22,9 @@ export const getAllPricePlans = (): PricePlan[] => {
  */
 export function findPlanByPlanId(planId: string): PricePlan | undefined {
   console.log(`findPlanByPlanId: Looking for plan with ID ${planId}`);
-  console.log(`findPlanByPlanId: Available plans: ${Object.keys(websiteConfig.price.plans).join(', ')}`);
+  console.log(
+    `findPlanByPlanId: Available plans: ${Object.keys(websiteConfig.price.plans).join(', ')}`
+  );
 
   const plan = websiteConfig.price.plans[planId];
   console.log(`findPlanByPlanId: Found plan: ${plan ? 'Yes' : 'No'}`);
@@ -31,8 +38,13 @@ export function findPlanByPlanId(planId: string): PricePlan | undefined {
  * @param priceId Price ID to find
  * @returns Price object or undefined if not found
  */
-export function findPriceInPlan(planId: string, priceId: string): Price | undefined {
-  console.log(`findPriceInPlan: Looking for price ${priceId} in plan ${planId}`);
+export function findPriceInPlan(
+  planId: string,
+  priceId: string
+): Price | undefined {
+  console.log(
+    `findPriceInPlan: Looking for price ${priceId} in plan ${planId}`
+  );
 
   const plan = findPlanByPlanId(planId);
   if (!plan) {
@@ -44,7 +56,9 @@ export function findPriceInPlan(planId: string, priceId: string): Price | undefi
   const price = plan.prices.find((p) => p.priceId === priceId);
   console.log(`findPriceInPlan: Found price: ${price ? 'Yes' : 'No'}`);
   if (price) {
-    console.log(`findPriceInPlan: Price details: ${price.type}, ${price.interval}, ${price.amount}`);
+    console.log(
+      `findPriceInPlan: Price details: ${price.type}, ${price.interval}, ${price.amount}`
+    );
   }
 
   return price;

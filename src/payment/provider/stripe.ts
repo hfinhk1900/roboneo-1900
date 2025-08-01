@@ -1,14 +1,11 @@
 import { randomUUID } from 'crypto';
+import { websiteConfig } from '@/config/website';
 import { getDb } from '@/db';
 import { payment, session, user } from '@/db/schema';
-import {
-  findPlanByPlanId,
-  findPriceInPlan,
-} from '@/lib/price-plan';
+import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { sendNotification } from '@/notification/notification';
 import { desc, eq } from 'drizzle-orm';
 import { Stripe } from 'stripe';
-import { websiteConfig } from '@/config/website';
 import {
   type CheckoutResult,
   type CreateCheckoutParams,
@@ -195,12 +192,29 @@ export class StripeProvider implements PaymentProvider {
       // Find price in plan
       const price = findPriceInPlan(planId, priceId);
       if (!price) {
-        console.error(`StripeProvider: Price ID ${priceId} not found in plan ${planId}`);
-        console.error(`StripeProvider: Available plans:`, websiteConfig.price.plans);
+        console.error(
+          `StripeProvider: Price ID ${priceId} not found in plan ${planId}`
+        );
+        console.error(
+          `StripeProvider: Available plans:`,
+          websiteConfig.price.plans
+        );
         if (planId === 'pro') {
-          console.error('Pro plan prices:', websiteConfig.price.plans.pro.prices.map(p => ({priceId: p.priceId, interval: p.interval})));
+          console.error(
+            'Pro plan prices:',
+            websiteConfig.price.plans.pro.prices.map((p) => ({
+              priceId: p.priceId,
+              interval: p.interval,
+            }))
+          );
         } else if (planId === 'ultimate') {
-          console.error('Ultimate plan prices:', websiteConfig.price.plans.ultimate.prices.map(p => ({priceId: p.priceId, interval: p.interval})));
+          console.error(
+            'Ultimate plan prices:',
+            websiteConfig.price.plans.ultimate.prices.map((p) => ({
+              priceId: p.priceId,
+              interval: p.interval,
+            }))
+          );
         }
         throw new Error(`Price ID ${priceId} not found in plan ${planId}`);
       }
@@ -278,11 +292,18 @@ export class StripeProvider implements PaymentProvider {
         }
       }
 
-      console.log(`StripeProvider: Creating checkout session with params:`, JSON.stringify({
-        mode: checkoutParams.mode,
-        customer: checkoutParams.customer,
-        line_items: checkoutParams.line_items,
-      }, null, 2));
+      console.log(
+        `StripeProvider: Creating checkout session with params:`,
+        JSON.stringify(
+          {
+            mode: checkoutParams.mode,
+            customer: checkoutParams.customer,
+            line_items: checkoutParams.line_items,
+          },
+          null,
+          2
+        )
+      );
 
       // Create the checkout session
       const session =
@@ -311,7 +332,9 @@ export class StripeProvider implements PaymentProvider {
     const { customerId, returnUrl, locale } = params;
 
     try {
-      console.log(`创建客户门户会话，客户ID: ${customerId}, 返回URL: ${returnUrl}`);
+      console.log(
+        `创建客户门户会话，客户ID: ${customerId}, 返回URL: ${returnUrl}`
+      );
 
       if (!customerId) {
         console.error('创建客户门户失败：缺少客户ID');
@@ -323,11 +346,15 @@ export class StripeProvider implements PaymentProvider {
         const customer = await this.stripe.customers.retrieve(customerId);
         if (!customer || customer.deleted) {
           console.error(`客户ID ${customerId} 在Stripe中不存在或已被删除`);
-          throw new Error(`Customer with ID ${customerId} not found or deleted`);
+          throw new Error(
+            `Customer with ID ${customerId} not found or deleted`
+          );
         }
       } catch (retrieveError) {
         console.error(`验证客户ID失败: ${retrieveError}`);
-        throw new Error(`Failed to validate customer: ${retrieveError instanceof Error ? retrieveError.message : 'Unknown error'}`);
+        throw new Error(
+          `Failed to validate customer: ${retrieveError instanceof Error ? retrieveError.message : 'Unknown error'}`
+        );
       }
 
       const session = await this.stripe.billingPortal.sessions.create({
@@ -348,7 +375,9 @@ export class StripeProvider implements PaymentProvider {
     } catch (error) {
       console.error(`创建客户门户错误:`, error);
       console.error(`错误详情:`, JSON.stringify(error, null, 2));
-      throw new Error(`Failed to create customer portal: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to create customer portal: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -372,11 +401,15 @@ export class StripeProvider implements PaymentProvider {
         .orderBy(desc(payment.createdAt)); // Sort by creation date, newest first
 
       // Log what we found in the database
-      console.log(`Found ${subscriptions.length} payment records in database for user ${userId}`);
+      console.log(
+        `Found ${subscriptions.length} payment records in database for user ${userId}`
+      );
 
       // If no subscriptions found in database, check if user has a customer ID
       if (subscriptions.length === 0) {
-        console.log(`No subscriptions found in database, trying to find customer ID for user ${userId}`);
+        console.log(
+          `No subscriptions found in database, trying to find customer ID for user ${userId}`
+        );
 
         // Find customer ID for this user
         const userResult = await db
@@ -387,7 +420,9 @@ export class StripeProvider implements PaymentProvider {
 
         if (userResult.length > 0 && userResult[0].customerId) {
           const customerId = userResult[0].customerId;
-          console.log(`Found customer ID ${customerId} for user ${userId}, checking with Stripe`);
+          console.log(
+            `Found customer ID ${customerId} for user ${userId}, checking with Stripe`
+          );
 
           // Check with Stripe directly for active subscriptions for this customer
           try {
@@ -398,11 +433,15 @@ export class StripeProvider implements PaymentProvider {
             });
 
             if (stripeSubscriptions.data.length > 0) {
-              console.log(`Found ${stripeSubscriptions.data.length} active subscriptions in Stripe for customer ${customerId}`);
+              console.log(
+                `Found ${stripeSubscriptions.data.length} active subscriptions in Stripe for customer ${customerId}`
+              );
 
               // For each subscription found, create a payment record in the database
               for (const stripeSubscription of stripeSubscriptions.data) {
-                console.log(`Syncing Stripe subscription ${stripeSubscription.id} to database`);
+                console.log(
+                  `Syncing Stripe subscription ${stripeSubscription.id} to database`
+                );
                 await this.createPaymentRecord(stripeSubscription, userId);
               }
 
@@ -413,7 +452,9 @@ export class StripeProvider implements PaymentProvider {
                 .where(eq(payment.userId, userId))
                 .orderBy(desc(payment.createdAt));
 
-              console.log(`After sync, found ${refreshedSubscriptions.length} payment records`);
+              console.log(
+                `After sync, found ${refreshedSubscriptions.length} payment records`
+              );
 
               // Map database records to our subscription model
               return refreshedSubscriptions.map((subscription) => ({
@@ -432,7 +473,10 @@ export class StripeProvider implements PaymentProvider {
               }));
             }
           } catch (stripeError) {
-            console.error('Error checking Stripe for subscriptions:', stripeError);
+            console.error(
+              'Error checking Stripe for subscriptions:',
+              stripeError
+            );
           }
         }
       }
@@ -505,7 +549,9 @@ export class StripeProvider implements PaymentProvider {
       } else if (eventType === 'checkout.session.completed') {
         // 处理结账完成事件
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log(`结账会话完成，模式: ${session.mode}，支付状态: ${session.payment_status}`);
+        console.log(
+          `结账会话完成，模式: ${session.mode}，支付状态: ${session.payment_status}`
+        );
         console.log(`结账会话元数据:`, session.metadata);
 
         // 处理一次性付款
@@ -519,14 +565,19 @@ export class StripeProvider implements PaymentProvider {
           try {
             // 获取订阅详情
             const subscriptionId = session.subscription as string;
-            const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+            const subscription =
+              await this.stripe.subscriptions.retrieve(subscriptionId);
             console.log(`获取订阅信息成功，状态: ${subscription.status}`);
 
             // 从session的metadata中获取userId
             const userId = session.metadata?.userId;
             if (!userId) {
-              console.warn(`未找到用户ID，尝试从客户ID查找: ${subscription.customer}`);
-              const retrievedUserId = await this.findUserIdByCustomerId(subscription.customer as string);
+              console.warn(
+                `未找到用户ID，尝试从客户ID查找: ${subscription.customer}`
+              );
+              const retrievedUserId = await this.findUserIdByCustomerId(
+                subscription.customer as string
+              );
               if (retrievedUserId) {
                 console.log(`从客户ID找到用户ID: ${retrievedUserId}`);
                 await this.createPaymentRecord(subscription, retrievedUserId);
@@ -579,11 +630,15 @@ export class StripeProvider implements PaymentProvider {
       // Try to find userId from customer ID as fallback
       const retrievedUserId = await this.findUserIdByCustomerId(customerId);
       if (!retrievedUserId) {
-        console.error(`<< Unable to find userId for subscription ${stripeSubscription.id} from customer ID ${customerId}`);
+        console.error(
+          `<< Unable to find userId for subscription ${stripeSubscription.id} from customer ID ${customerId}`
+        );
         return;
       }
 
-      console.log(`<< Retrieved userId ${retrievedUserId} from customer ID ${customerId}`);
+      console.log(
+        `<< Retrieved userId ${retrievedUserId} from customer ID ${customerId}`
+      );
       return this.createPaymentRecord(stripeSubscription, retrievedUserId);
     }
 
@@ -763,17 +818,27 @@ export class StripeProvider implements PaymentProvider {
     // get userId from session metadata, we add it in the createCheckout session
     const userId = session.metadata?.userId;
     if (!userId) {
-      console.warn(`<< No userId found in metadata for checkout session ${session.id}, attempting to find from customer ID`);
+      console.warn(
+        `<< No userId found in metadata for checkout session ${session.id}, attempting to find from customer ID`
+      );
 
       // Try to find userId from customer ID as fallback
       const retrievedUserId = await this.findUserIdByCustomerId(customerId);
       if (!retrievedUserId) {
-        console.error(`<< Unable to find userId for checkout session ${session.id} from customer ID ${customerId}`);
+        console.error(
+          `<< Unable to find userId for checkout session ${session.id} from customer ID ${customerId}`
+        );
         return;
       }
 
-      console.log(`<< Retrieved userId ${retrievedUserId} from customer ID ${customerId}`);
-      return this.createOnetimePaymentRecord(session, retrievedUserId, customerId);
+      console.log(
+        `<< Retrieved userId ${retrievedUserId} from customer ID ${customerId}`
+      );
+      return this.createOnetimePaymentRecord(
+        session,
+        retrievedUserId,
+        customerId
+      );
     }
 
     return this.createOnetimePaymentRecord(session, userId, customerId);

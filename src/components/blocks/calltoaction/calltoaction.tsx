@@ -1,9 +1,12 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
-import { LocaleLink } from '@/i18n/navigation';
+import { useLocaleRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 export default function CallToActionSection() {
   const t = useTranslations('HomePage.calltoaction');
+  const router = useLocaleRouter();
 
   return (
     <section id="call-to-action" className="px-4 py-24 bg-[#F5F5F5]">
@@ -15,16 +18,20 @@ export default function CallToActionSection() {
           <p className="mt-4 text-muted-foreground">{t('description')}</p>
 
           <div className="mt-12 flex flex-wrap justify-center gap-4">
-            <Button asChild size="lg" style={{
-              backgroundColor: 'var(--primary)',
-              color: 'var(--primary-foreground)',
-              borderColor: 'var(--primary)'
-            }}>
-              <LocaleLink href="/ai/image">
-                <span>{t('primaryButton')}</span>
-              </LocaleLink>
+            <Button
+              size="lg"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderColor: 'var(--primary)',
+              }}
+              onClick={() => {
+                router.push('/#hero');
+              }}
+              className="cursor-pointer"
+            >
+              <span>{t('primaryButton')}</span>
             </Button>
-
           </div>
         </div>
       </div>

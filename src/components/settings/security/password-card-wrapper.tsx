@@ -45,7 +45,12 @@ export function PasswordCardWrapper() {
           const hasCredential = accounts.data.some(
             (account) => account.provider === 'credential'
           );
-          console.log('用户是否有密码凭证:', hasCredential, '账户类型:', accounts.data.map(acc => acc.provider));
+          console.log(
+            '用户是否有密码凭证:',
+            hasCredential,
+            '账户类型:',
+            accounts.data.map((acc) => acc.provider)
+          );
           setHasCredentialProvider(hasCredential);
         } else {
           console.warn('获取用户账户失败，响应格式不符合预期:', accounts);

@@ -89,7 +89,9 @@ export function NavbarMobile({
           aria-label="RoboNeo – AI Image Generator"
         >
           <Logo />
-          <span className="text-xl font-extrabold font-barlow">{t('Metadata.name')}</span>
+          <span className="text-xl font-extrabold font-barlow">
+            {t('Metadata.name')}
+          </span>
         </LocaleLink>
 
         {/* navbar right shows menu icon and user button */}

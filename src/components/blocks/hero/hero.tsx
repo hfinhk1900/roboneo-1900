@@ -1,19 +1,41 @@
-"use client";
+'use client';
 
 import { useImageGeneration } from '@/ai/image/hooks/use-image-generation';
-import { PROVIDER_ORDER, type ProviderKey, initializeProviderRecord } from '@/ai/image/lib/provider-config';
+import {
+  PROVIDER_ORDER,
+  type ProviderKey,
+  initializeProviderRecord,
+} from '@/ai/image/lib/provider-config';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { LocaleLink } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
-import { ChevronRightIcon, ImageIcon, ImagePlusIcon, LoaderIcon, SparklesIcon, UploadIcon } from 'lucide-react';
+import {
+  ChevronRightIcon,
+  ImageIcon,
+  ImagePlusIcon,
+  LoaderIcon,
+  SparklesIcon,
+  UploadIcon,
+} from 'lucide-react';
+import {
+  CircleDollarSignIcon,
+  ComponentIcon,
+  WandSparklesIcon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
-import { LocaleLink } from '@/i18n/navigation';
-import { WandSparklesIcon, ComponentIcon, CircleDollarSignIcon } from 'lucide-react';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.png' },
@@ -27,17 +49,17 @@ export default function HeroSection() {
   const [prompt, setPrompt] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null
+  );
   const [selectedStyle, setSelectedStyle] = useState('ios');
-  const selectedOption = styleOptions.find(option => option.value === selectedStyle);
+  const selectedOption = styleOptions.find(
+    (option) => option.value === selectedStyle
+  );
 
   // Initialize image generation hook
-  const {
-    images,
-    isLoading,
-    startGeneration,
-    resetState,
-  } = useImageGeneration();
+  const { images, isLoading, startGeneration, resetState } =
+    useImageGeneration();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,29 +85,35 @@ export default function HeroSection() {
 
   return (
     <main id="hero" className="overflow-hidden py-12 bg-[#F5F5F5]">
-        {/* background, light shadows on top of the hero section */}
-        <div
-          aria-hidden
-          className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
-        >
-          <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
-          <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
-          <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
+      {/* background, light shadows on top of the hero section */}
+      <div
+        aria-hidden
+        className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
+      >
+        <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]" />
+        <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
+        <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="text-center sm:mx-auto lg:mr-auto">
+          {/* title */}
+          <h1
+            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+            style={{
+              fontFamily:
+                'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+            }}
+          >
+            Turn Any Photo into a Sticker with RoboNeo AI
+          </h1>
+
+          {/* description */}
+          <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
+            Try our image-to-sticker demo, then explore text-to-image &
+            image-to-image for limitless creativity.
+          </p>
         </div>
-
-            <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center sm:mx-auto lg:mr-auto">
-                {/* title */}
-                <h1 className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif' }}>
-                Turn Any Photo into a Sticker with RoboNeo AI
-                </h1>
-
-                {/* description */}
-                <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-                Try our image-to-sticker demo, then explore text-to-image & image-to-image for limitless creativity.
-
-                </p>
-          </div>
 
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Image Input */}
@@ -93,18 +121,29 @@ export default function HeroSection() {
             <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
               <CardContent className="pt-1 px-6 pb-4 space-y-5">
                 <div className="pb-1 pt-0">
-                  <h3 className="text-xl font-semibold mb-0.5">Image to Sticker</h3>
-                  <p className="text-muted-foreground">Transform your photos into beautiful stickers in seconds</p>
+                  <h3 className="text-xl font-semibold mb-0.5">
+                    Image to Sticker
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Transform your photos into beautiful stickers in seconds
+                  </p>
                 </div>
 
                 <div className="space-y-5">
                   <div className="space-y-3">
-                    <Label htmlFor="image-upload" className="text-sm font-medium">Upload Image</Label>
-                    <div className={cn(
-                      "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2",
-                      "hover:bg-muted/50 transition-colors cursor-pointer h-48 bg-[#f5f5f5]",
-                      previewUrl ? "border-primary" : "border-border"
-                    )}>
+                    <Label
+                      htmlFor="image-upload"
+                      className="text-sm font-medium"
+                    >
+                      Upload Image
+                    </Label>
+                    <div
+                      className={cn(
+                        'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
+                        'hover:bg-muted/50 transition-colors cursor-pointer h-48 bg-[#f5f5f5]',
+                        previewUrl ? 'border-primary' : 'border-border'
+                      )}
+                    >
                       {previewUrl ? (
                         <div className="relative w-full h-full">
                           <Image
@@ -117,7 +156,9 @@ export default function HeroSection() {
                       ) : (
                         <>
                           <ImagePlusIcon className="h-10 w-10 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">Click or drag to upload</p>
+                          <p className="text-sm text-muted-foreground">
+                            Click or drag to upload
+                          </p>
                         </>
                       )}
                       <Input
@@ -150,7 +191,9 @@ export default function HeroSection() {
                                 height={36}
                                 className="rounded-full"
                               />
-                              <span className="font-medium">{selectedOption.label}</span>
+                              <span className="font-medium">
+                                {selectedOption.label}
+                              </span>
                             </div>
                           )}
                         </SelectValue>
@@ -162,10 +205,10 @@ export default function HeroSection() {
                               key={option.value}
                               value={option.value}
                               className={cn(
-                                "cursor-pointer h-[50px] py-2 px-3 transition-colors",
-                                "hover:bg-gray-100 hover:text-gray-900",
-                                "focus:bg-gray-100 focus:text-gray-900",
-                                "data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900"
+                                'cursor-pointer h-[50px] py-2 px-3 transition-colors',
+                                'hover:bg-gray-100 hover:text-gray-900',
+                                'focus:bg-gray-100 focus:text-gray-900',
+                                'data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900'
                               )}
                             >
                               <div className="flex items-center gap-3">
@@ -202,11 +245,11 @@ export default function HeroSection() {
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
                     <span>1 Credit</span>
                     <span>Powered by RoboNeo</span>
-              </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-            </div>
+          </div>
 
           {/* Right side: Output */}
           <div>
@@ -223,7 +266,7 @@ export default function HeroSection() {
                   </div>
                 ) : images.length > 0 && images[0]?.image ? (
                   <div className="relative w-full h-full flex items-center justify-center">
-                  <Image
+                    <Image
                       src={images[0].image}
                       alt="Generated image"
                       width={400}
@@ -232,43 +275,51 @@ export default function HeroSection() {
                     />
                   </div>
                 ) : (
-          <div className="relative">
-            <Image
-              src="/hero-1.png"
-              alt="Example transformation - Photo to sticker"
-              width={400}
-              height={400}
-              className="object-contain max-h-full rounded-lg shadow-md"
-            />
-            <Image
-              src="/hero-2.png"
-              alt="Decorative camera icon"
-              width={120}
-              height={120}
-              className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
-            />
-            <Image
-              src="/hero-3.png"
-              alt="Decorative plant icon"
-              width={120}
-              height={120}
-              className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
-            />
-            <video
-              src="/hero-video2.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute bottom-0 right-[-2rem] w-56 h-auto rounded-lg object-contain bg-transparent opacity-90"
-            />
-          </div>
+                  <div className="relative">
+                    <Image
+                      src="/hero-1.png"
+                      alt="Example transformation - Photo to sticker"
+                      width={400}
+                      height={400}
+                      className="object-contain max-h-full rounded-lg shadow-md"
+                    />
+                    <Image
+                      src="/hero-2.png"
+                      alt="Decorative camera icon"
+                      width={120}
+                      height={120}
+                      className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
+                    />
+                    <Image
+                      src="/hero-3.png"
+                      alt="Decorative plant icon"
+                      width={120}
+                      height={120}
+                      className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
+                    />
+                    <video
+                      src="/hero-video2.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute bottom-0 right-[-2rem] w-56 h-auto rounded-lg object-contain bg-transparent opacity-90"
+                    />
+                    <video
+                      src="/hero-video-Picsart-BackgroundRemover.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
+                    />
+                  </div>
                 )}
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-      </main>
+    </main>
   );
 }

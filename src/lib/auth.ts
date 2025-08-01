@@ -1,4 +1,5 @@
 import { websiteConfig } from '@/config/website';
+import * as schema from '@/db/schema';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
@@ -10,7 +11,6 @@ import { parse as parseCookies } from 'cookie';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type { Locale } from 'next-intl';
 import postgres from 'postgres';
-import * as schema from '@/db/schema';
 import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls/urls';
 
 // Initialize database connection synchronously

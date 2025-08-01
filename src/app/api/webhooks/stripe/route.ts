@@ -15,7 +15,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Get the Stripe signature from headers
   const signature = req.headers.get('stripe-signature') || '';
 
-  console.log('Stripe webhook received with signature:', signature.substring(0, 10) + '...');
+  console.log(
+    'Stripe webhook received with signature:',
+    signature.substring(0, 10) + '...'
+  );
 
   try {
     // Validate inputs
@@ -35,7 +38,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    console.log('Processing webhook event with payload length:', payload.length);
+    console.log(
+      'Processing webhook event with payload length:',
+      payload.length
+    );
 
     // Process the webhook event
     await handleWebhookEvent(payload, signature);

@@ -34,9 +34,9 @@
     "title": "Pricing",
     "description": "Choose the plan that works best for you",
     "subtitle": "Choose the plan that works best for you",
-          "monthly": "Monthly",
-      "yearly": "Yearly",
-      "annually": "Annually",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "annually": "Annually",
     "save20": "Save 20%",
     "disclaimer": "Prices in USD, VAT/GST may apply at checkout.",
     "PricingCard": {
@@ -742,6 +742,11 @@
       "description": "Connect seamlessly with popular platforms and services to enhance your workflow.",
       "primaryButton": "Get Started",
       "secondaryButton": "See Demo"
+    },
+    "imageShowcase": {
+      "title": "Transform Any Photo into a Sticker",
+      "subtitle": "See the magic in action - from ordinary photos to extraordinary stickers",
+      "description": "Upload a selfie, pet photo, or any image and watch RoboNeo AI create perfect stickers with clean backgrounds, smooth outlines, and vibrant colors. Perfect for messaging apps, social media, and more."
     },
     "features": {
       "title": "Features",

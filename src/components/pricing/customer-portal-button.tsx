@@ -58,12 +58,19 @@ export function CustomerPortalButton({
 
       // Redirect to customer portal
       if (result?.data?.success && result.data.data?.url) {
-        console.log(`成功获取客户门户URL，准备重定向到: ${result.data.data.url}`);
+        console.log(
+          `成功获取客户门户URL，准备重定向到: ${result.data.data.url}`
+        );
         window.location.href = result.data.data?.url;
       } else {
-        console.error('创建客户门户失败，返回结果:', JSON.stringify(result, null, 2));
+        console.error(
+          '创建客户门户失败，返回结果:',
+          JSON.stringify(result, null, 2)
+        );
         if (result?.data?.error) {
-          toast.error(`${t('createCustomerPortalFailed')}: ${result.data.error}`);
+          toast.error(
+            `${t('createCustomerPortalFailed')}: ${result.data.error}`
+          );
         } else {
           toast.error(t('createCustomerPortalFailed'));
         }

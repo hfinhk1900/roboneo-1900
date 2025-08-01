@@ -1,3 +1,5 @@
+'use client';
+
 import { Logo } from '@/components/layout/logo';
 import {
   Gemini,
@@ -8,12 +10,13 @@ import {
   VSCodium,
 } from '@/components/tailark/logos';
 import { Button } from '@/components/ui/button';
-import { LocaleLink } from '@/i18n/navigation';
+import { LocaleLink, useLocaleRouter } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 export default function Integration2Section() {
   const t = useTranslations('HomePage.integration2');
+  const router = useLocaleRouter();
 
   return (
     <section>
@@ -62,10 +65,14 @@ export default function Integration2Section() {
               <p className="text-muted-foreground">{t('description')}</p>
 
               <div className="mt-12 flex flex-wrap justify-start gap-4">
-                <Button asChild size="lg">
-                  <LocaleLink href="/">
-                    <span>{t('primaryButton')}</span>
-                  </LocaleLink>
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    router.push('/#hero');
+                  }}
+                  className="cursor-pointer"
+                >
+                  <span>{t('primaryButton')}</span>
                 </Button>
 
                 <Button asChild size="lg" variant="outline">

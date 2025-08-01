@@ -1,8 +1,6 @@
 import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import type { WebsiteConfig } from '@/types';
 
-
-
 /**
  * website config, without translations
  *

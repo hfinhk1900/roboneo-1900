@@ -10,7 +10,7 @@ import {
   type PricePlan,
 } from '@/payment/types';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PricingCard } from './pricing-card';
 
 interface PricingTableProps {
@@ -107,13 +107,13 @@ export function PricingTable({
                 <button
                   onClick={() => handleIntervalChange('year')}
                   className={cn(
-                    "relative flex items-center space-x-2 rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none",
+                    'relative flex items-center space-x-2 rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none cursor-pointer',
                     interval === 'year'
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'text-gray-600 hover:text-gray-800'
                   )}
                 >
-                                     <span>{t('annually')}</span>
+                  <span>{t('annually')}</span>
                   {interval === 'year' && (
                     <span
                       className="text-sm font-medium text-primary-foreground px-2 py-0.5 rounded-full"
@@ -130,10 +130,10 @@ export function PricingTable({
                 <button
                   onClick={() => handleIntervalChange('month')}
                   className={cn(
-                    "relative rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none",
+                    'relative rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none cursor-pointer',
                     interval === 'month'
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'text-gray-600 hover:text-gray-800'
                   )}
                 >
                   {t('monthly')}
@@ -201,9 +201,7 @@ export function PricingTable({
 
       {/* Price disclaimer */}
       <div className="flex justify-center mt-1">
-        <p className="text-base text-muted-foreground">
-          {t('disclaimer')}
-        </p>
+        <p className="text-base text-muted-foreground">{t('disclaimer')}</p>
       </div>
     </div>
   );

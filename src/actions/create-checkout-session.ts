@@ -31,7 +31,11 @@ export const createCheckoutAction = actionClient
   .schema(checkoutSchema)
   .action(async ({ parsedInput }) => {
     const { userId, planId, priceId, metadata } = parsedInput;
-    console.log('Server: Creating checkout session for:', { userId, planId, priceId });
+    console.log('Server: Creating checkout session for:', {
+      userId,
+      planId,
+      priceId,
+    });
 
     // Get the current user session for authorization
     const session = await getSession();
@@ -103,9 +107,15 @@ export const createCheckoutAction = actionClient
         locale,
       };
 
-      console.log('Server: Calling createCheckout with:', JSON.stringify(params, null, 2));
+      console.log(
+        'Server: Calling createCheckout with:',
+        JSON.stringify(params, null, 2)
+      );
       const result = await createCheckout(params);
-      console.log('Server: createCheckout result:', JSON.stringify(result, null, 2));
+      console.log(
+        'Server: createCheckout result:',
+        JSON.stringify(result, null, 2)
+      );
       return {
         success: true,
         data: result,

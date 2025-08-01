@@ -125,12 +125,13 @@ export default function FaqSection() {
                     aria-label={`Question ${index + 1}: ${item.question}`}
                   >
                     <span className="flex items-start gap-3">
-                      <span className="flex-shrink-0 text-primary font-semibold" aria-hidden="true">
+                      <span
+                        className="flex-shrink-0 text-primary font-semibold"
+                        aria-hidden="true"
+                      >
                         {index + 1}.
                       </span>
-                      <span className="flex-1 text-left">
-                        {item.question}
-                      </span>
+                      <span className="flex-1 text-left">{item.question}</span>
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>

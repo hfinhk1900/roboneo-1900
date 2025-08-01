@@ -1,7 +1,8 @@
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import FaqSection from '@/components/blocks/faqs/faqs';
-import HeroSection from '@/components/blocks/hero/hero';
+import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
 import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
+import HeroSection from '@/components/blocks/hero/hero';
 import PricingSection from '@/components/blocks/pricing/pricing';
 import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
 import { NewsletterCard } from '@/components/newsletter/newsletter-card';
@@ -44,6 +45,8 @@ export default async function HomePage(props: HomePageProps) {
         <HeroSection />
 
         <StepsShowcaseSection />
+
+        <ImageShowcaseSection />
 
         <PricingSection />
 

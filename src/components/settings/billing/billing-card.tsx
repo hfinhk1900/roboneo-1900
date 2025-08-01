@@ -22,7 +22,7 @@ import { PlanIntervals } from '@/payment/types';
 import { Routes } from '@/routes';
 import { RefreshCwIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function BillingCard() {
   const t = useTranslations('Dashboard.settings.billing');

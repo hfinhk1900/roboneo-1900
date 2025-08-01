@@ -16,7 +16,8 @@ const importLocale = async (locale: Locale): Promise<Messages> => {
     // Fall back to default locale if the requested one fails
     if (locale !== routing.defaultLocale) {
       console.warn(`Falling back to default locale ${routing.defaultLocale}`);
-      return (await import(`../../messages/${routing.defaultLocale}.json`)).default as Messages;
+      return (await import(`../../messages/${routing.defaultLocale}.json`))
+        .default as Messages;
     }
     throw error; // Re-throw if we're already trying to load the default locale
   }

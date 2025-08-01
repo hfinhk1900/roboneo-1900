@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { websiteConfig } from '@/config/website';
 import { Loader2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface CheckoutButtonProps {

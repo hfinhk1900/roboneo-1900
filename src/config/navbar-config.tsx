@@ -91,13 +91,17 @@ export function getNavbarLinks(): NestedMenuItem[] {
       items: [
         {
           title: t('imageToImageGenerator.items.imageToSticker.title'),
-          description: t('imageToImageGenerator.items.imageToSticker.description'),
+          description: t(
+            'imageToImageGenerator.items.imageToSticker.description'
+          ),
           href: Routes.AIImageToSticker,
           external: false,
         },
         {
           title: t('imageToImageGenerator.items.imageToImage.title'),
-          description: t('imageToImageGenerator.items.imageToImage.description'),
+          description: t(
+            'imageToImageGenerator.items.imageToImage.description'
+          ),
           href: Routes.AIImageToImage,
           external: false,
         },

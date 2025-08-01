@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 import { HeaderSection } from '@/components/layout/header-section';
 import { cn } from '@/lib/utils';
-import { ImageUp, Aperture, ImageDown, Play, Pause } from 'lucide-react';
+import { Aperture, ImageDown, ImageUp, Pause, Play } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Step {
   id: string;
@@ -28,7 +28,8 @@ const steps: Step[] = [
     id: 'style',
     number: '2',
     title: 'Choose a Sticker Style',
-    description: 'Select a look—iOS emoji, Snoopy, chibi, and more—then hit Generate.',
+    description:
+      'Select a look—iOS emoji, Snoopy, chibi, and more—then hit Generate.',
     icon: <Aperture className="w-5 h-5" />,
     image: '/step-showcase2.png',
   },
@@ -36,7 +37,8 @@ const steps: Step[] = [
     id: 'save',
     number: '3',
     title: 'Save & Share',
-    description: 'Tap the download icon to save your new sticker, ready for chats and socials.',
+    description:
+      'Tap the download icon to save your new sticker, ready for chats and socials.',
     icon: <ImageDown className="w-5 h-5" />,
     image: '/step-showcase3.png',
   },
@@ -46,15 +48,15 @@ export default function StepsShowcaseSection() {
   const [activeStep, setActiveStep] = useState('upload');
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const currentStep = steps.find(step => step.id === activeStep);
+  const currentStep = steps.find((step) => step.id === activeStep);
 
   // Auto-play functionality
   useEffect(() => {
     if (!isAutoPlaying) return;
 
     intervalRef.current = setInterval(() => {
-      setActiveStep(currentStep => {
-        const currentIndex = steps.findIndex(step => step.id === currentStep);
+      setActiveStep((currentStep) => {
+        const currentIndex = steps.findIndex((step) => step.id === currentStep);
         const nextIndex = (currentIndex + 1) % steps.length;
         return steps[nextIndex].id;
       });
@@ -67,7 +69,7 @@ export default function StepsShowcaseSection() {
     };
   }, [isAutoPlaying]);
 
-    // Handle manual step selection
+  // Handle manual step selection
   const handleStepClick = (stepId: string) => {
     setActiveStep(stepId);
     // Pause auto-play when user manually interacts
@@ -96,31 +98,41 @@ export default function StepsShowcaseSection() {
                 key={step.id}
                 onClick={() => handleStepClick(step.id)}
                 className={cn(
-                  "group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-md h-32 flex items-center",
+                  'group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-md h-32 flex items-center',
                   activeStep === step.id
-                    ? "shadow-sm"
-                    : "border-border bg-white hover:border-primary/50"
+                    ? 'shadow-sm'
+                    : 'border-border bg-white hover:border-primary/50'
                 )}
-                style={activeStep === step.id ? {
-                  borderColor: 'var(--primary)',
-                  backgroundColor: 'color-mix(in srgb, var(--primary) 10%, transparent)',
-                  boxShadow: '0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'
-                } : {}}
+                style={
+                  activeStep === step.id
+                    ? {
+                        borderColor: 'var(--primary)',
+                        backgroundColor:
+                          'color-mix(in srgb, var(--primary) 10%, transparent)',
+                        boxShadow:
+                          '0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)',
+                      }
+                    : {}
+                }
               >
                 <div className="flex items-start gap-4">
                   {/* Step Number */}
                   <div
                     className={cn(
-                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 font-bold transition-all duration-300",
+                      'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 font-bold transition-all duration-300',
                       activeStep === step.id
-                        ? ""
-                        : "border-muted bg-muted text-muted-foreground group-hover:border-primary/50"
+                        ? ''
+                        : 'border-muted bg-muted text-muted-foreground group-hover:border-primary/50'
                     )}
-                    style={activeStep === step.id ? {
-                      borderColor: 'var(--primary)',
-                      backgroundColor: 'var(--primary)',
-                      color: 'var(--primary-foreground)'
-                    } : {}}
+                    style={
+                      activeStep === step.id
+                        ? {
+                            borderColor: 'var(--primary)',
+                            backgroundColor: 'var(--primary)',
+                            color: 'var(--primary-foreground)',
+                          }
+                        : {}
+                    }
                   >
                     {step.number}
                   </div>
@@ -130,21 +142,25 @@ export default function StepsShowcaseSection() {
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          "transition-colors duration-300",
+                          'transition-colors duration-300',
                           activeStep === step.id
-                            ? ""
-                            : "text-muted-foreground group-hover:text-primary"
+                            ? ''
+                            : 'text-muted-foreground group-hover:text-primary'
                         )}
-                        style={activeStep === step.id ? { color: 'var(--primary)' } : {}}
+                        style={
+                          activeStep === step.id
+                            ? { color: 'var(--primary)' }
+                            : {}
+                        }
                       >
                         {step.icon}
                       </span>
                       <h4
                         className={cn(
-                          "text-lg font-semibold transition-colors duration-300",
+                          'text-lg font-semibold transition-colors duration-300',
                           activeStep === step.id
-                            ? "text-foreground"
-                            : "text-foreground group-hover:text-foreground"
+                            ? 'text-foreground'
+                            : 'text-foreground group-hover:text-foreground'
                         )}
                       >
                         {step.title}
@@ -152,10 +168,10 @@ export default function StepsShowcaseSection() {
                     </div>
                     <p
                       className={cn(
-                        "text-sm transition-colors duration-300",
+                        'text-sm transition-colors duration-300',
                         activeStep === step.id
-                          ? "text-foreground/80"
-                          : "text-muted-foreground"
+                          ? 'text-foreground/80'
+                          : 'text-muted-foreground'
                       )}
                     >
                       {step.description}
@@ -171,18 +187,24 @@ export default function StepsShowcaseSection() {
               <button
                 onClick={() => setIsAutoPlaying(!isAutoPlaying)}
                 className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300",
-                  "border-2 hover:scale-110",
+                  'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300',
+                  'border-2 hover:scale-110',
                   isAutoPlaying
-                    ? ""
-                    : "bg-white border-gray-300 text-gray-600 hover:border-gray-400"
+                    ? ''
+                    : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400'
                 )}
-                style={isAutoPlaying ? {
-                  backgroundColor: 'var(--primary)',
-                  borderColor: 'var(--primary)',
-                  color: 'var(--primary-foreground)'
-                } : {}}
-                aria-label={isAutoPlaying ? "Pause auto-play" : "Start auto-play"}
+                style={
+                  isAutoPlaying
+                    ? {
+                        backgroundColor: 'var(--primary)',
+                        borderColor: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
+                      }
+                    : {}
+                }
+                aria-label={
+                  isAutoPlaying ? 'Pause auto-play' : 'Start auto-play'
+                }
               >
                 {isAutoPlaying ? (
                   <Pause className="w-4 h-4" />
@@ -198,14 +220,18 @@ export default function StepsShowcaseSection() {
                     key={`indicator-${step.id}`}
                     onClick={() => handleStepClick(step.id)}
                     className={cn(
-                      "w-3 h-3 rounded-full transition-all duration-300",
+                      'w-3 h-3 rounded-full transition-all duration-300',
                       activeStep === step.id
-                        ? "scale-110"
-                        : "bg-gray-300 hover:bg-gray-400"
+                        ? 'scale-110'
+                        : 'bg-gray-300 hover:bg-gray-400'
                     )}
-                    style={activeStep === step.id ? {
-                      backgroundColor: 'var(--primary)'
-                    } : {}}
+                    style={
+                      activeStep === step.id
+                        ? {
+                            backgroundColor: 'var(--primary)',
+                          }
+                        : {}
+                    }
                     aria-label={`Go to step ${step.number}`}
                   />
                 ))}
@@ -221,7 +247,8 @@ export default function StepsShowcaseSection() {
                   src={currentStep.image}
                   alt={`Step ${currentStep.number}: ${currentStep.title}`}
                   width={400}
-                  height={600}                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
+                  height={600}
+                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
                 />
               ) : (
                 <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">

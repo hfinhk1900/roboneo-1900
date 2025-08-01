@@ -25,7 +25,6 @@ interface ProvidersProps {
  * - PaymentProvider: Provides the payment state to the app.
  */
 export function Providers({ children, locale }: ProvidersProps) {
-
   // available languages that will be displayed in the docs UI
   // make sure `locale` is consistent with your i18n config
   const locales = Object.entries(websiteConfig.i18n.locales).map(

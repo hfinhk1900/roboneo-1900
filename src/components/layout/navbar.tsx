@@ -68,7 +68,8 @@ export function Navbar({ scroll }: NavBarProps) {
           : 'border-b bg-[#F5F5F5]'
       )}
       style={{
-        backgroundColor: scroll && scrolled ? 'rgba(245, 245, 245, 0.6)' : '#F5F5F5'
+        backgroundColor:
+          scroll && scrolled ? 'rgba(245, 245, 245, 0.6)' : '#F5F5F5',
       }}
     >
       <Container className="px-4">

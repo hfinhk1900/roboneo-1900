@@ -25,11 +25,7 @@ import { authClient } from '@/lib/auth-client';
 import { useLocaleStore } from '@/stores/locale-store';
 import { usePaymentStore } from '@/stores/payment-store';
 import type { User } from 'better-auth';
-import {
-  ChevronsUpDown,
-  Languages,
-  LogOut,
-} from 'lucide-react';
+import { ChevronsUpDown, Languages, LogOut } from 'lucide-react';
 import { type Locale, useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
@@ -132,8 +128,6 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
             </DropdownMenuLabel>
 
             {(showModeSwitch || showLocaleSwitch) && <DropdownMenuSeparator />}
-
-
 
             {showLocaleSwitch && (
               <DropdownMenuGroup>

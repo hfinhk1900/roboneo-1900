@@ -2,6 +2,7 @@
 
 import { getDb } from '@/db';
 import { user } from '@/db/schema';
+import { payment } from '@/db/schema';
 import { getSession } from '@/lib/server';
 import { getUrlWithLocale } from '@/lib/urls/urls';
 import { createCustomerPortal } from '@/payment';
@@ -10,7 +11,6 @@ import { eq } from 'drizzle-orm';
 import { getLocale } from 'next-intl/server';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
-import { payment } from '@/db/schema';
 
 // Create a safe action client
 const actionClient = createSafeActionClient();
@@ -84,14 +84,19 @@ export const createPortalAction = actionClient
         if (paymentResults.length > 0) {
           // 用户有支付记录但没有客户ID，尝试更新用户的客户ID
           const stripeCustomerId = paymentResults[0].customerId;
-          console.log(`从支付记录中找到客户ID: ${stripeCustomerId}，尝试更新用户记录`);
+          console.log(
+            `从支付记录中找到客户ID: ${stripeCustomerId}，尝试更新用户记录`
+          );
 
           if (stripeCustomerId) {
-            await db.update(user)
+            await db
+              .update(user)
               .set({ customerId: stripeCustomerId })
               .where(eq(user.id, session.user.id));
 
-            console.log(`已更新用户 ${session.user.id} 的客户ID为 ${stripeCustomerId}`);
+            console.log(
+              `已更新用户 ${session.user.id} 的客户ID为 ${stripeCustomerId}`
+            );
 
             // 使用找到的客户ID继续创建门户
             const returnUrlWithLocale =

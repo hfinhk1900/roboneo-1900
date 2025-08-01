@@ -1,7 +1,7 @@
 import 'dotenv/config';
+import { eq } from 'drizzle-orm';
 import { getDb } from '../src/db';
 import { user } from '../src/db/schema';
-import { eq } from 'drizzle-orm';
 
 /**
  * 将用户设置为管理员
@@ -12,7 +12,9 @@ async function setAdminRole() {
 
   if (!email) {
     console.error('请提供用户邮箱作为参数');
-    console.error('示例: npx tsx scripts/set-admin-role.ts your-email@example.com');
+    console.error(
+      '示例: npx tsx scripts/set-admin-role.ts your-email@example.com'
+    );
     process.exit(1);
   }
 
@@ -41,7 +43,7 @@ async function setAdminRole() {
       .update(user)
       .set({
         role: 'admin',
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(user.email, email));
 

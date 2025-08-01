@@ -20,7 +20,7 @@ import {
   type Price,
   type PricePlan,
 } from '@/payment/types';
-import { CheckCircleIcon, XCircleIcon, Zap, HandCoins } from 'lucide-react';
+import { CheckCircleIcon, HandCoins, XCircleIcon, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LoginWrapper } from '../auth/login-wrapper';
 import { RegisterWrapper } from '../auth/register-wrapper';
@@ -88,7 +88,6 @@ export function PricingCard({
   let originalPrice = '';
   let priceLabel = '';
 
-
   if (plan.isFree) {
     formattedPrice = t('freePrice');
   } else if (price && price.amount > 0) {
@@ -98,19 +97,19 @@ export function PricingCard({
       priceLabel = t('perMonth');
     } else if (interval === PlanIntervals.YEAR) {
       // 获取月付价格作为原价
-      const monthlyPrice = plan.prices.find(p => p.interval === PlanIntervals.MONTH);
+      const monthlyPrice = plan.prices.find(
+        (p) => p.interval === PlanIntervals.MONTH
+      );
       if (monthlyPrice) {
         originalPrice = formatPrice(monthlyPrice.amount, monthlyPrice.currency);
         // 显示年付月均价格（年付总价÷12）
         const yearlyMonthlyPrice = Math.round(price.amount / 12);
         formattedPrice = formatPrice(yearlyMonthlyPrice, price.currency);
         priceLabel = t('perMonth');
-
-
       } else {
-      const monthlyPrice = Math.round(price.amount / 12);
-      formattedPrice = formatPrice(monthlyPrice, price.currency);
-      priceLabel = t('perMonth');
+        const monthlyPrice = Math.round(price.amount / 12);
+        formattedPrice = formatPrice(monthlyPrice, price.currency);
+        priceLabel = t('perMonth');
       }
     } else {
       formattedPrice = formatPrice(price.amount, price.currency);
@@ -128,7 +127,8 @@ export function PricingCard({
     <Card
       className={cn(
         'flex flex-col h-full bg-white',
-        plan.recommended && 'relative border-amber-400 shadow-lg shadow-amber-100 dark:shadow-amber-900/20',
+        plan.recommended &&
+          'relative border-amber-400 shadow-lg shadow-amber-100 dark:shadow-amber-900/20',
         isCurrentPlan &&
           'border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20',
         className
@@ -167,22 +167,18 @@ export function PricingCard({
               <span className="text-2xl text-gray-400 line-through">
                 {originalPrice}
               </span>
-              <span className="text-4xl font-semibold">
-                {formattedPrice}
-              </span>
+              <span className="text-4xl font-semibold">{formattedPrice}</span>
               {priceLabel && <span className="text-2xl">{priceLabel}</span>}
             </div>
           </div>
         ) : (
-        <div className="flex items-baseline gap-2">
-          <span className="my-4 block text-4xl font-semibold">
-            {formattedPrice}
-          </span>
-          {priceLabel && <span className="text-2xl">{priceLabel}</span>}
-        </div>
+          <div className="flex items-baseline gap-2">
+            <span className="my-4 block text-4xl font-semibold">
+              {formattedPrice}
+            </span>
+            {priceLabel && <span className="text-2xl">{priceLabel}</span>}
+          </div>
         )}
-
-
 
         <CardDescription>
           <p className="text-base">{plan.description}</p>
@@ -197,7 +193,7 @@ export function PricingCard({
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
-                borderColor: 'var(--primary)'
+                borderColor: 'var(--primary)',
               }}
               onClick={() => {
                 // 用户已登录，跳转到首页hero部分
@@ -214,7 +210,7 @@ export function PricingCard({
                 style={{
                   backgroundColor: 'var(--primary)',
                   color: 'var(--primary-foreground)',
-                  borderColor: 'var(--primary)'
+                  borderColor: 'var(--primary)',
                 }}
               >
                 {t('getStartedForFree')}
@@ -240,7 +236,7 @@ export function PricingCard({
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
-                borderColor: 'var(--primary)'
+                borderColor: 'var(--primary)',
               }}
             >
               <div className="flex items-center justify-center gap-2">
@@ -254,8 +250,7 @@ export function PricingCard({
                         ? t('getUltimate')
                         : plan.id === 'premium'
                           ? t('upgradeToPremium')
-                          : t('getStarted')
-                }
+                          : t('getStarted')}
                 <Zap className="w-4 h-4" />
               </div>
             </CheckoutButton>
@@ -267,7 +262,7 @@ export function PricingCard({
                 style={{
                   backgroundColor: 'var(--primary)',
                   color: 'var(--primary-foreground)',
-                  borderColor: 'var(--primary)'
+                  borderColor: 'var(--primary)',
                 }}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -279,8 +274,7 @@ export function PricingCard({
                         ? t('getUltimate')
                         : plan.id === 'premium'
                           ? t('upgradeToPremium')
-                          : t('getStarted')
-                  }
+                          : t('getStarted')}
                   <Zap className="w-4 h-4" />
                 </div>
               </Button>
@@ -331,10 +325,11 @@ export function PricingCard({
         <ul className="list-outside space-y-4 text-base">
           {plan.limits?.map((limit, i) => (
             <li key={i} className="flex items-center gap-2">
-              {limit.toLowerCase().includes('save') || limit.toLowerCase().includes('省') ? (
+              {limit.toLowerCase().includes('save') ||
+              limit.toLowerCase().includes('省') ? (
                 <HandCoins className="size-4 text-amber-500 dark:text-amber-400" />
               ) : (
-              <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
+                <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
               )}
               <span>{limit}</span>
             </li>

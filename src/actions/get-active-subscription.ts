@@ -52,7 +52,10 @@ export const getActiveSubscriptionAction = actionClient
       const subscriptions = await getSubscriptions({
         userId: session.user.id,
       });
-      console.log('DEBUGGING: All subscriptions found:', JSON.stringify(subscriptions, null, 2));
+      console.log(
+        'DEBUGGING: All subscriptions found:',
+        JSON.stringify(subscriptions, null, 2)
+      );
 
       let subscriptionData = null;
       // Find the most recent active subscription (if any)
@@ -64,12 +67,19 @@ export const getActiveSubscriptionAction = actionClient
 
         // If found, use it
         if (activeSubscription) {
-          console.log('DEBUGGING: Active subscription found:', JSON.stringify(activeSubscription, null, 2));
+          console.log(
+            'DEBUGGING: Active subscription found:',
+            JSON.stringify(activeSubscription, null, 2)
+          );
           subscriptionData = activeSubscription;
         } else {
           console.log(
             'DEBUGGING: No active subscription found, subscription statuses:',
-            subscriptions.map(sub => ({ id: sub.id, status: sub.status, priceId: sub.priceId }))
+            subscriptions.map((sub) => ({
+              id: sub.id,
+              status: sub.status,
+              priceId: sub.priceId,
+            }))
           );
         }
       } else {
