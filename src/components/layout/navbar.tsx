@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
@@ -140,20 +141,38 @@ export function Navbar({ scroll }: NavBarProps) {
                                   >
                                     <div
                                       className={cn(
-                                        'flex size-8 shrink-0 items-center justify-center transition-colors',
+                                        'flex shrink-0 items-center justify-center transition-colors',
                                         'bg-transparent text-muted-foreground',
                                         'group-hover:bg-transparent group-hover:text-foreground',
                                         'group-focus:bg-transparent group-focus:text-foreground',
                                         isSubItemActive &&
-                                          'bg-transparent text-foreground'
+                                          'bg-transparent text-foreground',
+                                        // 对于图片图标使用更大的尺寸，对于普通图标保持原来的size-8
+                                        subItem.icon && typeof subItem.icon === 'string' ? 'w-[70px] h-[70px]' : 'size-8'
                                       )}
                                     >
-                                      {subItem.icon ? subItem.icon : null}
+                                      {subItem.icon ? (
+                                        typeof subItem.icon === 'string' ? (
+                                          <Image
+                                            src={subItem.icon}
+                                            alt=""
+                                            width={70}
+                                            height={70}
+                                            className="rounded-md"
+                                          />
+                                        ) : (
+                                          subItem.icon
+                                        )
+                                      ) : null}
                                     </div>
                                     <div className="flex-1">
                                       <div
                                         className={cn(
-                                          'text-sm font-medium text-muted-foreground',
+                                          'text-sm font-medium',
+                                          // Text to Image菜单的标题使用黑色，其他菜单保持原色
+                                          item.title.includes('Text to Image') || item.title.includes('文本转图像')
+                                            ? 'text-black'
+                                            : 'text-muted-foreground',
                                           'group-hover:bg-transparent group-hover:text-foreground',
                                           'group-focus:bg-transparent group-focus:text-foreground',
                                           isSubItemActive &&

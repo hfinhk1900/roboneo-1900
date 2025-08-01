@@ -280,19 +280,23 @@
         "title": "Sticker 🔥"
       },
       "textToImageGenerator": {
-        "title": "Text to Image Generator",
+        "title": "Text to Image",
         "items": {
-          "illustrator": {
-            "title": "AI Illustrator generator",
-            "description": "Create stunning illustrations with AI"
+          "productshot": {
+            "title": "ProductShot",
+            "description": "Generate photoreal ads & e-commerce shots from a single prompt."
           },
-          "sticker": {
-            "title": "AI Sticker Generator",
-            "description": "Design custom stickers with AI"
+          "avatarforge": {
+            "title": "AvatarForge",
+            "description": "Turn any selfie into anime, chibi, Lego or cartoon avatars."
           },
-          "poster": {
-            "title": "AI Poster Generator",
-            "description": "Generate eye-catching posters with AI"
+          "postercraft": {
+            "title": "PosterCraft",
+            "description": "Create social posters and flyers with built-in, editable text."
+          },
+          "scenedreamer": {
+            "title": "SceneDreamer",
+            "description": "Produce cinematic concept art and mood-board frames in seconds."
           }
         }
       },
@@ -300,16 +304,16 @@
         "title": "Image to Image",
         "items": {
           "imageToSticker": {
-            "title": "AI Image to Sticker Generator",
-            "description": "Transform any image into a custom sticker"
+            "title": "Image to Sticker",
+            "description": "Transform any photo into a clean sticker with transparent background."
           },
           "imageToImage": {
-            "title": "AI Image to Image Generator",
-            "description": "Transform and enhance your images with AI"
+            "title": "Image to Image",
+            "description": "Transform photos using AI-powered style transfer and enhancement."
           },
           "portrait": {
-            "title": "AI Portrait Generator",
-            "description": "Create stunning AI-generated portraits"
+            "title": "Portrait Generator",
+            "description": "Create professional portraits and headshots from any photo."
           }
         }
       },

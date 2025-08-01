@@ -154,7 +154,7 @@ export interface PriceConfig {
 export type MenuItem = {
   title: string;                      // The text to display
   description?: string;               // The description of the item
-  icon?: ReactNode;                   // The icon to display
+  icon?: ReactNode | string;          // The icon to display (ReactNode or image path)
   href?: string;                      // The url to link to
   external?: boolean;                 // Whether the link is external
   authorizeOnly?: string[];           // The roles that are authorized to see the item

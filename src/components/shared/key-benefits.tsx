@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { Aperture, Waypoints, Store, Zap } from 'lucide-react';
+import { Aperture, Store, Waypoints, Zap } from 'lucide-react';
 
 interface KeyBenefitsProps {
   className?: string;

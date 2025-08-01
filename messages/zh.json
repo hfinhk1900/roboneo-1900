@@ -280,19 +280,23 @@
         "title": "Sticker 🔥"
       },
       "textToImageGenerator": {
-        "title": "文本转图像生成器",
+        "title": "文本转图像",
         "items": {
-          "illustrator": {
-            "title": "AI 插画生成器",
-            "description": "使用 AI 创建精美插画"
+          "productshot": {
+            "title": "ProductShot",
+            "description": "通过单个提示生成真实的广告和电商拍摄图片。"
           },
-          "sticker": {
-            "title": "AI 贴纸生成器",
-            "description": "使用 AI 设计定制贴纸"
+          "avatarforge": {
+            "title": "AvatarForge",
+            "description": "将任何自拍照转换为动漫、Q版、乐高或卡通头像。"
           },
-          "poster": {
-            "title": "AI 海报生成器",
-            "description": "使用 AI 生成吸引眼球的海报"
+          "postercraft": {
+            "title": "PosterCraft",
+            "description": "创建带有内置可编辑文字的社交海报和传单。"
+          },
+          "scenedreamer": {
+            "title": "SceneDreamer",
+            "description": "在几秒钟内制作电影级概念艺术和情绪板框架。"
           }
         }
       },

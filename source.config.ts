@@ -95,10 +95,12 @@ export const blog = defineCollections({
     description: z.string().optional(),
     icon: z.string().optional(),
     full: z.boolean().optional(),
-    image: z.object({
-      url: z.string(),
-      alt: z.string(),
-    }).optional(),
+    image: z
+      .object({
+        url: z.string(),
+        alt: z.string(),
+      })
+      .optional(),
     date: z.string().date(),
     published: z.boolean().default(true),
     categories: z.array(z.string()),
