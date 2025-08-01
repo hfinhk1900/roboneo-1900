@@ -46,9 +46,11 @@
       "popular": "Most Popular",
       "currentPlan": "Current Plan",
       "yourCurrentPlan": "Your Current Plan",
-      "getStartedForFree": "Get Started For Free",
+      "getStartedForFree": "Start Free Trial",
       "getLifetimeAccess": "Get Lifetime Access",
       "getStarted": "Get Started",
+      "getPro": "Get Pro",
+      "getUltimate": "Get Ultimate",
       "upgradeToPremium": "Upgrade to Premium",
       "upgradeToUltimate": "Upgrade to Ultimate",
       "notAvailable": "Not Available",
@@ -61,12 +63,12 @@
   },
   "PricePlans": {
     "free": {
-      "name": "Free",
-      "description": "Basic features for personal use",
+      "name": "Free Trial",
+      "description": "Explore for free",
       "features": {
-        "feature-1": "Up to 3 projects",
-        "feature-2": "1 GB storage",
-        "feature-3": "Basic analytics",
+        "feature-1": "Free 20 credits",
+        "feature-2": "Basic AI image and video generation",
+        "feature-3": "Standard resolution",
         "feature-4": "Community support"
       },
       "limits": {
@@ -76,33 +78,36 @@
       }
     },
     "pro": {
-      "name": "Premium",
-      "description": "Basic package for individual users",
+      "name": "Pro",
+      "description": "Perfect for individuals",
       "features": {
-        "feature-1": "200 image generations per month",
-        "feature-2": "High-resolution image download",
-        "feature-3": "No ads",
-        "feature-4": "No watermark"
-      },
-      "limits": {
-        "limit-1": "Save 20% with annual billing"
+        "feature-1": "800 credits per month",
+        "feature-2": "All models and styles",
+        "feature-3": "Standard resolution",
+        "feature-4": "Email support",
+        "feature-5": "Cancel anytime"
       }
     },
     "ultimate": {
       "name": "Ultimate",
-      "description": "Full-featured unlimited package",
+      "description": "Best for creators",
       "features": {
-        "feature-1": "500 image generations per month",
-        "feature-2": "2.5× images + batch mode & priority queue",
-        "feature-3": "Multi-image generation support",
-        "feature-4": "High-resolution image download",
-        "feature-5": "Faster generation speed",
-        "feature-6": "Early access to new features",
-        "feature-7": "No ads",
-        "feature-8": "No watermark"
-      },
-      "limits": {
-        "limit-1": "Save 20% with annual billing"
+        "feature-1": "3,000 credits per month",
+        "feature-2": "All models and styles",
+        "feature-3": "Priority processing",
+        "feature-4": "Priority support",
+        "feature-5": "Cancel anytime"
+      }
+    },
+    "premium": {
+      "name": "Premium",
+      "description": "For professional users",
+      "features": {
+        "feature-1": "8,000 credits per month",
+        "feature-2": "All models and styles",
+        "feature-3": "Fast processing",
+        "feature-4": "24/7 support",
+        "feature-5": "Cancel anytime"
       }
     }
   },
@@ -803,7 +808,7 @@
     "pricing": {
       "title": "Pricing",
       "subtitle": "Pricing",
-      "description": "Choose the plan that works best for you"
+      "description": "Generate dynamic scenes using AI technology, cancel anytime!"
     },
     "faqs": {
       "title": "Frequently Asked Questions",

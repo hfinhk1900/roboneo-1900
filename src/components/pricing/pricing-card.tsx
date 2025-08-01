@@ -249,11 +249,15 @@ export function PricingCard({
               <div className="flex items-center justify-center gap-2">
                 {plan.isLifetime
                   ? t('getLifetimeAccess')
-                  : plan.id === 'pro'
-                    ? t('upgradeToPremium')
-                    : plan.id === 'ultimate'
-                      ? t('upgradeToUltimate')
-                      : t('getStarted')
+                  : plan.id === 'free'
+                    ? t('getStartedForFree')
+                    : plan.id === 'pro'
+                      ? t('getPro')
+                      : plan.id === 'ultimate'
+                        ? t('getUltimate')
+                        : plan.id === 'premium'
+                          ? t('upgradeToPremium')
+                          : t('getStarted')
                 }
                 <Zap className="w-4 h-4" />
               </div>
@@ -270,11 +274,15 @@ export function PricingCard({
                 }}
               >
                 <div className="flex items-center justify-center gap-2">
-                  {plan.id === 'pro'
-                    ? t('upgradeToPremium')
-                    : plan.id === 'ultimate'
-                      ? t('upgradeToUltimate')
-                      : t('getStarted')
+                  {plan.id === 'free'
+                    ? t('getStartedForFree')
+                    : plan.id === 'pro'
+                      ? t('getPro')
+                      : plan.id === 'ultimate'
+                        ? t('getUltimate')
+                        : plan.id === 'premium'
+                          ? t('upgradeToPremium')
+                          : t('getStarted')
                   }
                   <Zap className="w-4 h-4" />
                 </div>

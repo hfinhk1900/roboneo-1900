@@ -46,9 +46,11 @@
       "popular": "最热门",
       "currentPlan": "当前方案",
       "yourCurrentPlan": "您的当前方案",
-      "getStartedForFree": "开始免费使用",
+      "getStartedForFree": "开始免费试用",
       "getLifetimeAccess": "开启终身会员",
-      "getStarted": "开始免费试用",
+      "getStarted": "开始使用",
+      "getPro": "选择专业版",
+      "getUltimate": "选择旗舰版",
       "upgradeToPremium": "升级到高级版",
       "upgradeToUltimate": "升级到旗舰版",
       "notAvailable": "不可用",
@@ -61,12 +63,12 @@
   },
   "PricePlans": {
     "free": {
-      "name": "免费版",
-      "description": "个人使用的基本功能",
+      "name": "免费试用",
+      "description": "免费探索",
       "features": {
-        "feature-1": "最多3个项目",
-        "feature-2": "1GB存储空间",
-        "feature-3": "基础分析功能",
+        "feature-1": "免费 20 积分",
+        "feature-2": "基础 AI 图像和视频生成",
+        "feature-3": "标准分辨率",
         "feature-4": "社区支持"
       },
       "limits": {
@@ -76,33 +78,36 @@
       }
     },
     "pro": {
-      "name": "高级版",
-      "description": "个人用户基础套餐",
+      "name": "专业版",
+      "description": "适合个人用户",
       "features": {
-        "feature-1": "每月200次图像生成",
-        "feature-2": "高清图像下载",
-        "feature-3": "无广告",
-        "feature-4": "无水印"
-      },
-      "limits": {
-        "limit-1": "年付享8折优惠"
+        "feature-1": "每月 800 积分",
+        "feature-2": "所有模型和风格",
+        "feature-3": "标准分辨率",
+        "feature-4": "邮件支持",
+        "feature-5": "随时取消"
       }
     },
     "ultimate": {
       "name": "旗舰版",
-      "description": "功能齐全的无限套餐",
+      "description": "最适合创作者",
       "features": {
-        "feature-1": "每月500次图像生成",
-        "feature-2": "2.5倍图像 + 批量模式和优先队列",
-        "feature-3": "多图像生成支持",
-        "feature-4": "高清图像下载",
-        "feature-5": "更快的生成速度",
-        "feature-6": "抢先体验新功能",
-        "feature-7": "无广告",
-        "feature-8": "无水印"
-      },
-      "limits": {
-        "limit-1": "年付享8折优惠"
+        "feature-1": "每月 3,000 积分",
+        "feature-2": "所有模型和风格",
+        "feature-3": "优先处理",
+        "feature-4": "优先支持",
+        "feature-5": "随时取消"
+      }
+    },
+    "premium": {
+      "name": "专业版",
+      "description": "专业用户专属",
+      "features": {
+        "feature-1": "每月 8,000 积分",
+        "feature-2": "所有模型和风格",
+        "feature-3": "快速处理",
+        "feature-4": "24/7 支持",
+        "feature-5": "随时取消"
       }
     }
   },
@@ -803,7 +808,7 @@
     "pricing": {
       "title": "价格",
       "subtitle": "价格",
-      "description": "选择最适合您的付费计划"
+      "description": "使用AI技术生成动态场景，随时可取消！"
     },
     "faqs": {
       "title": "常见问题",

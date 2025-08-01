@@ -59,36 +59,7 @@ export function CheckoutButton({
       setIsLoading(true);
       console.log('Creating checkout with:', { userId, planId, priceId });
 
-      // 添加硬编码的价格ID映射以解决环境变量问题
-      let actualPriceId = priceId;
-
-      // 如果priceId是空或undefined，则使用硬编码的价格ID
-      if (!actualPriceId || actualPriceId === 'undefined' || actualPriceId === 'null') {
-        // 根据planId和元数据确定应该使用哪个价格ID
-        const defaultPrices = {
-          pro: {
-            month: 'price_1RpypQ51DiSYNsnGiKkRXeva',
-            year: 'price_1Rq05X51DiSYNsnG2BIOow3Y'
-          },
-          ultimate: {
-            month: 'price_1Rpypy51DiSYNsnGuPxDoPw5',
-            year: 'price_1Rq05q51DiSYNsnGaNSxEWxi'
-          }
-        };
-
-        // 默认使用月度价格
-        const interval = metadata?.interval || 'month';
-
-        if (planId === 'pro') {
-          actualPriceId = defaultPrices.pro[interval as 'month' | 'year'];
-          console.log(`Using default Pro ${interval} price:`, actualPriceId);
-        } else if (planId === 'ultimate') {
-          actualPriceId = defaultPrices.ultimate[interval as 'month' | 'year'];
-          console.log(`Using default Ultimate ${interval} price:`, actualPriceId);
-        }
-      }
-
-      console.log('Final price ID being used:', actualPriceId);
+      console.log('Using price ID from environment variables:', priceId);
 
       const mergedMetadata = metadata ? { ...metadata } : {};
 
@@ -131,7 +102,7 @@ export function CheckoutButton({
       const result = await createCheckoutAction({
         userId,
         planId,
-        priceId: actualPriceId, // Use the determined actualPriceId
+        priceId,
         metadata:
           Object.keys(mergedMetadata).length > 0 ? mergedMetadata : undefined,
       });

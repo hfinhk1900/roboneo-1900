@@ -159,8 +159,12 @@ export function PricingTable({
               totalVisiblePlans === 1 && 'grid-cols-1 max-w-lg mx-auto w-full',
               totalVisiblePlans === 2 &&
                 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto w-full',
-              totalVisiblePlans >= 3 &&
-                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              totalVisiblePlans === 3 &&
+                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto w-full',
+              totalVisiblePlans === 4 &&
+                'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+              totalVisiblePlans >= 5 &&
+                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             )}
           >
             {/* Render free plans (always visible) */}

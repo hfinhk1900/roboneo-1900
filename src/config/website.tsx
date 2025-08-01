@@ -93,7 +93,7 @@ export const websiteConfig: WebsiteConfig = {
         isFree: true,
         isLifetime: false,
         recommended: false,
-        disabled: true,
+        disabled: false,
       },
       pro: {
         id: 'pro',
@@ -108,7 +108,7 @@ export const websiteConfig: WebsiteConfig = {
           {
             type: PaymentTypes.SUBSCRIPTION,
             priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
-            amount: 9600, // $96.00
+            amount: 9600, // $96.00 ($8/month)
             currency: 'USD',
             interval: PlanIntervals.YEAR,
           },
@@ -130,7 +130,7 @@ export const websiteConfig: WebsiteConfig = {
           {
             type: PaymentTypes.SUBSCRIPTION,
             priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!,
-            amount: 19200, // $192.00
+            amount: 19200, // $192.00 ($16/month)
             currency: 'USD',
             interval: PlanIntervals.YEAR,
           },
@@ -139,19 +139,26 @@ export const websiteConfig: WebsiteConfig = {
         isLifetime: false,
         recommended: true,
       },
-      lifetime: {
-        id: 'lifetime',
+      premium: {
+        id: 'premium',
         prices: [
           {
-            type: PaymentTypes.ONE_TIME,
-            priceId: 'price_lifetime', // 占位符，可以在需要时替换为实际的Stripe价格ID
-            amount: 29900, // $299.00
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_MONTHLY!,
+            amount: 2990, // $29.90
             currency: 'USD',
-            // 对于一次性付款，不需要指定interval
+            interval: PlanIntervals.MONTH,
+          },
+          {
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_YEARLY!,
+            amount: 25116, // $251.16 (20% discount would be $286.08, but this is disabled)
+            currency: 'USD',
+            interval: PlanIntervals.YEAR,
           },
         ],
         isFree: false,
-        isLifetime: true,
+        isLifetime: false,
         recommended: false,
         disabled: true,
       },
