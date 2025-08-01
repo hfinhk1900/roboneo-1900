@@ -97,25 +97,31 @@ export function getNavbarLinks(): NestedMenuItem[] {
       title: t('imageToImageGenerator.title'),
       items: [
         {
-          title: t('imageToImageGenerator.items.imageToSticker.title'),
-          description: t(
-            'imageToImageGenerator.items.imageToSticker.description'
-          ),
+          title: t('imageToImageGenerator.items.styleswap.title'),
+          description: t('imageToImageGenerator.items.styleswap.description'),
+          icon: '/image-to-image01.png',
           href: Routes.AIImageToSticker,
           external: false,
         },
         {
-          title: t('imageToImageGenerator.items.imageToImage.title'),
-          description: t(
-            'imageToImageGenerator.items.imageToImage.description'
-          ),
+          title: t('imageToImageGenerator.items.elementsswap.title'),
+          description: t('imageToImageGenerator.items.elementsswap.description'),
+          icon: '/image-to-image02.png',
           href: Routes.AIImageToImage,
           external: false,
         },
         {
-          title: t('imageToImageGenerator.items.portrait.title'),
-          description: t('imageToImageGenerator.items.portrait.description'),
+          title: t('imageToImageGenerator.items.moodshift.title'),
+          description: t('imageToImageGenerator.items.moodshift.description'),
+          icon: '/image-to-image03.png',
           href: Routes.AIPortrait,
+          external: false,
+        },
+        {
+          title: t('imageToImageGenerator.items.portraitseries.title'),
+          description: t('imageToImageGenerator.items.portraitseries.description'),
+          icon: '/image-to-image04.png',
+          href: Routes.AIImageToSticker,
           external: false,
         },
       ],

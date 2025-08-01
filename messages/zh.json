@@ -303,17 +303,21 @@
       "imageToImageGenerator": {
         "title": "图像转图像",
         "items": {
-          "imageToSticker": {
-            "title": "AI 图像转贴纸生成器",
-            "description": "将任何图像转换为定制贴纸"
+          "styleswap": {
+            "title": "StyleSwap",
+            "description": "重新设计任何照片——水彩画、乐高积木、黏土动画等等。"
           },
-          "imageToImage": {
-            "title": "AI 图像转图像生成器",
-            "description": "使用 AI 转换和增强您的图像"
+          "elementsswap": {
+            "title": "ElementsSwap",
+            "description": "在不重绘整个场景的情况下替换图像中的对象或文字。"
           },
-          "portrait": {
-            "title": "AI 肖像生成器",
-            "description": "创建精美的 AI 生成肖像"
+          "moodshift": {
+            "title": "MoodShift",
+            "description": "改变光线和色彩分级：黄金时光、霓虹夜晚、黑色电影。"
+          },
+          "portraitseries": {
+            "title": "PortraitSeries",
+            "description": "保持相同面部，新服装和设置，一致的肖像变化。"
           }
         }
       },

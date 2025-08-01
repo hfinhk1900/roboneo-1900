@@ -169,8 +169,9 @@ export function Navbar({ scroll }: NavBarProps) {
                                       <div
                                         className={cn(
                                           'text-sm font-medium',
-                                          // Text to Image菜单的标题使用黑色，其他菜单保持原色
-                                          item.title.includes('Text to Image') || item.title.includes('文本转图像')
+                                                                                    // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                          item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
+                                          item.title.includes('Image to Image') || item.title.includes('图像转图像')
                                             ? 'text-black'
                                             : 'text-muted-foreground',
                                           'group-hover:bg-transparent group-hover:text-foreground',

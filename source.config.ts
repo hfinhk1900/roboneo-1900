@@ -32,7 +32,9 @@ export const docs = defineDocs({
 export const changelog = defineCollections({
   type: 'doc',
   dir: 'content/changelog',
-  schema: frontmatterSchema.extend({
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
     version: z.string(),
     date: z.string().date(),
     published: z.boolean().default(true),
@@ -47,7 +49,9 @@ export const changelog = defineCollections({
 export const pages = defineCollections({
   type: 'doc',
   dir: 'content/pages',
-  schema: frontmatterSchema.extend({
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
     date: z.string().date(),
     published: z.boolean().default(true),
   }),

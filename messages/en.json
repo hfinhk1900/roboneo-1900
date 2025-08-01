@@ -303,17 +303,21 @@
       "imageToImageGenerator": {
         "title": "Image to Image",
         "items": {
-          "imageToSticker": {
-            "title": "Image to Sticker",
-            "description": "Transform any photo into a clean sticker with transparent background."
+          "styleswap": {
+            "title": "StyleSwap",
+            "description": "Re-style any photo—watercolor, Lego bricks, claymation and more."
           },
-          "imageToImage": {
-            "title": "Image to Image",
-            "description": "Transform photos using AI-powered style transfer and enhancement."
+          "elementsswap": {
+            "title": "ElementsSwap",
+            "description": "Replace objects or text in an image without redrawing the whole scene."
           },
-          "portrait": {
-            "title": "Portrait Generator",
-            "description": "Create professional portraits and headshots from any photo."
+          "moodshift": {
+            "title": "MoodShift",
+            "description": "Change lighting & color grading: golden hour, neon night, film noir."
+          },
+          "portraitseries": {
+            "title": "PortraitSeries",
+            "description": "Keep the same face, new outfits & settings, consistent portrait variations."
           }
         }
       },
