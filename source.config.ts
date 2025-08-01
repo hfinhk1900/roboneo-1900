@@ -90,7 +90,11 @@ export const category = defineCollections({
 export const blog = defineCollections({
   type: 'doc',
   dir: 'content/blog',
-  schema: frontmatterSchema.extend({
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    icon: z.string().optional(),
+    full: z.boolean().optional(),
     image: z.object({
       url: z.string(),
       alt: z.string(),

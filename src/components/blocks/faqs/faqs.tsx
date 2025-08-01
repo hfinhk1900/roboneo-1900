@@ -105,7 +105,8 @@ export default function FaqSection() {
             title={t('title')}
             titleAs="h2"
             subtitle={t('subtitle')}
-            subtitleAs="p"
+            subtitleAs="h2"
+            subtitleClassName="text-balance text-[32px] font-bold text-foreground"
           />
 
           <div className="mx-auto max-w-4xl mt-12">
