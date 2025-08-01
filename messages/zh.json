@@ -34,8 +34,9 @@
     "title": "价格",
     "description": "选择最适合您的付费计划",
     "subtitle": "选择最适合您的付费计划",
-    "monthly": "月付",
-    "yearly": "年付",
+          "monthly": "月付",
+      "yearly": "年付",
+      "annually": "年付",
     "save20": "省20%",
     "disclaimer": "价格以美元为准，结账时可能需要缴纳增值税/消费税。",
     "PricingCard": {

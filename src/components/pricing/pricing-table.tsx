@@ -101,49 +101,45 @@ export function PricingTable({
       {(hasMonthlyOption || hasYearlyOption) &&
         subscriptionPlans.length > 0 && (
           <div className="flex justify-center items-center mt-8">
-            <ToggleGroup
-              size="sm"
-              type="single"
-              value={interval}
-              onValueChange={(value) => value && handleIntervalChange(value)}
-              className="border rounded-lg p-1 bg-white"
-            >
+            <div className="inline-flex rounded-full bg-gray-100 p-1 shadow-sm border border-gray-200">
+              {/* Annually Button - Left Side */}
+              {hasYearlyOption && (
+                <button
+                  onClick={() => handleIntervalChange('year')}
+                  className={cn(
+                    "relative flex items-center space-x-2 rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none",
+                    interval === 'year'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-gray-600 hover:text-gray-800"
+                  )}
+                >
+                                     <span>{t('annually')}</span>
+                  {interval === 'year' && (
+                    <span
+                      className="text-sm font-medium text-primary-foreground px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: '#FFF3C5', color: '#1f2937' }}
+                    >
+                      {t('save20')}
+                    </span>
+                  )}
+                </button>
+              )}
+
+              {/* Monthly Button - Right Side */}
               {hasMonthlyOption && (
-                <ToggleGroupItem
-                  value="month"
-                  className="px-3 py-0 cursor-pointer text-base rounded-md"
-                  style={interval === 'month' ? {
-                    backgroundColor: 'var(--primary)',
-                    color: 'var(--primary-foreground)'
-                  } : {
-                    backgroundColor: 'white'
-                  }}
+                <button
+                  onClick={() => handleIntervalChange('month')}
+                  className={cn(
+                    "relative rounded-full px-6 py-2 text-base font-semibold transition-all duration-300 focus:outline-none",
+                    interval === 'month'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-gray-600 hover:text-gray-800"
+                  )}
                 >
                   {t('monthly')}
-                </ToggleGroupItem>
+                </button>
               )}
-              {hasYearlyOption && (
-                <ToggleGroupItem
-                  value="year"
-                  className="px-3 py-0 cursor-pointer text-base rounded-md"
-                  style={interval === 'year' ? {
-                    backgroundColor: 'var(--primary)',
-                    color: 'var(--primary-foreground)'
-                  } : {
-                    backgroundColor: 'white'
-                  }}
-                >
-                  {t('yearly')}
-                </ToggleGroupItem>
-              )}
-            </ToggleGroup>
-
-            {/* Save 20% 标签放在外面 */}
-            {hasYearlyOption && (
-              <span className="ml-4 inline-flex items-center px-1.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 pointer-events-none z-10">
-                {t('save20')}
-              </span>
-            )}
+            </div>
           </div>
         )}
 

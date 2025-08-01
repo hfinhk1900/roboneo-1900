@@ -89,7 +89,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .getPages(locale)
         .filter((post) => post.data.published)
         .filter((post) =>
-          post.data.categories.some((cat) => cat === category.slugs[0])
+          Array.isArray(post.data.categories) &&
+          (post.data.categories as string[]).some((cat: string) => cat === category.slugs[0])
         );
       const totalPages = Math.max(
         1,

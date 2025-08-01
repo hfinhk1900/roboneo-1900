@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { useLocalePathname } from '@/i18n/navigation';
+import { useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/formatter';
 import { cn } from '@/lib/utils';
 import {
@@ -23,6 +23,7 @@ import {
 import { CheckCircleIcon, XCircleIcon, Zap, HandCoins } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LoginWrapper } from '../auth/login-wrapper';
+import { RegisterWrapper } from '../auth/register-wrapper';
 import { CheckoutButton } from './create-checkout-button';
 
 interface PricingCardProps {
@@ -79,13 +80,14 @@ export function PricingCard({
   const price = getPriceForPlan(plan, interval, paymentType);
   const currentUser = useCurrentUser();
   const currentPath = useLocalePathname();
+  const router = useLocaleRouter();
   // console.log('pricing card, currentPath', currentPath);
 
   // generate formatted price and price label
   let formattedPrice = '';
   let originalPrice = '';
   let priceLabel = '';
-  let yearlyInfo = '';
+
 
   if (plan.isFree) {
     formattedPrice = t('freePrice');
@@ -104,11 +106,7 @@ export function PricingCard({
         formattedPrice = formatPrice(yearlyMonthlyPrice, price.currency);
         priceLabel = t('perMonth');
 
-        // 计算年付信息和节省金额
-        const yearlyTotal = formatPrice(price.amount, price.currency);
-        const savingsAmount = (monthlyPrice.amount * 12) - price.amount;
-        const savingsPercentage = Math.round((savingsAmount / (monthlyPrice.amount * 12)) * 100);
-        yearlyInfo = `Billed ${yearlyTotal} yearly - Save ${savingsPercentage}%`;
+
       } else {
       const monthlyPrice = Math.round(price.amount / 12);
       formattedPrice = formatPrice(monthlyPrice, price.currency);
@@ -184,12 +182,7 @@ export function PricingCard({
         </div>
         )}
 
-        {/* 显示年付节省信息 */}
-        {interval === PlanIntervals.YEAR && yearlyInfo && (
-          <p className="text-base text-muted-foreground -mt-2 mb-2">
-            {yearlyInfo}
-          </p>
-        )}
+
 
         <CardDescription>
           <p className="text-base">{plan.description}</p>
@@ -200,17 +193,21 @@ export function PricingCard({
           currentUser ? (
             <Button
               variant="outline"
-              className="mt-4 w-full disabled"
+              className="mt-4 w-full cursor-pointer"
               style={{
                 backgroundColor: 'var(--primary)',
                 color: 'var(--primary-foreground)',
                 borderColor: 'var(--primary)'
               }}
+              onClick={() => {
+                // 用户已登录，跳转到首页hero部分
+                router.push('/#hero');
+              }}
             >
               {t('getStartedForFree')}
             </Button>
           ) : (
-            <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
+            <RegisterWrapper mode="modal" asChild callbackUrl={currentPath}>
               <Button
                 variant="outline"
                 className="mt-4 w-full cursor-pointer"
@@ -222,7 +219,7 @@ export function PricingCard({
               >
                 {t('getStartedForFree')}
               </Button>
-            </LoginWrapper>
+            </RegisterWrapper>
           )
         ) : isCurrentPlan ? (
           <Button

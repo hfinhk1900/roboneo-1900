@@ -34,8 +34,9 @@
     "title": "Pricing",
     "description": "Choose the plan that works best for you",
     "subtitle": "Choose the plan that works best for you",
-    "monthly": "Monthly",
-    "yearly": "Yearly",
+          "monthly": "Monthly",
+      "yearly": "Yearly",
+      "annually": "Annually",
     "save20": "Save 20%",
     "disclaimer": "Prices in USD, VAT/GST may apply at checkout.",
     "PricingCard": {
