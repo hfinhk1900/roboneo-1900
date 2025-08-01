@@ -76,7 +76,11 @@ export function Navbar({ scroll }: NavBarProps) {
         <nav className="hidden lg:flex">
           {/* logo and name */}
           <div className="flex items-center">
-            <LocaleLink href="/" className="flex items-center space-x-2">
+            <LocaleLink
+              href="/"
+              className="flex items-center space-x-2"
+              aria-label="RoboNeo – AI Image Generator"
+            >
               <Logo />
               <span className="text-xl font-extrabold font-barlow">
                 {t('Metadata.name')}

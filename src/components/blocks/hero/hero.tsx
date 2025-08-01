@@ -77,12 +77,13 @@ export default function HeroSection() {
           <div className="text-center sm:mx-auto lg:mr-auto">
                 {/* title */}
                 <h1 className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif' }}>
-                  RoboNeo AI Image Generator - Text & Photo to Art in Seconds
+                Turn Any Photo into a Sticker with RoboNeo AI
                 </h1>
 
                 {/* description */}
                 <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-                  Upload any photo—Roboneo's AI instantly crops, cartoonizes, and outlines it into a sticker. Fast, browser-based, and beginner-friendly.
+                Try our image-to-sticker demo, then explore text-to-image & image-to-image for limitless creativity.
+
                 </p>
           </div>
 

@@ -8,8 +8,8 @@ export function Logo({ className }: { className?: string }) {
   return (
     <Image
       src={logo}
-      alt="Logo"
-      title="Logo"
+      alt="RoboNeo AI Image Generator Logo"
+      title="RoboNeo AI Image Generator"
       width={96}
       height={96}
       className={cn('size-8 rounded-md', className)}

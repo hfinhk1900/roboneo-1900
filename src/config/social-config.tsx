@@ -26,6 +26,11 @@ import { websiteConfig } from './website';
  * @returns The social config
  */
 export function getSocialLinks(): MenuItem[] {
+  // Return empty array to remove all social media icons from footer
+  return [];
+
+  // Original code commented out to preserve for future use:
+  /*
   const socialLinks: MenuItem[] = [];
 
   if (websiteConfig.metadata.social?.twitter) {
@@ -53,4 +58,5 @@ export function getSocialLinks(): MenuItem[] {
   }
 
   return socialLinks;
+  */
 }

@@ -5,7 +5,7 @@ import { PricingTable } from '@/components/pricing/pricing-table';
 export default async function PricingPage() {
   return (
     <div>
-      <Container className="max-w-6xl px-4 flex flex-col gap-16">
+      <Container className="max-w-7xl px-4 flex flex-col gap-16">
         <PricingTable />
 
         <FaqSection />

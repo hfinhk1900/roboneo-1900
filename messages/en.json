@@ -1,8 +1,8 @@
 {
   "Metadata": {
     "name": "RoboNeo",
-    "title": "RoboNeo Art - AI Art Generation Platform",
-    "description": "RoboNeo Art is an advanced AI art generation platform that helps you create stunning artwork with the power of artificial intelligence"
+    "title": "RoboNeo AI Image Generator – Text-to-Image, Image-to-Sticker & More",
+    "description": "Create images from text, transform photos, or turn any picture into a share-ready sticker with RoboNeo's AI. Free credits included."
   },
   "Common": {
     "login": "Log in",
@@ -271,7 +271,7 @@
   "Marketing": {
     "navbar": {
       "features": {
-        "title": "Home"
+        "title": "Sticker 🔥"
       },
       "textToImageGenerator": {
         "title": "Text to Image Generator",
@@ -287,6 +287,23 @@
           "poster": {
             "title": "AI Poster Generator",
             "description": "Generate eye-catching posters with AI"
+          }
+        }
+      },
+      "imageToImageGenerator": {
+        "title": "Image to Image",
+        "items": {
+          "imageToSticker": {
+            "title": "AI Image to Sticker Generator",
+            "description": "Transform any image into a custom sticker"
+          },
+          "imageToImage": {
+            "title": "AI Image to Image Generator",
+            "description": "Transform and enhance your images with AI"
+          },
+          "portrait": {
+            "title": "AI Portrait Generator",
+            "description": "Create stunning AI-generated portraits"
           }
         }
       },

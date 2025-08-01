@@ -80,7 +80,7 @@ export default function StepsShowcaseSection() {
         <HeaderSection
           title="How it Works"
           titleAs="h2"
-          subtitle="Create Custom Stickers in Seconds with RoboNeo"
+          subtitle="From Photo to Sticker: The 3-Step Flow"
           subtitleAs="h3"
           subtitleClassName="text-3xl lg:text-4xl font-bold text-foreground"
           description="Upload any photo and let RoboNeo's AI turn it into the style you want—iOS emoji, chibi, anime, cartoon, meme, you name it—ready to share everywhere."
@@ -221,8 +221,7 @@ export default function StepsShowcaseSection() {
                   src={currentStep.image}
                   alt={`Step ${currentStep.number}: ${currentStep.title}`}
                   width={400}
-                  height={600}
-                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
+                  height={600}                  className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
                 />
               ) : (
                 <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">

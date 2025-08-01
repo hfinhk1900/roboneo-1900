@@ -83,7 +83,11 @@ export function NavbarMobile({
         {...other}
       >
         {/* navbar left shows logo */}
-        <LocaleLink href={Routes.Root} className="flex items-center gap-2">
+        <LocaleLink
+          href={Routes.Root}
+          className="flex items-center gap-2"
+          aria-label="RoboNeo – AI Image Generator"
+        >
           <Logo />
           <span className="text-xl font-extrabold font-barlow">{t('Metadata.name')}</span>
         </LocaleLink>

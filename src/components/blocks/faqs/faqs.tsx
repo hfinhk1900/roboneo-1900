@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/accordion';
 import type { IconName } from 'lucide-react/dynamic';
 import { useLocale, useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 type FAQItem = {
   id: string;
@@ -72,48 +73,81 @@ export default function FaqSection() {
     },
   ];
 
-  return (
-    <section id="faqs" className="px-4 py-16">
-      <div className="mx-auto max-w-4xl">
-        <HeaderSection
-          title={t('title')}
-          titleAs="h2"
-          subtitle={t('subtitle')}
-          subtitleAs="p"
-        />
+  // Generate JSON-LD structured data for FAQ rich results
+  const faqJsonLd = useMemo(() => {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    };
+  }, [faqItems]);
 
-        <div className="mx-auto max-w-4xl mt-12">
-          <Accordion
-            type="single"
-            collapsible
-            className="ring-muted w-full rounded-2xl border px-8 py-3 shadow-sm ring-4 dark:ring-0"
-          >
-            {faqItems.map((item, index) => (
-              <AccordionItem
-                key={item.id}
-                value={item.id}
-                className="border-dashed"
-              >
-                <AccordionTrigger className="cursor-pointer text-base hover:no-underline">
-                  <span className="flex items-start gap-3">
-                    <span className="flex-shrink-0 text-primary font-semibold">
-                      {index + 1}.
+  return (
+    <>
+      {/* JSON-LD structured data for FAQ rich results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd),
+        }}
+      />
+
+      <section id="faqs" className="px-4 py-16">
+        <div className="mx-auto max-w-4xl">
+          <HeaderSection
+            title={t('title')}
+            titleAs="h2"
+            subtitle={t('subtitle')}
+            subtitleAs="p"
+          />
+
+          <div className="mx-auto max-w-4xl mt-12">
+            <Accordion
+              type="single"
+              collapsible
+              className="ring-muted w-full rounded-2xl border px-8 py-3 shadow-sm ring-4 dark:ring-0"
+            >
+              {faqItems.map((item, index) => (
+                <AccordionItem
+                  key={item.id}
+                  value={item.id}
+                  className="border-dashed"
+                >
+                  <AccordionTrigger
+                    className="cursor-pointer text-base hover:no-underline"
+                    aria-label={`Question ${index + 1}: ${item.question}`}
+                  >
+                    <span className="flex items-start gap-3">
+                      <span className="flex-shrink-0 text-primary font-semibold" aria-hidden="true">
+                        {index + 1}.
+                      </span>
+                      <span className="flex-1 text-left">
+                        {item.question}
+                      </span>
                     </span>
-                    <span className="flex-1">
-                  {item.question}
-                    </span>
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-base text-muted-foreground ml-6">
-                    {item.answer}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div
+                      className="text-base text-muted-foreground ml-6"
+                      role="region"
+                      aria-label={`Answer to: ${item.question}`}
+                    >
+                      {item.answer}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

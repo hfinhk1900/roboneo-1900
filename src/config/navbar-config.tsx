@@ -87,6 +87,29 @@ export function getNavbarLinks(): NestedMenuItem[] {
       ],
     },
     {
+      title: t('imageToImageGenerator.title'),
+      items: [
+        {
+          title: t('imageToImageGenerator.items.imageToSticker.title'),
+          description: t('imageToImageGenerator.items.imageToSticker.description'),
+          href: Routes.AIImageToSticker,
+          external: false,
+        },
+        {
+          title: t('imageToImageGenerator.items.imageToImage.title'),
+          description: t('imageToImageGenerator.items.imageToImage.description'),
+          href: Routes.AIImageToImage,
+          external: false,
+        },
+        {
+          title: t('imageToImageGenerator.items.portrait.title'),
+          description: t('imageToImageGenerator.items.portrait.description'),
+          href: Routes.AIPortrait,
+          external: false,
+        },
+      ],
+    },
+    {
       title: t('pricing.title'),
       href: Routes.Pricing,
       external: false,
