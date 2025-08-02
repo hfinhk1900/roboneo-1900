@@ -298,14 +298,6 @@ export default function HeroSection() {
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <video
-                      src="/hero-video.mp4"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="absolute bottom-0 right-[-2rem] w-56 h-auto rounded-lg object-contain bg-transparent opacity-90"
-                    />
-                    <video
                       src="/hero-video-Picsart-BackgroundRemover.mp4"
                       autoPlay
                       loop
