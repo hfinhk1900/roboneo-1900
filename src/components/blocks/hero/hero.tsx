@@ -298,7 +298,7 @@ export default function HeroSection() {
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <video
-                      src="/hero-video2.mp4"
+                      src="/hero-video.mp4"
                       autoPlay
                       loop
                       muted

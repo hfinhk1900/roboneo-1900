@@ -101,3 +101,25 @@ export function findYearlyPriceInPlan(planId: string): Price | undefined {
       !p.disabled
   );
 }
+
+/**
+ * Find a plan by price ID
+ * @param priceId Price ID to find
+ * @returns Plan object or undefined if not found
+ */
+export function findPlanByPriceId(priceId: string): PricePlan | undefined {
+  console.log(`findPlanByPriceId: Looking for plan with price ID ${priceId}`);
+
+  const plans = getAllPricePlans();
+
+  for (const plan of plans) {
+    const price = plan.prices.find((p) => p.priceId === priceId);
+    if (price) {
+      console.log(`findPlanByPriceId: Found plan ${plan.id} for price ${priceId}`);
+      return plan;
+    }
+  }
+
+  console.log(`findPlanByPriceId: No plan found for price ID ${priceId}`);
+  return undefined;
+}
