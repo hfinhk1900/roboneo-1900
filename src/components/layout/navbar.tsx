@@ -50,12 +50,58 @@ export function Navbar({ scroll }: NavBarProps) {
   const menuLinks = getNavbarLinks();
   const localePathname = useLocalePathname();
   const [mounted, setMounted] = useState(false);
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const { data: session, isPending } = authClient.useSession();
   const currentUser = session?.user;
   // console.log(`Navbar, user:`, user);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Function to toggle menu state
+  const toggleMenu = (menuTitle: string) => {
+    console.log('Toggling menu:', menuTitle); // Debug log
+    setOpenMenus(prev => {
+      const isCurrentlyOpen = prev[menuTitle];
+      
+      // If the menu is currently open, close it
+      if (isCurrentlyOpen) {
+        const newState = {
+          ...prev,
+          [menuTitle]: false
+        };
+        console.log('Closing menu, new state:', newState); // Debug log
+        return newState;
+      } else {
+        // If the menu is closed, close all other menus and open this one
+        const newState = {
+          [menuTitle]: true // Only this menu will be open
+        };
+        console.log('Opening menu (closing others), new state:', newState); // Debug log
+        return newState;
+      }
+    });
+  };
+
+  // Function to close all menus
+  const closeAllMenus = () => {
+    console.log('Closing all menus'); // Debug log
+    setOpenMenus({});
+  };
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      // Only close if clicking outside the navigation menu
+      if (!target.closest('[data-navbar-menu]')) {
+        closeAllMenus();
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   return (
@@ -92,12 +138,16 @@ export function Navbar({ scroll }: NavBarProps) {
 
           {/* menu links */}
           <div className="flex-1 flex items-center justify-center space-x-2">
-            <NavigationMenu className="relative">
+            <NavigationMenu className="relative" data-navbar-menu>
               <NavigationMenuList className="flex items-center">
                 {menuLinks?.map((item, index) =>
                   item.items ? (
                     <NavigationMenuItem key={index} className="relative">
-                      <NavigationMenuTrigger
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMenu(item.title);
+                        }}
                         data-active={
                           item.items.some((subItem) =>
                             subItem.href
@@ -107,19 +157,38 @@ export function Navbar({ scroll }: NavBarProps) {
                             ? 'true'
                             : undefined
                         }
-                        className={customNavigationMenuTriggerStyle}
+                        className={cn(
+                          customNavigationMenuTriggerStyle,
+                          'flex items-center gap-1'
+                        )}
                       >
                         {item.title}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-4 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                          {item.items?.map((subItem, subIndex) => {
-                            const isSubItemActive =
-                              subItem.href &&
-                              localePathname.startsWith(subItem.href);
-                            return (
-                              <li key={subIndex}>
-                                <NavigationMenuLink asChild>
+                        <svg
+                          className={cn(
+                            'ml-1 h-3 w-3 transition-transform duration-200',
+                            openMenus[item.title] ? 'rotate-180' : ''
+                          )}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                      {openMenus[item.title] && (
+                        <div className="absolute top-full left-0 z-50 mt-1.5 min-w-[400px] rounded-md border bg-white p-2 shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-max max-w-[600px]">
+                          <ul className="grid gap-3 md:grid-cols-2 h-full items-start content-start">
+                            {item.items?.map((subItem, subIndex) => {
+                              const isSubItemActive =
+                                subItem.href &&
+                                localePathname.startsWith(subItem.href);
+                              return (
+                                <li key={subIndex} className="h-[120px] flex">
                                   <LocaleLink
                                     href={subItem.href || '#'}
                                     target={
@@ -130,9 +199,10 @@ export function Navbar({ scroll }: NavBarProps) {
                                         ? 'noopener noreferrer'
                                         : undefined
                                     }
+                                    onClick={() => closeAllMenus()}
                                     className={cn(
-                                      'group flex select-none flex-row items-center gap-4 rounded-md',
-                                      'p-2 leading-none no-underline outline-hidden transition-colors',
+                                      'group flex select-none flex-row items-start gap-3 rounded-md flex-1 h-full overflow-hidden',
+                                      'p-3 leading-none no-underline outline-hidden transition-colors',
                                       'hover:bg-accent hover:text-accent-foreground',
                                       'focus:bg-accent focus:text-accent-foreground',
                                       isSubItemActive &&
@@ -169,7 +239,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                       <div
                                         className={cn(
                                           'text-sm font-medium',
-                                                                                    // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                          // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
                                           item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
                                           item.title.includes('Image to Image') || item.title.includes('图像转图像')
                                             ? 'text-black'
@@ -208,12 +278,12 @@ export function Navbar({ scroll }: NavBarProps) {
                                       />
                                     )}
                                   </LocaleLink>
-                                </NavigationMenuLink>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </NavigationMenuContent>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
                     </NavigationMenuItem>
                   ) : (
                     <NavigationMenuItem key={index}>
