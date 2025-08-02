@@ -137,6 +137,9 @@ export default function HeroSection() {
                     >
                       Upload Image
                     </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Supports JPEG/PNG formats, ≤5MB
+                    </p>
                     <div
                       className={cn(
                         'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
