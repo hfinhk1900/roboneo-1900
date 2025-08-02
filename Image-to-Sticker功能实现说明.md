@@ -27,9 +27,9 @@ Image to Sticker是RoboNeo Art的核心功能，允许用户上传任意照片�
 | 风格类型 | 技术实现 | Credits消耗 | 特点 |
 |---------|----------|-------------|------|
 | **iOS Sticker** | OpenAI DALL-E 3 编辑 | 10 Credits | 苹果风格，圆润边缘 |
-| **Pixel Art** | 像素化prompt处理 | 8 Credits | 8位游戏风格 |
+| **Pixel Art** | 像素化prompt处理 | 10 Credits | 8位游戏风格 |
 | **LEGO Style** | 乐高积木风格转换 | 10 Credits | 积木质感，明亮色彩 |
-| **Snoopy Style** | 卡通化处理 | 8 Credits | 简约线条，可爱风格 |
+| **Snoopy Style** | 卡通化处理 | 10 Credits | 简约线条，可爱风格 |
 
 ---
 
@@ -507,9 +507,9 @@ export async function GET(
 | 风格类型 | Credits消耗 | 处理时间 | 质量等级 |
 |---------|-------------|----------|----------|
 | iOS Sticker | 10 Credits | ~15秒 | 高质量 |
-| Pixel Art | 8 Credits | ~12秒 | 标准 |
+| Pixel Art | 10 Credits | ~15秒 | 高质量 |
 | LEGO Style | 10 Credits | ~15秒 | 高质量 |
-| Snoopy Style | 8 Credits | ~12秒 | 标准 |
+| Snoopy Style | 10 Credits | ~15秒 | 高质量 |
 
 ### 🔄 Credits处理流程
 
@@ -717,7 +717,7 @@ const monitoringMetrics = {
 ---
 
 **文档版本**: v1.0.0
-**创建日期**: 2024-01-XX
+**创建日期**: 2025-08-02
 **负责团队**: AI功能开发组
 
 **关键联系人**:
