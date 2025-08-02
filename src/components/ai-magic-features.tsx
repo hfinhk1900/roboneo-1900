@@ -20,8 +20,8 @@ export default function AIMagicFeatures() {
             <p className="text-muted-foreground text-lg">
               Transform any selfie, pet picture, or product shot into a ready-to-share sticker in under 20 seconds.
             </p>
-            
-            <ul className="space-y-4 text-sm text-muted-foreground">
+
+            <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
                 <span><strong>One-Click Workflow:</strong> Upload your image, choose a style (classic emoji, chibi, 3-D clay, etc.), and hit Generate.</span>
@@ -40,7 +40,7 @@ export default function AIMagicFeatures() {
               <strong>Why it matters:</strong> Stickers drive higher engagement in chat apps and social stories. With Roboneo AI, you can launch an entire sticker pack during a lunch break.
             </p>
           </div>
-          
+
           <div className="relative mt-6 sm:mt-0">
             <div className="relative rounded-2xl overflow-hidden">
               <Image
@@ -72,11 +72,11 @@ export default function AIMagicFeatures() {
             <h3 className="text-2xl font-bold text-foreground">
               Photo to Anime Converter
             </h3>
-            <p className="text-muted-foreground text-lg">
+                        <p className="text-muted-foreground text-lg">
               Anime isn't a trend; it's a culture. Roboneo AI lets you join the fun without learning digital painting.
             </p>
-            
-            <ul className="space-y-4 text-sm text-muted-foreground">
+
+            <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
                 <span><strong>Upload & Describe:</strong> Drop a selfie, add keywords like Shōnen hero or Cyberpunk waifu, and let our model do the heavy lifting.</span>
@@ -103,11 +103,11 @@ export default function AIMagicFeatures() {
             <h3 className="text-2xl font-bold text-foreground">
               Professional Headshots for Personal or Brand Use
             </h3>
-            <p className="text-muted-foreground text-lg">
+                        <p className="text-muted-foreground text-lg">
               Need a polished LinkedIn photo but don't want to book a photographer? Roboneo AI's headshot engine has you covered.
             </p>
-            
-            <ul className="space-y-4 text-sm text-muted-foreground">
+
+            <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
                 <span><strong>Instant Retouching:</strong> We clean blemishes, balance skin tones, and add flattering studio lighting—no Photoshop skills required.</span>
@@ -122,7 +122,7 @@ export default function AIMagicFeatures() {
               <strong>Result:</strong> Save time, save budget, and present a unified professional image across every touchpoint.
             </p>
           </div>
-          
+
           <div className="relative mt-6 sm:mt-0">
             <div className="relative rounded-2xl overflow-hidden">
               <Image
