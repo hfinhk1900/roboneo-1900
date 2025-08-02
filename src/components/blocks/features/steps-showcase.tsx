@@ -183,36 +183,6 @@ export default function StepsShowcaseSection() {
 
             {/* Progress Indicators and Controls */}
             <div className="flex items-center justify-center gap-4 mt-6">
-              {/* Auto-play toggle button */}
-              <button
-                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                className={cn(
-                  'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300',
-                  'border-2 hover:scale-110',
-                  isAutoPlaying
-                    ? ''
-                    : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400'
-                )}
-                style={
-                  isAutoPlaying
-                    ? {
-                        backgroundColor: 'var(--primary)',
-                        borderColor: 'var(--primary)',
-                        color: 'var(--primary-foreground)',
-                      }
-                    : {}
-                }
-                aria-label={
-                  isAutoPlaying ? 'Pause auto-play' : 'Start auto-play'
-                }
-              >
-                {isAutoPlaying ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-              </button>
-
               {/* Step indicators */}
               <div className="flex gap-2">
                 {steps.map((step) => (
