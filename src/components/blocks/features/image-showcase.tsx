@@ -3,6 +3,7 @@
 import { KeyBenefits } from '@/components/shared/key-benefits';
 import { ShowcaseGallery } from '@/components/shared/showcase-gallery';
 import MoreAITools from '@/components/more-ai-tools';
+import AIMagicFeatures from '@/components/ai-magic-features';
 
 export default function ImageShowcaseSection() {
   return (
@@ -15,6 +16,9 @@ export default function ImageShowcaseSection() {
 
       {/* More AI Tools Section */}
       <MoreAITools />
+
+      {/* AI Magic Features Section */}
+      <AIMagicFeatures />
     </div>
   );
 }
