@@ -14,6 +14,23 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
+  // 提取获取 credits 的函数
+  const fetchCredits = async () => {
+    try {
+      setLoading(true);
+      const result = await getUserCreditsAction({});
+      if (result?.data?.success) {
+        const newCredits = result.data.data?.credits || 0;
+        creditsCache.set(newCredits); // 这会自动触发监听器更新状态
+        setCredits(newCredits);
+      }
+    } catch (error) {
+      console.error('Failed to fetch credits:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
 
@@ -27,27 +44,17 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
     // 监听 credits 更新
     const unsubscribe = creditsCache.addListener(() => {
       const newCredits = creditsCache.get();
-      setCredits(newCredits);
       if (newCredits !== null) {
+        setCredits(newCredits);
         setLoading(false);
+      } else {
+        // 缓存被清空，重新获取最新数据
+        fetchCredits();
       }
     });
 
     // 如果没有缓存数据，则获取最新数据
     if (cachedCredits === null) {
-      const fetchCredits = async () => {
-        try {
-          const result = await getUserCreditsAction({});
-          if (result?.data?.success) {
-            const newCredits = result.data.data?.credits || 0;
-            creditsCache.set(newCredits); // 这会自动触发监听器更新状态
-          }
-        } catch (error) {
-          console.error('Failed to fetch credits:', error);
-          setLoading(false);
-        }
-      };
-
       fetchCredits();
     }
 
