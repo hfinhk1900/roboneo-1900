@@ -138,6 +138,27 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
     console.log('🚀 Starting sticker generation...');
+
+    // Development mode: return mock response to avoid API calls
+    if (process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true') {
+      console.log('🧪 Development mode: returning mock sticker response');
+      const formData = await req.formData();
+      const style = (formData.get('style') as string) || 'ios';
+
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Return a local test image URL
+      const mockImageUrl = '/debug-output/test_snoopy_1754371168455.png';
+
+      return NextResponse.json({
+        url: mockImageUrl,
+        style: style,
+        processTime: '2.0s',
+        mock: true
+      });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });

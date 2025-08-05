@@ -1,24 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
-// 简化版本，直接返回重定向到实际图片URL
 export async function GET(
   request: NextRequest,
-  { params }: { params: { key: string } }
+  { params }: { params: Promise<{ key: string }> }
 ) {
   try {
-    const key = params.key;
+    const { key } = await params; // Await params for Next.js 15
+    const decodedKey = decodeURIComponent(key);
 
-    // 对于外部URL，直接重定向
-    if (key.includes('http')) {
-      return NextResponse.redirect(key);
+    console.log('Proxy image request for:', decodedKey);
+
+    // Handle local images (serve from public directory)
+    if (decodedKey.startsWith('/')) {
+      try {
+        const publicPath = join(process.cwd(), 'public', decodedKey.substring(1));
+        console.log('Attempting to read local file:', publicPath);
+
+        const imageBuffer = await readFile(publicPath);
+
+        // Determine content type based on file extension
+        const ext = decodedKey.toLowerCase();
+        let contentType = 'image/png';
+        if (ext.includes('.jpg') || ext.includes('.jpeg')) contentType = 'image/jpeg';
+        if (ext.includes('.gif')) contentType = 'image/gif';
+        if (ext.includes('.webp')) contentType = 'image/webp';
+
+        return new NextResponse(imageBuffer, {
+          headers: {
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=86400',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+          },
+        });
+      } catch (fileError) {
+        console.error('Error reading local file:', fileError);
+        return new NextResponse('Local image not found', { status: 404 });
+      }
     }
 
-    // 对于占位符，返回一个简单的响应
-    if (key === 'placeholder.png') {
-      return new NextResponse('Placeholder image not found', { status: 404 });
+    // Handle external URLs by proxying the image
+    if (decodedKey.includes('http')) {
+      console.log('Proxying external URL:', decodedKey);
+      const response = await fetch(decodedKey);
+
+      if (!response.ok) {
+        console.error('External fetch failed:', response.status, response.statusText);
+        return new NextResponse('External image not found', { status: 404 });
+      }
+
+      const imageBuffer = await response.arrayBuffer();
+      const contentType = response.headers.get('content-type') || 'image/png';
+
+      return new NextResponse(imageBuffer, {
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=86400',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET',
+        },
+      });
     }
 
-    // 对于其他情况，返回 404
+    // For other cases, return 404
+    console.log('No matching handler for key:', decodedKey);
     return new NextResponse('Image not found', { status: 404 });
 
   } catch (error) {
@@ -26,5 +73,3 @@ export async function GET(
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
-
-export const runtime = 'edge';

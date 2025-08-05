@@ -19,6 +19,7 @@ import {
   LoaderIcon,
   SparklesIcon,
   UploadIcon,
+  DownloadIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -104,6 +105,37 @@ export default function HeroSection() {
       alert(`Generation failed: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!generatedImageUrl) return;
+
+    try {
+      // Use proxy API to avoid CORS issues
+      const proxyUrl = `/api/proxy-image/${encodeURIComponent(generatedImageUrl)}`;
+      const response = await fetch(proxyUrl);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch image through proxy');
+      }
+
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('Failed to download image. Please try again.');
     }
   };
 
@@ -269,6 +301,36 @@ export default function HeroSection() {
                     {isGenerating ? 'Generating...' : 'Generate My Sticker'}
                   </Button>
 
+                  {/* Test buttons removed after testing completion */}
+                  {/*
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="space-y-2">
+                      <Button
+                        onClick={() => {
+                          // Use a local test image to simulate generated result
+                          setGeneratedImageUrl('/hero-1.png');
+                        }}
+                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
+                        variant="secondary"
+                      >
+                        <ImageIcon className="mr-2 h-5 w-5" />
+                        Test Download (Local Image)
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          // Test with an external image URL (tests proxy functionality)
+                          setGeneratedImageUrl('https://picsum.photos/400/400?random=1');
+                        }}
+                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
+                        variant="outline"
+                      >
+                        <ImageIcon className="mr-2 h-5 w-5" />
+                        Test Download (External URL)
+                      </Button>
+                    </div>
+                  )}
+                  */}
+
                   {/* Credit info */}
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
                     <span>1 Credit</span>
@@ -293,14 +355,24 @@ export default function HeroSection() {
                     </p>
                   </div>
                 ) : generatedImageUrl ? (
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <Image
-                      src={generatedImageUrl}
-                      alt="Generated sticker"
-                      width={400}
-                      height={400}
-                      className="object-contain max-h-full rounded-lg shadow-md"
-                    />
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    <div className="relative flex items-center justify-center">
+                      <Image
+                        src={generatedImageUrl}
+                        alt="Generated sticker"
+                        width={400}
+                        height={400}
+                        className="object-contain max-h-full rounded-lg shadow-md"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleDownload}
+                      className="font-semibold h-[50px] rounded-2xl text-base px-6 cursor-pointer"
+                      variant="outline"
+                    >
+                      <DownloadIcon className="mr-2 h-5 w-5" />
+                      Download Sticker
+                    </Button>
                   </div>
                 ) : (
                   <div className="relative">

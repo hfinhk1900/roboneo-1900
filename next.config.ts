@@ -69,6 +69,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'tokensceshi.oss-ap-southeast-1.aliyuncs.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
     ],
   },
 };
