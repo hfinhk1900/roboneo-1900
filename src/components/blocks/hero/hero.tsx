@@ -75,12 +75,53 @@ export default function HeroSection() {
     return () => URL.revokeObjectURL(objectUrl);
   };
 
-  const handleGenerate = async () => {
-    resetState();
+  // Add click handler for upload area
+  const handleUploadClick = () => {
+    document.getElementById('image-upload')?.click();
+  };
 
-    // For image to sticker, this would typically call a different API
-    // For now, we'll simulate with a timeout
-    // In a real implementation, you'd upload the image and get back a processed version
+  const handleGenerate = async () => {
+    if (!selectedImage) return;
+
+    resetState();
+    setGeneratedImageUrl(null);
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('imageFile', selectedImage);
+      formData.append('style', selectedStyle);
+
+      console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
+
+      // Call our new image-to-sticker API
+      const response = await fetch('/api/image-to-sticker', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to convert image');
+      }
+
+      const data = await response.json();
+      console.log('Image-to-sticker response:', data);
+
+      // Set the generated image URL (for now it's a mock)
+      if (data.url) {
+        setGeneratedImageUrl(data.url);
+      }
+
+      // You could also use the description returned by the AI
+      if (data.description) {
+        console.log('AI Analysis:', data.description);
+      }
+
+    } catch (error) {
+      console.error('Error generating sticker:', error);
+      // You could add a toast notification here
+    }
   };
 
   return (
@@ -141,6 +182,7 @@ export default function HeroSection() {
                       Supports JPEG/PNG formats, ≤5MB
                     </p>
                     <div
+                      onClick={handleUploadClick}
                       className={cn(
                         'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
                         'hover:bg-muted/50 transition-colors cursor-pointer h-48 bg-[#f5f5f5]',
@@ -267,6 +309,16 @@ export default function HeroSection() {
                       Generating your sticker...
                     </p>
                   </div>
+                ) : generatedImageUrl ? (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <Image
+                      src={generatedImageUrl}
+                      alt="Generated sticker"
+                      width={400}
+                      height={400}
+                      className="object-contain max-h-full rounded-lg shadow-md"
+                    />
+                  </div>
                 ) : images.length > 0 && images[0]?.image ? (
                   <div className="relative w-full h-full flex items-center justify-center">
                     <Image
@@ -284,6 +336,7 @@ export default function HeroSection() {
                       alt="Example transformation - Photo to sticker"
                       width={400}
                       height={400}
+                      style={{ height: "auto" }}
                       className="object-contain max-h-full rounded-lg shadow-md"
                     />
                     <Image
@@ -291,6 +344,7 @@ export default function HeroSection() {
                       alt="Decorative camera icon"
                       width={120}
                       height={120}
+                      style={{ height: "auto" }}
                       className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
                     />
                     <Image
@@ -298,6 +352,7 @@ export default function HeroSection() {
                       alt="Decorative plant icon"
                       width={120}
                       height={120}
+                      style={{ height: "auto" }}
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <video

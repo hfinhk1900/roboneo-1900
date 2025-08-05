@@ -1,15 +1,21 @@
 import type { ProviderKey } from './provider-config';
 
 export interface GeneratedImage {
+  image: string;
   provider: ProviderKey;
-  image: string | null;
-  modelId?: string;
+  modelId: string;
+  width?: number;
+  height?: number;
+  format?: string;
 }
 
 export interface ImageResult {
   provider: ProviderKey;
   image: string | null;
-  modelId?: string;
+  modelId: string;
+  width?: number;
+  height?: number;
+  format?: string;
 }
 
 export interface ImageError {
@@ -18,7 +24,7 @@ export interface ImageError {
 }
 
 export interface ProviderTiming {
-  startTime?: number;
+  startTime: number;
   completionTime?: number;
   elapsed?: number;
 }

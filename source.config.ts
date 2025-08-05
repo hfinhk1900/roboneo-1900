@@ -13,7 +13,7 @@ export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
     schema: frontmatterSchema.extend({
-      index: z.boolean().default(false),
+      index: z.boolean().optional().default(false),
     }),
   },
   meta: {

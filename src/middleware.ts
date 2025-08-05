@@ -26,18 +26,32 @@ export default async function middleware(req: NextRequest) {
   const { nextUrl, headers } = req;
   console.log('>> middleware start, pathname', nextUrl.pathname);
 
-  // do not use getSession() here, it will cause error related to edge runtime
-  // const session = await getSession();
-  const { data: session } = await betterFetch<Session>(
-    '/api/auth/get-session',
-    {
-      baseURL: getBaseUrl(),
-      headers: {
-        cookie: req.headers.get('cookie') || '', // Forward the cookies from the request
-      },
-    }
-  );
-  const isLoggedIn = !!session;
+  // 暂时跳过 auth 检查来解决 fetch failed 问题
+  // TODO: 修复 auth 配置后再启用
+  let session = null;
+  let isLoggedIn = false;
+
+  try {
+    // do not use getSession() here, it will cause error related to edge runtime
+    // const session = await getSession();
+    const { data: sessionData } = await betterFetch<Session>(
+      '/api/auth/get-session',
+      {
+        baseURL: getBaseUrl(),
+        headers: {
+          cookie: req.headers.get('cookie') || '', // Forward the cookies from the request
+        },
+      }
+    );
+    session = sessionData;
+    isLoggedIn = !!session;
+  } catch (error) {
+    console.log('Auth check failed, proceeding without auth:', error instanceof Error ? error.message : String(error));
+    // 继续执行，不阻塞请求
+    session = null;
+    isLoggedIn = false;
+  }
+
   // console.log('middleware, isLoggedIn', isLoggedIn);
 
   // Get the pathname of the request (e.g. /zh/dashboard to /dashboard)

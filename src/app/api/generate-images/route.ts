@@ -45,6 +45,11 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
     createImageModel: fal.image,
     dimensionFormat: 'size',
   },
+  // Laozhang 使用自定义实现，暂时不在此配置
+  laozhang: {
+    createImageModel: openai.image, // 临时使用 OpenAI 作为备选
+    dimensionFormat: 'size',
+  },
 };
 
 const withTimeout = <T>(
@@ -61,8 +66,22 @@ const withTimeout = <T>(
 
 export async function POST(req: NextRequest) {
   const requestId = Math.random().toString(36).substring(7);
-  const { prompt, provider, modelId } =
-    (await req.json()) as GenerateImageRequest;
+  const {
+    prompt,
+    provider,
+    modelId,
+    quality = 'auto',
+    outputFormat = 'webp',
+    outputCompression,
+    background,
+    size,
+    // 新增：图片编辑相关参数
+    inputImage,
+    editType = 'generate' // 'generate' | 'edit' | 'variation'
+  } = (await req.json()) as GenerateImageRequest & {
+    inputImage?: string; // base64 图片数据
+    editType?: 'generate' | 'edit' | 'variation';
+  };
 
   try {
     if (!prompt || !provider || !modelId || !providerConfig[provider]) {
@@ -73,39 +92,126 @@ export async function POST(req: NextRequest) {
 
     const config = providerConfig[provider];
     const startstamp = performance.now();
-    const generatePromise = generateImage({
+
+    // 构建图像生成参数
+    const generateParams: any = {
       model: config.createImageModel(modelId),
       prompt,
       ...(config.dimensionFormat === 'size'
-        ? { size: DEFAULT_IMAGE_SIZE }
+        ? { size: size || DEFAULT_IMAGE_SIZE }
         : { aspectRatio: DEFAULT_ASPECT_RATIO }),
       ...(provider !== 'openai' && {
         seed: Math.floor(Math.random() * 1000000),
       }),
-      // Vertex AI only accepts a specified seed if watermark is disabled.
-      providerOptions: { vertex: { addWatermark: false } },
-    }).then(({ image, warnings }) => {
-      if (warnings?.length > 0) {
-        console.warn(
-          `Warnings [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
-          warnings
-        );
-      }
-      console.log(
-        `Completed image request [requestId=${requestId}, provider=${provider}, model=${modelId}, elapsed=${(
-          (performance.now() - startstamp) / 1000
-        ).toFixed(1)}s].`
-      );
+    };
 
-      return {
-        provider,
-        image: image.base64,
+    // 为 OpenAI gpt-image-1 模型添加特殊参数支持
+    if (provider === 'openai' && modelId === 'gpt-image-1') {
+      generateParams.providerOptions = {
+        openai: {
+          quality,
+          ...(outputFormat && { output_format: outputFormat }),
+          ...(outputCompression && { output_compression: outputCompression }),
+          ...(background === 'transparent' && { background: 'transparent' }),
+          // 图片编辑功能
+          ...(inputImage && editType === 'edit' && {
+            image: inputImage, // base64 图片
+            mask: undefined, // 可以添加遮罩支持
+          }),
+          ...(inputImage && editType === 'variation' && {
+            image: inputImage,
+            n: 1,
+          }),
+        }
       };
-    });
+    } else {
+      // 其他提供商的配置
+      generateParams.providerOptions = {
+        vertex: { addWatermark: false }
+      };
+    }
 
-    const result = await withTimeout(generatePromise, TIMEOUT_MILLIS);
-    return NextResponse.json(result, {
-      status: 'image' in result ? 200 : 500,
+    // 如果是图片编辑模式，调整API调用方式
+    let generatePromise;
+
+    if (provider === 'openai' && inputImage && editType !== 'generate') {
+      // 使用 OpenAI 的图片编辑功能
+      console.log(`Image editing request [editType=${editType}, provider=${provider}, model=${modelId}]`);
+
+      try {
+        // 直接调用 OpenAI API 进行图片编辑
+        const openaiResponse = await fetch('https://api.openai.com/v1/images/edits', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: inputImage,
+            prompt: prompt,
+            n: 1,
+            size: size || '1024x1024',
+            response_format: 'b64_json',
+            ...(quality && quality !== 'auto' && { quality }),
+          }),
+        });
+
+        if (!openaiResponse.ok) {
+          throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+        }
+
+        const openaiData = await openaiResponse.json();
+        const imageBase64 = openaiData.data[0]?.b64_json;
+
+        if (!imageBase64) {
+          throw new Error('No image data received from OpenAI');
+        }
+
+        generatePromise = Promise.resolve({
+          image: { base64: imageBase64 },
+          warnings: []
+        });
+      } catch (error) {
+        console.error('OpenAI direct API call failed:', error);
+        // 降级到常规生成
+        generatePromise = generateImage(generateParams);
+      }
+    } else {
+      // 常规图片生成
+      generatePromise = generateImage(generateParams);
+    }
+
+    const finalResult = await withTimeout(
+      generatePromise.then(({ image, warnings }) => {
+        if (warnings?.length > 0) {
+          console.warn(
+            `Warnings [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
+            warnings
+          );
+        }
+        console.log(
+          `Completed image request [requestId=${requestId}, provider=${provider}, model=${modelId}, elapsed=${(
+            (performance.now() - startstamp) / 1000
+          ).toFixed(1)}s].`
+        );
+
+        // 解析图像尺寸（从生成的参数中获取）
+        const [width, height] = (size || DEFAULT_IMAGE_SIZE).split('x').map(Number);
+
+        return {
+          provider,
+          image: image.base64,
+          width: width || 1024,
+          height: height || 1024,
+          format: outputFormat || 'webp',
+          editType: editType || 'generate',
+        };
+      }),
+      TIMEOUT_MILLIS
+    );
+
+    return NextResponse.json(finalResult, {
+      status: 'image' in finalResult ? 200 : 500,
     });
   } catch (error) {
     // Log full error detail on the server, but return a generic error message

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GenerateImageResponse } from '../lib/api-types';
+import type { GenerateImageRequest, GenerateImageResponse } from '../lib/api-types';
 import type {
   ImageError,
   ImageResult,
@@ -9,6 +9,7 @@ import {
   type ProviderKey,
   initializeProviderRecord,
 } from '../lib/provider-config';
+import type { OpenAIImageSettings } from '../components/OpenAISettings';
 
 interface UseImageGenerationReturn {
   images: ImageResult[];
@@ -19,7 +20,8 @@ interface UseImageGenerationReturn {
   startGeneration: (
     prompt: string,
     providers: ProviderKey[],
-    providerToModel: Record<ProviderKey, string>
+    providerToModel: Record<ProviderKey, string>,
+    openaiSettings?: OpenAIImageSettings
   ) => Promise<void>;
   resetState: () => void;
   activePrompt: string;
@@ -46,7 +48,8 @@ export function useImageGeneration(): UseImageGenerationReturn {
   const startGeneration = async (
     prompt: string,
     providers: ProviderKey[],
-    providerToModel: Record<ProviderKey, string>
+    providerToModel: Record<ProviderKey, string>,
+    openaiSettings?: OpenAIImageSettings
   ) => {
     setActivePrompt(prompt);
     try {
@@ -79,10 +82,18 @@ export function useImageGeneration(): UseImageGenerationReturn {
           `Generate image request [provider=${provider}, modelId=${modelId}]`
         );
         try {
-          const request = {
+          const request: GenerateImageRequest = {
             prompt,
             provider,
             modelId,
+            // 添加 OpenAI 专用设置
+            ...(provider === 'openai' && openaiSettings && {
+              quality: openaiSettings.quality,
+              outputFormat: openaiSettings.outputFormat,
+              outputCompression: openaiSettings.outputCompression,
+              background: openaiSettings.background,
+              size: openaiSettings.size,
+            }),
           };
 
           const response = await fetch('/api/generate-images', {
@@ -114,7 +125,15 @@ export function useImageGeneration(): UseImageGenerationReturn {
           setImages((prevImages) =>
             prevImages.map((item) =>
               item.provider === provider
-                ? { ...item, image: data.image ?? null, modelId }
+                ? {
+                    ...item,
+                    image: data.image ?? null,
+                    modelId,
+                    // 添加响应的额外信息
+                    width: data.width,
+                    height: data.height,
+                    format: data.format,
+                  }
                 : item
             )
           );

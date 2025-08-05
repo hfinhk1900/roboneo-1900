@@ -55,6 +55,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'html.tailus.io',
       },
+      {
+        protocol: 'https',
+        hostname: 'tokensceshi.oss-ap-southeast-1.aliyuncs.com',
+      },
     ],
   },
 };

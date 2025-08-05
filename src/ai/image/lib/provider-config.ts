@@ -3,7 +3,9 @@ export type ProviderKey =
   // | 'vertex'
   | 'openai'
   | 'fireworks'
-  | 'fal';
+  | 'fal'
+  | 'laozhang'; // 新增 Laozhang AI 提供商
+
 export type ModelMode = 'performance' | 'quality';
 
 export const PROVIDERS: Record<
@@ -49,11 +51,12 @@ export const PROVIDERS: Record<
     iconPath: '/provider-icons/openai.svg',
     color: 'from-blue-500 to-cyan-500',
     models: [
-      // 'gpt-image-1', // added by Fox
-      'dall-e-2',
+      'gpt-image-1', // 新的图像生成模型，支持更好的指令跟随和图像质量
       'dall-e-3',
+      'dall-e-2',
     ],
   },
+
   // https://ai-sdk.dev/providers/ai-sdk-providers/fireworks#image-models
   fireworks: {
     displayName: 'Fireworks',
@@ -87,22 +90,35 @@ export const PROVIDERS: Record<
       // 'fal-ai/stable-diffusion-3.5-large',
     ],
   },
+  // Laozhang AI provider for image-to-sticker functionality
+  laozhang: {
+    displayName: 'Laozhang AI',
+    iconPath: '/provider-icons/laozhang.svg',
+    color: 'from-red-500 to-pink-500',
+    models: [
+      'gpt-4o-image',
+      'gpt-4-vision-preview',
+      'gpt-image-1', // for image editing API
+    ],
+  },
 };
 
 export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
   performance: {
     replicate: 'black-forest-labs/flux-1.1-pro',
     // vertex: 'imagen-3.0-fast-generate-001',
-    openai: 'dall-e-3',
+    openai: 'gpt-image-1', // 更新为新模型
     fireworks: 'accounts/fireworks/models/flux-1-schnell-fp8',
     fal: 'fal-ai/flux/dev',
+    laozhang: 'gpt-4o-image',
   },
   quality: {
     replicate: 'stability-ai/stable-diffusion-3.5-large',
     // vertex: 'imagen-3.0-generate-001',
-    openai: 'dall-e-3',
+    openai: 'gpt-image-1', // 更新为新模型
     fireworks: 'accounts/fireworks/models/flux-1-dev-fp8',
     fal: 'fal-ai/flux-pro/v1.1-ultra',
+    laozhang: 'gpt-4-vision-preview',
   },
 };
 
@@ -112,6 +128,7 @@ export const PROVIDER_ORDER: ProviderKey[] = [
   'openai',
   'fireworks',
   'fal',
+  'laozhang',
 ];
 
 export const initializeProviderRecord = <T>(defaultValue?: T) =>
