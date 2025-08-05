@@ -80,7 +80,7 @@ export default function HeroSection() {
       console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
 
       // Call our new image-to-sticker API
-      const response = await fetch('/api/image-to-sticker-improved', {
+      const response = await fetch('/api/image-to-sticker', {
         method: 'POST',
         body: formData,
       });

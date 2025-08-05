@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 // --- 配置 ---
-const API_URL = 'http://localhost:3000/api/image-to-sticker-improved';
+const API_URL = 'http://localhost:3000/api/image-to-sticker';
 const TEST_IMAGE_PATH = path.resolve(process.cwd(), 'public/test-img2.png');
 const OUTPUT_DIR = path.resolve(process.cwd(), 'public/debug-output');
 const SUPPORTED_STYLES = ['ios', 'lego', 'pixel', 'snoopy'] as const;
