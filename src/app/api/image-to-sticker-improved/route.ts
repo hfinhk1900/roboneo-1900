@@ -16,19 +16,23 @@ import { NextRequest, NextResponse } from 'next/server';
 const STYLE_CONFIGS = {
   ios: {
     description: "Apple iOS emoji style 3D sticker avatar",
+    // This is the high-quality prompt used directly for 'ios' style, skipping GPT-4o.
     userPrompt: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker."
   },
   pixel: {
-    description: "8-bit pixel art style sticker",
-    userPrompt: "Transform this into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background"
+    description: "Pixel art style sticker",
+    // This prompt will be sent to GPT-4o for optimization.
+    userPrompt: "Learn the Pixel Art style and generate a sticker avatar of the person in the photo in this style. Imitate the body shape, face shape, skin tone, facial features, and expression. Keep the person's facial accessories, hairstyle and hair accessories, clothing, accessories, expression, and pose consistent with the original image. The background should be white, include only the full figure, and ensure the final image looks like a Pixel Art style character."
   },
   lego: {
     description: "LEGO minifigure style sticker",
-    userPrompt: "Transform this into LEGO style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background"
+    // This prompt will be sent to GPT-4o for optimization.
+    userPrompt: "Learn the LEGO Minifigure style and generate a sticker avatar of the person in the photo in this style. Imitate the body shape, face shape, skin tone, facial features, and expression. Keep the person's facial accessories, hairstyle and hair accessories, clothing, accessories, expression, and pose consistent with the original image. Remove the background, include only the full figure, and ensure the final image looks like a LEGO Minifigure-style character."
   },
   snoopy: {
     description: "Snoopy cartoon style sticker",
-    userPrompt: "Transform this into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background"
+    // This prompt will be sent to GPT-4o for optimization.
+    userPrompt: "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character."
   }
 } as const;
 
@@ -136,8 +140,13 @@ async function rewritePrompt(userRequest: string, apiKey: string): Promise<strin
   try {
     console.log('🔄 GPT-4o 提示词优化...');
 
-    const systemMessage = `You are a prompt optimizer for an image-editing model (DALL-E 3).
-Return EXACTLY ONE English prompt that turns the uploaded photo into an official Apple iOS emoji-sticker: 3-D clay shading, thick white outline, no background (fully transparent), preserve body shape, face shape, skin tone, clothing, accessories, facial expression and pose.`;
+    // 通用的系统指令，指导 GPT-4o 如何根据用户请求优化提示词
+    const systemMessage = `You are a prompt optimizer for an image-editing model (DALL-E 3). Your goal is to refine the user's request into a detailed, effective prompt for style transfer.
+- Analyze the user's requested style and keywords from the user message.
+- Generate a single, concise English prompt that instructs the model to apply this style to the uploaded photo.
+- The prompt MUST preserve the original person's body shape, face shape, skin tone, clothing, accessories, facial expression, and pose.
+- Ensure the final image has a transparent background unless specified otherwise by the user.
+- Return ONLY the optimized English prompt and nothing else.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -305,13 +314,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 步骤2: GPT-4o 提示词优化
-    const userRequest = STYLE_CONFIGS[style as StickerStyle].userPrompt;
-    const optimizedPrompt = await rewritePrompt(userRequest, apiKey);
+    // 步骤2: 获取预设的提示词
+    // 所有风格都直接使用预设的高质量提示词，跳过 GPT-4o 优化以节省成本和延迟
+    console.log(`✅ 优化跳过 (${style} 风格)，使用预设提示词`);
+    const optimizedPrompt = STYLE_CONFIGS[style as StickerStyle].userPrompt;
 
     if (!optimizedPrompt) {
       return NextResponse.json(
-        { error: 'Failed to optimize prompt' },
+        { error: 'Failed to find a prompt for the selected style' },
         { status: 500 }
       );
     }
