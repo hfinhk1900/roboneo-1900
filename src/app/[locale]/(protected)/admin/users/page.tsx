@@ -1,3 +1,5 @@
+'use client';
+
 import { UsersPageClient } from '@/components/admin/users-page';
 
 /**

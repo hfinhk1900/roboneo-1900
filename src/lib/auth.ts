@@ -110,6 +110,11 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      credits: {
+        type: 'number',
+        required: false,
+        defaultValue: 10,
+      },
     },
     // https://www.better-auth.com/docs/concepts/users-accounts#delete-user
     deleteUser: {

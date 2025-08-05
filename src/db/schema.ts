@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -13,6 +13,7 @@ export const user = pgTable("user", {
 	banReason: text('ban_reason'),
 	banExpires: timestamp('ban_expires'),
 	customerId: text('customer_id'),
+	credits: integer('credits').notNull().default(10),
 });
 
 export const session = pgTable("session", {

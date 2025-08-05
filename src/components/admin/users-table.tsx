@@ -1,6 +1,7 @@
 'use client';
 
 import { UserDetailViewer } from '@/components/admin/user-detail-viewer';
+import { CreditsManager } from '@/components/admin/credits-manager';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -190,6 +191,23 @@ export function UsersTable({
             >
               {role === 'admin' ? t('admin') : t('user')}
             </Badge>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'credits',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Credits" />
+      ),
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex items-center gap-2 pl-3">
+            <Badge variant="secondary" className="px-1.5">
+              {user.credits || 0} Credits
+            </Badge>
+            <CreditsManager user={user} onUpdate={() => window.location.reload()} />
           </div>
         );
       },

@@ -13,24 +13,28 @@ import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
-const STYLE_CONFIGS = {
-  ios: {
-    description: "Apple iOS emoji style 3D sticker avatar",
-    userPrompt: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker."
+export const STYLE_CONFIGS = {
+  'ios': {
+    name: 'iOS Sticker',
+    userPrompt: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+    imageUrl: '/styles/ios.png'
   },
-  pixel: {
-    description: "Pixel art style sticker",
-    userPrompt: "Learn the Pixel Art style and generate a sticker avatar of the person in the photo in this style. Imitate the body shape, face shape, skin tone, facial features, and expression. Keep the person's facial accessories, hairstyle and hair accessories, clothing, accessories, expression, and pose consistent with the original image. The background should be white, include only the full figure, and ensure the final image looks like a Pixel Art style character."
+  'pixel': {
+    name: 'Pixel Art',
+    userPrompt: 'A die-cut sticker in a retro pixel art style. The design should be blocky and nostalgic, with a limited color palette and a visible grid structure. Include a distinct white border around the entire sprite to give it a sticker feel.',
+    imageUrl: '/styles/pixel.png'
   },
-  lego: {
-    description: "LEGO minifigure style sticker",
-    userPrompt: "Learn the LEGO Minifigure style and generate a sticker avatar of the person in the photo in this style. Imitate the body shape, face shape, skin tone, facial features, and expression. Keep the person's facial accessories, hairstyle and hair accessories, clothing, accessories, expression, and pose consistent with the original image. Remove the background, include only the full figure, and ensure the final image looks like a LEGO Minifigure-style character."
+  'lego': {
+    name: 'LEGO',
+    userPrompt: 'A die-cut sticker of a LEGO minifigure. The design should be glossy, plastic-like, and three-dimensional, with the iconic blocky shapes and features of a classic LEGO character. It must have a clean white border to look like a sticker.',
+    imageUrl: '/styles/lego.png'
   },
-  snoopy: {
-    description: "Snoopy cartoon style sticker",
-    userPrompt: "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character."
+  'snoopy': {
+    name: 'Snoopy',
+    userPrompt: 'A die-cut sticker in the charming, hand-drawn art style of Charles M. Schulz\'s Peanuts comics, featuring Snoopy. The design should have simple, bold, and expressive black outlines with a classic, cartoonish feel and a clean white sticker border.',
+    imageUrl: '/styles/snoopy.png'
   }
-} as const;
+};
 
 type StickerStyle = keyof typeof STYLE_CONFIGS;
 
@@ -100,6 +104,8 @@ async function gptStyleTransfer(base64Data: string, prompt: string, apiKey: stri
     formData.append('model', 'gpt-image-1');
     formData.append('n', '1');
     formData.append('size', '1024x1024');
+    formData.append('quality', 'auto'); // Let the model decide the best quality
+    formData.append('background', 'transparent'); // Ensure transparent background
 
     const response = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
@@ -138,6 +144,32 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
     console.log('🚀 Starting sticker generation...');
+
+    // 1. Check user authentication and credits
+    const { getSession } = await import('@/lib/server');
+    const session = await getSession();
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const STICKER_COST = 10; // 10 credits per sticker
+
+    // Check user credits (skip in mock mode)
+    if (!(process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true')) {
+      const { canGenerateStickerAction } = await import('@/actions/credits-actions');
+      const creditsCheck = await canGenerateStickerAction({ requiredCredits: STICKER_COST });
+
+      if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
+        return NextResponse.json({
+          error: 'Insufficient credits',
+          required: STICKER_COST,
+          current: creditsCheck?.data?.data?.currentCredits || 0
+        }, { status: 402 });
+      }
+
+      console.log(`💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with generation...`);
+    }
 
     // Development mode: return mock response to avoid API calls
     if (process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true') {
@@ -199,7 +231,20 @@ export async function POST(req: NextRequest) {
     const { url: r2Url } = await uploadFile(stickerBuffer, filename, 'image/png', 'stickers');
     console.log(`✅ Upload successful! URL: ${r2Url}`);
 
-    // 5. Return simplified response
+    // 5. Deduct credits after successful generation
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deductResult = await deductCreditsAction({
+      userId: session.user.id,
+      amount: STICKER_COST
+    });
+
+    if (deductResult?.data?.success) {
+      console.log(`💰 Deducted ${STICKER_COST} credits. Remaining: ${deductResult.data.data?.remainingCredits}`);
+    } else {
+      console.warn('⚠️ Failed to deduct credits, but sticker was generated successfully');
+    }
+
+    // 6. Return simplified response
     const elapsed = Date.now() - startTime;
     console.log(`🎉 Sticker generation complete! Total time: ${Math.round(elapsed/1000)}s`);
 

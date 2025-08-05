@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CreditsDisplay } from '@/components/shared/credits-display';
+import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
 import {
   ImageIcon,
@@ -88,6 +90,13 @@ export default function HeroSection() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        // Handle insufficient credits error
+        if (response.status === 402) {
+          alert(`Insufficient credits! You need ${errorData.required} credits but only have ${errorData.current}. Please top up your credits.`);
+          return;
+        }
+
         throw new Error(errorData.error || 'Failed to convert image');
       }
 
@@ -96,6 +105,8 @@ export default function HeroSection() {
 
       if (data.url) {
         setGeneratedImageUrl(data.url);
+        // Clear credits cache to trigger refresh of credits display
+        creditsCache.clear();
       } else {
         throw new Error('API did not return a sticker URL.');
       }
@@ -174,7 +185,7 @@ export default function HeroSection() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Image Input */}
           <div>
-            <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
+                        <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
               <CardContent className="pt-1 px-6 pb-4 space-y-5">
                 <div className="pb-1 pt-0">
                   <h3 className="text-xl font-semibold mb-0.5">
@@ -333,7 +344,7 @@ export default function HeroSection() {
 
                   {/* Credit info */}
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
-                    <span>1 Credit</span>
+                    <CreditsDisplay />
                     <span>Powered by RoboNeo</span>
                   </div>
                 </div>
