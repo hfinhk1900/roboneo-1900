@@ -58,15 +58,11 @@ async function runTest(style: StickerStyle) {
     console.log('✅ 测试成功!');
 
     if (result.stickerUrl) {
-      const base64Data = result.stickerUrl.split(',')[1];
-      const timestamp = new Date().getTime();
-      const outputFilename = `test_${style}_${timestamp}.png`;
-      const outputPath = path.join(OUTPUT_DIR, outputFilename);
-
-      await fs.writeFile(outputPath, base64Data, 'base64');
-      console.log(`🖼️  输出图片已保存到: ${path.relative(process.cwd(), outputPath)}`);
+      console.log(`🖼️  图片已上传到 R2!`);
+      console.log(`🔗 URL: ${result.stickerUrl}`);
     } else {
       console.warn('⚠️ API 响应中未找到 stickerUrl');
+      console.log('完整响应:', JSON.stringify(result, null, 2));
     }
 
   } catch (error) {

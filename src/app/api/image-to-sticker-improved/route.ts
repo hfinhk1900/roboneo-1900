@@ -11,6 +11,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { uploadFile } from '@/storage';
+import { nanoid } from 'nanoid';
 
 // 风格配置 - 对应用户请求到优化提示词的映射
 const STYLE_CONFIGS = {
@@ -340,8 +342,23 @@ export async function POST(req: NextRequest) {
     }
     console.log('✅ GPT Image 1 调用成功');
 
-    // 步骤4: 可选描边增强
-    const finalSticker = await addWhiteStroke(stickerBase64);
+    // 步骤4: 上传到 R2
+    console.log('☁️ 上传贴纸到 R2...');
+    const stickerBuffer = Buffer.from(stickerBase64, 'base64');
+    const filename = `${style}-${nanoid()}.png`;
+    const folder = 'stickers';
+
+    const { url: r2Url } = await uploadFile(
+      stickerBuffer,
+      filename,
+      'image/png',
+      folder
+    );
+    console.log(`✅ 上传成功! URL: ${r2Url}`);
+
+
+    // 步骤5: 可选描边增强 (当前跳过)
+    const finalStickerUrl = r2Url; // 如果未来实现描边，这里可以替换
 
     const elapsed = Date.now() - startTime;
     console.log(`🎉 生产级贴纸生成完成! 耗时: ${Math.round(elapsed/1000)}秒`);
@@ -349,7 +366,7 @@ export async function POST(req: NextRequest) {
     // 返回结果
     return NextResponse.json({
       success: true,
-      stickerUrl: `data:image/png;base64,${finalSticker}`,
+      stickerUrl: finalStickerUrl, // 返回 R2 的公开 URL
       style: style,
              processing: {
          method: 'Production-grade GPT-4o + GPT Image 1 Pipeline',
