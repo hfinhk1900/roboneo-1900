@@ -1,11 +1,5 @@
 'use client';
 
-import { useImageGeneration } from '@/ai/image/hooks/use-image-generation';
-import {
-  PROVIDER_ORDER,
-  type ProviderKey,
-  initializeProviderRecord,
-} from '@/ai/image/lib/provider-config';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,20 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { LocaleLink } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import {
-  ChevronRightIcon,
   ImageIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
   UploadIcon,
-} from 'lucide-react';
-import {
-  CircleDollarSignIcon,
-  ComponentIcon,
-  WandSparklesIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -46,26 +33,24 @@ const styleOptions = [
 
 export default function HeroSection() {
   const t = useTranslations('HomePage.hero');
-  const [prompt, setPrompt] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
   );
   const [selectedStyle, setSelectedStyle] = useState('ios');
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
-
-  // Initialize image generation hook
-  const { images, isLoading, startGeneration, resetState } =
-    useImageGeneration();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setSelectedImage(file);
+    setGeneratedImageUrl(null); // Reset previous generation
 
     // Create a preview URL
     const objectUrl = URL.createObjectURL(file);
@@ -83,8 +68,8 @@ export default function HeroSection() {
   const handleGenerate = async () => {
     if (!selectedImage) return;
 
-    resetState();
     setGeneratedImageUrl(null);
+    setIsGenerating(true);
 
     try {
       // Create FormData for file upload
@@ -95,7 +80,7 @@ export default function HeroSection() {
       console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
 
       // Call our new image-to-sticker API
-      const response = await fetch('/api/image-to-sticker', {
+      const response = await fetch('/api/image-to-sticker-improved', {
         method: 'POST',
         body: formData,
       });
@@ -108,19 +93,17 @@ export default function HeroSection() {
       const data = await response.json();
       console.log('Image-to-sticker response:', data);
 
-      // Set the generated image URL (for now it's a mock)
-      if (data.url) {
-        setGeneratedImageUrl(data.url);
+      if (data.stickerUrl) {
+        setGeneratedImageUrl(data.stickerUrl);
+      } else {
+        throw new Error('API did not return a sticker URL.');
       }
-
-      // You could also use the description returned by the AI
-      if (data.description) {
-        console.log('AI Analysis:', data.description);
-      }
-
     } catch (error) {
-      console.error('Error generating sticker:', error);
-      // You could add a toast notification here
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      console.error('Error generating sticker:', errorMessage);
+      alert(`Generation failed: ${errorMessage}`);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -276,14 +259,14 @@ export default function HeroSection() {
                   <Button
                     onClick={handleGenerate}
                     className="w-full font-semibold h-[50px] rounded-2xl text-base"
-                    disabled={!selectedImage || isLoading}
+                    disabled={!selectedImage || isGenerating}
                   >
-                    {isLoading ? (
+                    {isGenerating ? (
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                     ) : (
                       <SparklesIcon className="mr-2 h-5 w-5" />
                     )}
-                    {isLoading ? 'Generating...' : 'Generate My Sticker'}
+                    {isGenerating ? 'Generating...' : 'Generate My Sticker'}
                   </Button>
 
                   {/* Credit info */}
@@ -300,7 +283,7 @@ export default function HeroSection() {
           <div>
             <Card className="border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
               <CardContent className="p-6 flex-grow flex flex-col items-center justify-center space-y-4 relative">
-                {isLoading ? (
+                {isGenerating ? (
                   <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="relative h-16 w-16 animate-pulse">
                       <LoaderIcon className="h-16 w-16 animate-spin text-primary" />
@@ -314,16 +297,6 @@ export default function HeroSection() {
                     <Image
                       src={generatedImageUrl}
                       alt="Generated sticker"
-                      width={400}
-                      height={400}
-                      className="object-contain max-h-full rounded-lg shadow-md"
-                    />
-                  </div>
-                ) : images.length > 0 && images[0]?.image ? (
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <Image
-                      src={images[0].image}
-                      alt="Generated image"
                       width={400}
                       height={400}
                       className="object-contain max-h-full rounded-lg shadow-md"
