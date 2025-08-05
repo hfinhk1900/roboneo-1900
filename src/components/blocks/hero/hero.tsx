@@ -93,8 +93,8 @@ export default function HeroSection() {
       const data = await response.json();
       console.log('Image-to-sticker response:', data);
 
-      if (data.stickerUrl) {
-        setGeneratedImageUrl(data.stickerUrl);
+      if (data.url) {
+        setGeneratedImageUrl(data.url);
       } else {
         throw new Error('API did not return a sticker URL.');
       }
