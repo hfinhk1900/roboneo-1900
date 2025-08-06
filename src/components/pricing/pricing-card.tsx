@@ -294,7 +294,16 @@ export function PricingCard({
         {isPaidPlan && paymentType === PaymentTypes.SUBSCRIPTION && (
           <div className="my-4">
             <p className="text-sm text-muted-foreground text-center">
-              Cancel anytime. 7 days refund.
+              Cancel anytime, 7-day money-back guarantee
+            </p>
+          </div>
+        )}
+
+        {/* show free plan benefits */}
+        {plan.isFree && (
+          <div className="my-4">
+            <p className="text-sm text-muted-foreground text-center">
+              No credit card required, upgrade anytime
             </p>
           </div>
         )}

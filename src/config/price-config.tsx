@@ -30,14 +30,8 @@ export function getPricePlans(): Record<string, PricePlan> {
       features: [
         t('free.features.feature-1'),
         t('free.features.feature-2'),
-        t('free.features.feature-3'),
-        t('free.features.feature-4'),
       ],
-      limits: [
-        t('free.limits.limit-1'),
-        t('free.limits.limit-2'),
-        t('free.limits.limit-3'),
-      ],
+      limits: [],
     };
   }
 
@@ -51,7 +45,6 @@ export function getPricePlans(): Record<string, PricePlan> {
         t('pro.features.feature-2'),
         t('pro.features.feature-3'),
         t('pro.features.feature-4'),
-        t('pro.features.feature-5'),
       ],
       limits: [],
     };
@@ -68,6 +61,7 @@ export function getPricePlans(): Record<string, PricePlan> {
         t('ultimate.features.feature-3'),
         t('ultimate.features.feature-4'),
         t('ultimate.features.feature-5'),
+        t('ultimate.features.feature-6'),
       ],
       limits: [],
     };
