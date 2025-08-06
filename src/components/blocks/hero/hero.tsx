@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CreditsDisplay } from '@/components/shared/credits-display';
+import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
 import {
@@ -43,6 +44,8 @@ export default function HeroSection() {
   );
   const [selectedStyle, setSelectedStyle] = useState('ios');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+  const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -93,7 +96,11 @@ export default function HeroSection() {
 
         // Handle insufficient credits error
         if (response.status === 402) {
-          alert(`Insufficient credits! You need ${errorData.required} credits but only have ${errorData.current}. Please top up your credits.`);
+          setCreditsError({
+            required: errorData.required,
+            current: errorData.current
+          });
+          setShowCreditsDialog(true);
           return;
         }
 
@@ -113,7 +120,8 @@ export default function HeroSection() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       console.error('Error generating sticker:', errorMessage);
-      alert(`Generation failed: ${errorMessage}`);
+      // 这里可以添加一个通用的错误提示组件，暂时保留 console.error
+      console.error(`Generation failed: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
     }
@@ -301,7 +309,7 @@ export default function HeroSection() {
 
                   <Button
                     onClick={handleGenerate}
-                    className="w-full font-semibold h-[50px] rounded-2xl text-base"
+                    className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                     disabled={!selectedImage || isGenerating}
                   >
                     {isGenerating ? (
@@ -426,6 +434,15 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* Insufficient Credits Dialog */}
+      {creditsError && (
+        <InsufficientCreditsDialog
+          open={showCreditsDialog}
+          required={creditsError.required}
+          current={creditsError.current}
+        />
+      )}
     </main>
   );
 }
