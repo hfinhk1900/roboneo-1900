@@ -104,7 +104,7 @@ async function gptStyleTransfer(base64Data: string, prompt: string, apiKey: stri
     formData.append('model', 'gpt-image-1');
     formData.append('n', '1');
     formData.append('size', '1024x1024');
-    formData.append('quality', 'auto'); // Let the model decide the best quality
+    formData.append('quality', 'medium'); // Medium quality for balanced performance and cost
     formData.append('background', 'transparent'); // Ensure transparent background
 
     const response = await fetch('https://api.openai.com/v1/images/edits', {
