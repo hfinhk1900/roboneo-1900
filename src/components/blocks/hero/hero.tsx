@@ -16,7 +16,7 @@ import { CreditsDisplay } from '@/components/shared/credits-display';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
-import { validateImageFile, getFileSizeDisplay, OPENAI_IMAGE_CONFIG } from '@/lib/image-validation';
+import { validateImageFile, OPENAI_IMAGE_CONFIG } from '@/lib/image-validation';
 import {
   ImageIcon,
   ImagePlusIcon,
@@ -49,7 +49,6 @@ export default function HeroSection() {
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [fileInfo, setFileInfo] = useState<string | null>(null);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -59,9 +58,8 @@ export default function HeroSection() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Clear previous errors and info
+    // Clear previous errors
     setFileError(null);
-    setFileInfo(null);
 
     // Validate file
     const validation = validateImageFile(file);
@@ -74,9 +72,6 @@ export default function HeroSection() {
 
     setSelectedImage(file);
     setGeneratedImageUrl(null); // Reset previous generation
-
-    // Show file info
-    setFileInfo(`${file.name} (${getFileSizeDisplay(file.size)})`);
 
     // Create a preview URL
     const objectUrl = URL.createObjectURL(file);
@@ -280,12 +275,6 @@ export default function HeroSection() {
                       <p className="text-xs text-red-500 flex items-center gap-1">
                         <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
                         <span>{fileError}</span>
-                      </p>
-                    )}
-                    {fileInfo && !fileError && (
-                      <p className="text-xs text-green-600 flex items-center gap-1">
-                        <ImageIcon className="h-4 w-4 flex-shrink-0" />
-                        <span>{fileInfo}</span>
                       </p>
                     )}
                   </div>
