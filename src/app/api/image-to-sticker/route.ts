@@ -16,22 +16,22 @@ import { nanoid } from 'nanoid';
 export const STYLE_CONFIGS = {
   'ios': {
     name: 'iOS Sticker',
-    userPrompt: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+    userPrompt: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
     imageUrl: '/styles/ios.png'
   },
   'pixel': {
     name: 'Pixel Art',
-    userPrompt: 'A die-cut sticker in a retro pixel art style. The design should be blocky and nostalgic, with a limited color palette and a visible grid structure. Include a distinct white border around the entire sprite to give it a sticker feel.',
+    userPrompt: 'A die-cut sticker in a retro pixel art style. The design should be blocky and nostalgic, with a limited color palette and a visible grid structure. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.',
     imageUrl: '/styles/pixel.png'
   },
   'lego': {
     name: 'LEGO',
-    userPrompt: 'A die-cut sticker of a LEGO minifigure. The design should be glossy, plastic-like, and three-dimensional, with the iconic blocky shapes and features of a classic LEGO character. It must have a clean white border to look like a sticker.',
+    userPrompt: 'A die-cut sticker of a LEGO minifigure. The design should be glossy, plastic-like, and three-dimensional, with the iconic blocky shapes and features of a classic LEGO character. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a professional die-cut sticker appearance.',
     imageUrl: '/styles/lego.png'
   },
   'snoopy': {
     name: 'Snoopy',
-    userPrompt: 'A die-cut sticker in the charming, hand-drawn art style of Charles M. Schulz\'s Peanuts comics, featuring Snoopy. The design should have simple, bold, and expressive black outlines with a classic, cartoonish feel and a clean white sticker border.',
+    userPrompt: 'A die-cut sticker in the charming, hand-drawn art style of Charles M. Schulz\'s Peanuts comics, featuring Snoopy. The design should have simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.',
     imageUrl: '/styles/snoopy.png'
   }
 };
