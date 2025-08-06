@@ -248,7 +248,11 @@ async function main() {
   console.log('\n💡 使用建议:');
   console.log('1. 确保开发服务器正在运行: npm run dev');
   console.log('2. 在浏览器中打开 http://localhost:3000 测试前端验证');
-  console.log('3. 尝试上传不同大小和格式的图片');
+  console.log('3. 测试文件上传功能:');
+  console.log('   • 点击上传：点击上传区域选择文件');
+  console.log('   • 拖拽上传：将文件拖拽到上传区域');
+  console.log('   • 格式测试：尝试上传 JPEG/PNG/WebP/GIF 等格式');
+  console.log('   • 大小测试：尝试上传不同大小的文件 (建议测试 <4MB 和 >4MB)');
   console.log('4. 查看浏览器控制台和网络面板的错误信息');
 
   if (existingImages.length > 0) {

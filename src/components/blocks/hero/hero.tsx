@@ -49,15 +49,14 @@ export default function HeroSection() {
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // 通用文件处理函数
+  const processFile = (file: File) => {
     // Clear previous errors
     setFileError(null);
 
@@ -79,6 +78,52 @@ export default function HeroSection() {
 
     // Clean up the URL when component unmounts
     return () => URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  };
+
+  // 拖拽事件处理
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // 只有当离开整个拖拽区域时才设置为false
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      processFile(file);
+    }
   };
 
   // Add click handler for upload area
@@ -240,10 +285,20 @@ export default function HeroSection() {
                     </p>
                     <div
                       onClick={handleUploadClick}
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
                       className={cn(
                         'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
-                        'hover:bg-muted/50 transition-colors cursor-pointer h-48 bg-[#f5f5f5]',
-                        fileError ? 'border-red-300 bg-red-50' : previewUrl ? 'border-primary' : 'border-border'
+                        'hover:bg-muted/50 transition-all duration-200 cursor-pointer h-48 bg-[#f5f5f5]',
+                        fileError
+                          ? 'border-red-300 bg-red-50'
+                          : isDragging
+                            ? 'border-primary bg-primary/10 scale-[1.02]'
+                            : previewUrl
+                              ? 'border-primary'
+                              : 'border-border'
                       )}
                     >
                       {previewUrl ? (
@@ -257,9 +312,18 @@ export default function HeroSection() {
                         </div>
                       ) : (
                         <>
-                          <ImagePlusIcon className="h-10 w-10 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">
-                            Click or drag to upload
+                          <ImagePlusIcon className={cn(
+                            "h-10 w-10 transition-colors",
+                            isDragging ? "text-primary" : "text-muted-foreground"
+                          )} />
+                          <p className={cn(
+                            "text-sm transition-colors",
+                            isDragging ? "text-primary font-medium" : "text-muted-foreground"
+                          )}>
+                            {isDragging
+                              ? "Drop your image here"
+                              : "Click or drag & drop to upload"
+                            }
                           </p>
                         </>
                       )}
