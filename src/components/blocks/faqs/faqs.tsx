@@ -18,6 +18,27 @@ type FAQItem = {
   answer: string;
 };
 
+// Function to convert email addresses to clickable links
+const renderTextWithEmailLinks = (text: string) => {
+  const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const parts = text.split(emailRegex);
+
+  return parts.map((part, index) => {
+    if (emailRegex.test(part)) {
+      return (
+        <a
+          key={index}
+          href={`mailto:${part}`}
+          className="text-primary hover:underline"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export default function FaqSection() {
   const locale = useLocale();
   const t = useTranslations('HomePage.faqs');
@@ -141,7 +162,7 @@ export default function FaqSection() {
                       role="region"
                       aria-label={`Answer to: ${item.question}`}
                     >
-                      {item.answer}
+                      {renderTextWithEmailLinks(item.answer)}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
