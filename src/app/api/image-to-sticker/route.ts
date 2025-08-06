@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -154,17 +155,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const STICKER_COST = 10; // 10 credits per sticker
-
     // Check user credits (skip in mock mode)
     if (!(process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true')) {
       const { canGenerateStickerAction } = await import('@/actions/credits-actions');
-      const creditsCheck = await canGenerateStickerAction({ requiredCredits: STICKER_COST });
+      const creditsCheck = await canGenerateStickerAction({ requiredCredits: CREDITS_PER_IMAGE });
 
       if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
         return NextResponse.json({
           error: 'Insufficient credits',
-          required: STICKER_COST,
+          required: CREDITS_PER_IMAGE,
           current: creditsCheck?.data?.data?.currentCredits || 0
         }, { status: 402 });
       }
@@ -264,11 +263,11 @@ export async function POST(req: NextRequest) {
     const { deductCreditsAction } = await import('@/actions/credits-actions');
     const deductResult = await deductCreditsAction({
       userId: session.user.id,
-      amount: STICKER_COST
+      amount: CREDITS_PER_IMAGE
     });
 
     if (deductResult?.data?.success) {
-      console.log(`💰 Deducted ${STICKER_COST} credits. Remaining: ${deductResult.data.data?.remainingCredits}`);
+      console.log(`💰 Deducted ${CREDITS_PER_IMAGE} credits. Remaining: ${deductResult.data.data?.remainingCredits}`);
     } else {
       console.warn('⚠️ Failed to deduct credits, but sticker was generated successfully');
     }

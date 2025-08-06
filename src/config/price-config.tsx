@@ -67,21 +67,7 @@ export function getPricePlans(): Record<string, PricePlan> {
     };
   }
 
-  if (priceConfig.plans.premium) {
-    plans.premium = {
-      ...priceConfig.plans.premium,
-      name: t('premium.name'),
-      description: t('premium.description'),
-      features: [
-        t('premium.features.feature-1'),
-        t('premium.features.feature-2'),
-        t('premium.features.feature-3'),
-        t('premium.features.feature-4'),
-        t('premium.features.feature-5'),
-      ],
-      limits: [],
-    };
-  }
+
 
   return plans;
 }

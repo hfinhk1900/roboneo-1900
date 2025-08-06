@@ -1,0 +1,98 @@
+/**
+ * Credits Configuration
+ *
+ * This file defines the credits allocation rules for different plans
+ * and provides utilities for credits management.
+ */
+
+export interface PlanCredits {
+  planId: string;
+  monthlyCredits: number;
+  description: string;
+  resetType: 'monthly' | 'one-time';
+}
+
+/**
+ * Credits per image generation
+ */
+export const CREDITS_PER_IMAGE = 10;
+
+/**
+ * Plan credits configuration
+ * Each plan defines how many credits users get and how often they reset
+ */
+export const PLAN_CREDITS_CONFIG: Record<string, PlanCredits> = {
+  free: {
+    planId: 'free',
+    monthlyCredits: 10,
+    description: '10 credits (one-time allocation)',
+    resetType: 'one-time',
+  },
+  pro: {
+    planId: 'pro',
+    monthlyCredits: 2000,
+    description: '2000 credits per month (200 images)',
+    resetType: 'monthly',
+  },
+  ultimate: {
+    planId: 'ultimate',
+    monthlyCredits: 5000,
+    description: '5000 credits per month (500 images)',
+    resetType: 'monthly',
+  },
+};
+
+/**
+ * Get credits allocation for a specific plan
+ * @param planId The plan identifier
+ * @returns Credits configuration for the plan
+ */
+export function getCreditsForPlan(planId: string): PlanCredits | null {
+  return PLAN_CREDITS_CONFIG[planId] || null;
+}
+
+/**
+ * Calculate images possible with given credits
+ * @param credits Number of credits
+ * @returns Number of images that can be generated
+ */
+export function creditsToImages(credits: number): number {
+  return Math.floor(credits / CREDITS_PER_IMAGE);
+}
+
+/**
+ * Calculate credits needed for given number of images
+ * @param images Number of images
+ * @returns Credits required
+ */
+export function imagesToCredits(images: number): number {
+  return images * CREDITS_PER_IMAGE;
+}
+
+/**
+ * Get plan ID from Stripe price ID
+ * This maps Stripe price IDs to our internal plan IDs
+ * @param priceId Stripe price ID
+ * @returns Plan ID or null if not found
+ */
+export function getPlanIdFromPriceId(priceId: string): string | null {
+  // Map of common price ID patterns to plan IDs
+  // This should be updated with your actual Stripe price IDs
+  if (priceId.includes('pro') || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY) {
+    return 'pro';
+  }
+  if (priceId.includes('ultimate') || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY) {
+    return 'ultimate';
+  }
+  return null;
+}
+
+/**
+ * Check if a plan should reset credits monthly
+ * @param planId Plan identifier
+ * @returns True if plan resets monthly
+ */
+export function shouldResetMonthly(planId: string): boolean {
+  const config = getCreditsForPlan(planId);
+  return config?.resetType === 'monthly';
+}

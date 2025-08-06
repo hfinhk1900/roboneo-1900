@@ -80,7 +80,7 @@
       "name": "Pro",
       "description": "Perfect for individuals",
       "features": {
-        "feature-1": "200 images per month",
+        "feature-1": "2,000 credits per month (200 images)",
         "feature-2": "3× standard generation speed",
         "feature-3": "High-resolution downloads",
         "feature-4": "No ads, no watermark"
@@ -90,25 +90,15 @@
       "name": "Ultimate",
       "description": "Best for creators",
       "features": {
-        "feature-1": "500 images per month",
+        "feature-1": "5,000 credits per month (500 images)",
         "feature-2": "Batch generation (up to 4 images per prompt)",
         "feature-3": "Priority queue (5× faster)",
         "feature-4": "Early access to new features",
         "feature-5": "High-resolution downloads (up to 4K)",
         "feature-6": "No ads, no watermark"
       }
-    },
-    "premium": {
-      "name": "Premium",
-      "description": "For professional users",
-      "features": {
-        "feature-1": "8,000 credits per month",
-        "feature-2": "All models and styles",
-        "feature-3": "Fast processing",
-        "feature-4": "24/7 support",
-        "feature-5": "Cancel anytime"
-      }
     }
+
   },
   "NotFoundPage": {
     "title": "404",

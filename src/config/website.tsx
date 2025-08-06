@@ -137,29 +137,7 @@ export const websiteConfig: WebsiteConfig = {
         isLifetime: false,
         recommended: true,
       },
-      premium: {
-        id: 'premium',
-        prices: [
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_MONTHLY!,
-            amount: 2990, // $29.90
-            currency: 'USD',
-            interval: PlanIntervals.MONTH,
-          },
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_YEARLY!,
-            amount: 25116, // $251.16 (20% discount would be $286.08, but this is disabled)
-            currency: 'USD',
-            interval: PlanIntervals.YEAR,
-          },
-        ],
-        isFree: false,
-        isLifetime: false,
-        recommended: false,
-        disabled: true,
-      },
+
     },
   },
 };

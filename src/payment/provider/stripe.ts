@@ -4,6 +4,7 @@ import { getDb } from '@/db';
 import { payment, session, user } from '@/db/schema';
 import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { sendNotification } from '@/notification/notification';
+import { allocateCreditsToUser } from '@/actions/allocate-credits-action';
 import { desc, eq } from 'drizzle-orm';
 import { Stripe } from 'stripe';
 import {
@@ -704,6 +705,22 @@ export class StripeProvider implements PaymentProvider {
       console.log(
         `<< Created new payment record ${result[0].id} for Stripe subscription ${stripeSubscription.id}`
       );
+
+      // Allocate credits to the user based on their subscription
+      try {
+        const creditsResult = await allocateCreditsToUser(userId, undefined, priceId);
+        if (creditsResult.success) {
+          console.log(
+            `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for subscription ${stripeSubscription.id}`
+          );
+        } else {
+          console.error(
+            `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
+          );
+        }
+      } catch (error) {
+        console.error('Error allocating credits after subscription creation:', error);
+      }
     } else {
       console.warn(
         `<< No payment record created for Stripe subscription ${stripeSubscription.id}`
@@ -889,6 +906,22 @@ export class StripeProvider implements PaymentProvider {
     console.log(
       `<< Created one-time payment record for user ${userId}, price: ${priceId}`
     );
+
+    // Allocate credits to the user based on their one-time purchase
+    try {
+      const creditsResult = await allocateCreditsToUser(userId, undefined, priceId);
+      if (creditsResult.success) {
+        console.log(
+          `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for one-time payment ${session.id}`
+        );
+      } else {
+        console.error(
+          `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
+        );
+      }
+    } catch (error) {
+      console.error('Error allocating credits after one-time payment:', error);
+    }
 
     // Send notification
     const amount = session.amount_total ? session.amount_total / 100 : 0;
