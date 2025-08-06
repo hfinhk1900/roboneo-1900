@@ -47,6 +47,7 @@ export enum Routes {
   AIImageToSticker = '/ai/image-to-sticker',
   AIImageToImage = '/ai/image-to-image',
   AIPortrait = '/ai/portrait',
+  ProductShot = '/productshot',
 
   // block routes
   MagicuiBlocks = '/magicui',

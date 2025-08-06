@@ -6,11 +6,15 @@ import HeroSection from '@/components/blocks/hero/hero';
 import PricingSection from '@/components/blocks/pricing/pricing';
 import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
 import { NewsletterCard } from '@/components/newsletter/newsletter-card';
+import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
+import { generateViewport } from '@/lib/viewport';
 import { getUrlWithLocale } from '@/lib/urls/urls';
 import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
+
+export { generateViewport };
 
 /**
  * https://next-intl.dev/docs/environments/actions-metadata-route-handlers#metadata-api
@@ -41,6 +45,8 @@ export default async function HomePage(props: HomePageProps) {
 
   return (
     <>
+      <StructuredData type="website" />
+      <StructuredData type="faq" />
       <div className="flex flex-col">
         <HeroSection />
 

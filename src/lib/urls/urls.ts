@@ -9,6 +9,11 @@ const baseUrl =
  * Get the base URL of the application
  */
 export function getBaseUrl(): string {
+  // On client side, use window.location.origin if available
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  // On server side or during build, use environment variable or default
   return baseUrl;
 }
 
@@ -23,9 +28,10 @@ export function shouldAppendLocale(locale?: Locale | null): boolean {
  * Get the URL of the application with the locale appended
  */
 export function getUrlWithLocale(url: string, locale?: Locale | null): string {
+  const currentBaseUrl = getBaseUrl();
   return shouldAppendLocale(locale)
-    ? `${baseUrl}/${locale}${url}`
-    : `${baseUrl}${url}`;
+    ? `${currentBaseUrl}/${locale}${url}`
+    : `${currentBaseUrl}${url}`;
 }
 
 /**

@@ -3,6 +3,7 @@ import { LocaleLink } from '@/i18n/navigation';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 import { formatDate } from '@/lib/formatter';
 import { type BlogType, authorSource, categorySource } from '@/lib/source';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 import Image from 'next/image';
 
 interface BlogCardProps {
@@ -25,14 +26,12 @@ export default function BlogCard({ locale, post }: BlogCardProps) {
         <div className="group overflow-hidden relative aspect-16/9 w-full">
           {image && (
             <div className="relative w-full h-full">
-              <Image
+              <OptimizedImage
                 src={image}
-                alt={title || 'image for blog post'}
-                title={title || 'image for blog post'}
+                alt={`${title || 'Roboneo AI Blog'} - AI Image Generation Tutorial`}
                 className="object-cover hover:scale-105 transition-transform duration-300"
-                placeholder="blur"
-                blurDataURL={PLACEHOLDER_IMAGE}
                 fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
 
               {blogCategories && blogCategories.length > 0 && (
@@ -86,9 +85,9 @@ export default function BlogCard({ locale, post }: BlogCardProps) {
             <div className="flex items-center gap-2">
               <div className="relative h-8 w-8 shrink-0">
                 {blogAuthor?.data.avatar && (
-                  <Image
+                  <OptimizedImage
                     src={blogAuthor?.data.avatar}
-                    alt={`avatar for ${blogAuthor?.data.name}`}
+                    alt={`${blogAuthor?.data.name} - Roboneo AI Blog Author`}
                     className="rounded-full object-cover border"
                     fill
                   />

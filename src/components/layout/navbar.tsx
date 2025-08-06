@@ -181,14 +181,14 @@ export function Navbar({ scroll }: NavBarProps) {
                         </svg>
                       </button>
                       {openMenus[item.title] && (
-                        <div className="absolute top-full left-0 z-50 mt-1.5 min-w-[400px] rounded-md border bg-white p-2 shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-max max-w-[600px]">
-                          <ul className="grid gap-3 md:grid-cols-2 h-full items-start content-start">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-md border bg-white p-3 shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[580px] max-h-[80vh] overflow-y-auto">
+                          <ul className="grid gap-2 grid-cols-2 items-start content-start">
                             {item.items?.map((subItem, subIndex) => {
                               const isSubItemActive =
                                 subItem.href &&
                                 localePathname.startsWith(subItem.href);
                               return (
-                                <li key={subIndex} className="h-[120px] flex">
+                                <li key={subIndex} className="min-h-[100px] flex">
                                   <LocaleLink
                                     href={subItem.href || '#'}
                                     target={
@@ -201,8 +201,8 @@ export function Navbar({ scroll }: NavBarProps) {
                                     }
                                     onClick={() => closeAllMenus()}
                                     className={cn(
-                                      'group flex select-none flex-row items-start gap-3 rounded-md flex-1 h-full overflow-hidden',
-                                      'p-3 leading-none no-underline outline-hidden transition-colors',
+                                      'group flex select-none flex-row items-start gap-2 rounded-md flex-1 h-full overflow-hidden',
+                                      'p-2.5 leading-none no-underline outline-hidden transition-colors',
                                       'hover:bg-accent hover:text-accent-foreground',
                                       'focus:bg-accent focus:text-accent-foreground',
                                       isSubItemActive &&
@@ -217,8 +217,8 @@ export function Navbar({ scroll }: NavBarProps) {
                                         'group-focus:bg-transparent group-focus:text-foreground',
                                         isSubItemActive &&
                                           'bg-transparent text-foreground',
-                                        // 对于图片图标使用更大的尺寸，对于普通图标保持原来的size-8
-                                        subItem.icon && typeof subItem.icon === 'string' ? 'w-[70px] h-[70px]' : 'size-8'
+                                        // 对于图片图标使用更合适的尺寸
+                                        subItem.icon && typeof subItem.icon === 'string' ? 'w-[60px] h-[60px]' : 'size-8'
                                       )}
                                     >
                                       {subItem.icon ? (
@@ -226,8 +226,8 @@ export function Navbar({ scroll }: NavBarProps) {
                                           <Image
                                             src={subItem.icon}
                                             alt=""
-                                            width={70}
-                                            height={70}
+                                            width={60}
+                                            height={60}
                                             className="rounded-md"
                                           />
                                         ) : (

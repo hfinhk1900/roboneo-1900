@@ -271,19 +271,19 @@
         "title": "Text to Image",
         "items": {
           "productshot": {
-            "title": "ProductShot",
+            "title": "Product Shots",
             "description": "Generate photoreal ads & e-commerce shots from a single prompt."
           },
           "avatarforge": {
-            "title": "AvatarForge",
+            "title": "Avatar Forge",
             "description": "Turn any selfie into anime, chibi, Lego or cartoon avatars."
           },
           "postercraft": {
-            "title": "PosterCraft",
+            "title": "Poster Craft",
             "description": "Create social posters and flyers with built-in, editable text."
           },
           "scenedreamer": {
-            "title": "SceneDreamer",
+            "title": "Scene Dreamer",
             "description": "Produce cinematic concept art and mood-board frames in seconds."
           }
         }
@@ -292,19 +292,19 @@
         "title": "Image to Image",
         "items": {
           "styleswap": {
-            "title": "StyleSwap",
+            "title": "Style Swap",
             "description": "Re-style any photo—watercolor, Lego bricks, claymation and more."
           },
           "elementsswap": {
-            "title": "ElementsSwap",
+            "title": "Elements Swap",
             "description": "Replace objects or text in an image without redrawing the whole scene."
           },
           "moodshift": {
-            "title": "MoodShift",
+            "title": "Mood Shift",
             "description": "Change lighting & color grading: golden hour, neon night, film noir."
           },
           "portraitseries": {
-            "title": "PortraitSeries",
+            "title": "Portrait Series",
             "description": "Keep the same face, new outfits & settings, consistent portrait variations."
           }
         }
@@ -437,7 +437,7 @@
       }
     },
     "footer": {
-      "tagline": "Transform photos and ideas into share-ready art with Roboneo AI.",
+      "tagline": "Transform photos and ideas into share-ready art with Roboneo AI - The Ultimate AI Art Generator.",
       "product": {
         "title": "Product",
         "items": {

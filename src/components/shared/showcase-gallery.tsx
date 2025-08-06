@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 
 interface ShowcaseGalleryProps {
   className?: string;
@@ -10,19 +10,19 @@ interface ShowcaseGalleryProps {
 const showcaseImages = [
   {
     src: '/showcase01.png',
-    alt: 'Real sticker made with RoboNeo - Woman with smartphone',
+    alt: 'Roboneo AI Sticker Example - Woman with smartphone iOS style sticker',
   },
   {
     src: '/showcase02.png',
-    alt: 'Real sticker made with RoboNeo - Trump character',
+    alt: 'Roboneo AI Generated Sticker - Cartoon character in pixel art style',
   },
   {
     src: '/showcase03.png',
-    alt: 'Real sticker made with RoboNeo - Woman sitting with photos',
+    alt: 'Roboneo Photo to Sticker - Woman portrait transformed to sticker',
   },
   {
     src: '/showcase04.png',
-    alt: 'Real sticker made with RoboNeo - Dog with pixel character',
+    alt: 'Roboneo AI Pet Sticker - Dog photo converted to cute sticker',
   },
 ];
 
@@ -47,7 +47,7 @@ export function ShowcaseGallery({ className }: ShowcaseGalleryProps) {
               key={index}
               className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-gray-100 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
             >
-              <Image
+              <OptimizedImage
                 src={image.src}
                 alt={image.alt}
                 fill

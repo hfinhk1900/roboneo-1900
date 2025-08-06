@@ -3,7 +3,7 @@
 import { HeaderSection } from '@/components/layout/header-section';
 import { cn } from '@/lib/utils';
 import { Aperture, ImageDown, ImageUp, Pause, Play } from 'lucide-react';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 import { useEffect, useRef, useState } from 'react';
 
 interface Step {
@@ -213,12 +213,13 @@ export default function StepsShowcaseSection() {
           <div className="relative flex items-center justify-center">
             <div className="relative w-full max-w-md">
               {currentStep?.image ? (
-                <Image
+                <OptimizedImage
                   src={currentStep.image}
-                  alt={`Step ${currentStep.number}: ${currentStep.title}`}
+                  alt={`Roboneo AI Tutorial Step ${currentStep.number}: ${currentStep.title} - How to create stickers`}
                   width={400}
                   height={600}
                   className="w-full h-auto object-contain transition-all duration-500 rounded-lg"
+                  priority
                 />
               ) : (
                 <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">

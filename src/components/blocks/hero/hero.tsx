@@ -27,6 +27,7 @@ import {
   AlertCircleIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -303,9 +304,9 @@ export default function HeroSection() {
                     >
                       {previewUrl ? (
                         <div className="relative w-full h-full">
-                          <Image
+                          <OptimizedImage
                             src={previewUrl}
-                            alt="Preview"
+                            alt="Roboneo AI Sticker Preview - Upload your image"
                             fill
                             className="object-contain"
                           />

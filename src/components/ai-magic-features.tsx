@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 import { Button } from '@/components/ui/button';
 import { ArrowRightIcon, SparklesIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -61,12 +61,14 @@ export default function AIMagicFeatures() {
 
           <div className="relative mt-6 sm:mt-0">
             <div className="relative rounded-2xl overflow-hidden">
-              <Image
+              <OptimizedImage
                 src="/magic01.png"
                 className="w-full h-auto object-cover"
-                alt="iOS-Style Stickers showcase"
+                alt="Roboneo iOS-Style Stickers showcase - Transform photos into stickers"
                 width={600}
                 height={400}
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
               />
             </div>
           </div>
@@ -76,12 +78,13 @@ export default function AIMagicFeatures() {
         <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-16">
           <div className="relative mt-6 sm:mt-0 order-2 sm:order-1">
             <div className="relative rounded-2xl overflow-hidden">
-              <Image
+              <OptimizedImage
                 src="/magic02.png"
                 className="w-full h-auto object-cover"
-                alt="Photo to Anime conversion showcase"
+                alt="Roboneo Photo to Anime AI converter - Transform selfies to anime art"
                 width={600}
                 height={400}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
               />
             </div>
           </div>
@@ -173,12 +176,13 @@ export default function AIMagicFeatures() {
 
           <div className="relative mt-6 sm:mt-0">
             <div className="relative rounded-2xl overflow-hidden">
-              <Image
+              <OptimizedImage
                 src="/magic03.png"
                 className="w-full h-auto object-cover"
-                alt="Professional headshots showcase"
+                alt="Roboneo Professional AI Headshot Generator - LinkedIn photos"
                 width={600}
                 height={400}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
               />
             </div>
           </div>

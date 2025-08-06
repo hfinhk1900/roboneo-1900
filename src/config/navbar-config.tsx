@@ -67,7 +67,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
           title: t('textToImageGenerator.items.productshot.title'),
           description: t('textToImageGenerator.items.productshot.description'),
           icon: '/text-to-image01.png',
-          href: Routes.AIIllustrator,
+          href: Routes.ProductShot,
           external: false,
         },
         {

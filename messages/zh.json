@@ -271,19 +271,19 @@
         "title": "文本转图像",
         "items": {
           "productshot": {
-            "title": "ProductShot",
+            "title": "Product Shots",
             "description": "通过单个提示生成真实的广告和电商拍摄图片。"
           },
           "avatarforge": {
-            "title": "AvatarForge",
+            "title": "Avatar Forge",
             "description": "将任何自拍照转换为动漫、Q版、乐高或卡通头像。"
           },
           "postercraft": {
-            "title": "PosterCraft",
+            "title": "Poster Craft",
             "description": "创建带有内置可编辑文字的社交海报和传单。"
           },
           "scenedreamer": {
-            "title": "SceneDreamer",
+            "title": "Scene Dreamer",
             "description": "在几秒钟内制作电影级概念艺术和情绪板框架。"
           }
         }
@@ -292,19 +292,19 @@
         "title": "图像转图像",
         "items": {
           "styleswap": {
-            "title": "StyleSwap",
+            "title": "Style Swap",
             "description": "重新设计任何照片——水彩画、乐高积木、黏土动画等等。"
           },
           "elementsswap": {
-            "title": "ElementsSwap",
+            "title": "Elements Swap",
             "description": "在不重绘整个场景的情况下替换图像中的对象或文字。"
           },
           "moodshift": {
-            "title": "MoodShift",
+            "title": "Mood Shift",
             "description": "改变光线和色彩分级：黄金时光、霓虹夜晚、黑色电影。"
           },
           "portraitseries": {
-            "title": "PortraitSeries",
+            "title": "Portrait Series",
             "description": "保持相同面部，新服装和设置，一致的肖像变化。"
           }
         }
