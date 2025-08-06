@@ -4,6 +4,7 @@ import { getUserCreditsAction } from '@/actions/credits-actions';
 import { creditsCache } from '@/lib/credits-cache';
 import { CreditCardIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface CreditsDisplayProps {
   className?: string;
@@ -82,9 +83,19 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
   }
 
   return (
-    <span className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'} ${className}`}>
-      <CreditCardIcon className="h-4 w-4 mr-1 inline" />
-      {credits || 0} Credits
-    </span>
+    <div className={`flex items-center gap-2 ${className}`}>
+      <span className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'}`}>
+        <CreditCardIcon className="h-4 w-4 mr-1 inline" />
+        {credits || 0} Credits
+      </span>
+      {(credits === 0 || credits === null) && (
+                <Link
+          href="/pricing"
+          className="text-sm text-black hover:text-black/80 underline cursor-pointer"
+        >
+          Add Credits
+        </Link>
+      )}
+    </div>
   );
 }
