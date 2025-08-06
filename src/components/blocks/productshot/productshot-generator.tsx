@@ -31,38 +31,42 @@ import { toast } from 'sonner';
 const styleOptions = [
   { 
     value: 'minimalist', 
-    label: 'Minimalist Studio', 
-    icon: '🎨',
-    description: 'Clean white background, professional lighting'
+    label: 'Professional Studio', 
+    icon: '📸',
+    description: 'Clean white background for e-commerce product photos',
+    seoKeywords: 'professional product photography, white background'
   },
   { 
     value: 'lifestyle', 
-    label: 'Lifestyle Setting', 
+    label: 'Lifestyle Photography', 
     icon: '🏠',
-    description: 'Product in natural environment'
+    description: 'Natural environment product shots for marketing',
+    seoKeywords: 'lifestyle product photography, marketing photos'
   },
   { 
     value: 'floating', 
-    label: '3D Floating', 
+    label: '3D Product Visualization', 
     icon: '✨',
-    description: 'Floating product with soft shadows'
+    description: '3D floating effect with professional shadows',
+    seoKeywords: '3D product visualization, floating product'
   },
   { 
     value: 'gradient', 
-    label: 'Gradient Background', 
+    label: 'Modern Gradient', 
     icon: '🌈',
-    description: 'Modern gradient backdrop'
+    description: 'Eye-catching gradient for product mockups',
+    seoKeywords: 'product mockup generator, gradient background'
   },
 ];
 
 const examplePrompts = [
-  "Luxury watch with leather strap, silver case, minimalist dial",
-  "Organic skincare bottle, green glass, bamboo cap, natural ingredients label",
-  "Wireless headphones, matte black, premium build quality",
-  "Handcrafted ceramic coffee mug with geometric patterns",
+  "Luxury watch with leather strap for e-commerce product photos",
+  "Professional skincare bottle photography for Amazon listing",
+  "Premium wireless headphones for online store product shots",
+  "Ceramic coffee mug for product mockup and marketing materials",
 ];
 
-export default function ProductShotSection() {
+export default function ProductShotGeneratorSection() {
   const [productDescription, setProductDescription] = useState('');
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState('minimalist');
@@ -131,8 +135,17 @@ export default function ProductShotSection() {
   };
 
   return (
-    <>
-      <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section id="generator" className="py-24 bg-[#F5F5F5]">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            AI Product Photo Generator
+          </h2>
+          <p className="mt-4 text-lg text-gray-600">
+            Describe your product and watch AI create professional photos instantly
+          </p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left side: Text Input */}
         <div>
           <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
@@ -140,25 +153,26 @@ export default function ProductShotSection() {
               <div className="pb-1 pt-0">
                 <h3 className="text-xl font-semibold mb-0.5 flex items-center gap-2">
                   <PackageIcon className="h-5 w-5" />
-                  Product Description
+                  AI Product Image Generator - Text to Product Photo
                 </h3>
                 <p className="text-muted-foreground">
-                  Describe your product in detail for best results
+                  Transform text descriptions into professional e-commerce product photos instantly
                 </p>
               </div>
 
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Label htmlFor="product-description" className="text-sm font-medium">
-                    Describe Your Product
+                    Enter Product Details for AI Photography
                   </Label>
                   <Textarea
                     id="product-description"
-                    placeholder="e.g., Modern minimalist coffee mug, matte black ceramic, 12oz capacity, ergonomic handle..."
+                    placeholder="Describe your product for instant photography: materials, colors, size, features. Perfect for Amazon listings, Shopify stores, and marketing materials..."
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
                     className="min-h-[120px] resize-none rounded-xl"
                     maxLength={500}
+                    aria-label="Product description for AI product photography generator"
                   />
                   <div className="flex items-center justify-end">
                     <span className="text-xs text-muted-foreground">
@@ -243,12 +257,12 @@ export default function ProductShotSection() {
                   className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                   disabled={!productDescription.trim() || isGenerating}
                 >
-                  {isGenerating ? (
-                    <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
-                  ) : (
-                    <SparklesIcon className="mr-2 h-5 w-5" />
-                  )}
-                  {isGenerating ? 'Creating Your Product Shot...' : 'Generate Product Shot'}
+                    {isGenerating ? (
+                      <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                    )}
+                  {isGenerating ? 'Generating Professional Product Photo...' : 'Create Instant Product Photos'}
                 </Button>
 
                 {/* Credit info */}
@@ -304,15 +318,16 @@ export default function ProductShotSection() {
                     </div>
                   </div>
                   <div className="text-center space-y-2">
-                    <p className="text-lg font-medium">Your Product Shot Will Appear Here</p>
+                    <p className="text-lg font-medium">Your AI-Generated Product Photo Will Appear Here</p>
                     <p className="text-sm">
-                      Describe your product and select a style to generate
+                      Use our product shot generator to create professional e-commerce photos instantly
                     </p>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
 
@@ -325,6 +340,6 @@ export default function ProductShotSection() {
           currentCredits={creditsError.current}
         />
       )}
-    </>
+    </section>
   );
 }

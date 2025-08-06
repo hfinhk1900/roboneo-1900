@@ -1,27 +1,56 @@
-import ProductShotSection from '@/components/blocks/productshot/productshot-section';
+import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
+import ProductShotFeaturesSection from '@/components/blocks/productshot/productshot-features';
+import {
+  ProductShotBenefitsSection,
+  ProductShotShowcaseSection,
+  ProductShotFAQSection,
+  ProductShotCTASection
+} from '@/components/blocks/productshot/productshot-placeholders';
+import { StructuredData } from '@/components/seo/structured-data';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Product Shot Generator - Create Stunning Product Images with AI | RoboNeo',
-  description: 'Generate professional product photos from text descriptions. Perfect for e-commerce, marketing materials, and social media content.',
-  keywords: 'ai product photography, text to product image, product shot generator, ai product photos, e-commerce photography',
+  title: 'AI Product Photography Generator | Create Professional Product Shots Instantly | RoboNeo',
+  description: 'Generate stunning e-commerce product photos with AI. Transform text to product images instantly. No photography skills needed. Perfect for online stores, Amazon listings, and marketing. Try free!',
+  keywords: 'AI product photography, product shot generator, text to product image, e-commerce product photos, AI product image generator, professional product photography online, 3D product visualization, automated product photography, product mockup generator, instant product photos',
+  openGraph: {
+    title: 'AI Product Photography Generator - Create Instant Product Shots',
+    description: 'Transform text descriptions into professional e-commerce product photos with AI. No camera or studio needed.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Product Photography Generator | RoboNeo',
+    description: 'Create professional product shots instantly with AI. Perfect for e-commerce.',
+  },
+  alternates: {
+    canonical: '/productshot',
+  },
 };
 
 export default function ProductShotPage() {
   return (
-    <main className="overflow-hidden py-12 bg-[#F5F5F5] min-h-screen">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="text-center sm:mx-auto lg:mr-auto mb-12">
-          <h1 className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl">
-            Create Professional Product Shots with AI
-          </h1>
-          <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Transform your product descriptions into stunning, professional-grade images perfect for e-commerce and marketing.
-          </p>
-        </div>
+    <>
+      <StructuredData type="productshot" />
+      <div className="flex flex-col bg-white">
+        {/* Main Generator Section */}
+        <ProductShotGeneratorSection />
         
-        <ProductShotSection />
+        {/* Features Section */}
+        <ProductShotFeaturesSection />
+        
+        {/* Benefits Section */}
+        <ProductShotBenefitsSection />
+        
+        {/* Showcase Gallery */}
+        <ProductShotShowcaseSection />
+        
+        {/* FAQ Section */}
+        <ProductShotFAQSection />
+        
+        {/* CTA Section */}
+        <ProductShotCTASection />
       </div>
-    </main>
+    </>
   );
 }
