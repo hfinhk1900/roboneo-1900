@@ -1,4 +1,7 @@
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { ArrowRightIcon, SparklesIcon } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AIMagicFeatures() {
   return (
@@ -39,6 +42,21 @@ export default function AIMagicFeatures() {
             <p className="text-sm text-muted-foreground">
               <strong>Why it matters:</strong> Stickers drive higher engagement in chat apps and social stories. With Roboneo AI, you can launch an entire sticker pack during a lunch break.
             </p>
+
+                        {/* CTA Button */}
+            <div className="pt-2">
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300"
+              >
+                <Link href="/#sticker-generator" className="flex items-center gap-2">
+                  <SparklesIcon className="w-4 h-4" />
+                  Create Your First Sticker
+                  <ArrowRightIcon className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <div className="relative mt-6 sm:mt-0">
@@ -94,6 +112,21 @@ export default function AIMagicFeatures() {
             <p className="text-sm text-muted-foreground">
               <strong>Tip:</strong> Pair your new anime portrait with our Sticker Maker to create a full emoji set of your animated alter ego.
             </p>
+
+                        {/* CTA Button */}
+            <div className="pt-2">
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300"
+              >
+                <Link href="/#image-generator" className="flex items-center gap-2">
+                  <SparklesIcon className="w-4 h-4" />
+                  Transform to Anime
+                  <ArrowRightIcon className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -121,6 +154,21 @@ export default function AIMagicFeatures() {
             <p className="text-sm text-muted-foreground">
               <strong>Result:</strong> Save time, save budget, and present a unified professional image across every touchpoint.
             </p>
+
+                        {/* CTA Button */}
+            <div className="pt-2">
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300"
+              >
+                <Link href="/#headshot-generator" className="flex items-center gap-2">
+                  <SparklesIcon className="w-4 h-4" />
+                  Generate Headshot
+                  <ArrowRightIcon className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <div className="relative mt-6 sm:mt-0">
