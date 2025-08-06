@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
+import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -203,6 +204,34 @@ export async function POST(req: NextRequest) {
     if (!imageFile) {
       return NextResponse.json({ error: 'No image file provided' }, { status: 400 });
     }
+
+    // ✅ Add file validation
+    console.log('🔍 Validating file...');
+    const validation = validateImageFile(imageFile);
+    if (!validation.isValid) {
+      console.log(`❌ File validation failed: ${validation.error}`);
+      return NextResponse.json({
+        error: validation.error || 'Invalid file format or size'
+      }, { status: 400 });
+    }
+
+        // Additional file size check for server-side safety
+    if (imageFile.size > OPENAI_IMAGE_CONFIG.maxFileSize) {
+      const maxSizeMB = OPENAI_IMAGE_CONFIG.maxFileSize / 1024 / 1024;
+      return NextResponse.json({
+        error: `File size exceeds the ${maxSizeMB}MB limit`
+      }, { status: 400 });
+    }
+
+    // Check file type
+    if (!OPENAI_IMAGE_CONFIG.allowedFileTypes.includes(imageFile.type as any)) {
+      return NextResponse.json({
+        error: `File type not supported. Please use ${OPENAI_IMAGE_CONFIG.allowedFileTypes.join(', ')}`
+      }, { status: 400 });
+    }
+
+    console.log(`✅ File validation passed: ${imageFile.name} (${Math.round(imageFile.size / 1024)}KB, ${imageFile.type})`);
+
     if (!(style in STYLE_CONFIGS)) {
       return NextResponse.json({ error: `Invalid style. Supported: ${Object.keys(STYLE_CONFIGS).join(', ')}` }, { status: 400 });
     }

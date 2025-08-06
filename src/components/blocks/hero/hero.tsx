@@ -16,6 +16,7 @@ import { CreditsDisplay } from '@/components/shared/credits-display';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
+import { validateImageFile, getFileSizeDisplay, OPENAI_IMAGE_CONFIG } from '@/lib/image-validation';
 import {
   ImageIcon,
   ImagePlusIcon,
@@ -23,6 +24,7 @@ import {
   SparklesIcon,
   UploadIcon,
   DownloadIcon,
+  AlertCircleIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -46,6 +48,8 @@ export default function HeroSection() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileInfo, setFileInfo] = useState<string | null>(null);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -55,8 +59,24 @@ export default function HeroSection() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Clear previous errors and info
+    setFileError(null);
+    setFileInfo(null);
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.isValid) {
+      setFileError(validation.error || 'Invalid file');
+      setSelectedImage(null);
+      setPreviewUrl(null);
+      return;
+    }
+
     setSelectedImage(file);
     setGeneratedImageUrl(null); // Reset previous generation
+
+    // Show file info
+    setFileInfo(`${file.name} (${getFileSizeDisplay(file.size)})`);
 
     // Create a preview URL
     const objectUrl = URL.createObjectURL(file);
@@ -74,8 +94,16 @@ export default function HeroSection() {
   const handleGenerate = async () => {
     if (!selectedImage) return;
 
+    // Double-check file validation before sending
+    const validation = validateImageFile(selectedImage);
+    if (!validation.isValid) {
+      setFileError(validation.error || 'Invalid file');
+      return;
+    }
+
     setGeneratedImageUrl(null);
     setIsGenerating(true);
+    setFileError(null);
 
     try {
       // Create FormData for file upload
@@ -213,14 +241,14 @@ export default function HeroSection() {
                       Upload Image
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Supports JPEG/PNG formats, ≤5MB
+                      Supports {OPENAI_IMAGE_CONFIG.allowedFileTypes.map(type => type.split('/')[1].toUpperCase()).join('/')} formats, ≤{OPENAI_IMAGE_CONFIG.maxFileSize / 1024 / 1024}MB
                     </p>
                     <div
                       onClick={handleUploadClick}
                       className={cn(
                         'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
                         'hover:bg-muted/50 transition-colors cursor-pointer h-48 bg-[#f5f5f5]',
-                        previewUrl ? 'border-primary' : 'border-border'
+                        fileError ? 'border-red-300 bg-red-50' : previewUrl ? 'border-primary' : 'border-border'
                       )}
                     >
                       {previewUrl ? (
@@ -248,6 +276,18 @@ export default function HeroSection() {
                         onChange={handleImageUpload}
                       />
                     </div>
+                    {fileError && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
+                        <span>{fileError}</span>
+                      </p>
+                    )}
+                    {fileInfo && !fileError && (
+                      <p className="text-xs text-green-600 flex items-center gap-1">
+                        <ImageIcon className="h-4 w-4 flex-shrink-0" />
+                        <span>{fileInfo}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-3">
