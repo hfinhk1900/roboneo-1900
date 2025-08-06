@@ -836,15 +836,15 @@
         },
         "item-3": {
           "question": "Will my uploaded photos be used to train the AI?",
-          "answer": "No. All uploads are auto-deleted within 24 hours and are never used for model training or shared with third parties."
+          "answer": "No. Your images are never used to train our models or shared with third parties."
         },
         "item-4": {
           "question": "What file formats are supported?",
-          "answer": "Input: JPEG and PNG (≤ 5 MB). Output: Transparent PNG or WebP (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
+          "answer": "Input: JPEG and PNG (≤ 4 MB). Output: Transparent PNG (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
         },
         "item-5": {
           "question": "How fast is the generation process?",
-          "answer": "Most images finish in 10–20 seconds. Paid users get priority queues and faster speeds, even during peak times."
+          "answer": "Most images finish in around 1 minute. Paid users get priority queues and faster speeds, even during peak times."
         },
         "item-6": {
           "question": "Can I cancel my subscription anytime?",
@@ -856,7 +856,7 @@
         },
         "item-8": {
           "question": "How can I get support or suggest new features?",
-          "answer": "Contact in your dashboard or email support@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
+          "answer": "Email support@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
         }
       }
     },

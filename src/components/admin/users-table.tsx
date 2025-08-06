@@ -2,6 +2,7 @@
 
 import { UserDetailViewer } from '@/components/admin/user-detail-viewer';
 import { CreditsManager } from '@/components/admin/credits-manager';
+import { useUsersStore } from '@/stores/users-store';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -119,6 +120,7 @@ export function UsersTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const triggerRefresh = useUsersStore((state) => state.triggerRefresh);
 
   // show fake data in demo website
   const isDemo = process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true';
@@ -207,7 +209,7 @@ export function UsersTable({
             <Badge variant="secondary" className="px-1.5">
               {user.credits || 0} Credits
             </Badge>
-            <CreditsManager user={user} onUpdate={() => window.location.reload()} />
+            <CreditsManager user={user} onUpdate={triggerRefresh} />
           </div>
         );
       },
