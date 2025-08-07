@@ -48,6 +48,7 @@ export enum Routes {
   AIImageToImage = '/ai/image-to-image',
   AIPortrait = '/ai/portrait',
   ProductShot = '/productshot',
+  TextToImage = '/text-to-image',
 
   // block routes
   MagicuiBlocks = '/magicui',

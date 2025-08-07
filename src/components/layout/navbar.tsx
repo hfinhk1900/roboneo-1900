@@ -64,7 +64,7 @@ export function Navbar({ scroll }: NavBarProps) {
     console.log('Toggling menu:', menuTitle); // Debug log
     setOpenMenus(prev => {
       const isCurrentlyOpen = prev[menuTitle];
-      
+
       // If the menu is currently open, close it
       if (isCurrentlyOpen) {
         const newState = {
@@ -99,7 +99,7 @@ export function Navbar({ scroll }: NavBarProps) {
         closeAllMenus();
       }
     };
-    
+
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -181,107 +181,249 @@ export function Navbar({ scroll }: NavBarProps) {
                         </svg>
                       </button>
                       {openMenus[item.title] && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-md border bg-white p-3 shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[580px] max-h-[80vh] overflow-y-auto">
-                          <ul className="grid gap-2 grid-cols-2 items-start content-start">
-                            {item.items?.map((subItem, subIndex) => {
-                              const isSubItemActive =
-                                subItem.href &&
-                                localePathname.startsWith(subItem.href);
-                              return (
-                                <li key={subIndex} className="min-h-[100px] flex">
-                                  <LocaleLink
-                                    href={subItem.href || '#'}
-                                    target={
-                                      subItem.external ? '_blank' : undefined
-                                    }
-                                    rel={
-                                      subItem.external
-                                        ? 'noopener noreferrer'
-                                        : undefined
-                                    }
-                                    onClick={() => closeAllMenus()}
-                                    className={cn(
-                                      'group flex select-none flex-row items-start gap-2 rounded-md flex-1 h-full overflow-hidden',
-                                      'p-2.5 leading-none no-underline outline-hidden transition-colors',
-                                      'hover:bg-accent hover:text-accent-foreground',
-                                      'focus:bg-accent focus:text-accent-foreground',
-                                      isSubItemActive &&
-                                        'bg-accent text-accent-foreground'
+                                                <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto">
+                          {/* Check if this is Text to Image menu */}
+                          {item.title.includes('Text to Image') || item.title.includes('文本转图像') ? (
+                            <div className="p-6 flex flex-col gap-6">
+                              {/* Row 1: Main Text to Image item */}
+                              {item.items?.[0] && (
+                                                                                                <LocaleLink
+                                  href={item.items[0].href || '#'}
+                                  target={item.items[0].external ? '_blank' : undefined}
+                                  rel={item.items[0].external ? 'noopener noreferrer' : undefined}
+                                  onClick={() => closeAllMenus()}
+                                                                    className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                >
+                                  {/* Image */}
+                                  <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                    {item.items[0].icon && typeof item.items[0].icon === 'string' ? (
+                                      <Image
+                                        src={item.items[0].icon}
+                                        alt=""
+                                        width={70}
+                                        height={70}
+                                        className="size-full object-cover"
+                                      />
+                                    ) : (
+                                      item.items[0].icon
                                     )}
-                                  >
-                                    <div
+                                  </div>
+
+                                  {/* Text content */}
+                                  <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                    <div className="font-bold leading-normal">
+                                      {item.items[0].title}
+                                    </div>
+                                    {item.items[0].description && (
+                                      <div className="font-normal leading-normal text-gray-600">
+                                        {item.items[0].description}
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Arrow */}
+                                  <div className="shrink-0 size-6">
+                                    <ArrowUpRightIcon className="size-6 text-gray-600" />
+                                  </div>
+                                </LocaleLink>
+                              )}
+
+                                                            {/* Row 2: Two columns layout for remaining items */}
+                              <div className="flex gap-6 w-full">
+                                {/* Left Column */}
+                                <div className="flex flex-col gap-6 w-[378px]">
+                                  {item.items?.slice(1, 3).map((subItem, subIndex) => {
+                                    return (
+                                      <LocaleLink
+                                        key={subIndex + 1}
+                                        href={subItem.href || '#'}
+                                        target={subItem.external ? '_blank' : undefined}
+                                        rel={subItem.external ? 'noopener noreferrer' : undefined}
+                                        onClick={() => closeAllMenus()}
+                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                      >
+                                        {/* Image */}
+                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                          {subItem.icon ? (
+                                            typeof subItem.icon === 'string' ? (
+                                              <Image
+                                                src={subItem.icon}
+                                                alt=""
+                                                width={70}
+                                                height={70}
+                                                className="size-full object-cover"
+                                              />
+                                            ) : (
+                                              subItem.icon
+                                            )
+                                          ) : null}
+                                        </div>
+
+                                        {/* Text content */}
+                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                          <div className="font-bold leading-normal">
+                                            {subItem.title}
+                                          </div>
+                                          {subItem.description && (
+                                            <div className="font-normal leading-normal text-gray-600">
+                                              {subItem.description}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </LocaleLink>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* Right Column */}
+                                <div className="flex flex-col gap-6 w-[378px]">
+                                  {item.items?.slice(3, 5).map((subItem, subIndex) => {
+                                    return (
+                                      <LocaleLink
+                                        key={subIndex + 3}
+                                        href={subItem.href || '#'}
+                                        target={subItem.external ? '_blank' : undefined}
+                                        rel={subItem.external ? 'noopener noreferrer' : undefined}
+                                        onClick={() => closeAllMenus()}
+                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                      >
+                                        {/* Image */}
+                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                          {subItem.icon ? (
+                                            typeof subItem.icon === 'string' ? (
+                                              <Image
+                                                src={subItem.icon}
+                                                alt=""
+                                                width={70}
+                                                height={70}
+                                                className="size-full object-cover"
+                                              />
+                                            ) : (
+                                              subItem.icon
+                                            )
+                                          ) : null}
+                                        </div>
+
+                                        {/* Text content */}
+                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                          <div className="font-bold leading-normal">
+                                            {subItem.title}
+                                          </div>
+                                          {subItem.description && (
+                                            <div className="font-normal leading-normal text-gray-600">
+                                              {subItem.description}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </LocaleLink>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* Original layout for other menus */
+                            <ul className="grid gap-2 grid-cols-2 items-start content-start">
+                              {item.items?.map((subItem, subIndex) => {
+                                const isSubItemActive =
+                                  subItem.href &&
+                                  localePathname.startsWith(subItem.href);
+                                return (
+                                  <li key={subIndex} className="min-h-[100px] flex">
+                                    <LocaleLink
+                                      href={subItem.href || '#'}
+                                      target={
+                                        subItem.external ? '_blank' : undefined
+                                      }
+                                      rel={
+                                        subItem.external
+                                          ? 'noopener noreferrer'
+                                          : undefined
+                                      }
+                                      onClick={() => closeAllMenus()}
                                       className={cn(
-                                        'flex shrink-0 items-center justify-center transition-colors',
-                                        'bg-transparent text-muted-foreground',
-                                        'group-hover:bg-transparent group-hover:text-foreground',
-                                        'group-focus:bg-transparent group-focus:text-foreground',
+                                        'group flex select-none flex-row items-start gap-2 rounded-xl flex-1 h-full overflow-hidden',
+                                        'p-2.5 leading-none no-underline outline-hidden transition-colors',
+                                        'hover:bg-accent hover:text-accent-foreground',
+                                        'focus:bg-accent focus:text-accent-foreground',
                                         isSubItemActive &&
-                                          'bg-transparent text-foreground',
-                                        // 对于图片图标使用更合适的尺寸
-                                        subItem.icon && typeof subItem.icon === 'string' ? 'w-[60px] h-[60px]' : 'size-8'
+                                          'bg-accent text-accent-foreground'
                                       )}
                                     >
-                                      {subItem.icon ? (
-                                        typeof subItem.icon === 'string' ? (
-                                          <Image
-                                            src={subItem.icon}
-                                            alt=""
-                                            width={60}
-                                            height={60}
-                                            className="rounded-md"
-                                          />
-                                        ) : (
-                                          subItem.icon
-                                        )
-                                      ) : null}
-                                    </div>
-                                    <div className="flex-1">
                                       <div
                                         className={cn(
-                                          'text-sm font-medium',
-                                          // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
-                                          item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
-                                          item.title.includes('Image to Image') || item.title.includes('图像转图像')
-                                            ? 'text-black'
-                                            : 'text-muted-foreground',
+                                          'flex shrink-0 items-center justify-center transition-colors',
+                                          'bg-transparent text-muted-foreground',
                                           'group-hover:bg-transparent group-hover:text-foreground',
                                           'group-focus:bg-transparent group-focus:text-foreground',
                                           isSubItemActive &&
-                                            'bg-transparent text-foreground'
+                                            'bg-transparent text-foreground',
+                                          // 对于图片图标使用更合适的尺寸
+                                          subItem.icon && typeof subItem.icon === 'string' ? 'w-[60px] h-[60px]' : 'size-8'
                                         )}
                                       >
-                                        {subItem.title}
+                                        {subItem.icon ? (
+                                          typeof subItem.icon === 'string' ? (
+                                            <Image
+                                              src={subItem.icon}
+                                              alt=""
+                                              width={60}
+                                              height={60}
+                                              className="rounded-xl"
+                                            />
+                                          ) : (
+                                            subItem.icon
+                                          )
+                                        ) : null}
                                       </div>
-                                      {subItem.description && (
+                                      <div className="flex-1">
                                         <div
                                           className={cn(
-                                            'text-sm text-muted-foreground',
-                                            'group-hover:bg-transparent group-hover:text-foreground/80',
-                                            'group-focus:bg-transparent group-focus:text-foreground/80',
+                                            'text-sm font-medium',
+                                            // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                            item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
+                                            item.title.includes('Image to Image') || item.title.includes('图像转图像')
+                                              ? 'text-black'
+                                              : 'text-muted-foreground',
+                                            'group-hover:bg-transparent group-hover:text-foreground',
+                                            'group-focus:bg-transparent group-focus:text-foreground',
                                             isSubItemActive &&
-                                              'bg-transparent text-foreground/80'
+                                              'bg-transparent text-foreground'
                                           )}
                                         >
-                                          {subItem.description}
+                                          {subItem.title}
                                         </div>
-                                      )}
-                                    </div>
-                                    {subItem.external && (
-                                      <ArrowUpRightIcon
-                                        className={cn(
-                                          'size-4 shrink-0 text-muted-foreground',
-                                          'group-hover:bg-transparent group-hover:text-foreground',
-                                          'group-focus:bg-transparent group-focus:text-foreground',
-                                          isSubItemActive &&
-                                            'bg-transparent text-foreground'
+                                        {subItem.description && (
+                                          <div
+                                            className={cn(
+                                              'text-sm text-muted-foreground',
+                                              'group-hover:bg-transparent group-hover:text-foreground/80',
+                                              'group-focus:bg-transparent group-focus:text-foreground/80',
+                                              isSubItemActive &&
+                                                'bg-transparent text-foreground/80'
+                                            )}
+                                          >
+                                            {subItem.description}
+                                          </div>
                                         )}
-                                      />
-                                    )}
-                                  </LocaleLink>
-                                </li>
-                              );
-                            })}
-                          </ul>
+                                      </div>
+                                      {subItem.external && (
+                                        <ArrowUpRightIcon
+                                          className={cn(
+                                            'size-4 shrink-0 text-muted-foreground',
+                                            'group-hover:bg-transparent group-hover:text-foreground',
+                                            'group-focus:bg-transparent group-focus:text-foreground',
+                                            isSubItemActive &&
+                                              'bg-transparent text-foreground'
+                                          )}
+                                        />
+                                      )}
+                                    </LocaleLink>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
                         </div>
                       )}
                     </NavigationMenuItem>
