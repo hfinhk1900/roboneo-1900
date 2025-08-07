@@ -3,9 +3,9 @@ import ProductShotFeaturesSection from '@/components/blocks/productshot/products
 import {
   ProductShotBenefitsSection,
   ProductShotShowcaseSection,
-  ProductShotFAQSection,
   ProductShotCTASection
 } from '@/components/blocks/productshot/productshot-placeholders';
+import MoreAITools from '@/components/more-ai-tools';
 import { StructuredData } from '@/components/seo/structured-data';
 import { Metadata } from 'next';
 
@@ -31,23 +31,23 @@ export const metadata: Metadata = {
 export default function ProductShotPage() {
   return (
     <>
-      <StructuredData type="productshot" />
+      <StructuredData type="product" />
       <div className="flex flex-col bg-white">
-        {/* Main Generator Section */}
+                {/* Main Generator Section */}
         <ProductShotGeneratorSection />
-        
-        {/* Features Section */}
-        <ProductShotFeaturesSection />
-        
-        {/* Benefits Section */}
-        <ProductShotBenefitsSection />
-        
+
         {/* Showcase Gallery */}
         <ProductShotShowcaseSection />
-        
-        {/* FAQ Section */}
-        <ProductShotFAQSection />
-        
+
+        {/* Benefits Section */}
+        <ProductShotBenefitsSection />
+
+        {/* Features Section */}
+        <ProductShotFeaturesSection />
+
+                {/* More AI Tools */}
+        <MoreAITools />
+
         {/* CTA Section */}
         <ProductShotCTASection />
       </div>

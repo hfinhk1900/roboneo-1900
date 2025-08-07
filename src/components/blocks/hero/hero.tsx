@@ -281,9 +281,6 @@ export default function HeroSection() {
                     >
                       Upload Image
                     </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Supports {OPENAI_IMAGE_CONFIG.allowedFileTypes.map(type => type.split('/')[1].toUpperCase()).join('/')} formats, ≤{OPENAI_IMAGE_CONFIG.maxFileSize / 1024 / 1024}MB
-                    </p>
                     <div
                       onClick={handleUploadClick}
                       onDragOver={handleDragOver}
@@ -514,7 +511,7 @@ export default function HeroSection() {
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <video
-                      src="/hero-video-Picsart-BackgroundRemover.mp4"
+                      src="/hero-video.webm"
                       autoPlay
                       loop
                       muted

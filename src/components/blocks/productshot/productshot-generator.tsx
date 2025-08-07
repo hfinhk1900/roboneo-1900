@@ -29,42 +29,37 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 const styleOptions = [
-  { 
-    value: 'minimalist', 
-    label: 'Professional Studio', 
+  {
+    value: 'minimalist',
+    label: 'Professional Studio',
     icon: '📸',
     description: 'Clean white background for e-commerce product photos',
     seoKeywords: 'professional product photography, white background'
   },
-  { 
-    value: 'lifestyle', 
-    label: 'Lifestyle Photography', 
+  {
+    value: 'lifestyle',
+    label: 'Lifestyle Photography',
     icon: '🏠',
     description: 'Natural environment product shots for marketing',
     seoKeywords: 'lifestyle product photography, marketing photos'
   },
-  { 
-    value: 'floating', 
-    label: '3D Product Visualization', 
+  {
+    value: 'floating',
+    label: '3D Product Visualization',
     icon: '✨',
     description: '3D floating effect with professional shadows',
     seoKeywords: '3D product visualization, floating product'
   },
-  { 
-    value: 'gradient', 
-    label: 'Modern Gradient', 
+  {
+    value: 'gradient',
+    label: 'Modern Gradient',
     icon: '🌈',
     description: 'Eye-catching gradient for product mockups',
     seoKeywords: 'product mockup generator, gradient background'
   },
 ];
 
-const examplePrompts = [
-  "Luxury watch with leather strap for e-commerce product photos",
-  "Professional skincare bottle photography for Amazon listing",
-  "Premium wireless headphones for online store product shots",
-  "Ceramic coffee mug for product mockup and marketing materials",
-];
+
 
 export default function ProductShotGeneratorSection() {
   const [productDescription, setProductDescription] = useState('');
@@ -97,7 +92,7 @@ export default function ProductShotGeneratorSection() {
 
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // For now, set a placeholder image
       setGeneratedImageUrl('/hero-1.png');
       toast.success('Product shot generated successfully!');
@@ -130,9 +125,7 @@ export default function ProductShotGeneratorSection() {
     }
   };
 
-  const handleExampleClick = (prompt: string) => {
-    setProductDescription(prompt);
-  };
+
 
   return (
     <section id="generator" className="py-24 bg-[#F5F5F5]">
@@ -153,21 +146,21 @@ export default function ProductShotGeneratorSection() {
               <div className="pb-1 pt-0">
                 <h3 className="text-xl font-semibold mb-0.5 flex items-center gap-2">
                   <PackageIcon className="h-5 w-5" />
-                  AI Product Image Generator - Text to Product Photo
+                  AI Product Shots
                 </h3>
                 <p className="text-muted-foreground">
-                  Transform text descriptions into professional e-commerce product photos instantly
+                  Transform text descriptions into professional product photos instantly
                 </p>
               </div>
 
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Label htmlFor="product-description" className="text-sm font-medium">
-                    Enter Product Details for AI Photography
+                    Enter Product Details
                   </Label>
                   <Textarea
                     id="product-description"
-                    placeholder="Describe your product for instant photography: materials, colors, size, features. Perfect for Amazon listings, Shopify stores, and marketing materials..."
+                    placeholder="Describe your product for instant photography"
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
                     className="min-h-[120px] resize-none rounded-xl"
@@ -181,23 +174,7 @@ export default function ProductShotGeneratorSection() {
                   </div>
                 </div>
 
-                {/* Example Prompts */}
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Try an example:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {examplePrompts.map((prompt, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleExampleClick(prompt)}
-                        className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
-                      >
-                        {prompt.substring(0, 30)}...
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
 
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Photography Style</Label>
@@ -335,9 +312,8 @@ export default function ProductShotGeneratorSection() {
       {showCreditsDialog && creditsError && (
         <InsufficientCreditsDialog
           open={showCreditsDialog}
-          onOpenChange={setShowCreditsDialog}
-          requiredCredits={creditsError.required}
-          currentCredits={creditsError.current}
+          required={creditsError.required}
+          current={creditsError.current}
         />
       )}
     </section>
