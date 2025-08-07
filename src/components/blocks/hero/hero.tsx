@@ -154,8 +154,8 @@ export default function HeroSection() {
 
       console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
 
-      // Call our new image-to-sticker API
-      const response = await fetch('/api/image-to-sticker', {
+      // Call our improved image-to-sticker API
+      const response = await fetch('/api/image-to-sticker-improved', {
         method: 'POST',
         body: formData,
       });
@@ -177,7 +177,7 @@ export default function HeroSection() {
       }
 
       const data = await response.json();
-      console.log('Image-to-sticker response:', data);
+      console.log('Image-to-sticker-improved response:', data);
 
       if (data.url) {
         setGeneratedImageUrl(data.url);

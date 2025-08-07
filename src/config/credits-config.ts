@@ -14,6 +14,8 @@ export interface PlanCredits {
 
 /**
  * Credits per image generation
+ * Maintained at 10 credits per image for consistent user experience
+ * Cost optimized through medium quality setting (~$0.042 per image)
  */
 export const CREDITS_PER_IMAGE = 10;
 
@@ -25,7 +27,7 @@ export const PLAN_CREDITS_CONFIG: Record<string, PlanCredits> = {
   free: {
     planId: 'free',
     monthlyCredits: 10,
-    description: '10 credits (one-time allocation)',
+    description: '10 credits (1 image, one-time allocation)',
     resetType: 'one-time',
   },
   pro: {
