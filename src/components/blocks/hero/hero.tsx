@@ -510,12 +510,9 @@ export default function HeroSection() {
                       style={{ height: "auto" }}
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
-                    <video
-                      src="/hero-video.webm"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
+                    <img
+                      src="/hero-video.gif"
+                      alt="Hero animation"
                       className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
                     />
                   </div>
