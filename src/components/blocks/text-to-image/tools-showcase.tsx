@@ -5,11 +5,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HeaderSection } from '@/components/layout/header-section';
 import { cn } from '@/lib/utils';
-import { 
-  Wand2, 
-  Image, 
-  ShoppingBag, 
-  Sparkles, 
+import {
+  Wand2,
+  Image,
+  ShoppingBag,
+  Sparkles,
   ArrowRight,
   Zap,
   Palette,
@@ -55,8 +55,8 @@ const tools: Tool[] = [
   },
   {
     id: 'poster-craft',
-    title: 'Poster Craft',
-    description: 'Create social posters and flyers with built-in, editable text.',
+    title: 'AI Headshot',
+    description: 'Create professional photographs with AI technology.',
     icon: <Image className="h-6 w-6" />,
     features: [
       'Editable text layers',
@@ -75,7 +75,7 @@ const tools: Tool[] = [
   },
   {
     id: 'avatar-forge',
-    title: 'Avatar Forge',
+    title: 'AI Character',
     description: 'Turn any selfie into anime, chibi, Lego or cartoon avatars.',
     icon: <Wand2 className="h-6 w-6" />,
     features: [
@@ -96,8 +96,8 @@ const tools: Tool[] = [
   },
   {
     id: 'scene-dreamer',
-    title: 'Scene Dreamer',
-    description: 'Produce cinematic concept art and mood-board frames in seconds.',
+    title: 'AI Anime Art',
+    description: 'Create stunning AI anime art and illustrations in seconds.',
     icon: <Palette className="h-6 w-6" />,
     features: [
       'Cinematic quality',
@@ -215,7 +215,7 @@ export default function TextToImageToolsSection() {
                   </div>
 
                   {/* CTA Button */}
-                  <Button 
+                  <Button
                     className={cn(
                       "group w-full bg-gradient-to-r text-white",
                       tool.gradient

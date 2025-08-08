@@ -135,7 +135,7 @@ export default function ProductShotGeneratorSection() {
             AI Product Photo Generator
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Describe your product and watch AI create professional photos instantly
+            Turn your photos into professional product photos
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

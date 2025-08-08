@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import ProductShotHero from '@/components/blocks/productshot/productshot-hero';
-import ProductShotSection from '@/components/blocks/productshot/productshot-section';
+import ProductShotGenerator from '@/components/blocks/productshot/productshot-generator';
 import ProductShotFeaturesSection from '@/components/blocks/productshot/productshot-features';
-import ProductShotFAQ from '@/components/blocks/productshot/productshot-faq';
-import ProductShotCTA from '@/components/blocks/productshot/productshot-cta';
+import FaqSection from '@/components/blocks/faqs/faqs';
+import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 
 export const metadata: Metadata = {
   title: 'AI Product Photography Generator | Create Professional Product Shots Instantly | RoboNeo',
@@ -53,10 +53,10 @@ export default function ProductShotPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      
+
       {/* Hero Section with key benefits */}
       <ProductShotHero />
-      
+
       {/* Main Product Shot Generator */}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
@@ -68,23 +68,23 @@ export default function ProductShotPage() {
               AI Product Photography Generator
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Create professional e-commerce product photos in seconds. Perfect for Amazon listings, 
+              Create professional e-commerce product photos in seconds. Perfect for Amazon listings,
               Shopify stores, social media marketing, and print materials.
             </p>
           </div>
-          
+
           {/* What is AI Product Photography Section */}
           <div className="max-w-4xl mx-auto mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               What is AI Product Photography?
             </h2>
             <p className="text-gray-600 mb-4">
-              AI product photography uses advanced artificial intelligence to automatically generate 
-              professional-quality product images without traditional photography equipment. Our 
-              generator creates stunning product shots with perfect lighting, backgrounds, and 
+              AI product photography uses advanced artificial intelligence to automatically generate
+              professional-quality product images without traditional photography equipment. Our
+              generator creates stunning product shots with perfect lighting, backgrounds, and
               compositions - all optimized for e-commerce and digital marketing.
             </p>
-            
+
             <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">
               How AI Product Photo Generation Works
             </h3>
@@ -96,9 +96,9 @@ export default function ProductShotPage() {
               <li>Download high-resolution images ready for any platform</li>
             </ol>
           </div>
-          
-          <ProductShotSection />
-          
+
+          <ProductShotGenerator />
+
           {/* Use Cases Section */}
           <div className="max-w-4xl mx-auto mt-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -108,34 +108,34 @@ export default function ProductShotPage() {
               <div className="border rounded-lg p-6">
                 <h3 className="font-semibold text-lg mb-2">Amazon & Marketplaces</h3>
                 <p className="text-gray-600">
-                  Generate white background product photos that meet Amazon's strict image requirements. 
+                  Generate white background product photos that meet Amazon's strict image requirements.
                   Create main images, lifestyle shots, and infographics.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
                 <h3 className="font-semibold text-lg mb-2">E-commerce Websites</h3>
                 <p className="text-gray-600">
-                  Produce consistent product photography for Shopify, WooCommerce, and other platforms. 
+                  Produce consistent product photography for Shopify, WooCommerce, and other platforms.
                   Maintain brand consistency across your entire catalog.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
                 <h3 className="font-semibold text-lg mb-2">Social Media Marketing</h3>
                 <p className="text-gray-600">
-                  Create eye-catching product images for Instagram, Facebook, Pinterest. 
+                  Create eye-catching product images for Instagram, Facebook, Pinterest.
                   Generate lifestyle shots that drive engagement and sales.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
                 <h3 className="font-semibold text-lg mb-2">Print & Catalogs</h3>
                 <p className="text-gray-600">
-                  Export high-resolution product photos for print materials, catalogs, and packaging. 
+                  Export high-resolution product photos for print materials, catalogs, and packaging.
                   4K quality suitable for any professional use.
                 </p>
               </div>
             </div>
           </div>
-          
+
           {/* Benefits Section */}
           <div className="max-w-4xl mx-auto mt-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -176,15 +176,15 @@ export default function ProductShotPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Features Section */}
       <ProductShotFeaturesSection />
-      
-      {/* FAQ Section */}
-      <ProductShotFAQ />
-      
+
+            {/* FAQ Section */}
+      <FaqSection />
+
       {/* CTA Section */}
-      <ProductShotCTA />
+      <CallToActionSection />
     </>
   );
 }

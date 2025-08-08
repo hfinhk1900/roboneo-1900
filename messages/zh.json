@@ -275,16 +275,16 @@
             "description": "通过单个提示生成真实的广告和电商拍摄图片。"
           },
           "avatarforge": {
-            "title": "Avatar Forge",
+            "title": "AI Character",
             "description": "将任何自拍照转换为动漫、Q版、乐高或卡通头像。"
           },
           "postercraft": {
-            "title": "Poster Craft",
-            "description": "创建带有内置可编辑文字的社交海报和传单。"
+            "title": "AI Headshot",
+                          "description": "使用AI技术创建专业照片。"
           },
           "scenedreamer": {
-            "title": "Scene Dreamer",
-            "description": "在几秒钟内制作电影级概念艺术和情绪板框架。"
+            "title": "AI Anime Art",
+                          "description": "在几秒钟内创建令人惊叹的AI动漫艺术。"
           }
         }
       },

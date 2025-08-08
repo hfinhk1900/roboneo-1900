@@ -16,6 +16,14 @@ import { CreditsDisplay } from '@/components/shared/credits-display';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { LoginForm } from '@/components/auth/login-form';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { validateImageFile, OPENAI_IMAGE_CONFIG } from '@/lib/image-validation';
 import {
   ImageIcon,
@@ -29,7 +37,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { OptimizedImage } from '@/components/seo/optimized-image';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.png' },
@@ -40,7 +48,10 @@ const styleOptions = [
 
 export default function HeroSection() {
   const t = useTranslations('HomePage.hero');
+  const currentUser = useCurrentUser();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const pendingGeneration = useRef(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
@@ -55,6 +66,93 @@ export default function HeroSection() {
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
+
+  // Function to perform the actual generation (without auth check)
+  const performGeneration = useCallback(async () => {
+    if (!selectedImage) return;
+
+    // Double-check file validation before sending
+    const validation = validateImageFile(selectedImage);
+    if (!validation.isValid) {
+      setFileError(validation.error || 'Invalid file');
+      return;
+    }
+
+    setGeneratedImageUrl(null);
+    setIsGenerating(true);
+    setFileError(null);
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('imageFile', selectedImage);
+      formData.append('style', selectedStyle);
+
+      console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
+
+      // Call our improved image-to-sticker API
+      const response = await fetch('/api/image-to-sticker-improved', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        // Handle insufficient credits error
+        if (response.status === 402) {
+          setCreditsError({
+            required: errorData.required,
+            current: errorData.current
+          });
+          setShowCreditsDialog(true);
+          return;
+        }
+
+        // Handle authentication error
+        if (response.status === 401) {
+          setShowLoginDialog(true);
+          return;
+        }
+
+        throw new Error(errorData.error || 'Failed to convert image');
+      }
+
+      const data = await response.json();
+      console.log('Image-to-sticker-improved response:', data);
+
+      if (data.url) {
+        setGeneratedImageUrl(data.url);
+        // Clear credits cache to trigger refresh of credits display
+        creditsCache.clear();
+      } else {
+        throw new Error('API did not return a sticker URL.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      console.error('Error generating sticker:', errorMessage);
+
+      // Show user-friendly error message
+      if (errorMessage.includes('Authentication required') || errorMessage.includes('Unauthorized')) {
+        setFileError('Please login to generate stickers');
+      } else {
+        setFileError(errorMessage);
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [selectedImage, selectedStyle]);
+
+  // Effect to handle automatic generation after login
+  useEffect(() => {
+    if (currentUser && pendingGeneration.current && selectedImage) {
+      // User just logged in and we have a pending generation
+      pendingGeneration.current = false;
+      setShowLoginDialog(false);
+      // Automatically continue with generation
+      performGeneration();
+    }
+  }, [currentUser, performGeneration, selectedImage]);
 
   // 通用文件处理函数
   const processFile = (file: File) => {
@@ -132,68 +230,19 @@ export default function HeroSection() {
     document.getElementById('image-upload')?.click();
   };
 
-  const handleGenerate = async () => {
+    const handleGenerate = async () => {
     if (!selectedImage) return;
 
-    // Double-check file validation before sending
-    const validation = validateImageFile(selectedImage);
-    if (!validation.isValid) {
-      setFileError(validation.error || 'Invalid file');
+    // Check if user is authenticated
+    if (!currentUser) {
+      // Set pending generation flag and show login dialog
+      pendingGeneration.current = true;
+      setShowLoginDialog(true);
       return;
     }
 
-    setGeneratedImageUrl(null);
-    setIsGenerating(true);
-    setFileError(null);
-
-    try {
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('imageFile', selectedImage);
-      formData.append('style', selectedStyle);
-
-      console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
-
-      // Call our improved image-to-sticker API
-      const response = await fetch('/api/image-to-sticker-improved', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        // Handle insufficient credits error
-        if (response.status === 402) {
-          setCreditsError({
-            required: errorData.required,
-            current: errorData.current
-          });
-          setShowCreditsDialog(true);
-          return;
-        }
-
-        throw new Error(errorData.error || 'Failed to convert image');
-      }
-
-      const data = await response.json();
-      console.log('Image-to-sticker-improved response:', data);
-
-      if (data.url) {
-        setGeneratedImageUrl(data.url);
-        // Clear credits cache to trigger refresh of credits display
-        creditsCache.clear();
-      } else {
-        throw new Error('API did not return a sticker URL.');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      console.error('Error generating sticker:', errorMessage);
-      // 这里可以添加一个通用的错误提示组件，暂时保留 console.error
-      console.error(`Generation failed: ${errorMessage}`);
-    } finally {
-      setIsGenerating(false);
-    }
+    // User is authenticated, proceed with generation
+    await performGeneration();
   };
 
   const handleDownload = async () => {
@@ -408,7 +457,12 @@ export default function HeroSection() {
                     ) : (
                       <SparklesIcon className="mr-2 h-5 w-5" />
                     )}
-                    {isGenerating ? 'Generating...' : 'Generate My Sticker'}
+                    {isGenerating
+                      ? 'Generating...'
+                      : !currentUser
+                        ? 'Login to Generate Sticker'
+                        : 'Generate My Sticker'
+                    }
                   </Button>
 
                   {/* Test buttons removed after testing completion */}
@@ -531,6 +585,19 @@ export default function HeroSection() {
           current={creditsError.current}
         />
       )}
+
+      {/* Login Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-[400px] p-0">
+          <DialogHeader className="hidden">
+            <DialogTitle>Login</DialogTitle>
+          </DialogHeader>
+                    <LoginForm
+            callbackUrl={typeof window !== 'undefined' ? window.location.pathname : '/'}
+            className="border-none"
+          />
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
