@@ -68,7 +68,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const remoteUrl = limitedUrls[0];
           const filename = `kie-fallback-${taskId}-${Date.now()}.png`;
 
-          const localUrl = await downloadAndSaveImage(remoteUrl, filename);
+          const localUrl = await downloadAndSaveImage(remoteUrl, filename, taskId);
           console.log(`✅ 备用处理成功，图片已保存到R2: ${localUrl}`);
 
                     // 【关键修复】寻找对应的本地任务并更新状态
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const filename = `kie-callback-${Date.now()}-${i + 1}.png`;
 
           try {
-            const localUrl = await downloadAndSaveImage(remoteUrl, filename);
+            const localUrl = await downloadAndSaveImage(remoteUrl, filename, taskId);
             localImageUrls.push(localUrl);
             console.log(`✅ 图片 ${i + 1} 下载成功: ${localUrl}`);
 
@@ -197,19 +197,50 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
 
     } else {
-      // 失败情况
-      console.log(`❌ KIE AI 任务 ${taskId} 失败: ${msg}`);
+      // 失败情况 - Enhanced error handling based on KIE AI documentation
+      console.log(`❌ KIE AI 任务 ${taskId} 失败: ${msg} (Code: ${code})`);
 
       localTask.status = TaskStatus.FAILED;
-      localTask.error = `KIE AI callback error: ${msg}`;
+
+      // Enhanced error handling based on KIE AI error codes
+      let userFriendlyError = msg || 'Unknown error';
+      let detailedLog = msg;
+
+      switch (code) {
+        case 400:
+          userFriendlyError = 'Image content violates policy or has format issues. Please try a different image.';
+          detailedLog = `Content Policy/Format Error: ${msg}`;
+          console.log('❌ Image flagged by AI safety filters or size/format issues');
+          break;
+        case 451:
+          userFriendlyError = 'Unable to process the uploaded image. Please try uploading again.';
+          detailedLog = `Image Download Failed: ${msg}`;
+          console.log('❌ Unable to download image from provided URL');
+          break;
+        case 500:
+          userFriendlyError = 'Temporary server issue. Please try again in a few minutes.';
+          detailedLog = `KIE AI Server Error: ${msg}`;
+          console.log('❌ KIE AI internal server error - may be temporary');
+          break;
+        default:
+          userFriendlyError = `Generation failed: ${msg}`;
+          detailedLog = `Unknown Error (${code}): ${msg}`;
+          console.log(`❌ Unexpected error code ${code}: ${msg}`);
+      }
+
+      localTask.error = userFriendlyError; // User-friendly error for frontend
       localTask.completedAt = new Date();
+
+      // Log detailed error for debugging
+      console.log(`🔍 Detailed error: ${detailedLog}`);
+
       taskStorage.set(localTask.taskId, localTask);
 
       // 【新增】备份任务到文件
       saveTaskBackup(localTask.taskId, localTask).catch(console.warn);
 
       // TODO: 通知前端任务失败
-      // notifyFrontend(localTask.taskId, 'failed', null, msg);
+      // notifyFrontend(localTask.taskId, 'failed', null, userFriendlyError);
     }
 
     // 向KIE AI返回成功确认

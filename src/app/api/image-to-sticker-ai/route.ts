@@ -131,7 +131,7 @@ export const STICKER_STYLES = {
   snoopy: {
     name: 'Snoopy',
     userPrompt:
-      "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+      "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
     imageUrl: '/styles/snoopy.png',
   },
 } as const;
@@ -193,36 +193,122 @@ async function downloadImage(url: string): Promise<Buffer> {
 }
 
 /**
- * Download an image from KIE AI and save it to R2 cloud storage
+ * Get direct download URL from KIE AI to solve CORS issues
  */
-export async function downloadAndSaveImage(url: string, filename: string): Promise<string> {
+async function getKieDirectDownloadUrl(originalUrl: string, taskId: string, apiKey: string): Promise<string | null> {
+  const baseUrl = process.env.KIE_AI_BASE_URL || 'https://api.kie.ai';
+  const downloadUrlEndpoint = `${baseUrl}/api/v1/gpt4o-image/download-url`;
+
   try {
-    console.log(`📥 Downloading image from KIE AI: ${url}`);
-    const response = await fetch(url);
+    console.log(`🔗 Getting direct download URL for: ${originalUrl}`);
+
+    const response = await fetch(downloadUrlEndpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        taskId: taskId,
+        url: originalUrl
+      })
+    });
 
     if (!response.ok) {
+      console.log(`⚠️ Direct download URL failed: ${response.status} ${response.statusText}`);
+      return null; // Fallback to direct download
+    }
+
+    const data = await response.json();
+
+    if (data.code === 200 && data.data) {
+      console.log(`✅ Got direct download URL (20min expiry)`);
+      return data.data; // Returns the signed URL
+    } else {
+      console.log(`⚠️ Direct download URL API returned error: ${data.msg}`);
+      return null;
+    }
+
+  } catch (error) {
+    console.log(`⚠️ Failed to get direct download URL:`, error);
+    return null; // Fallback to direct download
+  }
+}
+
+/**
+ * Enhanced: Download an image from KIE AI with CORS handling and save it to R2 cloud storage
+ */
+export async function downloadAndSaveImage(url: string, filename: string, taskId?: string): Promise<string> {
+  const apiKey = process.env.KIE_AI_API_KEY;
+  let downloadUrl = url;
+
+  try {
+    // Step 1: Try to get KIE AI direct download URL (solves CORS issues)
+    if (taskId && apiKey) {
+      const directUrl = await getKieDirectDownloadUrl(url, taskId, apiKey);
+      if (directUrl) {
+        downloadUrl = directUrl;
+        console.log(`🎯 Using KIE AI direct download URL (CORS-safe)`);
+      } else {
+        console.log(`🔄 Falling back to direct download`);
+      }
+    }
+
+    // Step 2: Download the image
+    console.log(`📥 Downloading image: ${downloadUrl === url ? 'direct' : 'via KIE API'}`);
+    const response = await fetch(downloadUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'RoboneoAI/1.0',
+        // Don't add Authorization header for signed URLs
+        ...(downloadUrl === url && apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+      }
+    });
+
+    if (!response.ok) {
+      // If direct download failed and we haven't tried KIE API yet, try it now
+      if (downloadUrl === url && taskId && apiKey) {
+        console.log(`🔄 Direct download failed (${response.status}), trying KIE direct download URL...`);
+        const directUrl = await getKieDirectDownloadUrl(url, taskId, apiKey);
+
+        if (directUrl) {
+          const retryResponse = await fetch(directUrl);
+          if (retryResponse.ok) {
+            const buffer = Buffer.from(await retryResponse.arrayBuffer());
+            return await saveBufferToR2(buffer, filename);
+          }
+        }
+      }
+
       throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
     }
 
     const buffer = Buffer.from(await response.arrayBuffer());
+    return await saveBufferToR2(buffer, filename);
 
-    // Upload to R2 cloud storage with specific folder
-    console.log(`☁️  Uploading to R2 cloud storage: ${filename}`);
-    const uploadResult = await uploadFile(
-      buffer,
-      filename,
-      'image/png',
-      'roboneo/generated-stickers' // 生成的贴纸专用文件夹
-    );
-
-    console.log(`✅ Image saved to R2 cloud storage: ${uploadResult.url}`);
-    console.log(`🔑 Storage key: ${uploadResult.key}`);
-
-    return uploadResult.url; // 返回R2的公网URL
   } catch (error) {
     console.error(`❌ Failed to download and save image to R2:`, error);
     throw error;
   }
+}
+
+/**
+ * Helper function to save buffer to R2
+ */
+async function saveBufferToR2(buffer: Buffer, filename: string): Promise<string> {
+  // Upload to R2 cloud storage with specific folder
+  console.log(`☁️  Uploading to R2 cloud storage: ${filename}`);
+  const uploadResult = await uploadFile(
+    buffer,
+    filename,
+    'image/png',
+    'roboneo/generated-stickers' // 生成的贴纸专用文件夹
+  );
+
+  console.log(`✅ Image saved to R2 cloud storage: ${uploadResult.url}`);
+  console.log(`🔑 Storage key: ${uploadResult.key}`);
+
+  return uploadResult.url; // 返回R2的公网URL
 }
 
 /**
