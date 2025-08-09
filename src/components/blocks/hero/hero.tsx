@@ -146,14 +146,20 @@ export default function HeroSection() {
 
     try {
       // Step 1: Upload image to cloud storage to get public URL
+      console.log('🔧 DEBUG: Starting image upload process...');
+      console.log('🔧 DEBUG: Selected image:', selectedImage?.name, selectedImage?.size, 'bytes');
+
       const formData = new FormData();
       formData.append('file', selectedImage);
       formData.append('folder', 'roboneo/user-uploads'); // 专门的用户上传文件夹
 
+      console.log('🔧 DEBUG: Calling /api/storage/upload...');
       const uploadResponse = await fetch('/api/storage/upload', {
         method: 'POST',
         body: formData,
       });
+
+      console.log('🔧 DEBUG: Upload response status:', uploadResponse.status, uploadResponse.statusText);
 
       if (!uploadResponse.ok) {
         const uploadError = await uploadResponse.json();
@@ -163,10 +169,19 @@ export default function HeroSection() {
       const uploadData = await uploadResponse.json();
       const imageUrl = uploadData.url;
 
+      console.log('🔧 DEBUG: Upload successful, image URL:', imageUrl);
+
       setGenerationStep('🚀 Preparing AI generation...');
       setGenerationProgress(30);
 
       // Step 2: Create KIE AI sticker generation task
+      console.log('🔧 DEBUG: Calling /api/image-to-sticker-ai with payload:', {
+        filesUrl: [imageUrl],
+        style: selectedStyle,
+        nVariants: 1,
+        size: '1:1'
+      });
+
       const taskResponse = await fetch('/api/image-to-sticker-ai', {
         method: 'POST',
         headers: {
@@ -179,6 +194,8 @@ export default function HeroSection() {
           size: '1:1'
         }),
       });
+
+      console.log('🔧 DEBUG: Task response status:', taskResponse.status, taskResponse.statusText);
 
       if (!taskResponse.ok) {
         const taskError = await taskResponse.json();
@@ -205,6 +222,9 @@ export default function HeroSection() {
             const taskData = await taskResponse.json();
       const taskId = taskData.data.taskId;
       setLastTaskId(taskId); // Save for manual check if needed
+
+      console.log('🔧 DEBUG: Task created successfully! TaskID:', taskId);
+      console.log('🔧 DEBUG: Full task response:', taskData);
 
             setGenerationStep('🎨 High-res artwork in the making...');
       setGenerationProgress(50);
@@ -287,24 +307,35 @@ export default function HeroSection() {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      console.error('Error generating sticker:', errorMessage);
+      console.error('🔧 DEBUG: Error in performGeneration:', error);
+      console.error('🔧 DEBUG: Error message:', errorMessage);
+      console.error('🔧 DEBUG: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
-      // Show user-friendly error message
+      // Show user-friendly error message and reset generation state for real errors
       if (errorMessage.includes('Authentication required') || errorMessage.includes('Unauthorized')) {
         setFileError('Please login to generate stickers');
+        setIsGenerating(false);
+        setGenerationStep(null);
+        setGenerationProgress(0);
       } else if (errorMessage.includes('High-quality generation takes time')) {
         setFileError('🎨 High-quality generation in progress - check result below or wait a few minutes');
+        // Don't reset generation state - task is still processing
       } else if (errorMessage.includes('taking longer than expected')) {
         setFileError('⏰ Generation optimized for quality - may take up to 5 minutes. Check result button available below.');
+        // Don't reset generation state - task is still processing
       } else if (errorMessage.includes('timed out')) {
         setFileError('⚠️ Request timeout - your sticker may still be generating. Please use the Check Result button.');
+        // Don't reset generation state - task is still processing
       } else {
+        // Real error - reset generation state
         setFileError(errorMessage);
+        setIsGenerating(false);
+        setGenerationStep(null);
+        setGenerationProgress(0);
       }
     } finally {
-      setIsGenerating(false);
-      setGenerationStep(null);
-      setGenerationProgress(0);
+      // Only reset state if there was an actual error, not for successful task creation
+      // Callback or timeout will handle stopping generation for successful cases
     }
   }, [selectedImage, selectedStyle]);
 
