@@ -350,37 +350,109 @@ export default function HeroSection() {
     }
   }, [currentUser, performGeneration, selectedImage]);
 
-  // 手动检查任务结果
-  const checkTaskResult = async () => {
-    if (!lastTaskId) return;
+  // Effect to recover any pending tasks on component mount
+  useEffect(() => {
+    const recoverPendingTask = async () => {
+      // Only recover if we don't already have a generated image and user is logged in
+      if (!generatedImageUrl && lastTaskId && currentUser && !isGenerating) {
+        console.log(`🔧 DEBUG: Attempting to recover pending task: ${lastTaskId}`);
 
+        try {
+          const response = await fetch(`/api/image-to-sticker-ai?taskId=${lastTaskId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('🔧 DEBUG: Recovered task data:', data);
+
+            if (data.data?.status === 'completed' && data.data.resultUrls?.length > 0) {
+              console.log('🔧 DEBUG: Auto-recovering completed task!');
+              setGeneratedImageUrl(data.data.resultUrls[0]);
+              setGenerationProgress(100);
+              setGenerationStep('✅ Previous sticker generation completed!');
+              setIsGenerating(false);
+              setFileError(null);
+              // Clear credits cache to trigger refresh of credits display
+              creditsCache.clear();
+              sendCompletionNotification();
+            } else if (data.data?.status === 'processing') {
+              console.log('🔧 DEBUG: Task still processing, will wait for callback');
+              // Don't set error, let the callback or timeout handle it
+            } else if (data.data?.status === 'failed') {
+              setFileError(data.data.error || 'Previous generation failed');
+            }
+          }
+        } catch (error) {
+          console.log('🔧 DEBUG: Task recovery failed (this is normal for new sessions):', error);
+        }
+      }
+    };
+
+    // Run recovery after a short delay to allow component to fully mount
+    const recoveryTimer = setTimeout(recoverPendingTask, 1000);
+
+    return () => clearTimeout(recoveryTimer);
+  }, [lastTaskId, currentUser, generatedImageUrl, isGenerating]);
+
+    // 手动检查任务结果 - 增强版
+  const checkTaskResult = async () => {
+    if (!lastTaskId) {
+      setFileError('No task ID available to check. Please try generating again.');
+      return;
+    }
+
+    console.log(`🔧 DEBUG: Checking task result for: ${lastTaskId}`);
     setIsGenerating(true);
     setGenerationStep('🔍 Checking your sticker status...');
+    setFileError(null); // Clear previous errors
 
     try {
       const response = await fetch(`/api/image-to-sticker-ai?taskId=${lastTaskId}`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
+      console.log(`🔧 DEBUG: Check response: ${response.status} ${response.statusText}`);
 
       if (response.ok) {
         const data = await response.json();
+        console.log('🔧 DEBUG: Task data:', data);
 
         if (data.data?.status === 'completed' && data.data.resultUrls?.length > 0) {
+          console.log('🔧 DEBUG: Task completed! Setting result URL:', data.data.resultUrls[0]);
           setGeneratedImageUrl(data.data.resultUrls[0]);
           setGenerationStep('✅ Found your completed sticker!');
           setGenerationProgress(100);
           setFileError(null);
+          // Clear credits cache to trigger refresh of credits display
+          creditsCache.clear();
           sendCompletionNotification();
         } else if (data.data?.status === 'failed') {
           setFileError(data.data.error || 'Generation failed');
-        } else {
+        } else if (data.data?.status === 'processing') {
           setFileError('⏳ Your sticker is still being generated. Please try again in a few minutes.');
+        } else {
+          setFileError(`Task status: ${data.data?.status || 'unknown'}. Please try again or contact support.`);
         }
       } else {
-        setFileError('Unable to check task status');
+        const errorText = await response.text();
+        console.log('🔧 DEBUG: Check API error:', errorText);
+
+        if (response.status === 404) {
+          setFileError('Task not found. It may have expired. Please try generating again.');
+        } else {
+          setFileError(`Unable to check task status: ${response.status} ${response.statusText}`);
+        }
       }
     } catch (error) {
-      setFileError('Error checking task status');
+      console.error('🔧 DEBUG: Error checking task status:', error);
+      setFileError('Error checking task status. Please check your connection and try again.');
     } finally {
       setIsGenerating(false);
     }
