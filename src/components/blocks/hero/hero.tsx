@@ -209,113 +209,88 @@ export default function HeroSection() {
             setGenerationStep('🎨 High-res artwork in the making...');
       setGenerationProgress(50);
 
-      // Step 3: Smart polling with progressive intervals (Vercel bandwidth optimized)
-      const smartIntervals = [30, 60, 120]; // 30s, 1m, 2m - total 3.5 minutes, only 3 requests
-      const startTime = Date.now();
+                  // Step 3: Minimal polling optimized for callback (KIE AI Best Practice + Vercel Reality)
+      // Primary: KIE AI callback handles completion
+      // Fallback: Minimal check after expected completion time
 
-      setGenerationStep('🎨 High-quality generation in progress...');
+      console.log('🚀 Task created successfully, waiting for KIE AI callback...');
+      console.log('📝 Using callback-first approach with minimal fallback polling');
+
+      setGenerationStep('🎨 High-quality AI generation in progress...');
       setGenerationProgress(60);
 
-      for (let i = 0; i < smartIntervals.length; i++) {
-        const intervalSeconds = smartIntervals[i];
-        const currentCheck = i + 1;
-
-        // Wait for the specified interval
-        await new Promise(resolve => setTimeout(resolve, intervalSeconds * 1000));
-
-        // Calculate elapsed time
-        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-        const totalEstimated = 210; // 3.5 minutes total
-        const remainingSeconds = Math.max(0, totalEstimated - elapsedSeconds);
-
-        // Update progress (60% to 90% across 3 checks)
-        const progressIncrement = 30 / smartIntervals.length;
-        const currentProgress = Math.min(90, 60 + (progressIncrement * (i + 1)));
-        setGenerationProgress(currentProgress);
-
-        // Smart progress messages based on check number
-        if (i === 0) {
-          setGenerationStep(`🧠 Processing your ${selectedOption?.label || 'sticker'}... (${remainingSeconds}s remaining)`);
-        } else if (i === 1) {
-          setGenerationStep(`🎨 Fine-tuning details... (${remainingSeconds}s remaining)`);
-        } else {
-          setGenerationStep(`✨ Almost ready... (${remainingSeconds}s remaining)`);
-        }
-
-        try {
-          console.log(`Smart polling check ${currentCheck}/${smartIntervals.length} after ${intervalSeconds}s interval`);
-
-          const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
-            method: 'GET',
-          });
-
-          if (!statusResponse.ok) {
-            console.log(`Status check ${currentCheck} failed, continuing...`);
-            continue;
+      // Show realistic progress without polling
+      const progressTimers = [
+        setTimeout(() => {
+          if (isGenerating) {
+            setGenerationStep('🧠 AI analyzing your image and style preferences...');
+            setGenerationProgress(70);
           }
+        }, 20000), // 20 seconds
 
-          const statusData = await statusResponse.json();
-
-          if (statusData.data?.status === 'completed') {
-            const resultUrls = statusData.data.resultUrls;
-            if (resultUrls && resultUrls.length > 0) {
-              setGenerationStep('🎉 Your sticker is ready!');
-              setGenerationProgress(100);
-              setGeneratedImageUrl(resultUrls[0]);
-              // Clear credits cache to trigger refresh of credits display
-              creditsCache.clear();
-              // Send completion notification
-              sendCompletionNotification();
-              return;
-            } else {
-              throw new Error('Task completed but no result URLs found');
-            }
-          } else if (statusData.data?.status === 'failed') {
-            throw new Error(statusData.data.error || 'Sticker generation failed');
+        setTimeout(() => {
+          if (isGenerating) {
+            setGenerationStep('🎨 Creating your custom sticker...');
+            setGenerationProgress(80);
           }
+        }, 60000), // 1 minute
 
-          // Task is still processing, continue with next interval
-          console.log(`Check ${currentCheck}: Task still processing, next check in ${i < smartIntervals.length - 1 ? smartIntervals[i + 1] + 's' : 'manual mode'}`);
-
-        } catch (checkError) {
-          console.log(`Status check ${currentCheck} error:`, checkError);
-          // Continue to next check unless it's the last one
-          if (i === smartIntervals.length - 1) {
-            throw checkError;
+        setTimeout(() => {
+          if (isGenerating) {
+            setGenerationStep('✨ Applying final touches and optimizations...');
+            setGenerationProgress(85);
           }
-        }
-      }
+        }, 120000), // 2 minutes
 
-      // If we reach here, smart polling completed - task may still be processing
-      console.log('Smart polling completed (3 checks over 3.5 minutes), task may still be processing in background');
+        // Single callback check after expected completion (KIE AI usually completes in 2-3 min)
+        setTimeout(async () => {
+          if (isGenerating && !generatedImageUrl) {
+            console.log('⏰ Expected completion time reached, checking callback result...');
 
-      // Try one final status check before giving up
-      try {
-        const finalStatusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
-          method: 'GET',
-        });
+            try {
+              const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
+                method: 'GET',
+              });
 
-        if (finalStatusResponse.ok) {
-          const finalStatusData = await finalStatusResponse.json();
+              if (statusResponse.ok) {
+                const statusData = await statusResponse.json();
 
-          if (finalStatusData.data?.status === 'completed') {
-            const resultUrls = finalStatusData.data.resultUrls;
-            if (resultUrls && resultUrls.length > 0) {
-              setGeneratedImageUrl(resultUrls[0]);
-              setGenerationStep('✅ Sticker generated successfully!');
-              setGenerationProgress(100);
+                if (statusData.data?.status === 'completed') {
+                  const resultUrls = statusData.data.resultUrls;
+                  if (resultUrls && resultUrls.length > 0) {
+                    setGenerationStep('🎉 Your sticker is ready!');
+                    setGenerationProgress(100);
+                    setGeneratedImageUrl(resultUrls[0]);
+                    // Clear credits cache to trigger refresh of credits display
+                    creditsCache.clear();
+                    // Send completion notification
+                    sendCompletionNotification();
+                    return;
+                  }
+                } else if (statusData.data?.status === 'failed') {
+                  throw new Error(statusData.data.error || 'Sticker generation failed');
+                }
+              }
 
-              // Send completion notification
-              sendCompletionNotification();
-              return; // Success!
+              // If still processing, suggest manual check
+              setGenerationProgress(95);
+              setGenerationStep('⏳ High-quality generation taking extra time...');
+              setFileError('🎨 Your sticker may be ready! Click Check Result below to see if it\'s completed.');
+              setIsGenerating(false);
+
+            } catch (error) {
+              console.log('Single callback check failed:', error);
+              setFileError('🎨 Generation may be complete! Use Check Result button to verify.');
+              setIsGenerating(false);
             }
           }
-        }
-      } catch (finalCheckError) {
-        console.log('Final status check failed:', finalCheckError);
-      }
+        }, 180000) // 3 minutes - single check
+      ];
 
-      throw new Error('🎨 High-quality generation takes time! Your sticker may still be processing. Use the Check Result button below to see if it\'s ready.');
+      // Cleanup timers if component unmounts or generation completes
+      return () => {
+        progressTimers.forEach(timer => clearTimeout(timer));
+      };
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -767,7 +742,7 @@ export default function HeroSection() {
                                <div className="text-blue-600 dark:text-blue-400 mt-0.5">⏱️</div>
                                <div className="text-sm">
                                  <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
-                                   High-res artwork in the making—this usually takes 2-4 min. Feel free to browse other tabs; we'll notify you.
+                                   High-res artwork in the making—this usually takes 2-3 min. Feel free to browse other tabs; we'll notify you.
                                  </p>
                                </div>
                              </div>
@@ -914,3 +889,4 @@ export default function HeroSection() {
     </main>
   );
 }
+
