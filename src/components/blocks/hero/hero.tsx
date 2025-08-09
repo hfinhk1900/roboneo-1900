@@ -33,7 +33,7 @@ import {
   UploadIcon,
   DownloadIcon,
   AlertCircleIcon,
-  XIcon,
+  Trash2Icon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { OptimizedImage } from '@/components/seo/optimized-image';
@@ -515,16 +515,16 @@ export default function HeroSection() {
                           />
 
                           {/* Delete button overlay - shows on hover */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm">
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm rounded-2xl">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevent triggering upload dialog
                                 removeUploadedImage();
                               }}
-                              className="flex items-center justify-center w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
+                              className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-110 cursor-pointer"
                               title="Remove image"
                             >
-                              <XIcon className="w-6 h-6" />
+                              <Trash2Icon className="w-6 h-6" />
                             </button>
                           </div>
                         </div>
