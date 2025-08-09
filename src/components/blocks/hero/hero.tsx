@@ -769,6 +769,10 @@ export default function HeroSection() {
                                  <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
                                    High-res artwork in the making—this usually takes 2-4 min. We use smart checking to save bandwidth. Feel free to browse other tabs; we'll notify you.
                                  </p>
+                                 <div className="mt-2 flex items-center gap-2 text-xs text-blue-600 dark:text-blue-300">
+                                   <span className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full">⚡ Optimized</span>
+                                   <span>3 checks vs 60+ traditional polls - 95% bandwidth saved</span>
+                                 </div>
                                </div>
                              </div>
                            </div>
