@@ -69,6 +69,34 @@ export default function HeroSection() {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [lastTaskId, setLastTaskId] = useState<string | null>(null);
 
+  // Load lastTaskId from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedTaskId = localStorage.getItem('lastTaskId');
+      if (savedTaskId) {
+        console.log(`🔧 DEBUG: Loaded lastTaskId from localStorage: ${savedTaskId}`);
+        setLastTaskId(savedTaskId);
+      }
+    } catch (error) {
+      console.warn('Failed to load lastTaskId from localStorage:', error);
+    }
+  }, []);
+
+  // Save lastTaskId to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (lastTaskId) {
+        localStorage.setItem('lastTaskId', lastTaskId);
+        console.log(`🔧 DEBUG: Saved lastTaskId to localStorage: ${lastTaskId}`);
+      } else {
+        localStorage.removeItem('lastTaskId');
+        console.log('🔧 DEBUG: Removed lastTaskId from localStorage');
+      }
+    } catch (error) {
+      console.warn('Failed to save lastTaskId to localStorage:', error);
+    }
+  }, [lastTaskId]);
+
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
@@ -379,6 +407,8 @@ export default function HeroSection() {
               // Clear credits cache to trigger refresh of credits display
               creditsCache.clear();
               sendCompletionNotification();
+              // Clear lastTaskId since task is now complete
+              setLastTaskId(null);
             } else if (data.data?.status === 'processing') {
               console.log('🔧 DEBUG: Task still processing, will wait for callback');
               // Don't set error, let the callback or timeout handle it
@@ -433,8 +463,21 @@ export default function HeroSection() {
           // Clear credits cache to trigger refresh of credits display
           creditsCache.clear();
           sendCompletionNotification();
+          // Clear lastTaskId since task is now complete
+          setLastTaskId(null);
         } else if (data.data?.status === 'failed') {
-          setFileError(data.data.error || 'Generation failed');
+          const errorMsg = data.data.error || 'Generation failed';
+
+          // Provide user-friendly error messages
+          if (errorMsg.includes('timed out')) {
+            setFileError('⏱️ Generation took longer than expected and timed out. This might be due to high server load. Please try again.');
+          } else if (errorMsg.includes('expired')) {
+            setFileError('⏰ The generation task expired. Please try uploading your image again.');
+          } else if (errorMsg.includes('KIE AI task')) {
+            setFileError('🔧 There was an issue with the AI service. Please try again or contact support if the problem persists.');
+          } else {
+            setFileError(`❌ Generation failed: ${errorMsg}`);
+          }
         } else if (data.data?.status === 'processing') {
           setFileError('⏳ Your sticker is still being generated. Please try again in a few minutes.');
         } else {
