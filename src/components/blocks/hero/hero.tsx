@@ -606,7 +606,9 @@ export default function HeroSection() {
                           ? 'Generate Sticker'
                           : !currentUser
                             ? 'Login to Generate Sticker'
-                            : 'Generate My Sticker'
+                            : generatedImageUrl
+                              ? 'Regenerate'
+                              : 'Generate My Sticker'
                       }
                     </Button>
 
