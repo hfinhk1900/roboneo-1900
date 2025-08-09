@@ -1,8 +1,11 @@
 'use server';
 
+import {
+  getCreditsForPlan,
+  getPlanIdFromPriceId,
+} from '@/config/credits-config';
 import { getDb } from '@/db';
 import { user } from '@/db/schema';
-import { getCreditsForPlan, getPlanIdFromPriceId } from '@/config/credits-config';
 import { eq } from 'drizzle-orm';
 
 /**
@@ -24,7 +27,7 @@ export async function allocateCreditsToUser(
     if (!targetPlanId) {
       return {
         success: false,
-        error: 'Unable to determine plan ID from provided parameters'
+        error: 'Unable to determine plan ID from provided parameters',
       };
     }
 
@@ -33,7 +36,7 @@ export async function allocateCreditsToUser(
     if (!creditsConfig) {
       return {
         success: false,
-        error: `No credits configuration found for plan: ${targetPlanId}`
+        error: `No credits configuration found for plan: ${targetPlanId}`,
       };
     }
 
@@ -47,7 +50,7 @@ export async function allocateCreditsToUser(
         .update(user)
         .set({
           credits: creditsConfig.monthlyCredits,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(user.id, userId));
     } else {
@@ -58,12 +61,15 @@ export async function allocateCreditsToUser(
         .where(eq(user.id, userId))
         .limit(1);
 
-      if (currentUser.length > 0 && currentUser[0].credits < creditsConfig.monthlyCredits) {
+      if (
+        currentUser.length > 0 &&
+        currentUser[0].credits < creditsConfig.monthlyCredits
+      ) {
         await db
           .update(user)
           .set({
             credits: creditsConfig.monthlyCredits,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(user.id, userId));
       }
@@ -75,13 +81,14 @@ export async function allocateCreditsToUser(
 
     return {
       success: true,
-      creditsAllocated: creditsConfig.monthlyCredits
+      creditsAllocated: creditsConfig.monthlyCredits,
     };
   } catch (error) {
     console.error('Error allocating credits:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to allocate credits'
+      error:
+        error instanceof Error ? error.message : 'Failed to allocate credits',
     };
   }
 }
@@ -108,13 +115,16 @@ export async function resetMonthlyCredits(): Promise<{
 
     return {
       success: true,
-      usersUpdated: 0 // Would be actual count in real implementation
+      usersUpdated: 0, // Would be actual count in real implementation
     };
   } catch (error) {
     console.error('Error resetting monthly credits:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to reset monthly credits'
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to reset monthly credits',
     };
   }
 }

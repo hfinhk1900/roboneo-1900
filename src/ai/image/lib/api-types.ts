@@ -10,7 +10,15 @@ export interface GenerateImageRequest {
   outputCompression?: number; // 0-100
   background?: 'transparent' | 'default';
   // 扩展支持所有OpenAI模型的尺寸
-  size?: '256x256' | '512x512' | '1024x1024' | '1536x1024' | '1024x1536' | '1792x1024' | '1024x1792' | 'auto';
+  size?:
+    | '256x256'
+    | '512x512'
+    | '1024x1024'
+    | '1536x1024'
+    | '1024x1536'
+    | '1792x1024'
+    | '1024x1792'
+    | 'auto';
   // 图片编辑功能参数
   inputImage?: string; // base64 编码的图片数据
   editType?: 'generate' | 'edit' | 'variation'; // 生成类型

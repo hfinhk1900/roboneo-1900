@@ -1,58 +1,58 @@
 'use client';
 
 import { HeaderSection } from '@/components/layout/header-section';
-import { Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Check, X } from 'lucide-react';
 
 const comparisonData = [
   {
     feature: 'Text to Image Generation',
     roboneo: true,
     traditional: false,
-    others: 'Limited'
+    others: 'Limited',
   },
   {
     feature: 'Multiple Art Styles',
     roboneo: '100+',
     traditional: false,
-    others: '10-20'
+    others: '10-20',
   },
   {
     feature: 'Speed',
     roboneo: 'Seconds',
     traditional: 'Hours/Days',
-    others: 'Minutes'
+    others: 'Minutes',
   },
   {
     feature: 'Cost per Image',
     roboneo: 'Free/Low',
     traditional: 'High',
-    others: 'Medium'
+    others: 'Medium',
   },
   {
     feature: 'No Design Skills Required',
     roboneo: true,
     traditional: false,
-    others: true
+    others: true,
   },
   {
     feature: 'Commercial License',
     roboneo: true,
     traditional: 'Varies',
-    others: 'Extra Cost'
+    others: 'Extra Cost',
   },
   {
     feature: 'Batch Generation',
     roboneo: true,
     traditional: false,
-    others: 'Limited'
+    others: 'Limited',
   },
   {
     feature: 'API Access',
     roboneo: true,
     traditional: false,
-    others: 'Premium Only'
-  }
+    others: 'Premium Only',
+  },
 ];
 
 export default function TextToImageComparisonSection() {

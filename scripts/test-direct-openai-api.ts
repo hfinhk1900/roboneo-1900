@@ -26,8 +26,8 @@ async function testDirectOpenAI() {
         n: 1,
         size: '1024x1024',
         quality: 'low',
-        response_format: 'b64_json'
-      }
+        response_format: 'b64_json',
+      },
     },
     {
       name: '备选测试 - DALL-E 3',
@@ -37,9 +37,9 @@ async function testDirectOpenAI() {
         prompt: 'cute cat sticker, simple style, white outline',
         n: 1,
         size: '1024x1024',
-        response_format: 'b64_json'
-      }
-    }
+        response_format: 'b64_json',
+      },
+    },
   ];
 
   for (const testCase of testCases) {
@@ -53,7 +53,7 @@ async function testDirectOpenAI() {
       const response = await fetch(testCase.endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(testCase.payload),
@@ -72,7 +72,10 @@ async function testDirectOpenAI() {
         });
 
         // 保存图片
-        if (data.data?.[0]?.b64_json && process.env.SAVE_TEST_IMAGES === 'true') {
+        if (
+          data.data?.[0]?.b64_json &&
+          process.env.SAVE_TEST_IMAGES === 'true'
+        ) {
           const fs = await import('fs');
           const path = await import('path');
 
@@ -98,11 +101,14 @@ async function testDirectOpenAI() {
         }
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
     }
 
     // 等待间隔
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   console.log('\n📋 结论:');

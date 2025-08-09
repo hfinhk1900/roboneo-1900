@@ -20,7 +20,11 @@ async function preprocessImageForOpenAI() {
   }
 
   const inputPath = path.join(process.cwd(), 'public', 'test-img.png');
-  const outputPath = path.join(process.cwd(), 'public', 'test-img-processed.png');
+  const outputPath = path.join(
+    process.cwd(),
+    'public',
+    'test-img-processed.png'
+  );
 
   if (!fs.existsSync(inputPath)) {
     console.log('❌ 找不到测试图片:', inputPath);
@@ -38,7 +42,7 @@ async function preprocessImageForOpenAI() {
       height: metadata.height,
       channels: metadata.channels,
       hasAlpha: metadata.hasAlpha,
-      size: `${Math.round(fs.statSync(inputPath).size / 1024)}KB`
+      size: `${Math.round(fs.statSync(inputPath).size / 1024)}KB`,
     });
 
     // 模仿 ChatGPT 的预处理逻辑
@@ -58,31 +62,35 @@ async function preprocessImageForOpenAI() {
 
     // OpenAI 支持的尺寸
     const supportedSizes = [
-      { w: 1024, h: 1024, ratio: 1.0 },    // 正方形
-      { w: 1024, h: 1536, ratio: 0.667 },  // 肖像
-      { w: 1536, h: 1024, ratio: 1.5 }     // 风景
+      { w: 1024, h: 1024, ratio: 1.0 }, // 正方形
+      { w: 1024, h: 1536, ratio: 0.667 }, // 肖像
+      { w: 1536, h: 1024, ratio: 1.5 }, // 风景
     ];
 
     // 选择最接近的支持尺寸
     const closest = supportedSizes.reduce((prev, curr) =>
-      Math.abs(curr.ratio - aspectRatio) < Math.abs(prev.ratio - aspectRatio) ? curr : prev
+      Math.abs(curr.ratio - aspectRatio) < Math.abs(prev.ratio - aspectRatio)
+        ? curr
+        : prev
     );
 
     targetWidth = closest.w;
     targetHeight = closest.h;
 
-    console.log(`📏 调整尺寸: ${width}x${height} → ${targetWidth}x${targetHeight}`);
+    console.log(
+      `📏 调整尺寸: ${width}x${height} → ${targetWidth}x${targetHeight}`
+    );
 
     // 3. 使用 contain 模式保持原始内容，添加透明边框
     processedImage = processedImage.resize(targetWidth, targetHeight, {
       fit: 'contain',
-      background: { r: 0, g: 0, b: 0, alpha: 0 } // 透明背景
+      background: { r: 0, g: 0, b: 0, alpha: 0 }, // 透明背景
     });
 
     // 4. 确保输出为 PNG 格式
     processedImage = processedImage.png({
       compressionLevel: 6, // 中等压缩
-      adaptiveFiltering: true
+      adaptiveFiltering: true,
     });
 
     // 保存处理后的图片
@@ -99,7 +107,7 @@ async function preprocessImageForOpenAI() {
       height: processedMetadata.height,
       channels: processedMetadata.channels,
       hasAlpha: processedMetadata.hasAlpha,
-      size: `${Math.round(processedSize / 1024)}KB`
+      size: `${Math.round(processedSize / 1024)}KB`,
     });
 
     // 验证是否符合 OpenAI 要求
@@ -118,7 +126,6 @@ async function preprocessImageForOpenAI() {
     }
 
     return outputPath;
-
   } catch (error) {
     console.error('❌ 图片预处理失败:', error);
   }

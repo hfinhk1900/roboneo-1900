@@ -20,8 +20,12 @@ async function testImageEditing() {
     return;
   }
 
-    // 使用预处理后的图片（符合OpenAI API要求的RGBA格式PNG）
-  const testImagePath = path.join(process.cwd(), 'public', 'test-img-processed.png');
+  // 使用预处理后的图片（符合OpenAI API要求的RGBA格式PNG）
+  const testImagePath = path.join(
+    process.cwd(),
+    'public',
+    'test-img-processed.png'
+  );
 
   if (!fs.existsSync(testImagePath)) {
     console.log('📷 未找到测试图片 apple-touch-icon.png');
@@ -39,46 +43,52 @@ async function testImageEditing() {
 
   // 贴纸风格提示词
   const stickerStyles = {
-    ios: 'Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people\'s body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.',
-    pixel: 'Transform this into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
+    ios: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+    pixel:
+      'Transform this into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
     lego: 'Transform this into LEGO style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background',
-    snoopy: 'Transform this into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background'
+    snoopy:
+      'Transform this into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background',
   };
 
-    const testCases = [
+  const testCases = [
     {
       name: 'DALL-E 2 图片编辑 - iOS风格',
       model: 'dall-e-2',
       style: 'ios',
       endpoint: 'https://api.openai.com/v1/images/edits',
-      method: 'multipart' // DALL-E 2 需要 multipart/form-data 和 PNG
+      method: 'multipart', // DALL-E 2 需要 multipart/form-data 和 PNG
     },
     {
       name: 'GPT-Image-1 图片编辑 - 像素风格',
       model: 'gpt-image-1',
       style: 'pixel',
       endpoint: 'https://api.openai.com/v1/images/edits',
-      method: 'multipart' // GPT-Image-1 也需要 multipart/form-data
-    }
+      method: 'multipart', // GPT-Image-1 也需要 multipart/form-data
+    },
   ];
 
   for (const testCase of testCases) {
     console.log(`\n🎨 ${testCase.name}`);
     console.log(`模型: ${testCase.model}`);
     console.log(`风格: ${testCase.style}`);
-    console.log(`提示词: ${stickerStyles[testCase.style as keyof typeof stickerStyles]}`);
+    console.log(
+      `提示词: ${stickerStyles[testCase.style as keyof typeof stickerStyles]}`
+    );
 
     const startTime = Date.now();
 
-        try {
-
+    try {
       // 所有OpenAI图片编辑都使用 multipart/form-data 格式
       const formData = new FormData();
 
       // 创建PNG格式的Blob（OpenAI图片编辑API要求RGBA格式的PNG）
       const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
       formData.append('image', imageBlob, 'image.png');
-      formData.append('prompt', stickerStyles[testCase.style as keyof typeof stickerStyles]);
+      formData.append(
+        'prompt',
+        stickerStyles[testCase.style as keyof typeof stickerStyles]
+      );
       formData.append('n', '1');
 
       // 根据模型设置不同的参数
@@ -94,7 +104,7 @@ async function testImageEditing() {
       const response = await fetch(testCase.endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           // 不要设置 Content-Type，让浏览器自动设置 multipart/form-data
         },
         body: formData,
@@ -120,7 +130,9 @@ async function testImageEditing() {
 
           fs.writeFileSync(filepath, editedImageData);
           console.log(`💾 编辑后的贴纸已保存: public/${filename}`);
-          console.log(`📏 编辑后大小: ${Math.round(editedImageData.length / 1024)}KB`);
+          console.log(
+            `📏 编辑后大小: ${Math.round(editedImageData.length / 1024)}KB`
+          );
         }
       } else {
         const errorData = await response.text();
@@ -138,11 +150,14 @@ async function testImageEditing() {
         }
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
     }
 
     // 等待间隔
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
   console.log('\n📋 图片编辑功能总结:');

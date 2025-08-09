@@ -62,21 +62,21 @@ export function Navbar({ scroll }: NavBarProps) {
   // Function to toggle menu state
   const toggleMenu = (menuTitle: string) => {
     console.log('Toggling menu:', menuTitle); // Debug log
-    setOpenMenus(prev => {
+    setOpenMenus((prev) => {
       const isCurrentlyOpen = prev[menuTitle];
 
       // If the menu is currently open, close it
       if (isCurrentlyOpen) {
         const newState = {
           ...prev,
-          [menuTitle]: false
+          [menuTitle]: false,
         };
         console.log('Closing menu, new state:', newState); // Debug log
         return newState;
       } else {
         // If the menu is closed, close all other menus and open this one
         const newState = {
-          [menuTitle]: true // Only this menu will be open
+          [menuTitle]: true, // Only this menu will be open
         };
         console.log('Opening menu (closing others), new state:', newState); // Debug log
         return newState;
@@ -181,22 +181,32 @@ export function Navbar({ scroll }: NavBarProps) {
                         </svg>
                       </button>
                       {openMenus[item.title] && (
-                                                <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto">
                           {/* Check if this is Text to Image menu */}
-                          {item.title.includes('Text to Image') || item.title.includes('文本转图像') ? (
+                          {item.title.includes('Text to Image') ||
+                          item.title.includes('文本转图像') ? (
                             <div className="p-6 flex flex-col gap-6">
                               {/* Row 1: Main Text to Image item */}
                               {item.items?.[0] && (
-                                                                                                <LocaleLink
+                                <LocaleLink
                                   href={item.items[0].href || '#'}
-                                  target={item.items[0].external ? '_blank' : undefined}
-                                  rel={item.items[0].external ? 'noopener noreferrer' : undefined}
+                                  target={
+                                    item.items[0].external
+                                      ? '_blank'
+                                      : undefined
+                                  }
+                                  rel={
+                                    item.items[0].external
+                                      ? 'noopener noreferrer'
+                                      : undefined
+                                  }
                                   onClick={() => closeAllMenus()}
-                                                                    className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                  className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
                                 >
                                   {/* Image */}
                                   <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                    {item.items[0].icon && typeof item.items[0].icon === 'string' ? (
+                                    {item.items[0].icon &&
+                                    typeof item.items[0].icon === 'string' ? (
                                       <Image
                                         src={item.items[0].icon}
                                         alt=""
@@ -228,96 +238,118 @@ export function Navbar({ scroll }: NavBarProps) {
                                 </LocaleLink>
                               )}
 
-                                                            {/* Row 2: Two columns layout for remaining items */}
+                              {/* Row 2: Two columns layout for remaining items */}
                               <div className="flex gap-6 w-full">
                                 {/* Left Column */}
                                 <div className="flex flex-col gap-6 w-[378px]">
-                                  {item.items?.slice(1, 3).map((subItem, subIndex) => {
-                                    return (
-                                      <LocaleLink
-                                        key={subIndex + 1}
-                                        href={subItem.href || '#'}
-                                        target={subItem.external ? '_blank' : undefined}
-                                        rel={subItem.external ? 'noopener noreferrer' : undefined}
-                                        onClick={() => closeAllMenus()}
-                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
-                                      >
-                                        {/* Image */}
-                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                          {subItem.icon ? (
-                                            typeof subItem.icon === 'string' ? (
-                                              <Image
-                                                src={subItem.icon}
-                                                alt=""
-                                                width={70}
-                                                height={70}
-                                                className="size-full object-cover"
-                                              />
-                                            ) : (
-                                              subItem.icon
-                                            )
-                                          ) : null}
-                                        </div>
-
-                                        {/* Text content */}
-                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                          <div className="font-bold leading-normal">
-                                            {subItem.title}
+                                  {item.items
+                                    ?.slice(1, 3)
+                                    .map((subItem, subIndex) => {
+                                      return (
+                                        <LocaleLink
+                                          key={subIndex + 1}
+                                          href={subItem.href || '#'}
+                                          target={
+                                            subItem.external
+                                              ? '_blank'
+                                              : undefined
+                                          }
+                                          rel={
+                                            subItem.external
+                                              ? 'noopener noreferrer'
+                                              : undefined
+                                          }
+                                          onClick={() => closeAllMenus()}
+                                          className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                        >
+                                          {/* Image */}
+                                          <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                            {subItem.icon ? (
+                                              typeof subItem.icon ===
+                                              'string' ? (
+                                                <Image
+                                                  src={subItem.icon}
+                                                  alt=""
+                                                  width={70}
+                                                  height={70}
+                                                  className="size-full object-cover"
+                                                />
+                                              ) : (
+                                                subItem.icon
+                                              )
+                                            ) : null}
                                           </div>
-                                          {subItem.description && (
-                                            <div className="font-normal leading-normal text-gray-600">
-                                              {subItem.description}
+
+                                          {/* Text content */}
+                                          <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                            <div className="font-bold leading-normal">
+                                              {subItem.title}
                                             </div>
-                                          )}
-                                        </div>
-                                      </LocaleLink>
-                                    );
-                                  })}
+                                            {subItem.description && (
+                                              <div className="font-normal leading-normal text-gray-600">
+                                                {subItem.description}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </LocaleLink>
+                                      );
+                                    })}
                                 </div>
 
                                 {/* Right Column */}
                                 <div className="flex flex-col gap-6 w-[378px]">
-                                  {item.items?.slice(3, 5).map((subItem, subIndex) => {
-                                    return (
-                                      <LocaleLink
-                                        key={subIndex + 3}
-                                        href={subItem.href || '#'}
-                                        target={subItem.external ? '_blank' : undefined}
-                                        rel={subItem.external ? 'noopener noreferrer' : undefined}
-                                        onClick={() => closeAllMenus()}
-                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
-                                      >
-                                        {/* Image */}
-                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                          {subItem.icon ? (
-                                            typeof subItem.icon === 'string' ? (
-                                              <Image
-                                                src={subItem.icon}
-                                                alt=""
-                                                width={70}
-                                                height={70}
-                                                className="size-full object-cover"
-                                              />
-                                            ) : (
-                                              subItem.icon
-                                            )
-                                          ) : null}
-                                        </div>
-
-                                        {/* Text content */}
-                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                          <div className="font-bold leading-normal">
-                                            {subItem.title}
+                                  {item.items
+                                    ?.slice(3, 5)
+                                    .map((subItem, subIndex) => {
+                                      return (
+                                        <LocaleLink
+                                          key={subIndex + 3}
+                                          href={subItem.href || '#'}
+                                          target={
+                                            subItem.external
+                                              ? '_blank'
+                                              : undefined
+                                          }
+                                          rel={
+                                            subItem.external
+                                              ? 'noopener noreferrer'
+                                              : undefined
+                                          }
+                                          onClick={() => closeAllMenus()}
+                                          className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
+                                        >
+                                          {/* Image */}
+                                          <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                            {subItem.icon ? (
+                                              typeof subItem.icon ===
+                                              'string' ? (
+                                                <Image
+                                                  src={subItem.icon}
+                                                  alt=""
+                                                  width={70}
+                                                  height={70}
+                                                  className="size-full object-cover"
+                                                />
+                                              ) : (
+                                                subItem.icon
+                                              )
+                                            ) : null}
                                           </div>
-                                          {subItem.description && (
-                                            <div className="font-normal leading-normal text-gray-600">
-                                              {subItem.description}
+
+                                          {/* Text content */}
+                                          <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                            <div className="font-bold leading-normal">
+                                              {subItem.title}
                                             </div>
-                                          )}
-                                        </div>
-                                      </LocaleLink>
-                                    );
-                                  })}
+                                            {subItem.description && (
+                                              <div className="font-normal leading-normal text-gray-600">
+                                                {subItem.description}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </LocaleLink>
+                                      );
+                                    })}
                                 </div>
                               </div>
                             </div>
@@ -329,7 +361,10 @@ export function Navbar({ scroll }: NavBarProps) {
                                   subItem.href &&
                                   localePathname.startsWith(subItem.href);
                                 return (
-                                  <li key={subIndex} className="min-h-[100px] flex">
+                                  <li
+                                    key={subIndex}
+                                    className="min-h-[100px] flex"
+                                  >
                                     <LocaleLink
                                       href={subItem.href || '#'}
                                       target={
@@ -359,7 +394,10 @@ export function Navbar({ scroll }: NavBarProps) {
                                           isSubItemActive &&
                                             'bg-transparent text-foreground',
                                           // 对于图片图标使用更合适的尺寸
-                                          subItem.icon && typeof subItem.icon === 'string' ? 'w-[60px] h-[60px]' : 'size-8'
+                                          subItem.icon &&
+                                            typeof subItem.icon === 'string'
+                                            ? 'w-[60px] h-[60px]'
+                                            : 'size-8'
                                         )}
                                       >
                                         {subItem.icon ? (
@@ -381,8 +419,16 @@ export function Navbar({ scroll }: NavBarProps) {
                                           className={cn(
                                             'text-sm font-medium',
                                             // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
-                                            item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
-                                            item.title.includes('Image to Image') || item.title.includes('图像转图像')
+                                            item.title.includes(
+                                              'Text to Image'
+                                            ) ||
+                                              item.title.includes(
+                                                '文本转图像'
+                                              ) ||
+                                              item.title.includes(
+                                                'Image to Image'
+                                              ) ||
+                                              item.title.includes('图像转图像')
                                               ? 'text-black'
                                               : 'text-muted-foreground',
                                             'group-hover:bg-transparent group-hover:text-foreground',

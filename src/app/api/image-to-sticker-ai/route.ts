@@ -14,6 +14,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import fs from 'fs/promises';
+import path from 'path';
 
 // Task status enum
 export enum TaskStatus {
@@ -160,37 +163,14 @@ interface ApiResponse {
   data?: any; // Allow flexible data structure for different response types
 }
 
-/**
- * Validate Bearer token and get user session
+/*
+ * Note: Bearer token validation is no longer used.
+ * This API now uses session-based authentication for consistency with other APIs.
+ *
+ * Previous Bearer token validation kept for reference:
+ * - Used special 'test-token' for development
+ * - Fell back to session-based auth in production
  */
-async function validateBearerToken(authorization: string | null) {
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authorization.substring(7);
-
-  // Special test token for development/testing
-  if (process.env.NODE_ENV === 'development' && token === 'test-token') {
-    console.log('🧪 [TEST MODE] Using test token authentication');
-    return {
-      id: 'test-user-123',
-      email: 'test@example.com',
-      name: 'Test User'
-    };
-  }
-
-  // In production, validate the actual bearer token
-  // For now, we'll use the session-based auth as fallback
-  try {
-    const { getSession } = await import('@/lib/server');
-    const session = await getSession();
-    return session?.user || null;
-  } catch (error) {
-    console.error('Failed to validate token:', error);
-    return null;
-  }
-}
 
 /**
  * Convert size ratio to pixel dimensions (optimized for lowest cost)
@@ -232,7 +212,7 @@ export async function downloadAndSaveImage(url: string, filename: string): Promi
       buffer,
       filename,
       'image/png',
-      'image-to-sticker-kie ai' // 使用指定的文件夹名
+      'roboneo/generated-stickers' // 生成的贴纸专用文件夹
     );
 
     console.log(`✅ Image saved to R2 cloud storage: ${uploadResult.url}`);
@@ -419,7 +399,8 @@ async function generateWithKieAI(
     fallbackModel: request.fallbackModel || 'FLUX_MAX'
   };
 
-  console.log('🚀 Calling KIE AI API with:', JSON.stringify(requestBody, null, 2));
+  // Production: remove debug logs
+  // console.log('🚀 Calling KIE AI API with:', JSON.stringify(requestBody, null, 2));
 
   // Step 1: Create task
   const response = await fetch(kieApiUrl, {
@@ -438,7 +419,6 @@ async function generateWithKieAI(
   }
 
   const data = await response.json();
-  console.log('✅ KIE AI API response:', data);
 
   if (data.code !== 200) {
     throw new Error(`KIE AI API error: ${data.msg}`);
@@ -449,15 +429,14 @@ async function generateWithKieAI(
     throw new Error('No taskId returned from KIE AI API');
   }
 
-  console.log(`✅ KIE AI task created: ${kieTaskId}`);
-  console.log(`🚀 Using callback mode - no polling needed! Will receive notification at callback URL.`);
-
   // Store the KIE AI task ID for callback matching
   const localTask = taskStorage.get(localTaskId);
   if (localTask) {
     localTask.kieTaskId = kieTaskId;
     taskStorage.set(localTaskId, localTask);
-    console.log(`💾 Stored KIE AI task ID ${kieTaskId} for local task ${localTaskId}`);
+
+    // Save task to backup file
+    saveTaskBackup(localTaskId, localTask).catch(console.warn);
   }
 
   // Return the KIE AI task ID (no polling, just 1 API call!)
@@ -585,10 +564,13 @@ async function processTask(taskId: string): Promise<void> {
       }
     }
 
-    taskStorage.set(taskId, task);
+      taskStorage.set(taskId, task);
 
-    // Send callback notification if provided
-    if (task.callbackUrl) {
+  // 【新增】备份任务到文件
+  saveTaskBackup(taskId, task).catch(console.warn);
+
+  // Send callback notification if provided
+  if (task.callbackUrl) {
       try {
         await fetch(task.callbackUrl, {
           method: 'POST',
@@ -620,16 +602,18 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
   try {
     console.log('🚀 Starting AI image-to-sticker generation...');
 
-    // 1. Validate authentication
-    const authorization = req.headers.get('Authorization');
-    const user = await validateBearerToken(authorization);
+    // 1. Check user authentication using session (consistent with improved API)
+    const { getSession } = await import('@/lib/server');
+    const session = await getSession();
 
-    if (!user) {
+    if (!session?.user) {
       return NextResponse.json({
         code: RESPONSE_CODES.UNAUTHORIZED,
-        msg: 'Authentication credentials are missing or invalid'
+        msg: 'Authentication required'
       }, { status: 401 });
     }
+
+    const user = session.user;
 
     // 2. Parse and validate request body
     let requestBody: ImageToStickerRequest;
@@ -680,7 +664,24 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 422 });
     }
 
-    // 4. Check KIE AI API key
+    // 4. Check user credits before processing
+    const { canGenerateStickerAction } = await import('@/actions/credits-actions');
+    const creditsCheck = await canGenerateStickerAction({
+      requiredCredits: CREDITS_PER_IMAGE,
+    });
+
+    if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
+      return NextResponse.json({
+        code: RESPONSE_CODES.INSUFFICIENT_CREDITS,
+        msg: 'Insufficient credits',
+        required: CREDITS_PER_IMAGE,
+        current: creditsCheck?.data?.data?.currentCredits || 0,
+      }, { status: 402 });
+    }
+
+    console.log(`💳 User ${user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with generation...`);
+
+    // 5. Check KIE AI API key
     const kieApiKey = process.env.KIE_AI_API_KEY;
     if (!kieApiKey) {
       return NextResponse.json({
@@ -689,7 +690,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 500 });
     }
 
-    // 5. Check for duplicate requests
+    // 6. Check for duplicate requests
     const requestHash = generateRequestHash(
       user.id,
       requestBody.filesUrl,
@@ -713,7 +714,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       });
     }
 
-    // 6. Apply cost optimization settings for test mode
+    // 7. Apply cost optimization settings for test mode
     console.log(`🧪 [TEST MODE] Applying cost optimization settings for user ${user.id}`);
 
     // Apply style-specific prompt if style is provided
@@ -769,18 +770,29 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
 
     taskStorage.set(taskId, task);
     requestCache.set(requestHash, taskId); // Cache for deduplication
-    console.log(`📝 Created task ${taskId} for user ${user.id}`);
 
-    // 7. Start async processing
+    // Save task to backup file
+    saveTaskBackup(taskId, task).catch(console.warn);
+
+    // 8. Deduct credits after task creation (pre-deduction to prevent abuse)
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deductResult = await deductCreditsAction({
+      userId: user.id,
+      amount: CREDITS_PER_IMAGE,
+    });
+
+    if (deductResult?.data?.success) {
+      console.log(`💰 Deducted ${CREDITS_PER_IMAGE} credits from user ${user.id}. Remaining: ${deductResult.data.data?.remainingCredits}`);
+    } else {
+      console.warn(`⚠️ Failed to deduct credits from user ${user.id}, but task was created successfully`);
+    }
+
+    // 9. Start async processing
     processTask(taskId).catch(error => {
       console.error(`Failed to process task ${taskId}:`, error);
     });
 
-    // 8. Skip credit deduction for testing phase
-    // TODO: Implement KIE AI cost tracking and billing integration
-    console.log(`🧪 [TEST MODE] Skipping credit deduction for task ${taskId}`);
-
-    // 9. Return success response
+    // 10. Return success response
     return NextResponse.json({
       code: RESPONSE_CODES.SUCCESS,
       msg: 'success',
@@ -828,7 +840,18 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }, { status: 422 });
   }
 
-  const task = taskStorage.get(taskId);
+  let task = taskStorage.get(taskId);
+
+  // If task not found in memory, try to restore from backup
+  if (!task) {
+    try {
+      await loadTaskBackup();
+      task = taskStorage.get(taskId);
+    } catch (error) {
+      console.warn('Failed to load task backup:', error);
+    }
+  }
+
   if (!task) {
     return NextResponse.json({
       code: RESPONSE_CODES.NOT_FOUND,
@@ -836,18 +859,99 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }, { status: 404 });
   }
 
+  // Return minimal data for frontend - hide sensitive info
+  const responseData: any = {
+    status: task.status,
+    resultUrls: task.resultUrls,
+    error: task.error
+  };
+
+  // Only include createdAt for timing purposes (no sensitive info)
+  if (task.createdAt) {
+    responseData.createdAt = task.createdAt;
+  }
+
   return NextResponse.json({
     code: RESPONSE_CODES.SUCCESS,
     msg: 'success',
-    data: {
-      taskId: task.taskId,
-      status: task.status,
-      kieTaskId: task.kieTaskId,  // Include KIE AI task ID
-      resultUrls: task.resultUrls,
-      error: task.error,
-      createdAt: task.createdAt,
-      completedAt: task.completedAt,
-      style: task.style  // Include style information
-    }
+    data: responseData
   });
 }
+
+// Task persistence helpers
+const TASKS_BACKUP_FILE = path.join(process.cwd(), '.tasks-backup.json');
+
+/**
+ * 保存任务到文件备份
+ */
+async function saveTaskBackup(taskId: string, task: TaskData): Promise<void> {
+  try {
+    let backupData: Record<string, any> = {};
+
+    // 尝试读取现有备份
+    try {
+      const existing = await fs.readFile(TASKS_BACKUP_FILE, 'utf-8');
+      backupData = JSON.parse(existing);
+    } catch (error) {
+      // 文件不存在或损坏，使用空对象
+    }
+
+    // 更新任务数据
+    backupData[taskId] = {
+      ...task,
+      createdAt: task.createdAt?.toISOString(),
+      completedAt: task.completedAt?.toISOString(),
+    };
+
+    // 清理过期任务 (超过24小时)
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    Object.keys(backupData).forEach(key => {
+      const taskCreatedAt = backupData[key].createdAt;
+      if (taskCreatedAt && new Date(taskCreatedAt) < oneDayAgo) {
+        delete backupData[key];
+      }
+    });
+
+    // 保存到文件
+    await fs.writeFile(TASKS_BACKUP_FILE, JSON.stringify(backupData, null, 2));
+
+  } catch (error) {
+    console.warn('⚠️ Failed to save task backup:', error);
+  }
+}
+
+/**
+ * 从文件备份恢复任务
+ */
+async function loadTaskBackup(): Promise<void> {
+  try {
+    const data = await fs.readFile(TASKS_BACKUP_FILE, 'utf-8');
+    const backupData = JSON.parse(data);
+
+    let restoredCount = 0;
+    Object.entries(backupData).forEach(([taskId, taskData]: [string, any]) => {
+      if (!taskStorage.has(taskId)) {
+        // 恢复日期对象
+        const task: TaskData = {
+          ...taskData,
+          createdAt: taskData.createdAt ? new Date(taskData.createdAt) : undefined,
+          completedAt: taskData.completedAt ? new Date(taskData.completedAt) : undefined,
+        };
+        taskStorage.set(taskId, task);
+        restoredCount++;
+      }
+    });
+
+    if (restoredCount > 0) {
+      console.log(`🔄 Restored ${restoredCount} tasks from backup`);
+    }
+
+  } catch (error) {
+    console.log('📝 No task backup found or failed to load (this is normal on first run)');
+  }
+}
+
+// Initialize task backup on startup
+loadTaskBackup().catch(console.warn);

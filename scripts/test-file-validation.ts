@@ -6,7 +6,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import { validateImageFile, OPENAI_IMAGE_CONFIG, getFileSizeDisplay } from '../src/lib/image-validation';
+import {
+  OPENAI_IMAGE_CONFIG,
+  getFileSizeDisplay,
+  validateImageFile,
+} from '../src/lib/image-validation';
 
 // 模拟 File 对象 (Node.js 环境)
 class MockFile {
@@ -35,87 +39,95 @@ interface TestCase {
 const testCases: TestCase[] = [
   // ✅ 正常测试用例
   {
-    name: "正常 JPEG 文件 (2MB)",
-    file: new MockFile("test.jpg", 2 * 1024 * 1024, "image/jpeg"),
-    expectedValid: true
+    name: '正常 JPEG 文件 (2MB)',
+    file: new MockFile('test.jpg', 2 * 1024 * 1024, 'image/jpeg'),
+    expectedValid: true,
   },
   {
-    name: "正常 PNG 文件 (1MB)",
-    file: new MockFile("test.png", 1 * 1024 * 1024, "image/png"),
-    expectedValid: true
+    name: '正常 PNG 文件 (1MB)',
+    file: new MockFile('test.png', 1 * 1024 * 1024, 'image/png'),
+    expectedValid: true,
   },
   {
-    name: "正常 WebP 文件 (3MB)",
-    file: new MockFile("test.webp", 3 * 1024 * 1024, "image/webp"),
-    expectedValid: true
+    name: '正常 WebP 文件 (3MB)',
+    file: new MockFile('test.webp', 3 * 1024 * 1024, 'image/webp'),
+    expectedValid: true,
   },
   {
-    name: "边界值测试 - 刚好4MB",
-    file: new MockFile("boundary.jpg", 4 * 1024 * 1024, "image/jpeg"),
-    expectedValid: true
+    name: '边界值测试 - 刚好4MB',
+    file: new MockFile('boundary.jpg', 4 * 1024 * 1024, 'image/jpeg'),
+    expectedValid: true,
   },
 
   // ❌ 文件大小错误测试用例
   {
-    name: "文件过大 (5MB)",
-    file: new MockFile("large.jpg", 5 * 1024 * 1024, "image/jpeg"),
+    name: '文件过大 (5MB)',
+    file: new MockFile('large.jpg', 5 * 1024 * 1024, 'image/jpeg'),
     expectedValid: false,
-    expectedError: "File size exceeds the 4MB limit"
+    expectedError: 'File size exceeds the 4MB limit',
   },
   {
-    name: "文件过大 (10MB)",
-    file: new MockFile("huge.png", 10 * 1024 * 1024, "image/png"),
+    name: '文件过大 (10MB)',
+    file: new MockFile('huge.png', 10 * 1024 * 1024, 'image/png'),
     expectedValid: false,
-    expectedError: "File size exceeds the 4MB limit"
+    expectedError: 'File size exceeds the 4MB limit',
   },
   {
-    name: "文件过小 (500 bytes)",
-    file: new MockFile("tiny.jpg", 500, "image/jpeg"),
+    name: '文件过小 (500 bytes)',
+    file: new MockFile('tiny.jpg', 500, 'image/jpeg'),
     expectedValid: false,
-    expectedError: "File is too small"
+    expectedError: 'File is too small',
   },
 
   // ❌ 文件格式错误测试用例
   {
-    name: "不支持的格式 - GIF",
-    file: new MockFile("animated.gif", 1 * 1024 * 1024, "image/gif"),
+    name: '不支持的格式 - GIF',
+    file: new MockFile('animated.gif', 1 * 1024 * 1024, 'image/gif'),
     expectedValid: false,
-    expectedError: "File type not supported"
+    expectedError: 'File type not supported',
   },
   {
-    name: "不支持的格式 - BMP",
-    file: new MockFile("bitmap.bmp", 1 * 1024 * 1024, "image/bmp"),
+    name: '不支持的格式 - BMP',
+    file: new MockFile('bitmap.bmp', 1 * 1024 * 1024, 'image/bmp'),
     expectedValid: false,
-    expectedError: "File type not supported"
+    expectedError: 'File type not supported',
   },
   {
-    name: "不支持的格式 - SVG",
-    file: new MockFile("vector.svg", 1 * 1024 * 1024, "image/svg+xml"),
+    name: '不支持的格式 - SVG',
+    file: new MockFile('vector.svg', 1 * 1024 * 1024, 'image/svg+xml'),
     expectedValid: false,
-    expectedError: "File type not supported"
+    expectedError: 'File type not supported',
   },
   {
-    name: "非图片文件 - PDF",
-    file: new MockFile("document.pdf", 1 * 1024 * 1024, "application/pdf"),
+    name: '非图片文件 - PDF',
+    file: new MockFile('document.pdf', 1 * 1024 * 1024, 'application/pdf'),
     expectedValid: false,
-    expectedError: "File type not supported"
+    expectedError: 'File type not supported',
   },
   {
-    name: "非图片文件 - 文本",
-    file: new MockFile("text.txt", 1 * 1024 * 1024, "text/plain"),
+    name: '非图片文件 - 文本',
+    file: new MockFile('text.txt', 1 * 1024 * 1024, 'text/plain'),
     expectedValid: false,
-    expectedError: "File type not supported"
-  }
+    expectedError: 'File type not supported',
+  },
 ];
 
 // 运行测试
 async function runTests() {
   console.log('🧪 开始文件验证测试...\n');
   console.log('📋 OpenAI API 配置:');
-  console.log(`   最大文件大小: ${getFileSizeDisplay(OPENAI_IMAGE_CONFIG.maxFileSize)}`);
-  console.log(`   支持格式: ${OPENAI_IMAGE_CONFIG.allowedFileTypes.join(', ')}`);
-  console.log(`   最大尺寸: ${OPENAI_IMAGE_CONFIG.maxDimensions.width}x${OPENAI_IMAGE_CONFIG.maxDimensions.height}px`);
-  console.log(`   最小尺寸: ${OPENAI_IMAGE_CONFIG.minDimensions.width}x${OPENAI_IMAGE_CONFIG.minDimensions.height}px\n`);
+  console.log(
+    `   最大文件大小: ${getFileSizeDisplay(OPENAI_IMAGE_CONFIG.maxFileSize)}`
+  );
+  console.log(
+    `   支持格式: ${OPENAI_IMAGE_CONFIG.allowedFileTypes.join(', ')}`
+  );
+  console.log(
+    `   最大尺寸: ${OPENAI_IMAGE_CONFIG.maxDimensions.width}x${OPENAI_IMAGE_CONFIG.maxDimensions.height}px`
+  );
+  console.log(
+    `   最小尺寸: ${OPENAI_IMAGE_CONFIG.minDimensions.width}x${OPENAI_IMAGE_CONFIG.minDimensions.height}px\n`
+  );
 
   let passedTests = 0;
   let failedTests = 0;
@@ -128,7 +140,10 @@ async function runTests() {
       if (result.isValid === testCase.expectedValid) {
         if (!testCase.expectedValid && testCase.expectedError) {
           // 检查错误信息是否包含预期的关键词
-          if (result.error && result.error.includes(testCase.expectedError.split(' ')[0])) {
+          if (
+            result.error &&
+            result.error.includes(testCase.expectedError.split(' ')[0])
+          ) {
             console.log(`✅ ${testCase.name}`);
             console.log(`   预期: 失败 (${testCase.expectedError})`);
             console.log(`   实际: 失败 (${result.error})`);
@@ -165,7 +180,9 @@ async function runTests() {
   console.log(`   总测试数: ${testCases.length}`);
   console.log(`   通过: ${passedTests} ✅`);
   console.log(`   失败: ${failedTests} ❌`);
-  console.log(`   成功率: ${((passedTests / testCases.length) * 100).toFixed(1)}%`);
+  console.log(
+    `   成功率: ${((passedTests / testCases.length) * 100).toFixed(1)}%`
+  );
 
   if (failedTests === 0) {
     console.log('\n🎉 所有测试通过！文件验证功能正常工作。');
@@ -208,13 +225,18 @@ async function createTestImages() {
     }
 
     // 检查是否有现有的测试图片
-    const existingImages = fs.readdirSync(testDir).filter(file =>
-      file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.webp')
-    );
+    const existingImages = fs
+      .readdirSync(testDir)
+      .filter(
+        (file) =>
+          file.endsWith('.png') ||
+          file.endsWith('.jpg') ||
+          file.endsWith('.webp')
+      );
 
     if (existingImages.length > 0) {
       console.log(`✅ 找到 ${existingImages.length} 个测试图片:`);
-      existingImages.forEach(file => {
+      existingImages.forEach((file) => {
         const filePath = path.join(testDir, file);
         const stats = fs.statSync(filePath);
         console.log(`   ${file} (${getFileSizeDisplay(stats.size)})`);

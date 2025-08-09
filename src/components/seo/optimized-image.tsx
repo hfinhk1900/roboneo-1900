@@ -1,8 +1,8 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface OptimizedImageProps {
   src: string;
@@ -35,9 +35,7 @@ export function OptimizedImage({
   const [hasError, setHasError] = useState(false);
 
   // SEO优化的alt文本
-  const seoAlt = alt.includes('roboneo') 
-    ? alt 
-    : `${alt} - Roboneo AI`;
+  const seoAlt = alt.includes('roboneo') ? alt : `${alt} - Roboneo AI`;
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -80,7 +78,7 @@ export function OptimizedImage({
   return (
     <div className={cn('relative', className)} style={style}>
       {isLoading && (
-        <div 
+        <div
           className="absolute inset-0 bg-muted animate-pulse"
           style={{ width, height }}
         />
@@ -121,7 +119,7 @@ export function ResponsiveImage({
   priority?: boolean;
 }) {
   return (
-    <div 
+    <div
       className={cn('relative w-full overflow-hidden', className)}
       style={{ aspectRatio }}
     >

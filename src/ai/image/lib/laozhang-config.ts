@@ -25,10 +25,12 @@ export const LAOZHANG_CONFIG = {
 
 // 贴纸样式提示配置
 export const STYLE_PROMPTS: StylePromptConfig = {
-  ios: 'Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people\'s body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.',
-  pixel: 'Transform into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
+  ios: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+  pixel:
+    'Transform into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
   lego: 'Convert to LEGO minifigure style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background',
-  snoopy: 'Transform into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background'
+  snoopy:
+    'Transform into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background',
 } as const;
 
 // 开发环境下的简化版本（节省成本）
@@ -36,7 +38,7 @@ export const DEV_STYLE_PROMPTS: StylePromptConfig = {
   ios: 'iOS sticker style',
   pixel: '8-bit pixel art style',
   lego: 'LEGO style',
-  snoopy: 'Snoopy cartoon style'
+  snoopy: 'Snoopy cartoon style',
 } as const;
 
 // 获取样式提示的函数
@@ -65,18 +67,23 @@ export function calculateEstimatedCost(tokens: number): number {
 }
 
 // 验证文件类型和大小
-export function validateImageFile(file: File): { isValid: boolean; error?: string } {
-  if (!(LAOZHANG_CONFIG.allowedFileTypes as readonly string[]).includes(file.type)) {
+export function validateImageFile(file: File): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (
+    !(LAOZHANG_CONFIG.allowedFileTypes as readonly string[]).includes(file.type)
+  ) {
     return {
       isValid: false,
-      error: `File type not supported. Please use ${LAOZHANG_CONFIG.allowedFileTypes.join(', ')}.`
+      error: `File type not supported. Please use ${LAOZHANG_CONFIG.allowedFileTypes.join(', ')}.`,
     };
   }
 
   if (file.size > LAOZHANG_CONFIG.maxFileSize) {
     return {
       isValid: false,
-      error: `File size exceeds the ${LAOZHANG_CONFIG.maxFileSize / 1024 / 1024}MB limit.`
+      error: `File size exceeds the ${LAOZHANG_CONFIG.maxFileSize / 1024 / 1024}MB limit.`,
     };
   }
 

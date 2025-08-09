@@ -1,10 +1,10 @@
 import { randomUUID } from 'crypto';
+import { allocateCreditsToUser } from '@/actions/allocate-credits-action';
 import { websiteConfig } from '@/config/website';
 import { getDb } from '@/db';
 import { payment, session, user } from '@/db/schema';
 import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { sendNotification } from '@/notification/notification';
-import { allocateCreditsToUser } from '@/actions/allocate-credits-action';
 import { desc, eq } from 'drizzle-orm';
 import { Stripe } from 'stripe';
 import {
@@ -708,7 +708,11 @@ export class StripeProvider implements PaymentProvider {
 
       // Allocate credits to the user based on their subscription
       try {
-        const creditsResult = await allocateCreditsToUser(userId, undefined, priceId);
+        const creditsResult = await allocateCreditsToUser(
+          userId,
+          undefined,
+          priceId
+        );
         if (creditsResult.success) {
           console.log(
             `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for subscription ${stripeSubscription.id}`
@@ -719,7 +723,10 @@ export class StripeProvider implements PaymentProvider {
           );
         }
       } catch (error) {
-        console.error('Error allocating credits after subscription creation:', error);
+        console.error(
+          'Error allocating credits after subscription creation:',
+          error
+        );
       }
     } else {
       console.warn(
@@ -909,7 +916,11 @@ export class StripeProvider implements PaymentProvider {
 
     // Allocate credits to the user based on their one-time purchase
     try {
-      const creditsResult = await allocateCreditsToUser(userId, undefined, priceId);
+      const creditsResult = await allocateCreditsToUser(
+        userId,
+        undefined,
+        priceId
+      );
       if (creditsResult.success) {
         console.log(
           `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for one-time payment ${session.id}`

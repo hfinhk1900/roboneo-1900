@@ -115,7 +115,9 @@ export function findPlanByPriceId(priceId: string): PricePlan | undefined {
   for (const plan of plans) {
     const price = plan.prices.find((p) => p.priceId === priceId);
     if (price) {
-      console.log(`findPlanByPriceId: Found plan ${plan.id} for price ${priceId}`);
+      console.log(
+        `findPlanByPriceId: Found plan ${plan.id} for price ${priceId}`
+      );
       return plan;
     }
   }

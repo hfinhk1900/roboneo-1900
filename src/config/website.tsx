@@ -137,7 +137,6 @@ export const websiteConfig: WebsiteConfig = {
         isLifetime: false,
         recommended: true,
       },
-
     },
   },
 };

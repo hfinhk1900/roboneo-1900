@@ -3,7 +3,7 @@ import { getBaseUrl } from '../lib/urls/urls';
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseUrl();
-  
+
   return {
     rules: [
       {
@@ -16,7 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard/*',
           '/admin/*',
           '/*.json$',
-          '/*?*',  // Block URLs with query parameters
+          '/*?*', // Block URLs with query parameters
           '/auth/*',
         ],
       },

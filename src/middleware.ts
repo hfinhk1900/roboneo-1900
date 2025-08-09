@@ -46,7 +46,10 @@ export default async function middleware(req: NextRequest) {
     session = sessionData;
     isLoggedIn = !!session;
   } catch (error) {
-    console.log('Auth check failed, proceeding without auth:', error instanceof Error ? error.message : String(error));
+    console.log(
+      'Auth check failed, proceeding without auth:',
+      error instanceof Error ? error.message : String(error)
+    );
     // 继续执行，不阻塞请求
     session = null;
     isLoggedIn = false;

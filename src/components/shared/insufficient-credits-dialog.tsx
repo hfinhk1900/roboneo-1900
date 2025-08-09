@@ -1,7 +1,5 @@
 'use client';
 
-import { CreditCardIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,7 +8,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { CreditCardIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface InsufficientCreditsDialogProps {
   open: boolean;
@@ -53,7 +53,8 @@ export function InsufficientCreditsDialog({
             </div>
           </div>
           <AlertDialogDescription className="text-left">
-            You need {required} credits to generate this image, but your balance is {current}.
+            You need {required} credits to generate this image, but your balance
+            is {current}.
             <br />
             Top up now to keep creating!
           </AlertDialogDescription>

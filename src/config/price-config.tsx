@@ -27,10 +27,7 @@ export function getPricePlans(): Record<string, PricePlan> {
       ...priceConfig.plans.free,
       name: t('free.name'),
       description: t('free.description'),
-      features: [
-        t('free.features.feature-1'),
-        t('free.features.feature-2'),
-      ],
+      features: [t('free.features.feature-1'), t('free.features.feature-2')],
       limits: [],
     };
   }
@@ -66,8 +63,6 @@ export function getPricePlans(): Record<string, PricePlan> {
       limits: [],
     };
   }
-
-
 
   return plans;
 }

@@ -96,7 +96,7 @@ export const deductCreditsAction = actionClient
         return {
           success: false,
           error: 'Insufficient credits',
-          data: { currentCredits, required: amount }
+          data: { currentCredits, required: amount },
         };
       }
 
@@ -105,7 +105,7 @@ export const deductCreditsAction = actionClient
         .update(user)
         .set({
           credits: sql`${user.credits} - ${amount}`,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(user.id, userId))
         .returning({ credits: user.credits });
@@ -114,14 +114,15 @@ export const deductCreditsAction = actionClient
         success: true,
         data: {
           creditsDeducted: amount,
-          remainingCredits: result[0].credits
+          remainingCredits: result[0].credits,
         },
       };
     } catch (error) {
       console.error('Deduct credits error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to deduct credits',
+        error:
+          error instanceof Error ? error.message : 'Failed to deduct credits',
       };
     }
   });
@@ -143,7 +144,7 @@ export const addCreditsAction = actionClient
         .update(user)
         .set({
           credits: sql`${user.credits} + ${amount}`,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(user.id, userId))
         .returning({ credits: user.credits });
@@ -156,7 +157,7 @@ export const addCreditsAction = actionClient
         success: true,
         data: {
           creditsAdded: amount,
-          totalCredits: result[0].credits
+          totalCredits: result[0].credits,
         },
       };
     } catch (error) {
@@ -185,7 +186,7 @@ export const setCreditsAction = actionClient
         .update(user)
         .set({
           credits,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(user.id, userId))
         .returning({ credits: user.credits });
@@ -239,14 +240,17 @@ export const canGenerateStickerAction = actionClient
           canGenerate,
           currentCredits,
           requiredCredits,
-          remainingAfter: canGenerate ? currentCredits - requiredCredits : currentCredits
+          remainingAfter: canGenerate
+            ? currentCredits - requiredCredits
+            : currentCredits,
         },
       };
     } catch (error) {
       console.error('Can generate sticker error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to check credits',
+        error:
+          error instanceof Error ? error.message : 'Failed to check credits',
       };
     }
   });

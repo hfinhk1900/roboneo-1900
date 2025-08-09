@@ -3,11 +3,15 @@
  * 运行命令: npx tsx scripts/test-openai-gpt-image.ts
  */
 
-import type { GenerateImageRequest, GenerateImageResponse } from '../src/ai/image/lib/api-types';
+import type {
+  GenerateImageRequest,
+  GenerateImageResponse,
+} from '../src/ai/image/lib/api-types';
 
-const API_BASE = process.env.NODE_ENV === 'production'
-  ? 'https://your-domain.com'
-  : 'http://localhost:3000';
+const API_BASE =
+  process.env.NODE_ENV === 'production'
+    ? 'https://your-domain.com'
+    : 'http://localhost:3000';
 
 async function testGptImage1() {
   console.log('🧪 测试 OpenAI gpt-image-1 API (贴纸生成模式)...\n');
@@ -20,7 +24,8 @@ async function testGptImage1() {
     {
       name: 'iOS 贴纸风格测试',
       request: {
-        prompt: 'Learn the Apple iOS emoji style and create a 3D sticker avatar cat that matches that style. Recreate the cat\'s body shape, facial features, and expressions in the iOS emoji style. Remove background and include only the full figure, ensuring the final image looks like an official iOS emoji sticker.', // iOS风格贴纸
+        prompt:
+          "Learn the Apple iOS emoji style and create a 3D sticker avatar cat that matches that style. Recreate the cat's body shape, facial features, and expressions in the iOS emoji style. Remove background and include only the full figure, ensuring the final image looks like an official iOS emoji sticker.", // iOS风格贴纸
         provider: 'openai',
         modelId: 'gpt-image-1',
         quality: 'low', // 最低质量节省费用
@@ -28,12 +33,13 @@ async function testGptImage1() {
         background: 'transparent', // 贴纸需要透明背景
         size: '1024x1024', // 正方形贴纸
         outputCompression: 50, // 高压缩
-      }
+      },
     },
     {
       name: '像素艺术贴纸测试',
       request: {
-        prompt: 'Transform into pixel art style sticker: 8-bit retro dog, blocky pixels, limited color palette, bold white outline, transparent background', // 像素风格贴纸
+        prompt:
+          'Transform into pixel art style sticker: 8-bit retro dog, blocky pixels, limited color palette, bold white outline, transparent background', // 像素风格贴纸
         provider: 'openai',
         modelId: 'gpt-image-1',
         quality: 'low',
@@ -41,8 +47,8 @@ async function testGptImage1() {
         background: 'transparent',
         size: '1024x1024',
         outputCompression: 30,
-      }
-    }
+      },
+    },
   ];
 
   for (const testCase of testCases) {
@@ -60,7 +66,7 @@ async function testGptImage1() {
         body: JSON.stringify(testCase.request),
       });
 
-      const result = await response.json() as GenerateImageResponse;
+      const result = (await response.json()) as GenerateImageResponse;
       const elapsed = Date.now() - startTime;
 
       if (response.ok && result.image) {
@@ -71,7 +77,7 @@ async function testGptImage1() {
           height: result.height,
           format: result.format,
           hasTransparentBg: testCase.request.background === 'transparent',
-          imageSize: `${Math.round((result.image.length * 3/4) / 1024)}KB (base64)`
+          imageSize: `${Math.round((result.image.length * 3) / 4 / 1024)}KB (base64)`,
         });
 
         // 可选：保存图片到文件（仅在设置环境变量时）
@@ -90,12 +96,15 @@ async function testGptImage1() {
         console.log(`❌ 失败:`, result.error || '未知错误');
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
     }
 
     // 等待2秒避免频率限制，节省费用
     console.log(`⏳ 等待2秒以避免频率限制...`);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   console.log('\n🎉 贴纸生成测试完成!');

@@ -2,21 +2,21 @@
 
 import { HeaderSection } from '@/components/layout/header-section';
 import { cn } from '@/lib/utils';
-import { 
-  Zap, 
-  Shield, 
-  Globe, 
-  Sparkles, 
-  Gauge, 
-  Palette,
-  Download,
-  RefreshCw,
-  Lock,
-  Users,
-  Brain,
-  CheckCircle
-} from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  Brain,
+  CheckCircle,
+  Download,
+  Gauge,
+  Globe,
+  Lock,
+  Palette,
+  RefreshCw,
+  Shield,
+  Sparkles,
+  Users,
+  Zap,
+} from 'lucide-react';
 
 interface Feature {
   icon: React.ReactNode;
@@ -29,50 +29,59 @@ const features: Feature[] = [
   {
     icon: <Zap className="h-6 w-6" />,
     title: 'Lightning Fast Generation',
-    description: 'Get your images in seconds, not minutes. Our optimized AI models deliver results instantly.',
-    highlight: true
+    description:
+      'Get your images in seconds, not minutes. Our optimized AI models deliver results instantly.',
+    highlight: true,
   },
   {
     icon: <Brain className="h-6 w-6" />,
     title: 'Advanced AI Models',
-    description: 'Powered by state-of-the-art AI including Stable Diffusion, DALL-E, and custom models.',
+    description:
+      'Powered by state-of-the-art AI including Stable Diffusion, DALL-E, and custom models.',
   },
   {
     icon: <Palette className="h-6 w-6" />,
     title: '100+ Art Styles',
-    description: 'From photorealistic to abstract, anime to oil painting - explore endless creative possibilities.',
+    description:
+      'From photorealistic to abstract, anime to oil painting - explore endless creative possibilities.',
   },
   {
     icon: <Shield className="h-6 w-6" />,
     title: 'Safe & Ethical',
-    description: 'Built-in content filtering ensures safe, appropriate results for all users.',
+    description:
+      'Built-in content filtering ensures safe, appropriate results for all users.',
   },
   {
     icon: <Download className="h-6 w-6" />,
     title: 'High Resolution Downloads',
-    description: 'Export your creations in HD quality, perfect for printing or professional use.',
+    description:
+      'Export your creations in HD quality, perfect for printing or professional use.',
   },
   {
     icon: <RefreshCw className="h-6 w-6" />,
     title: 'Unlimited Variations',
-    description: 'Generate multiple versions from the same prompt to find your perfect image.',
+    description:
+      'Generate multiple versions from the same prompt to find your perfect image.',
   },
   {
     icon: <Globe className="h-6 w-6" />,
     title: 'Multi-Language Support',
-    description: 'Create images using prompts in multiple languages for global accessibility.',
+    description:
+      'Create images using prompts in multiple languages for global accessibility.',
   },
   {
     icon: <Users className="h-6 w-6" />,
     title: 'Commercial License',
-    description: 'Use generated images for commercial projects without licensing worries.',
-    highlight: true
+    description:
+      'Use generated images for commercial projects without licensing worries.',
+    highlight: true,
   },
   {
     icon: <Lock className="h-6 w-6" />,
     title: 'Privacy First',
-    description: 'Your prompts and images are private. We never share or use your data.',
-  }
+    description:
+      'Your prompts and images are private. We never share or use your data.',
+  },
 ];
 
 export default function TextToImageFeaturesSection() {
@@ -99,19 +108,21 @@ export default function TextToImageFeaturesSection() {
               transition={{ duration: 0.5, delay: index * 0.05 }}
               viewport={{ once: true }}
               className={cn(
-                "group relative rounded-2xl p-6 transition-all duration-300",
-                feature.highlight 
-                  ? "bg-gradient-to-br from-primary/10 to-purple-500/10 border-2 border-primary/20" 
-                  : "bg-white border border-border hover:shadow-lg"
+                'group relative rounded-2xl p-6 transition-all duration-300',
+                feature.highlight
+                  ? 'bg-gradient-to-br from-primary/10 to-purple-500/10 border-2 border-primary/20'
+                  : 'bg-white border border-border hover:shadow-lg'
               )}
             >
               {/* Icon */}
-              <div className={cn(
-                "mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl",
-                feature.highlight
-                  ? "bg-gradient-to-r from-primary to-purple-500 text-white"
-                  : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors"
-              )}>
+              <div
+                className={cn(
+                  'mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl',
+                  feature.highlight
+                    ? 'bg-gradient-to-r from-primary to-purple-500 text-white'
+                    : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors'
+                )}
+              >
                 {feature.icon}
               </div>
 
@@ -119,9 +130,7 @@ export default function TextToImageFeaturesSection() {
               <h3 className="mb-2 text-lg font-semibold text-foreground">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground">
-                {feature.description}
-              </p>
+              <p className="text-muted-foreground">{feature.description}</p>
 
               {/* Highlight badge */}
               {feature.highlight && (
@@ -150,7 +159,7 @@ export default function TextToImageFeaturesSection() {
                 Start Creating Without Limits
               </h3>
               <p className="mb-6 text-white/90 lg:text-lg">
-                Join millions of creators using AI to bring their ideas to life. 
+                Join millions of creators using AI to bring their ideas to life.
                 No design skills required - just describe what you want to see.
               </p>
               <ul className="space-y-3">
@@ -158,7 +167,7 @@ export default function TextToImageFeaturesSection() {
                   'Free credits to start',
                   'No credit card required',
                   'Instant access to all tools',
-                  'Community support'
+                  'Community support',
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-white" />

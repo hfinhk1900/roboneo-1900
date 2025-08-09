@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
 import path from 'path';
+import fs from 'fs/promises';
 
 // --- 配置 ---
 const API_URL = 'http://localhost:3000/api/image-to-sticker-improved';
@@ -23,7 +23,9 @@ async function runTest(style: string) {
 
     // 读取图片文件
     const imageBuffer = await fs.readFile(TEST_IMAGE_PATH);
-    const imageFile = new File([imageBuffer], path.basename(TEST_IMAGE_PATH), { type: 'image/png' });
+    const imageFile = new File([imageBuffer], path.basename(TEST_IMAGE_PATH), {
+      type: 'image/png',
+    });
 
     // 构建 FormData
     const formData = new FormData();
@@ -55,10 +57,12 @@ async function runTest(style: string) {
 
     // 打印关键分析信息
     if (responseData.analysis) {
-        console.log('--- 🤖 AI 分析 ---');
-        console.log(`🎨 应用风格: ${responseData.analysis.styleApplied}`);
-        console.log(`📝 优化后提示词: "${responseData.analysis.optimizedPrompt}"`);
-        console.log('--------------------');
+      console.log('--- 🤖 AI 分析 ---');
+      console.log(`🎨 应用风格: ${responseData.analysis.styleApplied}`);
+      console.log(
+        `📝 优化后提示词: "${responseData.analysis.optimizedPrompt}"`
+      );
+      console.log('--------------------');
     }
 
     // 保存结果图片
@@ -69,7 +73,6 @@ async function runTest(style: string) {
       await fs.writeFile(outputFilePath, base64Data, 'base64');
       console.log(`🖼️  输出图片已保存到: ${outputFilePath}`);
     }
-
   } catch (error) {
     console.error(`❌ 测试过程中发生意外错误:`, error);
   }
@@ -85,7 +88,9 @@ async function main() {
   if (!styleToTest) {
     console.log('👋 欢迎使用 API 调试脚本');
     console.log('请提供一个要测试的风格。');
-    console.log(`用法: pnpm tsx scripts/debug-image-to-sticker-improved.ts <style>`);
+    console.log(
+      `用法: pnpm tsx scripts/debug-image-to-sticker-improved.ts <style>`
+    );
     console.log(`可用风格: ${supportedStyles.join(', ')}`);
     return;
   }

@@ -5,13 +5,14 @@
  * 运行方式: npx tsx scripts/test-image-api.ts
  */
 
-import { readFile } from 'fs/promises';
 import { join } from 'path';
 import FormData from 'form-data';
+import { readFile } from 'fs/promises';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://your-domain.com'
-  : 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://your-domain.com'
+    : 'http://localhost:3000';
 
 async function testImageToStickerAPI() {
   try {
@@ -19,7 +20,13 @@ async function testImageToStickerAPI() {
     console.log('📍 API Base URL:', API_BASE_URL);
 
     // 检查测试图片文件
-    const testImagePath = join(process.cwd(), 'public', 'images', 'blog', 'post-1.png');
+    const testImagePath = join(
+      process.cwd(),
+      'public',
+      'images',
+      'blog',
+      'post-1.png'
+    );
     console.log('📁 Test image path:', testImagePath);
 
     // 读取测试图片
@@ -56,7 +63,10 @@ async function testImageToStickerAPI() {
     const responseTime = Date.now() - startTime;
     console.log(`⏱️  Response time: ${responseTime}ms`);
     console.log('📝 Response status:', response.status);
-    console.log('📝 Response headers:', Object.fromEntries(response.headers.entries()));
+    console.log(
+      '📝 Response headers:',
+      Object.fromEntries(response.headers.entries())
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -84,9 +94,11 @@ async function testImageToStickerAPI() {
     }
 
     if (result.description) {
-      console.log('📝 AI description:', result.description.substring(0, 100) + '...');
+      console.log(
+        '📝 AI description:',
+        result.description.substring(0, 100) + '...'
+      );
     }
-
   } catch (error) {
     console.error('❌ Test failed with error:', error);
   }
@@ -97,11 +109,13 @@ function checkEnvironment() {
   console.log('🔍 Checking environment configuration...');
 
   const requiredEnvVars = ['LAOZHANG_API_KEY'];
-  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  const missingVars = requiredEnvVars.filter(
+    (varName) => !process.env[varName]
+  );
 
   if (missingVars.length > 0) {
     console.error('❌ Missing required environment variables:');
-    missingVars.forEach(varName => {
+    missingVars.forEach((varName) => {
       console.error(`   - ${varName}`);
     });
     console.log('💡 Please set these variables in your .env file');

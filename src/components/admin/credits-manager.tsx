@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import type { User } from '@/lib/auth-types';
-import { CreditCardIcon, PlusIcon, EditIcon } from 'lucide-react';
+import { CreditCardIcon, EditIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -31,8 +31,8 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
   const [setAmount, setSetAmount] = useState(user.credits?.toString() || '10');
   const [loading, setLoading] = useState(false);
 
-    const handleAddCredits = async () => {
-    const amount = parseInt(addAmount);
+  const handleAddCredits = async () => {
+    const amount = Number.parseInt(addAmount);
     if (!amount || amount <= 0) {
       toast.error('Please enter a valid amount');
       return;
@@ -58,7 +58,7 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
   };
 
   const handleSubtractCredits = async () => {
-    const amount = parseInt(subtractAmount);
+    const amount = Number.parseInt(subtractAmount);
     if (!amount || amount <= 0) {
       toast.error('Please enter a valid amount');
       return;
@@ -66,7 +66,9 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
 
     const currentCredits = user.credits || 0;
     if (amount > currentCredits) {
-      toast.error(`Cannot subtract ${amount} credits. User only has ${currentCredits} credits.`);
+      toast.error(
+        `Cannot subtract ${amount} credits. User only has ${currentCredits} credits.`
+      );
       return;
     }
 
@@ -74,7 +76,10 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
 
     setLoading(true);
     try {
-      const result = await setCreditsAction({ userId: user.id, credits: newTotal });
+      const result = await setCreditsAction({
+        userId: user.id,
+        credits: newTotal,
+      });
 
       if (result?.data?.success) {
         toast.success(`Subtracted ${amount} credits from ${user.name}`);
@@ -92,7 +97,7 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
   };
 
   const handleSetCredits = async () => {
-    const amount = parseInt(setAmount);
+    const amount = Number.parseInt(setAmount);
     if (amount < 0 || isNaN(amount)) {
       toast.error('Please enter a valid amount (0 or more)');
       return;
@@ -100,7 +105,10 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
 
     setLoading(true);
     try {
-      const result = await setCreditsAction({ userId: user.id, credits: amount });
+      const result = await setCreditsAction({
+        userId: user.id,
+        credits: amount,
+      });
 
       if (result?.data?.success) {
         toast.success(`Set ${user.name}'s credits to ${amount}`);
@@ -116,7 +124,7 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
     }
   };
 
-    return (
+  return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
@@ -143,7 +151,9 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
           <div className="flex items-center justify-center p-4 bg-muted rounded-lg">
             <div className="text-center">
               <div className="text-2xl font-bold">{user.credits || 0}</div>
-              <div className="text-sm text-muted-foreground">Current Credits</div>
+              <div className="text-sm text-muted-foreground">
+                Current Credits
+              </div>
             </div>
           </div>
 
@@ -174,7 +184,10 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="subtract-credits" className="flex items-center gap-2">
+              <Label
+                htmlFor="subtract-credits"
+                className="flex items-center gap-2"
+              >
                 <span className="h-4 w-4 text-red-600 font-bold">-</span>
                 Subtract Credits
               </Label>

@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import type { GenerateImageRequest, GenerateImageResponse } from '../lib/api-types';
+import type { OpenAIImageSettings } from '../components/OpenAISettings';
+import type {
+  GenerateImageRequest,
+  GenerateImageResponse,
+} from '../lib/api-types';
 import type {
   ImageError,
   ImageResult,
@@ -9,7 +13,6 @@ import {
   type ProviderKey,
   initializeProviderRecord,
 } from '../lib/provider-config';
-import type { OpenAIImageSettings } from '../components/OpenAISettings';
 
 interface UseImageGenerationReturn {
   images: ImageResult[];
@@ -87,13 +90,14 @@ export function useImageGeneration(): UseImageGenerationReturn {
             provider,
             modelId,
             // 添加 OpenAI 专用设置
-            ...(provider === 'openai' && openaiSettings && {
-              quality: openaiSettings.quality,
-              outputFormat: openaiSettings.outputFormat,
-              outputCompression: openaiSettings.outputCompression,
-              background: openaiSettings.background,
-              size: openaiSettings.size,
-            }),
+            ...(provider === 'openai' &&
+              openaiSettings && {
+                quality: openaiSettings.quality,
+                outputFormat: openaiSettings.outputFormat,
+                outputCompression: openaiSettings.outputCompression,
+                background: openaiSettings.background,
+                size: openaiSettings.size,
+              }),
           };
 
           const response = await fetch('/api/generate-images', {

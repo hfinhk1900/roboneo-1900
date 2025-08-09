@@ -3,8 +3,8 @@
 import { getUserCreditsAction } from '@/actions/credits-actions';
 import { creditsCache } from '@/lib/credits-cache';
 import { CreditCardIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface CreditsDisplayProps {
   className?: string;
@@ -73,7 +73,7 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
     );
   }
 
-    if (loading) {
+  if (loading) {
     return (
       <span className={`text-sm text-muted-foreground ${className}`}>
         <CreditCardIcon className="h-4 w-4 mr-1 inline" />
@@ -84,12 +84,14 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'}`}>
+      <span
+        className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'}`}
+      >
         <CreditCardIcon className="h-4 w-4 mr-1 inline" />
         {credits || 0} Credits
       </span>
       {(credits === 0 || credits === null) && (
-                <Link
+        <Link
           href="/pricing"
           className="text-sm text-black hover:text-black/80 underline cursor-pointer"
         >

@@ -1,7 +1,7 @@
 // 全局 credits 缓存管理
 class CreditsCache {
   private data: number | null = null;
-  private timestamp: number = 0;
+  private timestamp = 0;
   private readonly ttl: number = 30 * 1000; // 30秒缓存时间
   private readonly storageKey = 'user_credits';
   private listeners: Set<() => void> = new Set();
@@ -37,20 +37,23 @@ class CreditsCache {
     if (typeof window === 'undefined') return;
 
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify({
-        credits: this.data,
-        timestamp: this.timestamp
-      }));
+      localStorage.setItem(
+        this.storageKey,
+        JSON.stringify({
+          credits: this.data,
+          timestamp: this.timestamp,
+        })
+      );
     } catch (error) {
       console.warn('Failed to save credits to localStorage:', error);
     }
   }
 
   isValid(): boolean {
-    return this.data !== null && (Date.now() - this.timestamp < this.ttl);
+    return this.data !== null && Date.now() - this.timestamp < this.ttl;
   }
 
-    get(): number | null {
+  get(): number | null {
     if (this.isValid()) {
       return this.data;
     }
@@ -70,7 +73,7 @@ class CreditsCache {
     this.saveToStorage();
 
     // 通知所有监听器
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 
   clear() {
@@ -86,7 +89,7 @@ class CreditsCache {
     }
 
     // 通知所有监听器
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 
   // 添加监听器，当 credits 更新时触发
@@ -101,7 +104,7 @@ class CreditsCache {
 
   // 手动触发更新
   forceUpdate() {
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 }
 

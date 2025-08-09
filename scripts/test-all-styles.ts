@@ -24,7 +24,9 @@ async function testAllStyles() {
   }
 
   console.log(`📁 源图片: ${testImagePath}`);
-  console.log(`📏 源大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`);
+  console.log(
+    `📏 源大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`
+  );
 
   console.log('\n🎯 将要生成的风格:');
   AVAILABLE_STYLES.forEach((style, index) => {
@@ -32,9 +34,11 @@ async function testAllStyles() {
       ios: '📱 iOS Messages 贴纸风格 - 可爱卡通',
       pixel: '🎮 8位像素艺术风格 - 复古游戏',
       lego: '🧱 乐高积木风格 - 塑料材质',
-      snoopy: '🐕 史努比漫画风格 - 简洁线条'
+      snoopy: '🐕 史努比漫画风格 - 简洁线条',
     };
-    console.log(`   ${index + 1}. ${style.toUpperCase()}: ${descriptions[style]}`);
+    console.log(
+      `   ${index + 1}. ${style.toUpperCase()}: ${descriptions[style]}`
+    );
   });
 
   console.log('\n⚠️  注意: 每个风格转换需要 20-30秒，总计约 2-3分钟');
@@ -48,7 +52,9 @@ async function testAllStyles() {
     const style = AVAILABLE_STYLES[i];
     const startTime = Date.now();
 
-    console.log(`🔄 [${i + 1}/${AVAILABLE_STYLES.length}] 处理 ${style.toUpperCase()} 风格...`);
+    console.log(
+      `🔄 [${i + 1}/${AVAILABLE_STYLES.length}] 处理 ${style.toUpperCase()} 风格...`
+    );
 
     try {
       // 读取图片文件
@@ -61,10 +67,13 @@ async function testAllStyles() {
       formData.append('style', style);
 
       // 调用API
-      const response = await fetch('http://localhost:3000/api/image-to-sticker-correct', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        'http://localhost:3000/api/image-to-sticker-correct',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       const elapsed = Date.now() - startTime;
 
@@ -73,25 +82,34 @@ async function testAllStyles() {
 
         if (data.stickerUrl) {
           // 保存生成的贴纸
-          const base64Data = data.stickerUrl.replace('data:image/png;base64,', '');
+          const base64Data = data.stickerUrl.replace(
+            'data:image/png;base64,',
+            ''
+          );
           const stickerBuffer = Buffer.from(base64Data, 'base64');
 
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+          const timestamp = new Date()
+            .toISOString()
+            .replace(/[:.]/g, '-')
+            .split('T')[0];
           const filename = `test-img_${style}_sticker_${timestamp}.png`;
           const filepath = path.join(process.cwd(), 'public', filename);
 
           fs.writeFileSync(filepath, stickerBuffer);
 
-          console.log(`   ✅ 成功! 耗时: ${Math.round(elapsed/1000)}秒`);
-          console.log(`   📁 保存: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`);
+          console.log(`   ✅ 成功! 耗时: ${Math.round(elapsed / 1000)}秒`);
+          console.log(
+            `   📁 保存: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`
+          );
 
           results.push({
             style,
             success: true,
             filename,
             fileSize: Math.round(stickerBuffer.length / 1024),
-            elapsed: Math.round(elapsed/1000),
-            description: data.analysis?.originalDescription?.substring(0, 100) + '...'
+            elapsed: Math.round(elapsed / 1000),
+            description:
+              data.analysis?.originalDescription?.substring(0, 100) + '...',
           });
         } else {
           console.log(`   ❌ 失败: 未收到图片数据`);
@@ -104,8 +122,15 @@ async function testAllStyles() {
       }
     } catch (error) {
       const elapsed = Date.now() - startTime;
-      console.log(`   💥 异常 (${Math.round(elapsed/1000)}秒):`, error instanceof Error ? error.message : error);
-      results.push({ style, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+      console.log(
+        `   💥 异常 (${Math.round(elapsed / 1000)}秒):`,
+        error instanceof Error ? error.message : error
+      );
+      results.push({
+        style,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
 
     console.log(''); // 空行分隔
@@ -116,28 +141,32 @@ async function testAllStyles() {
   console.log('📋 转换结果总结:');
   console.log('━'.repeat(80));
 
-  const successful = results.filter(r => r.success);
-  const failed = results.filter(r => !r.success);
+  const successful = results.filter((r) => r.success);
+  const failed = results.filter((r) => !r.success);
 
   console.log(`✅ 成功: ${successful.length}/${results.length}`);
   console.log(`❌ 失败: ${failed.length}/${results.length}`);
 
   if (successful.length > 0) {
     console.log('\n📁 生成的贴纸文件:');
-    successful.forEach(result => {
-      console.log(`   🎨 ${result.style.toUpperCase()}: public/${result.filename} (${result.fileSize}KB, ${result.elapsed}秒)`);
+    successful.forEach((result) => {
+      console.log(
+        `   🎨 ${result.style.toUpperCase()}: public/${result.filename} (${result.fileSize}KB, ${result.elapsed}秒)`
+      );
     });
 
     console.log('\n🎯 对比方法:');
     console.log(`   📷 原图: public/test-img.jpg`);
-    successful.forEach(result => {
-      console.log(`   🎨 ${result.style.toUpperCase()}: public/${result.filename}`);
+    successful.forEach((result) => {
+      console.log(
+        `   🎨 ${result.style.toUpperCase()}: public/${result.filename}`
+      );
     });
   }
 
   if (failed.length > 0) {
     console.log('\n❌ 失败的转换:');
-    failed.forEach(result => {
+    failed.forEach((result) => {
       console.log(`   ${result.style.toUpperCase()}: ${result.error}`);
     });
   }

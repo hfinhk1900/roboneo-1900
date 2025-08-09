@@ -14,7 +14,11 @@ async function testSimpleAPI() {
   console.log('🧪 测试简化版 Image-to-Sticker API...\n');
 
   // 检查测试图片（使用带RGBA透明通道的PNG）
-  const testImagePath = path.join(process.cwd(), 'public', 'apple-touch-icon.png');
+  const testImagePath = path.join(
+    process.cwd(),
+    'public',
+    'apple-touch-icon.png'
+  );
 
   if (!fs.existsSync(testImagePath)) {
     console.log('❌ 找不到测试图片: public/apple-touch-icon.png');
@@ -23,20 +27,22 @@ async function testSimpleAPI() {
   }
 
   console.log(`📁 使用测试图片: ${testImagePath}`);
-  console.log(`📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`);
+  console.log(
+    `📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`
+  );
 
   // 测试用例
   const testCases = [
     {
       name: 'iOS 贴纸风格测试',
       style: 'ios',
-      description: '测试 iOS 风格贴纸生成'
+      description: '测试 iOS 风格贴纸生成',
     },
     {
       name: '像素艺术风格测试',
       style: 'pixel',
-      description: '测试像素艺术风格贴纸生成'
-    }
+      description: '测试像素艺术风格贴纸生成',
+    },
   ];
 
   let successCount = 0;
@@ -59,10 +65,13 @@ async function testSimpleAPI() {
       formData.append('style', testCase.style);
 
       // 调用 API
-      const response = await fetch('http://localhost:3000/api/image-to-sticker-simple', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        'http://localhost:3000/api/image-to-sticker-simple',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       const elapsed = Date.now() - startTime;
 
@@ -75,13 +84,16 @@ async function testSimpleAPI() {
           originalFormat: data.originalFormat,
           recommendation: data.recommendation,
           hasSticker: Boolean(data.stickerUrl),
-          message: data.message
+          message: data.message,
         });
 
         // 保存生成的贴纸
         if (data.stickerUrl) {
           // 解析 base64 数据
-          const base64Data = data.stickerUrl.replace('data:image/png;base64,', '');
+          const base64Data = data.stickerUrl.replace(
+            'data:image/png;base64,',
+            ''
+          );
           const stickerBuffer = Buffer.from(base64Data, 'base64');
 
           const filename = `simple_sticker_${testCase.style}_${Date.now()}.png`;
@@ -89,7 +101,9 @@ async function testSimpleAPI() {
 
           fs.writeFileSync(filepath, stickerBuffer);
           console.log(`💾 贴纸已保存: public/${filename}`);
-          console.log(`📏 输出大小: ${Math.round(stickerBuffer.length / 1024)}KB`);
+          console.log(
+            `📏 输出大小: ${Math.round(stickerBuffer.length / 1024)}KB`
+          );
 
           successCount++;
         }
@@ -106,20 +120,25 @@ async function testSimpleAPI() {
         }
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
     }
 
     // 等待间隔避免频率限制
     if (index < testCases.length - 1) {
       console.log(`⏳ 等待3秒避免频率限制...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
 
   // 测试 API 信息端点
   console.log('\n📋 测试 API 信息端点...');
   try {
-    const infoResponse = await fetch('http://localhost:3000/api/image-to-sticker-simple');
+    const infoResponse = await fetch(
+      'http://localhost:3000/api/image-to-sticker-simple'
+    );
     if (infoResponse.ok) {
       const apiInfo = await infoResponse.json();
       console.log('✅ API 信息获取成功:');

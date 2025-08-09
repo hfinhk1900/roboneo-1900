@@ -1,9 +1,9 @@
 'use client';
 
 import { HeaderSection } from '@/components/layout/header-section';
+import { OptimizedImage } from '@/components/seo/optimized-image';
 import { cn } from '@/lib/utils';
 import { Aperture, ImageDown, ImageUp, Pause, Play } from 'lucide-react';
-import { OptimizedImage } from '@/components/seo/optimized-image';
 import { useEffect, useRef, useState } from 'react';
 
 interface Step {
@@ -22,7 +22,7 @@ const steps: Step[] = [
     title: 'Upload Your Phone',
     description: 'Click the upload button (top-right) and choose any picture.',
     icon: <ImageUp className="w-5 h-5" />,
-    image: '/step-showcase1.png',
+    image: '/step-showcase1.webp',
   },
   {
     id: 'style',
@@ -31,7 +31,7 @@ const steps: Step[] = [
     description:
       'Select a look—iOS emoji, Snoopy, chibi, and more—then hit Generate.',
     icon: <Aperture className="w-5 h-5" />,
-    image: '/step-showcase2.png',
+    image: '/step-showcase2.webp',
   },
   {
     id: 'save',
@@ -40,7 +40,7 @@ const steps: Step[] = [
     description:
       'Tap the download icon to save your new sticker, ready for chats and socials.',
     icon: <ImageDown className="w-5 h-5" />,
-    image: '/step-showcase3.png',
+    image: '/step-showcase3.webp',
   },
 ];
 

@@ -3,11 +3,15 @@
  * 运行命令: npx tsx scripts/test-openai-cost-comparison.ts
  */
 
-import type { GenerateImageRequest, GenerateImageResponse } from '../src/ai/image/lib/api-types';
+import type {
+  GenerateImageRequest,
+  GenerateImageResponse,
+} from '../src/ai/image/lib/api-types';
 
-const API_BASE = process.env.NODE_ENV === 'production'
-  ? 'https://your-domain.com'
-  : 'http://localhost:3000';
+const API_BASE =
+  process.env.NODE_ENV === 'production'
+    ? 'https://your-domain.com'
+    : 'http://localhost:3000';
 
 async function testCostComparison() {
   console.log('💰 OpenAI 模型成本和尺寸对比测试...\n');
@@ -32,7 +36,7 @@ async function testCostComparison() {
         size: '512x512',
         outputFormat: 'webp',
         outputCompression: 50,
-      }
+      },
     },
     {
       name: '中等选项 - DALL-E 2 (1024x1024)',
@@ -46,7 +50,7 @@ async function testCostComparison() {
         size: '1024x1024',
         outputFormat: 'webp',
         outputCompression: 50,
-      }
+      },
     },
     {
       name: '新模型 - GPT-Image-1 (1024x1024) 低质量',
@@ -62,8 +66,8 @@ async function testCostComparison() {
         outputFormat: 'webp',
         background: 'transparent',
         outputCompression: 50,
-      }
-    }
+      },
+    },
   ];
 
   console.log('📋 模型支持尺寸对比:');
@@ -90,7 +94,7 @@ async function testCostComparison() {
         body: JSON.stringify(testCase.request),
       });
 
-      const result = await response.json() as GenerateImageResponse;
+      const result = (await response.json()) as GenerateImageResponse;
       const elapsed = Date.now() - startTime;
 
       if (response.ok && result.image) {
@@ -100,7 +104,7 @@ async function testCostComparison() {
           width: result.width,
           height: result.height,
           format: result.format,
-          imageSize: `${Math.round((result.image.length * 3/4) / 1024)}KB`
+          imageSize: `${Math.round((result.image.length * 3) / 4 / 1024)}KB`,
         });
 
         results.push({
@@ -108,7 +112,7 @@ async function testCostComparison() {
           size: testCase.size,
           success: true,
           elapsed,
-          imageSize: Math.round((result.image.length * 3/4) / 1024),
+          imageSize: Math.round((result.image.length * 3) / 4 / 1024),
           estimatedCost: testCase.estimatedCost,
         });
 
@@ -135,7 +139,10 @@ async function testCostComparison() {
         });
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
       results.push({
         model: testCase.model,
         size: testCase.size,
@@ -148,7 +155,7 @@ async function testCostComparison() {
     // 等待2秒避免频率限制
     if (testCases.indexOf(testCase) < testCases.length - 1) {
       console.log(`⏳ 等待2秒...`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 

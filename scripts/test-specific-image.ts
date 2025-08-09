@@ -23,7 +23,9 @@ async function testSpecificImage() {
   }
 
   console.log(`📁 使用图片: ${testImagePath}`);
-  console.log(`📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`);
+  console.log(
+    `📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`
+  );
 
   // 测试iOS风格
   const testStyle = 'ios';
@@ -49,16 +51,19 @@ async function testSpecificImage() {
     console.log('⏳ 预计耗时: 15-25秒 (AI分析+生成)');
 
     // 调用正确的风格转换 API
-    const response = await fetch('http://localhost:3000/api/image-to-sticker-correct', {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetch(
+      'http://localhost:3000/api/image-to-sticker-correct',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
 
     const elapsed = Date.now() - startTime;
 
     if (response.ok) {
       const data = await response.json();
-      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed/1000)}秒`);
+      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed / 1000)}秒`);
 
       // 显示处理结果
       console.log('\n📊 处理信息:');
@@ -77,10 +82,16 @@ async function testSpecificImage() {
 
       // 保存生成的iOS风格贴纸
       if (data.stickerUrl) {
-        const base64Data = data.stickerUrl.replace('data:image/png;base64,', '');
+        const base64Data = data.stickerUrl.replace(
+          'data:image/png;base64,',
+          ''
+        );
         const stickerBuffer = Buffer.from(base64Data, 'base64');
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, '-')
+          .split('T')[0];
         const filename = `test-img_ios_sticker_${timestamp}.png`;
         const filepath = path.join(process.cwd(), 'public', filename);
 
@@ -88,12 +99,18 @@ async function testSpecificImage() {
 
         console.log('\n💾 生成的贴纸已保存:');
         console.log(`   📁 文件路径: public/${filename}`);
-        console.log(`   📏 文件大小: ${Math.round(stickerBuffer.length / 1024)}KB`);
+        console.log(
+          `   📏 文件大小: ${Math.round(stickerBuffer.length / 1024)}KB`
+        );
         console.log(`   🖼️  格式: PNG (透明背景)`);
 
         console.log('\n🎯 对比效果:');
-        console.log(`   📷 原图: public/test-img.jpg (${Math.round(fs.statSync(testImagePath).size / 1024)}KB)`);
-        console.log(`   🎨 贴纸: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`);
+        console.log(
+          `   📷 原图: public/test-img.jpg (${Math.round(fs.statSync(testImagePath).size / 1024)}KB)`
+        );
+        console.log(
+          `   🎨 贴纸: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`
+        );
         console.log('   → 打开两张图片对比，应该看到显著的风格差异！');
 
         console.log('\n🎉 iOS风格转换完成!');
@@ -117,7 +134,10 @@ async function testSpecificImage() {
     }
   } catch (error) {
     const elapsed = Date.now() - startTime;
-    console.log(`\n💥 请求异常 (耗时 ${Math.round(elapsed/1000)}秒):`, error instanceof Error ? error.message : error);
+    console.log(
+      `\n💥 请求异常 (耗时 ${Math.round(elapsed / 1000)}秒):`,
+      error instanceof Error ? error.message : error
+    );
 
     console.log('\n🔧 故障排查:');
     console.log('   1. 确认开发服务器正在运行: pnpm dev');

@@ -22,7 +22,9 @@ async function comparePromptVersions() {
   }
 
   console.log(`📁 测试图片: ${testImagePath}`);
-  console.log(`📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`);
+  console.log(
+    `📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`
+  );
 
   // 选择一个风格进行对比测试（iOS风格最容易看出差异）
   const testStyle = 'ios';
@@ -40,7 +42,7 @@ async function comparePromptVersions() {
   // 测试两个版本
   const versions = [
     { name: 'V1 基础版', endpoint: '/api/image-to-sticker-correct' },
-    { name: 'V2 改进版', endpoint: '/api/image-to-sticker-improved' }
+    { name: 'V2 改进版', endpoint: '/api/image-to-sticker-improved' },
   ];
 
   for (let i = 0; i < versions.length; i++) {
@@ -73,24 +75,37 @@ async function comparePromptVersions() {
 
         if (data.stickerUrl) {
           // 保存生成的贴纸
-          const base64Data = data.stickerUrl.replace('data:image/png;base64,', '');
+          const base64Data = data.stickerUrl.replace(
+            'data:image/png;base64,',
+            ''
+          );
           const stickerBuffer = Buffer.from(base64Data, 'base64');
 
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+          const timestamp = new Date()
+            .toISOString()
+            .replace(/[:.]/g, '-')
+            .split('T')[0];
           const versionTag = i === 0 ? 'v1_basic' : 'v2_improved';
           const filename = `compare_${versionTag}_${testStyle}_${timestamp}.png`;
           const filepath = path.join(process.cwd(), 'public', filename);
 
           fs.writeFileSync(filepath, stickerBuffer);
 
-          console.log(`   ✅ 成功! 耗时: ${Math.round(elapsed/1000)}秒`);
-          console.log(`   📁 保存: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`);
+          console.log(`   ✅ 成功! 耗时: ${Math.round(elapsed / 1000)}秒`);
+          console.log(
+            `   📁 保存: public/${filename} (${Math.round(stickerBuffer.length / 1024)}KB)`
+          );
 
           // 显示分析结果的差异
           if (data.analysis?.originalDescription) {
-            console.log(`   🔍 分析质量: ${data.analysis.originalDescription.length} 字符`);
-            if (i === 1) { // 改进版
-              console.log(`   💡 改进点: ${data.analysis.improvements?.join(', ')}`);
+            console.log(
+              `   🔍 分析质量: ${data.analysis.originalDescription.length} 字符`
+            );
+            if (i === 1) {
+              // 改进版
+              console.log(
+                `   💡 改进点: ${data.analysis.improvements?.join(', ')}`
+              );
             }
           }
 
@@ -99,23 +114,38 @@ async function comparePromptVersions() {
             success: true,
             filename,
             fileSize: Math.round(stickerBuffer.length / 1024),
-            elapsed: Math.round(elapsed/1000),
+            elapsed: Math.round(elapsed / 1000),
             analysisLength: data.analysis?.originalDescription?.length || 0,
-            method: data.analysis?.method
+            method: data.analysis?.method,
           });
         } else {
           console.log(`   ❌ 失败: 未收到图片数据`);
-          results.push({ version: version.name, success: false, error: 'No image data' });
+          results.push({
+            version: version.name,
+            success: false,
+            error: 'No image data',
+          });
         }
       } else {
         const errorData = await response.json();
         console.log(`   ❌ 失败 (${response.status}):`, errorData.error);
-        results.push({ version: version.name, success: false, error: errorData.error });
+        results.push({
+          version: version.name,
+          success: false,
+          error: errorData.error,
+        });
       }
     } catch (error) {
       const elapsed = Date.now() - startTime;
-      console.log(`   💥 异常 (${Math.round(elapsed/1000)}秒):`, error instanceof Error ? error.message : error);
-      results.push({ version: version.name, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+      console.log(
+        `   💥 异常 (${Math.round(elapsed / 1000)}秒):`,
+        error instanceof Error ? error.message : error
+      );
+      results.push({
+        version: version.name,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
   }
 
@@ -124,14 +154,16 @@ async function comparePromptVersions() {
   console.log('📊 版本对比结果:');
   console.log('━'.repeat(80));
 
-  const successful = results.filter(r => r.success);
+  const successful = results.filter((r) => r.success);
 
   if (successful.length === 2) {
     console.log('✅ 两个版本都成功生成');
 
     console.log('\n📁 生成的对比文件:');
     successful.forEach((result, index) => {
-      console.log(`   ${index + 1}. ${result.version}: public/${result.filename}`);
+      console.log(
+        `   ${index + 1}. ${result.version}: public/${result.filename}`
+      );
       console.log(`      • 文件大小: ${result.fileSize}KB`);
       console.log(`      • 生成时间: ${result.elapsed}秒`);
       console.log(`      • 分析详细度: ${result.analysisLength}字符`);
@@ -159,10 +191,9 @@ async function comparePromptVersions() {
     console.log('      • 风格转换的准确性');
     console.log('      • 细节的处理质量');
     console.log('      • 整体视觉效果');
-
   } else {
     console.log('❌ 部分版本生成失败');
-    results.forEach(result => {
+    results.forEach((result) => {
       if (!result.success) {
         console.log(`   ${result.version}: ${result.error}`);
       }

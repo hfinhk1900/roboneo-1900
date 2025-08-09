@@ -3,18 +3,24 @@
  * 运行命令: npx tsx scripts/test-openai-sticker-prompts.ts
  */
 
-import type { GenerateImageRequest, GenerateImageResponse } from '../src/ai/image/lib/api-types';
+import type {
+  GenerateImageRequest,
+  GenerateImageResponse,
+} from '../src/ai/image/lib/api-types';
 
-const API_BASE = process.env.NODE_ENV === 'production'
-  ? 'https://your-domain.com'
-  : 'http://localhost:3000';
+const API_BASE =
+  process.env.NODE_ENV === 'production'
+    ? 'https://your-domain.com'
+    : 'http://localhost:3000';
 
 // 贴纸风格提示词配置（基于 laozhang-config.ts）
 const STICKER_STYLE_PROMPTS = {
-  ios: 'Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people\'s body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.',
-  pixel: 'Transform into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
+  ios: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+  pixel:
+    'Transform into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
   lego: 'Convert to LEGO minifigure style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background',
-  snoopy: 'Transform into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background'
+  snoopy:
+    'Transform into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background',
 } as const;
 
 async function testStickerPrompts() {
@@ -41,7 +47,7 @@ async function testStickerPrompts() {
         size: '1024x1024',
         outputCompression: 60,
         editType: 'generate',
-      }
+      },
     },
     {
       name: '像素艺术小狗贴纸',
@@ -57,7 +63,7 @@ async function testStickerPrompts() {
         size: '1024x1024',
         outputCompression: 60,
         editType: 'generate',
-      }
+      },
     },
     {
       name: '乐高风格机器人贴纸',
@@ -73,8 +79,8 @@ async function testStickerPrompts() {
         size: '1024x1024',
         outputCompression: 60,
         editType: 'generate',
-      }
-    }
+      },
+    },
   ];
 
   const results = [];
@@ -96,7 +102,7 @@ async function testStickerPrompts() {
         body: JSON.stringify(testCase.request),
       });
 
-      const result = await response.json() as GenerateImageResponse;
+      const result = (await response.json()) as GenerateImageResponse;
       const elapsed = Date.now() - startTime;
 
       if (response.ok && result.image) {
@@ -107,7 +113,7 @@ async function testStickerPrompts() {
           height: result.height,
           format: result.format,
           hasTransparentBg: testCase.request.background === 'transparent',
-          imageSize: `${Math.round((result.image.length * 3/4) / 1024)}KB (base64)`
+          imageSize: `${Math.round((result.image.length * 3) / 4 / 1024)}KB (base64)`,
         });
 
         results.push({
@@ -115,7 +121,7 @@ async function testStickerPrompts() {
           subject: testCase.subject,
           success: true,
           elapsed,
-          imageSize: Math.round((result.image.length * 3/4) / 1024),
+          imageSize: Math.round((result.image.length * 3) / 4 / 1024),
         });
 
         // 保存图片到文件
@@ -140,7 +146,10 @@ async function testStickerPrompts() {
         });
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
       results.push({
         style: testCase.style,
         subject: testCase.subject,
@@ -152,7 +161,7 @@ async function testStickerPrompts() {
     // 等待3秒避免频率限制
     if (testCases.indexOf(testCase) < testCases.length - 1) {
       console.log(`⏳ 等待3秒以避免频率限制...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
 
@@ -161,16 +170,22 @@ async function testStickerPrompts() {
 
   results.forEach((result, index) => {
     const status = result.success ? '✅ 成功' : '❌ 失败';
-    console.log(`${index + 1}. ${result.style.toUpperCase()} 风格 ${result.subject}: ${status}`);
+    console.log(
+      `${index + 1}. ${result.style.toUpperCase()} 风格 ${result.subject}: ${status}`
+    );
     if (result.success) {
-      console.log(`   - 耗时: ${result.elapsed}ms, 大小: ${result.imageSize}KB`);
+      console.log(
+        `   - 耗时: ${result.elapsed}ms, 大小: ${result.imageSize}KB`
+      );
     } else {
       console.log(`   - 错误: ${result.error}`);
     }
   });
 
-  const successCount = results.filter(r => r.success).length;
-  console.log(`\n📈 成功率: ${successCount}/${results.length} (${Math.round(successCount/results.length*100)}%)`);
+  const successCount = results.filter((r) => r.success).length;
+  console.log(
+    `\n📈 成功率: ${successCount}/${results.length} (${Math.round((successCount / results.length) * 100)}%)`
+  );
 
   console.log('\n💡 贴纸风格对比:');
   console.log('- iOS 风格: 现代、圆润、简洁，适合应用图标');

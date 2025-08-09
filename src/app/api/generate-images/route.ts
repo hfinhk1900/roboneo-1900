@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     size,
     // 新增：图片编辑相关参数
     inputImage,
-    editType = 'generate' // 'generate' | 'edit' | 'variation'
+    editType = 'generate', // 'generate' | 'edit' | 'variation'
   } = (await req.json()) as GenerateImageRequest & {
     inputImage?: string; // base64 图片数据
     editType?: 'generate' | 'edit' | 'variation';
@@ -114,20 +114,22 @@ export async function POST(req: NextRequest) {
           ...(outputCompression && { output_compression: outputCompression }),
           ...(background === 'transparent' && { background: 'transparent' }),
           // 图片编辑功能
-          ...(inputImage && editType === 'edit' && {
-            image: inputImage, // base64 图片
-            mask: undefined, // 可以添加遮罩支持
-          }),
-          ...(inputImage && editType === 'variation' && {
-            image: inputImage,
-            n: 1,
-          }),
-        }
+          ...(inputImage &&
+            editType === 'edit' && {
+              image: inputImage, // base64 图片
+              mask: undefined, // 可以添加遮罩支持
+            }),
+          ...(inputImage &&
+            editType === 'variation' && {
+              image: inputImage,
+              n: 1,
+            }),
+        },
       };
     } else {
       // 其他提供商的配置
       generateParams.providerOptions = {
-        vertex: { addWatermark: false }
+        vertex: { addWatermark: false },
       };
     }
 
@@ -136,25 +138,30 @@ export async function POST(req: NextRequest) {
 
     if (provider === 'openai' && inputImage && editType !== 'generate') {
       // 使用 OpenAI 的图片编辑功能
-      console.log(`Image editing request [editType=${editType}, provider=${provider}, model=${modelId}]`);
+      console.log(
+        `Image editing request [editType=${editType}, provider=${provider}, model=${modelId}]`
+      );
 
       try {
         // 直接调用 OpenAI API 进行图片编辑
-        const openaiResponse = await fetch('https://api.openai.com/v1/images/edits', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            image: inputImage,
-            prompt: prompt,
-            n: 1,
-            size: size || '1024x1024',
-            response_format: 'b64_json',
-            ...(quality && quality !== 'auto' && { quality }),
-          }),
-        });
+        const openaiResponse = await fetch(
+          'https://api.openai.com/v1/images/edits',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              image: inputImage,
+              prompt: prompt,
+              n: 1,
+              size: size || '1024x1024',
+              response_format: 'b64_json',
+              ...(quality && quality !== 'auto' && { quality }),
+            }),
+          }
+        );
 
         if (!openaiResponse.ok) {
           throw new Error(`OpenAI API error: ${openaiResponse.status}`);
@@ -169,7 +176,7 @@ export async function POST(req: NextRequest) {
 
         generatePromise = Promise.resolve({
           image: { base64: imageBase64 },
-          warnings: []
+          warnings: [],
         });
       } catch (error) {
         console.error('OpenAI direct API call failed:', error);
@@ -196,7 +203,9 @@ export async function POST(req: NextRequest) {
         );
 
         // 解析图像尺寸（从生成的参数中获取）
-        const [width, height] = (size || DEFAULT_IMAGE_SIZE).split('x').map(Number);
+        const [width, height] = (size || DEFAULT_IMAGE_SIZE)
+          .split('x')
+          .map(Number);
 
         return {
           provider,

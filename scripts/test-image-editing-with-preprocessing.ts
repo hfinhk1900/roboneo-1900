@@ -40,10 +40,12 @@ async function completeImageEditingTest() {
 
   // 贴纸风格提示词
   const stickerStyles = {
-    ios: 'Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people\'s body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.',
-    pixel: 'Transform this into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
+    ios: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+    pixel:
+      'Transform this into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
     lego: 'Transform this into LEGO style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background',
-    snoopy: 'Transform this into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background'
+    snoopy:
+      'Transform this into Snoopy cartoon style sticker: simple lines, minimalist design, charming and cute, bold white outline, transparent background',
   };
 
   // 测试用例：只测试 DALL-E 2（最可靠的图片编辑模型）
@@ -59,7 +61,7 @@ async function completeImageEditingTest() {
       model: 'dall-e-2',
       style: 'pixel',
       endpoint: 'https://api.openai.com/v1/images/edits',
-    }
+    },
   ];
 
   let successCount = 0;
@@ -68,7 +70,9 @@ async function completeImageEditingTest() {
     console.log(`\n🎨 测试 ${index + 1}/${testCases.length}: ${testCase.name}`);
     console.log(`模型: ${testCase.model}`);
     console.log(`风格: ${testCase.style}`);
-    console.log(`提示词: ${stickerStyles[testCase.style as keyof typeof stickerStyles]}`);
+    console.log(
+      `提示词: ${stickerStyles[testCase.style as keyof typeof stickerStyles]}`
+    );
 
     const startTime = Date.now();
 
@@ -77,7 +81,10 @@ async function completeImageEditingTest() {
       const formData = new FormData();
       const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
       formData.append('image', imageBlob, 'image.png');
-      formData.append('prompt', stickerStyles[testCase.style as keyof typeof stickerStyles]);
+      formData.append(
+        'prompt',
+        stickerStyles[testCase.style as keyof typeof stickerStyles]
+      );
       formData.append('n', '1');
       formData.append('size', '512x512'); // DALL-E 2 支持的编辑尺寸
       formData.append('response_format', 'b64_json');
@@ -85,7 +92,7 @@ async function completeImageEditingTest() {
       const response = await fetch(testCase.endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           // 让浏览器自动设置 Content-Type
         },
         body: formData,
@@ -111,7 +118,9 @@ async function completeImageEditingTest() {
 
           fs.writeFileSync(filepath, editedImageData);
           console.log(`💾 贴纸已保存: public/${filename}`);
-          console.log(`📏 输出大小: ${Math.round(editedImageData.length / 1024)}KB`);
+          console.log(
+            `📏 输出大小: ${Math.round(editedImageData.length / 1024)}KB`
+          );
 
           successCount++;
         }
@@ -129,13 +138,16 @@ async function completeImageEditingTest() {
         }
       }
     } catch (error) {
-      console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+      console.log(
+        `💥 请求异常:`,
+        error instanceof Error ? error.message : error
+      );
     }
 
     // 等待间隔避免频率限制
     if (index < testCases.length - 1) {
       console.log(`⏳ 等待3秒避免频率限制...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
 

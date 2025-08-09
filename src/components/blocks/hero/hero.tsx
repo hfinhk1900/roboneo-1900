@@ -40,15 +40,16 @@ import Image from 'next/image';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 const styleOptions = [
-  { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.png' },
-  { value: 'pixel', label: 'Pixel Art Style', icon: '/pixel-style.png' },
-  { value: 'lego', label: 'LEGO Minifigure Style', icon: '/lego-style.png' },
-  { value: 'snoopy', label: 'Snoopy Style', icon: '/snoopy-style.png' },
+  { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.webp' },
+  { value: 'pixel', label: 'Pixel Art Style', icon: '/pixel-style.webp' },
+  { value: 'lego', label: 'LEGO Minifigure Style', icon: '/lego-style.webp' },
+  { value: 'snoopy', label: 'Snoopy Style', icon: '/snoopy-style.webp' },
 ];
 
 export default function HeroSection() {
   const t = useTranslations('HomePage.hero');
   const currentUser = useCurrentUser();
+  const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const pendingGeneration = useRef(false);
@@ -58,6 +59,8 @@ export default function HeroSection() {
   );
   const [selectedStyle, setSelectedStyle] = useState('ios');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -67,7 +70,12 @@ export default function HeroSection() {
     (option) => option.value === selectedStyle
   );
 
-  // Function to perform the actual generation (without auth check)
+  // Fix hydration mismatch by ensuring client-side state consistency
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Function to perform the actual generation (without auth check) - Updated for KIE AI
   const performGeneration = useCallback(async () => {
     if (!selectedImage) return;
 
@@ -81,53 +89,119 @@ export default function HeroSection() {
     setGeneratedImageUrl(null);
     setIsGenerating(true);
     setFileError(null);
+    setGenerationStep('Uploading image...');
+    setGenerationProgress(10);
 
     try {
-      // Create FormData for file upload
+      // Step 1: Upload image to cloud storage to get public URL
       const formData = new FormData();
-      formData.append('imageFile', selectedImage);
-      formData.append('style', selectedStyle);
+      formData.append('file', selectedImage);
+      formData.append('folder', 'roboneo/user-uploads'); // 专门的用户上传文件夹
 
-      console.log(`Starting image-to-sticker conversion [style=${selectedStyle}]`);
-
-      // Call our improved image-to-sticker API
-      const response = await fetch('/api/image-to-sticker-improved', {
+      const uploadResponse = await fetch('/api/storage/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      if (!uploadResponse.ok) {
+        const uploadError = await uploadResponse.json();
+        throw new Error(uploadError.error || 'Failed to upload image');
+      }
+
+      const uploadData = await uploadResponse.json();
+      const imageUrl = uploadData.url;
+
+      setGenerationStep('Creating AI task...');
+      setGenerationProgress(30);
+
+      // Step 2: Create KIE AI sticker generation task
+      const taskResponse = await fetch('/api/image-to-sticker-ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filesUrl: [imageUrl],
+          style: selectedStyle,
+          nVariants: 1,
+          size: '1:1'
+        }),
+      });
+
+      if (!taskResponse.ok) {
+        const taskError = await taskResponse.json();
 
         // Handle insufficient credits error
-        if (response.status === 402) {
+        if (taskResponse.status === 402) {
           setCreditsError({
-            required: errorData.required,
-            current: errorData.current
+            required: taskError.required,
+            current: taskError.current
           });
           setShowCreditsDialog(true);
           return;
         }
 
         // Handle authentication error
-        if (response.status === 401) {
+        if (taskResponse.status === 401) {
           setShowLoginDialog(true);
           return;
         }
 
-        throw new Error(errorData.error || 'Failed to convert image');
+        throw new Error(taskError.msg || taskError.error || 'Failed to create sticker task');
       }
 
-      const data = await response.json();
-      console.log('Image-to-sticker-improved response:', data);
+            const taskData = await taskResponse.json();
+      const taskId = taskData.data.taskId;
 
-      if (data.url) {
-        setGeneratedImageUrl(data.url);
-        // Clear credits cache to trigger refresh of credits display
-        creditsCache.clear();
-      } else {
-        throw new Error('API did not return a sticker URL.');
+      setGenerationStep('AI generating, please wait...');
+      setGenerationProgress(50);
+
+      // Step 3: Poll task status until completion
+      let attempts = 0;
+      const maxAttempts = 40; // Max 3.3 minutes (40 * 5s intervals) - 减少等待时间
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+        attempts++;
+
+        // Update progress during polling (50% to 90%)
+                  const pollingProgress = Math.min(90, 50 + (attempts / maxAttempts) * 40);
+          setGenerationProgress(pollingProgress);
+          const progressPercent = Math.round((attempts / maxAttempts) * 100);
+          setGenerationStep(`AI generating... ${progressPercent}%`);
+
+        const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
+          method: 'GET',
+        });
+
+        if (!statusResponse.ok) {
+          continue;
+        }
+
+        const statusData = await statusResponse.json();
+
+        if (statusData.data?.status === 'completed') {
+          const resultUrls = statusData.data.resultUrls;
+          if (resultUrls && resultUrls.length > 0) {
+            setGenerationStep('Generation completed!');
+            setGenerationProgress(100);
+            setGeneratedImageUrl(resultUrls[0]);
+            // Clear credits cache to trigger refresh of credits display
+            creditsCache.clear();
+            return;
+          } else {
+            throw new Error('Task completed but no result URLs found');
+          }
+        } else if (statusData.data?.status === 'failed') {
+          throw new Error(statusData.data.error || 'Sticker generation failed');
+        }
+
+        // Task is still processing, continue polling
       }
+
+      // If we reach here, polling timed out
+      throw new Error('Sticker generation timed out. Please try again.');
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       console.error('Error generating sticker:', errorMessage);
@@ -140,6 +214,8 @@ export default function HeroSection() {
       }
     } finally {
       setIsGenerating(false);
+      setGenerationStep(null);
+      setGenerationProgress(0);
     }
   }, [selectedImage, selectedStyle]);
 
@@ -231,7 +307,7 @@ export default function HeroSection() {
   };
 
     const handleGenerate = async () => {
-    if (!selectedImage) return;
+    if (!selectedImage || !isMounted) return;
 
     // Check if user is authenticated
     if (!currentUser) {
@@ -447,23 +523,43 @@ export default function HeroSection() {
                     </Select>
                   </div>
 
-                  <Button
-                    onClick={handleGenerate}
-                    className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
-                    disabled={!selectedImage || isGenerating}
-                  >
-                    {isGenerating ? (
-                      <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      <SparklesIcon className="mr-2 h-5 w-5" />
+                  <div className="space-y-3">
+                    <Button
+                      onClick={handleGenerate}
+                      className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
+                      disabled={!isMounted || !selectedImage || isGenerating}
+                    >
+                      {isGenerating ? (
+                        <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
+                      ) : (
+                        <SparklesIcon className="mr-2 h-5 w-5" />
+                      )}
+                      {isGenerating
+                        ? generationStep || 'Generating...'
+                        : !isMounted
+                          ? 'Generate Sticker'
+                          : !currentUser
+                            ? 'Login to Generate Sticker'
+                            : 'Generate My Sticker'
+                      }
+                    </Button>
+
+                    {/* Progress bar for KIE AI generation */}
+                    {isGenerating && generationProgress > 0 && (
+                      <div className="w-full space-y-2">
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${generationProgress}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>{generationStep}</span>
+                          <span>{generationProgress}%</span>
+                        </div>
+                      </div>
                     )}
-                    {isGenerating
-                      ? 'Generating...'
-                      : !currentUser
-                        ? 'Login to Generate Sticker'
-                        : 'Generate My Sticker'
-                    }
-                  </Button>
+                  </div>
 
                   {/* Test buttons removed after testing completion */}
                   {/*
@@ -472,7 +568,7 @@ export default function HeroSection() {
                       <Button
                         onClick={() => {
                           // Use a local test image to simulate generated result
-                          setGeneratedImageUrl('/hero-1.png');
+                          setGeneratedImageUrl('/hero-1.webp');
                         }}
                         className="w-full font-semibold h-[50px] rounded-2xl text-base"
                         variant="secondary"
@@ -541,7 +637,7 @@ export default function HeroSection() {
                 ) : (
                   <div className="relative">
                     <Image
-                      src="/hero-1.png"
+                      src="/hero-1.webp"
                       alt="Example transformation - Photo to sticker"
                       width={400}
                       height={400}
@@ -549,7 +645,7 @@ export default function HeroSection() {
                       className="object-contain max-h-full rounded-lg shadow-md"
                     />
                     <Image
-                      src="/hero-2.png"
+                      src="/hero-2.webp"
                       alt="Decorative camera icon"
                       width={120}
                       height={120}
@@ -557,7 +653,7 @@ export default function HeroSection() {
                       className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
                     />
                     <Image
-                      src="/hero-3.png"
+                      src="/hero-3.webp"
                       alt="Decorative plant icon"
                       width={120}
                       height={120}

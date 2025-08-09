@@ -1,10 +1,10 @@
+import TextToImageComparisonSection from '@/components/blocks/text-to-image/comparison';
+import TextToImageCTASection from '@/components/blocks/text-to-image/cta';
+import TextToImageFAQSection from '@/components/blocks/text-to-image/faq';
+import TextToImageFeaturesSection from '@/components/blocks/text-to-image/features';
+import TextToImageGallerySection from '@/components/blocks/text-to-image/gallery';
 import TextToImageHeroSection from '@/components/blocks/text-to-image/hero';
 import TextToImageToolsSection from '@/components/blocks/text-to-image/tools-showcase';
-import TextToImageFeaturesSection from '@/components/blocks/text-to-image/features';
-import TextToImageComparisonSection from '@/components/blocks/text-to-image/comparison';
-import TextToImageGallerySection from '@/components/blocks/text-to-image/gallery';
-import TextToImageFAQSection from '@/components/blocks/text-to-image/faq';
-import TextToImageCTASection from '@/components/blocks/text-to-image/cta';
 import { NewsletterCard } from '@/components/newsletter/newsletter-card';
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
@@ -22,12 +22,15 @@ export async function generateMetadata({
 
   return constructMetadata({
     title: 'AI Text to Image Generator | Free Text to Art Converter | RoboNeo',
-    description: 'Transform text to stunning images with our AI text to image generator. Create art, product photos, stickers, and more from text prompts. 4 powerful AI tools in one platform. Try free!',
-    keywords: 'AI text to image generator, text to art converter, AI image generation from text, free text to image AI, prompt to image creator, text description to picture, AI art generator from words, text to visual converter online, generate images from text prompts, text to image AI tools',
+    description:
+      'Transform text to stunning images with our AI text to image generator. Create art, product photos, stickers, and more from text prompts. 4 powerful AI tools in one platform. Try free!',
+    keywords:
+      'AI text to image generator, text to art converter, AI image generation from text, free text to image AI, prompt to image creator, text description to picture, AI art generator from words, text to visual converter online, generate images from text prompts, text to image AI tools',
     canonicalUrl: getUrlWithLocale('/text-to-image', locale),
     openGraph: {
       title: 'AI Text to Image Generator - Transform Words into Visual Art',
-      description: 'Create stunning images from text with 4 powerful AI tools. Generate art, product photos, stickers, and more instantly.',
+      description:
+        'Create stunning images from text with 4 powerful AI tools. Generate art, product photos, stickers, and more instantly.',
       type: 'website',
       images: [
         {
@@ -41,7 +44,8 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title: 'AI Text to Image Generator | RoboNeo',
-      description: 'Transform text prompts into stunning visuals with 4 powerful AI tools.',
+      description:
+        'Transform text prompts into stunning visuals with 4 powerful AI tools.',
       images: ['/og-text-to-image.jpg'],
     },
     alternates: {
@@ -63,7 +67,8 @@ export default async function TextToImagePage(props: TextToImagePageProps) {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'RoboNeo AI Text to Image Generator',
-    description: 'Transform text prompts into stunning images with multiple AI tools',
+    description:
+      'Transform text prompts into stunning images with multiple AI tools',
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Web',
     offers: {

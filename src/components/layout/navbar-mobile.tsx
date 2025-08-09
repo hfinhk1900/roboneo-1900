@@ -15,7 +15,6 @@ import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { Portal } from '@radix-ui/react-portal';
-import Image from 'next/image';
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
@@ -24,6 +23,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { RemoveScroll } from 'react-remove-scroll';
@@ -277,7 +277,10 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                                     isSubItemActive &&
                                       'bg-transparent text-foreground',
                                     // 对于图片图标使用更大的尺寸，对于普通图标保持原来的size-8
-                                    subItem.icon && typeof subItem.icon === 'string' ? 'w-[70px] h-[70px]' : 'size-8'
+                                    subItem.icon &&
+                                      typeof subItem.icon === 'string'
+                                      ? 'w-[70px] h-[70px]'
+                                      : 'size-8'
                                   )}
                                 >
                                   {subItem.icon ? (
@@ -298,11 +301,13 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                                   <span
                                     className={cn(
                                       'text-sm',
-                                                                             // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
-                                       item.title.includes('Text to Image') || item.title.includes('文本转图像') ||
-                                       item.title.includes('Image to Image') || item.title.includes('图像转图像')
-                                         ? 'text-black'
-                                         : 'text-muted-foreground',
+                                      // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                      item.title.includes('Text to Image') ||
+                                        item.title.includes('文本转图像') ||
+                                        item.title.includes('Image to Image') ||
+                                        item.title.includes('图像转图像')
+                                        ? 'text-black'
+                                        : 'text-muted-foreground',
                                       'group-hover:bg-transparent group-hover:text-foreground',
                                       'group-focus:bg-transparent group-focus:text-foreground',
                                       isSubItemActive &&

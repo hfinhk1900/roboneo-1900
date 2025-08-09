@@ -1,12 +1,12 @@
-import fs from 'fs/promises';
 import path from 'path';
+import fs from 'fs/promises';
 
 // --- 配置 ---
 const API_URL = 'http://localhost:3000/api/image-to-sticker';
 const TEST_IMAGE_PATH = path.resolve(process.cwd(), 'public/test-img2.png');
 const OUTPUT_DIR = path.resolve(process.cwd(), 'public/debug-output');
 const SUPPORTED_STYLES = ['ios', 'lego', 'pixel', 'snoopy'] as const;
-type StickerStyle = typeof SUPPORTED_STYLES[number];
+type StickerStyle = (typeof SUPPORTED_STYLES)[number];
 // ---
 
 /**
@@ -24,7 +24,9 @@ async function runTest(style: StickerStyle) {
 
     // 读取图片文件
     const imageBuffer = await fs.readFile(TEST_IMAGE_PATH);
-    const imageFile = new File([imageBuffer], path.basename(TEST_IMAGE_PATH), { type: 'image/png' });
+    const imageFile = new File([imageBuffer], path.basename(TEST_IMAGE_PATH), {
+      type: 'image/png',
+    });
 
     // 构建 FormData
     const formData = new FormData();
@@ -64,7 +66,6 @@ async function runTest(style: StickerStyle) {
       console.warn('⚠️ API 响应中未找到 stickerUrl');
       console.log('完整响应:', JSON.stringify(result, null, 2));
     }
-
   } catch (error) {
     console.error('❌ 脚本执行异常:', error);
   }
@@ -94,7 +95,7 @@ async function main() {
   console.log(`\n--- 测试完成: ${style} ---`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('测试脚本发生致命错误:', err);
   process.exit(1);
 });

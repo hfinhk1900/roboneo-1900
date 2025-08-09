@@ -1,9 +1,9 @@
 'use client';
 
+import AIMagicFeatures from '@/components/ai-magic-features';
+import MoreAITools from '@/components/more-ai-tools';
 import { KeyBenefits } from '@/components/shared/key-benefits';
 import { ShowcaseGallery } from '@/components/shared/showcase-gallery';
-import MoreAITools from '@/components/more-ai-tools';
-import AIMagicFeatures from '@/components/ai-magic-features';
 
 export default function ImageShowcaseSection() {
   return (

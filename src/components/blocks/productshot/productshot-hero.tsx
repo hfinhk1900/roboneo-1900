@@ -1,17 +1,22 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { ArrowRightIcon, SparklesIcon, CameraIcon, Package2Icon } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
+import {
+  ArrowRightIcon,
+  CameraIcon,
+  Package2Icon,
+  SparklesIcon,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function ProductShotHeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white via-blue-50/20 to-white">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:radial-gradient(ellipse_at_center,white,transparent_75%)]" />
-      
+
       <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           {/* Badge */}
@@ -38,7 +43,8 @@ export default function ProductShotHeroSection() {
             Create Professional
             <span className="relative">
               <span className="relative bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                {' '}Product Photos{' '}
+                {' '}
+                Product Photos{' '}
               </span>
             </span>
             <br />
@@ -52,9 +58,9 @@ export default function ProductShotHeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg leading-8 text-gray-600"
           >
-            Transform text descriptions into stunning e-commerce product photos. 
-            No camera, no studio, no photographer needed. Perfect for Amazon listings, 
-            Shopify stores, and marketing campaigns.
+            Transform text descriptions into stunning e-commerce product photos.
+            No camera, no studio, no photographer needed. Perfect for Amazon
+            listings, Shopify stores, and marketing campaigns.
           </motion.p>
 
           {/* CTA Buttons */}

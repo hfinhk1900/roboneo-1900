@@ -1,8 +1,7 @@
 'use client';
 
-import { UserDetailViewer } from '@/components/admin/user-detail-viewer';
 import { CreditsManager } from '@/components/admin/credits-manager';
-import { useUsersStore } from '@/stores/users-store';
+import { UserDetailViewer } from '@/components/admin/user-detail-viewer';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -29,6 +28,7 @@ import {
 import type { User } from '@/lib/auth-types';
 import { formatDate } from '@/lib/formatter';
 import { getStripeDashboardCustomerUrl } from '@/lib/urls/urls';
+import { useUsersStore } from '@/stores/users-store';
 import {
   type ColumnDef,
   type ColumnFiltersState,

@@ -17,7 +17,9 @@ async function freeImagePreprocessing() {
 
     // 检查 Jimp 是否有 read 方法
     if (!Jimp.read) {
-      console.log('❌ jimp 库版本不兼容，请尝试: npm uninstall jimp && npm install jimp@^0.22.0 --legacy-peer-deps');
+      console.log(
+        '❌ jimp 库版本不兼容，请尝试: npm uninstall jimp && npm install jimp@^0.22.0 --legacy-peer-deps'
+      );
       return;
     }
   } catch (error) {
@@ -27,7 +29,11 @@ async function freeImagePreprocessing() {
   }
 
   const inputPath = path.join(process.cwd(), 'public', 'test-img.png');
-  const outputPath = path.join(process.cwd(), 'public', 'test-img-openai-ready.png');
+  const outputPath = path.join(
+    process.cwd(),
+    'public',
+    'test-img-openai-ready.png'
+  );
 
   if (!fs.existsSync(inputPath)) {
     console.log('❌ 找不到测试图片:', inputPath);
@@ -45,7 +51,7 @@ async function freeImagePreprocessing() {
       height: image.getHeight(),
       mime: image.getMIME(),
       hasAlpha: image.hasAlpha(),
-      size: `${Math.round(fs.statSync(inputPath).size / 1024)}KB`
+      size: `${Math.round(fs.statSync(inputPath).size / 1024)}KB`,
     });
 
     // 获取原始尺寸和纵横比
@@ -57,16 +63,20 @@ async function freeImagePreprocessing() {
     const supportedSizes = [
       { w: 1024, h: 1024, ratio: 1.0, name: '正方形' },
       { w: 1024, h: 1536, ratio: 0.667, name: '肖像' },
-      { w: 1536, h: 1024, ratio: 1.5, name: '风景' }
+      { w: 1536, h: 1024, ratio: 1.5, name: '风景' },
     ];
 
     // 选择最接近的支持尺寸
     const closest = supportedSizes.reduce((prev, curr) =>
-      Math.abs(curr.ratio - aspectRatio) < Math.abs(prev.ratio - aspectRatio) ? curr : prev
+      Math.abs(curr.ratio - aspectRatio) < Math.abs(prev.ratio - aspectRatio)
+        ? curr
+        : prev
     );
 
     console.log(`📏 选择最佳尺寸: ${closest.w}x${closest.h} (${closest.name})`);
-    console.log(`📐 尺寸调整: ${originalWidth}x${originalHeight} → ${closest.w}x${closest.h}`);
+    console.log(
+      `📐 尺寸调整: ${originalWidth}x${originalHeight} → ${closest.w}x${closest.h}`
+    );
 
     // 创建一个透明背景的画布
     const canvas = new Jimp(closest.w, closest.h, 0x00000000); // 完全透明
@@ -91,7 +101,9 @@ async function freeImagePreprocessing() {
     const x = Math.round((closest.w - resizedWidth) / 2);
     const y = Math.round((closest.h - resizedHeight) / 2);
 
-    console.log(`🎯 图片定位: (${x}, ${y}), 尺寸: ${resizedWidth}x${resizedHeight}`);
+    console.log(
+      `🎯 图片定位: (${x}, ${y}), 尺寸: ${resizedWidth}x${resizedHeight}`
+    );
 
     // 将调整后的图片合成到透明画布上
     canvas.composite(image, x, y);
@@ -109,7 +121,7 @@ async function freeImagePreprocessing() {
       height: processedImage.getHeight(),
       mime: processedImage.getMIME(),
       hasAlpha: processedImage.hasAlpha(),
-      size: `${Math.round(processedSize / 1024)}KB`
+      size: `${Math.round(processedSize / 1024)}KB`,
     });
 
     // 验证是否符合 OpenAI 要求
@@ -134,7 +146,6 @@ async function freeImagePreprocessing() {
       console.log('⚠️  图片可能仍有兼容性问题');
       return null;
     }
-
   } catch (error) {
     console.error('❌ 图片预处理失败:', error);
     return null;
@@ -143,12 +154,14 @@ async function freeImagePreprocessing() {
 
 // 运行预处理
 if (require.main === module) {
-  freeImagePreprocessing().then(result => {
-    if (result) {
-      console.log('\n🚀 预处理成功！现在可以运行图片编辑测试：');
-      console.log('npx tsx scripts/test-image-editing-with-preprocessing.ts');
-    }
-  }).catch(console.error);
+  freeImagePreprocessing()
+    .then((result) => {
+      if (result) {
+        console.log('\n🚀 预处理成功！现在可以运行图片编辑测试：');
+        console.log('npx tsx scripts/test-image-editing-with-preprocessing.ts');
+      }
+    })
+    .catch(console.error);
 }
 
 export { freeImagePreprocessing };

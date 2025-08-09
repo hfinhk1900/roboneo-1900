@@ -46,16 +46,19 @@ async function testUniversalIOSSticker() {
     console.log('━'.repeat(60));
 
     // 调用 Universal API
-    const response = await fetch(`${API_BASE_URL}/api/image-to-sticker-universal`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/image-to-sticker-universal`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
 
     const elapsed = Date.now() - startTime;
 
     if (response.ok) {
       const data = await response.json();
-      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed/1000)}秒`);
+      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed / 1000)}秒`);
 
       // 显示处理结果
       console.log('\n📊 处理信息:');
@@ -64,10 +67,16 @@ async function testUniversalIOSSticker() {
 
       if (data.processing) {
         console.log(`   📄 原始格式: ${data.processing.originalFormat}`);
-        console.log(`   📐 原始尺寸: ${data.processing.originalSize.width}x${data.processing.originalSize.height}`);
-        console.log(`   📏 最终尺寸: ${data.processing.finalSize.width}x${data.processing.finalSize.height}`);
+        console.log(
+          `   📐 原始尺寸: ${data.processing.originalSize.width}x${data.processing.originalSize.height}`
+        );
+        console.log(
+          `   📏 最终尺寸: ${data.processing.finalSize.width}x${data.processing.finalSize.height}`
+        );
         console.log(`   📦 压缩比: ${data.processing.compressionRatio}%`);
-        console.log(`   🔧 处理特点: ${data.processing.supportedAnyFormat ? '支持任意格式' : '标准格式'}`);
+        console.log(
+          `   🔧 处理特点: ${data.processing.supportedAnyFormat ? '支持任意格式' : '标准格式'}`
+        );
       }
 
       // 保存生成的贴纸
@@ -76,7 +85,10 @@ async function testUniversalIOSSticker() {
         const imageBuffer = Buffer.from(base64Data, 'base64');
 
         const timestamp = Date.now();
-        const outputPath = join(OUTPUT_DIR, `ios_sticker_universal_${timestamp}.png`);
+        const outputPath = join(
+          OUTPUT_DIR,
+          `ios_sticker_universal_${timestamp}.png`
+        );
 
         fs.writeFileSync(outputPath, imageBuffer);
         console.log(`\n💾 贴纸已保存: ${outputPath}`);
@@ -84,15 +96,16 @@ async function testUniversalIOSSticker() {
       }
 
       console.log('\n🎉 测试完成!');
-
     } else {
       const errorData = await response.text();
       console.error(`\n❌ API 调用失败 (${response.status}):`, errorData);
     }
-
   } catch (error) {
     const elapsed = Date.now() - startTime;
-    console.error(`\n❌ 测试失败 (耗时: ${Math.round(elapsed/1000)}秒):`, error);
+    console.error(
+      `\n❌ 测试失败 (耗时: ${Math.round(elapsed / 1000)}秒):`,
+      error
+    );
   }
 }
 

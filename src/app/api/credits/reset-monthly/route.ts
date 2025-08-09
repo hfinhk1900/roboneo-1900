@@ -1,8 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {
+  getCreditsForPlan,
+  getPlanIdFromPriceId,
+} from '@/config/credits-config';
 import { getDb } from '@/db';
 import { payment, user } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
-import { getCreditsForPlan, getPlanIdFromPriceId } from '@/config/credits-config';
+import { and, eq } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * API endpoint for resetting monthly credits
@@ -19,10 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const expectedApiKey = process.env.CRON_API_KEY; // Add this to your .env file
 
     if (expectedApiKey && authHeader !== `Bearer ${expectedApiKey}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     console.log('🔄 Starting monthly credits reset...');
@@ -36,14 +36,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         userId: payment.userId,
         priceId: payment.priceId,
         status: payment.status,
-        subscriptionId: payment.subscriptionId
+        subscriptionId: payment.subscriptionId,
       })
       .from(payment)
       .where(
-        and(
-          eq(payment.type, 'subscription'),
-          eq(payment.status, 'active')
-        )
+        and(eq(payment.type, 'subscription'), eq(payment.status, 'active'))
       );
 
     console.log(`Found ${activeSubscriptions.length} active subscriptions`);
@@ -61,7 +58,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         // Get credits configuration
         const creditsConfig = getCreditsForPlan(planId);
         if (!creditsConfig || creditsConfig.resetType !== 'monthly') {
-          console.log(`Skipping user ${subscription.userId} - plan ${planId} doesn't have monthly reset`);
+          console.log(
+            `Skipping user ${subscription.userId} - plan ${planId} doesn't have monthly reset`
+          );
           continue;
         }
 
@@ -70,7 +69,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           .update(user)
           .set({
             credits: creditsConfig.monthlyCredits,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(user.id, subscription.userId));
 
@@ -79,24 +78,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         );
         usersUpdated++;
       } catch (error) {
-        console.error(`Error resetting credits for user ${subscription.userId}:`, error);
+        console.error(
+          `Error resetting credits for user ${subscription.userId}:`,
+          error
+        );
         // Continue processing other users even if one fails
       }
     }
 
-    console.log(`🎉 Monthly credits reset completed. Updated ${usersUpdated} users.`);
+    console.log(
+      `🎉 Monthly credits reset completed. Updated ${usersUpdated} users.`
+    );
 
     return NextResponse.json({
       success: true,
       message: 'Monthly credits reset completed',
-      usersUpdated
+      usersUpdated,
     });
   } catch (error) {
     console.error('Error in monthly credits reset:', error);
     return NextResponse.json(
       {
         error: 'Failed to reset monthly credits',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

@@ -26,7 +26,16 @@ export function constructMetadata({
   return {
     title,
     description,
-    keywords: ['roboneo', 'roboneo ai', 'ai sticker maker', 'ios sticker generator', 'photo to sticker', 'ai image generator', 'text to image', 'free ai art generator'],
+    keywords: [
+      'roboneo',
+      'roboneo ai',
+      'ai sticker maker',
+      'ios sticker generator',
+      'photo to sticker',
+      'ai image generator',
+      'text to image',
+      'free ai art generator',
+    ],
     alternates: canonicalUrl
       ? {
           canonical: canonicalUrl,

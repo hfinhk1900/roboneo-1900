@@ -185,7 +185,7 @@ export async function downloadAndSaveImage(url: string, filename: string): Promi
       buffer,
       filename,
       'image/png',
-      'image-to-sticker-kie ai' // 指定文件夹名
+      'roboneo/generated-stickers' // 指定嵌套文件夹路径
     );
 
     // 3. 返回R2公网URL
@@ -200,10 +200,14 @@ export async function downloadAndSaveImage(url: string, filename: string): Promi
 **存储结构**:
 ```
 Bucket: roboneo/
-└── image-to-sticker-kie ai/
-    ├── kie-callback-1754687123456.png
-    ├── kie-callback-1754687234567.png
-    └── ...
+└── roboneo/
+    ├── user-uploads/              # 用户上传的原图
+    │   ├── 22a6bf67-004a-4412-aa5a-97c6e303e8dc.jpg
+    │   └── ...
+    └── generated-stickers/        # AI生成的贴纸
+        ├── kie-callback-1754687123456.png
+        ├── kie-callback-1754687234567.png
+        └── ...
 ```
 
 ## 🔧 关键代码修改点
@@ -231,7 +235,7 @@ Bucket: roboneo/
 - 移除本地文件系统导入 (`writeFile`, `join`)
 - 重写`downloadAndSaveImage`函数 (第220-242行)
   - 改为上传到R2云存储
-  - 使用`image-to-sticker-kie ai`文件夹
+  - 使用`roboneo/generated-stickers`嵌套文件夹
   - 返回R2公网URL而非本地路径
 
 ## 🧪 测试验证方法
@@ -313,6 +317,42 @@ console.log(`🎨 图片限制: ${limitedCount}/${totalCount}张`);
 **原因**: KIE AI有时忽略nVariants=1设置
 **解决**: 已实现单图片限制，只保存第一张
 
+## 🔧 认证方式优化
+
+### 问题: Hero组件调用时要求重新登录
+
+**现象**: 用户已经登录，但点击生成按钮时仍然弹出登录对话框
+
+**原因**: API认证方式不一致
+- `/api/image-to-sticker-improved`: 使用 session-based 认证
+- `/api/image-to-sticker-ai`: 使用 Bearer token 认证（Hero组件未传递token）
+
+**解决方案**: 统一使用session-based认证
+
+```typescript
+// 修改前：使用Bearer token认证
+const authorization = req.headers.get('Authorization');
+const user = await validateBearerToken(authorization);
+
+// 修改后：使用session-based认证（与improved API一致）
+const { getSession } = await import('@/lib/server');
+const session = await getSession();
+
+if (!session?.user) {
+  return NextResponse.json({
+    code: RESPONSE_CODES.UNAUTHORIZED,
+    msg: 'Authentication required'
+  }, { status: 401 });
+}
+
+const user = session.user;
+```
+
+**优势**:
+- ✅ **一致性**: 与其他API保持相同认证方式
+- ✅ **用户友好**: Hero组件无需管理Bearer token
+- ✅ **安全性**: 利用现有session管理和cookie机制
+
 ## 🎯 最佳实践总结
 
 1. **✅ 使用回调模式**: 避免轮询，节省95%成本
@@ -323,6 +363,7 @@ console.log(`🎨 图片限制: ${limitedCount}/${totalCount}张`);
 6. **✅ 完善错误处理**: 连接问题在主请求中处理
 7. **✅ 实时状态更新**: 通过回调实现实时通知
 8. **✅ 云存储集成**: 使用R2存储，支持分布式部署和CDN加速
+9. **✅ 统一认证方式**: Session-based认证，用户体验一致
 
 ## 🏆 最终成果
 
@@ -335,7 +376,9 @@ console.log(`🎨 图片限制: ${limitedCount}/${totalCount}张`);
 
 ### 🌐 R2存储优势
 
-- **📁 文件夹结构**: `image-to-sticker-kie ai/` 专用目录
+- **📁 文件夹结构**:
+  - `roboneo/user-uploads/` 用户上传图片
+  - `roboneo/generated-stickers/` AI生成贴纸
 - **🔗 公网访问**: `https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/...`
 - **⚡ CDN加速**: 全球边缘节点，快速访问
 - **💾 自动备份**: 云端存储，数据安全

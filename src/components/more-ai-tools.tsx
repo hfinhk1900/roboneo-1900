@@ -11,7 +11,8 @@ export default function MoreAITools() {
             More AI Tools
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Explore more AI tools to create stunning visuals and enhance your photos with ease.
+            Explore more AI tools to create stunning visuals and enhance your
+            photos with ease.
           </p>
         </div>
 
@@ -22,7 +23,7 @@ export default function MoreAITools() {
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: "url('/more-tool01.webp')"
+                backgroundImage: "url('/more-tool01.webp')",
               }}
             />
 
@@ -40,15 +41,20 @@ export default function MoreAITools() {
                     Text-to-Image: Turn Words Into Stunning Visuals
                   </h3>
                   <p className="text-white/90 leading-relaxed">
-                    Style chameleon — From photorealism to anime or vaporwave, the model instantly adapts to your chosen aesthetic while preserving crisp detail and vibrant color.
+                    Style chameleon — From photorealism to anime or vaporwave,
+                    the model instantly adapts to your chosen aesthetic while
+                    preserving crisp detail and vibrant color.
                   </p>
 
-                                    <Button
+                  <Button
                     asChild
                     className="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
                     size="lg"
                   >
-                    <Link href="#" className="flex items-center justify-center gap-2">
+                    <Link
+                      href="#"
+                      className="flex items-center justify-center gap-2"
+                    >
                       <span>Generate Image</span>
                       <ChevronRight className="w-4 h-4" />
                     </Link>
@@ -61,10 +67,10 @@ export default function MoreAITools() {
           {/* Transform Image Card */}
           <div className="relative overflow-hidden rounded-3xl shadow-2xl">
             {/* Background Image */}
-                        <div
+            <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: "url('/more-tool02.webp')"
+                backgroundImage: "url('/more-tool02.webp')",
               }}
             />
 
@@ -82,15 +88,20 @@ export default function MoreAITools() {
                     Transform Image: Turn Words Into Stunning Visuals
                   </h3>
                   <p className="text-white/90 leading-relaxed">
-                    Style chameleon — From photorealism to anime or vaporwave, the model instantly adapts to your chosen aesthetic while preserving crisp detail and vibrant color.
+                    Style chameleon — From photorealism to anime or vaporwave,
+                    the model instantly adapts to your chosen aesthetic while
+                    preserving crisp detail and vibrant color.
                   </p>
 
-                                    <Button
+                  <Button
                     asChild
                     className="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
                     size="lg"
                   >
-                    <Link href="#" className="flex items-center justify-center gap-2">
+                    <Link
+                      href="#"
+                      className="flex items-center justify-center gap-2"
+                    >
                       <span>Transform Image</span>
                       <ChevronRight className="w-4 h-4" />
                     </Link>

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { readFile } from 'fs/promises';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +15,11 @@ export async function GET(
     // Handle local images (serve from public directory)
     if (decodedKey.startsWith('/')) {
       try {
-        const publicPath = join(process.cwd(), 'public', decodedKey.substring(1));
+        const publicPath = join(
+          process.cwd(),
+          'public',
+          decodedKey.substring(1)
+        );
         console.log('Attempting to read local file:', publicPath);
 
         const imageBuffer = await readFile(publicPath);
@@ -23,7 +27,8 @@ export async function GET(
         // Determine content type based on file extension
         const ext = decodedKey.toLowerCase();
         let contentType = 'image/png';
-        if (ext.includes('.jpg') || ext.includes('.jpeg')) contentType = 'image/jpeg';
+        if (ext.includes('.jpg') || ext.includes('.jpeg'))
+          contentType = 'image/jpeg';
         if (ext.includes('.gif')) contentType = 'image/gif';
         if (ext.includes('.webp')) contentType = 'image/webp';
 
@@ -47,7 +52,11 @@ export async function GET(
       const response = await fetch(decodedKey);
 
       if (!response.ok) {
-        console.error('External fetch failed:', response.status, response.statusText);
+        console.error(
+          'External fetch failed:',
+          response.status,
+          response.statusText
+        );
         return new NextResponse('External image not found', { status: 404 });
       }
 
@@ -67,7 +76,6 @@ export async function GET(
     // For other cases, return 404
     console.log('No matching handler for key:', decodedKey);
     return new NextResponse('Image not found', { status: 404 });
-
   } catch (error) {
     console.error('Error in proxy-image:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

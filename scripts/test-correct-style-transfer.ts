@@ -14,7 +14,11 @@ async function testCorrectStyleTransfer() {
   console.log('🎨 测试正确的风格转换 API (两步法)...\n');
 
   // 测试图片
-  const testImagePath = path.join(process.cwd(), 'public', 'apple-touch-icon.png');
+  const testImagePath = path.join(
+    process.cwd(),
+    'public',
+    'apple-touch-icon.png'
+  );
 
   if (!fs.existsSync(testImagePath)) {
     console.log('❌ 找不到测试图片: public/apple-touch-icon.png');
@@ -22,7 +26,9 @@ async function testCorrectStyleTransfer() {
   }
 
   console.log(`📁 使用测试图片: ${testImagePath}`);
-  console.log(`📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`);
+  console.log(
+    `📏 图片大小: ${Math.round(fs.statSync(testImagePath).size / 1024)}KB`
+  );
 
   // 测试一种风格看效果
   const testStyle = 'ios';
@@ -45,10 +51,13 @@ async function testCorrectStyleTransfer() {
     console.log('📡 调用正确的风格转换 API...');
 
     // 调用正确的风格转换 API
-    const response = await fetch('http://localhost:3000/api/image-to-sticker-correct', {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetch(
+      'http://localhost:3000/api/image-to-sticker-correct',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
 
     const elapsed = Date.now() - startTime;
 
@@ -60,7 +69,7 @@ async function testCorrectStyleTransfer() {
         style: data.style,
         method: data.analysis?.method,
         styleApplied: data.analysis?.styleApplied,
-        hasSticker: Boolean(data.stickerUrl)
+        hasSticker: Boolean(data.stickerUrl),
       });
 
       // 显示分析结果
@@ -71,7 +80,10 @@ async function testCorrectStyleTransfer() {
 
       // 保存生成的风格化贴纸
       if (data.stickerUrl) {
-        const base64Data = data.stickerUrl.replace('data:image/png;base64,', '');
+        const base64Data = data.stickerUrl.replace(
+          'data:image/png;base64,',
+          ''
+        );
         const stickerBuffer = Buffer.from(base64Data, 'base64');
 
         const filename = `correct_style_${testStyle}_${Date.now()}.png`;
@@ -79,7 +91,9 @@ async function testCorrectStyleTransfer() {
 
         fs.writeFileSync(filepath, stickerBuffer);
         console.log(`\n💾 风格化贴纸已保存: public/${filename}`);
-        console.log(`📏 输出大小: ${Math.round(stickerBuffer.length / 1024)}KB`);
+        console.log(
+          `📏 输出大小: ${Math.round(stickerBuffer.length / 1024)}KB`
+        );
 
         console.log('\n✅ 风格转换成功完成!');
         console.log('🎯 现在您可以对比：');
@@ -98,7 +112,9 @@ async function testCorrectStyleTransfer() {
   // 测试 API 信息端点
   console.log('\n📋 获取 API 信息...');
   try {
-    const infoResponse = await fetch('http://localhost:3000/api/image-to-sticker-correct');
+    const infoResponse = await fetch(
+      'http://localhost:3000/api/image-to-sticker-correct'
+    );
     if (infoResponse.ok) {
       const apiInfo = await infoResponse.json();
       console.log('✅ API 信息:');

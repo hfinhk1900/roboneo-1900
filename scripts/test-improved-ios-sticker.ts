@@ -46,16 +46,19 @@ async function testImprovedIOSSticker() {
     console.log('━'.repeat(60));
 
     // 调用 Improved API
-    const response = await fetch(`${API_BASE_URL}/api/image-to-sticker-improved`, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/image-to-sticker-improved`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
 
     const elapsed = Date.now() - startTime;
 
     if (response.ok) {
       const data = await response.json();
-      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed/1000)}秒`);
+      console.log(`\n✅ 成功完成! 总耗时: ${Math.round(elapsed / 1000)}秒`);
 
       // 显示分析结果
       if (data.analysis) {
@@ -74,9 +77,11 @@ async function testImprovedIOSSticker() {
 
         if (data.analysis.improvements) {
           console.log('\n🚀 改进功能:');
-          data.analysis.improvements.forEach((improvement: string, index: number) => {
-            console.log(`   ${index + 1}. ${improvement}`);
-          });
+          data.analysis.improvements.forEach(
+            (improvement: string, index: number) => {
+              console.log(`   ${index + 1}. ${improvement}`);
+            }
+          );
         }
       }
 
@@ -86,7 +91,10 @@ async function testImprovedIOSSticker() {
         const imageBuffer = Buffer.from(base64Data, 'base64');
 
         const timestamp = Date.now();
-        const outputPath = join(OUTPUT_DIR, `ios_sticker_improved_${timestamp}.png`);
+        const outputPath = join(
+          OUTPUT_DIR,
+          `ios_sticker_improved_${timestamp}.png`
+        );
 
         fs.writeFileSync(outputPath, imageBuffer);
         console.log(`\n💾 贴纸已保存: ${outputPath}`);
@@ -94,15 +102,16 @@ async function testImprovedIOSSticker() {
       }
 
       console.log('\n🎉 测试完成!');
-
     } else {
       const errorData = await response.text();
       console.error(`\n❌ API 调用失败 (${response.status}):`, errorData);
     }
-
   } catch (error) {
     const elapsed = Date.now() - startTime;
-    console.error(`\n❌ 测试失败 (耗时: ${Math.round(elapsed/1000)}秒):`, error);
+    console.error(
+      `\n❌ 测试失败 (耗时: ${Math.round(elapsed / 1000)}秒):`,
+      error
+    );
   }
 }
 
