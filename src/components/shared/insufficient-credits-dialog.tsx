@@ -48,15 +48,12 @@ export function InsufficientCreditsDialog({
             </div>
             <div>
               <AlertDialogTitle className="text-left">
-                Not Enough Credits
+                Add credits to continue
               </AlertDialogTitle>
             </div>
           </div>
           <AlertDialogDescription className="text-left">
-            You need {required} credits to generate this image, but your balance
-            is {current}.
-            <br />
-            Top up now to keep creating!
+            {required} credits required - Current balance: {current}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -72,7 +69,7 @@ export function InsufficientCreditsDialog({
             onClick={handleUpgrade}
             className="w-full sm:w-auto cursor-pointer"
           >
-            Add Credits
+            Add credits
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
