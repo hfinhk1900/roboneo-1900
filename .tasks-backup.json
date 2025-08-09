@@ -1,0 +1,198 @@
+{
+  "task_Hg3nNgfZi85yjoVmzfM4P": {
+    "taskId": "task_Hg3nNgfZi85yjoVmzfM4P",
+    "status": "processing",
+    "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/005037d4-6a2d-42ff-9ba1-8bf58349025f.jpg"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "ios",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-08T23:13:25.449Z",
+    "kieTaskId": "d3c1625a59319c78d5db346abdf4a9a2"
+  },
+  "task_uJiY8lWjVm5f-O_xqa9p6": {
+    "taskId": "task_uJiY8lWjVm5f-O_xqa9p6",
+    "status": "processing",
+    "prompt": "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/02ffd168-5d47-477b-b632-5dfa90371f75.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-08T23:26:54.441Z",
+    "kieTaskId": "af0a00de86021141d7bb11991e51b0d0"
+  },
+  "task_LVTI-5K3tH4LsIdH0pHWz": {
+    "taskId": "task_LVTI-5K3tH4LsIdH0pHWz",
+    "status": "processing",
+    "prompt": "Transform the people in this photo into a die-cut sticker in a retro pixel art style. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them in a blocky, pixelated aesthetic with a limited color palette and visible grid structure. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/22a6bf67-004a-4412-aa5a-97c6e303e8dc.jpg"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "pixel",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T00:26:07.376Z",
+    "kieTaskId": "3f018a1d3d01642f37bcc0065255c0c7"
+  },
+  "task_dzMEGVU15m-M8oXnpXT6C": {
+    "taskId": "task_dzMEGVU15m-M8oXnpXT6C",
+    "status": "completed",
+    "prompt": "Transform the people in this photo into LEGO minifigure style stickers. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with glossy, plastic-like appearance and the iconic blocky shapes and features of classic LEGO characters. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a professional die-cut sticker appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/e1fc720d-2d0d-4ca1-b288-2866ad89947f.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "lego",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T00:38:12.016Z",
+    "kieTaskId": "913c3fc298160d0a96d5eeafe1ba2e33",
+    "completedAt": "2025-08-09T00:40:53.540Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/42781af1-d97f-47bc-bba2-22441200fddf.png"
+    ]
+  },
+  "task_qw-wUGuiTnuPhKh4b09dP": {
+    "taskId": "task_qw-wUGuiTnuPhKh4b09dP",
+    "status": "completed",
+    "prompt": "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/c829387f-9e52-4b11-8374-9a42bdc6acb1.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T04:43:42.142Z",
+    "kieTaskId": "78e42602361fbea5f569f93d035775e4",
+    "completedAt": "2025-08-09T04:45:59.341Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/0bdadae3-fd04-4442-bc07-35e3c1d705e7.png"
+    ]
+  },
+  "task_fMQW0fte0wAUaqm7p0kHW": {
+    "taskId": "task_fMQW0fte0wAUaqm7p0kHW",
+    "status": "completed",
+    "prompt": "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/8aea687a-d021-498a-8934-4332bd68b3e0.jpg"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T17:32:33.185Z",
+    "kieTaskId": "8192322675b0d3027df668b25f1abb67",
+    "completedAt": "2025-08-09T17:34:32.250Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/cf2f71e4-e07e-4074-ad7e-5ddd677a3e04.png"
+    ]
+  },
+  "task_jJIY2gJadWzxkisqhAIc3": {
+    "taskId": "task_jJIY2gJadWzxkisqhAIc3",
+    "status": "completed",
+    "prompt": "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/93886bcb-6b22-45bb-829f-d865649febba.jpg"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T17:35:37.270Z",
+    "kieTaskId": "eb1286ea37e7632f8d37502b3ed2f397",
+    "completedAt": "2025-08-09T17:37:33.260Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/98a1e188-2d78-458f-a546-79eec9e1dd8a.png"
+    ]
+  },
+  "task_GklsyA--NarRiQefJqsaF": {
+    "taskId": "task_GklsyA--NarRiQefJqsaF",
+    "status": "completed",
+    "prompt": "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/b0c3d319-42cc-400c-8165-1b8eac94f65e.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T18:10:34.089Z",
+    "kieTaskId": "a285c0d75c358557c1f00df83864c24c",
+    "completedAt": "2025-08-09T18:15:14.534Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/63006bd6-f3f4-4af2-9e0c-350feff514a3.png"
+    ]
+  },
+  "task_gXYSgOcFmVAbYHYcYfmRr": {
+    "taskId": "task_gXYSgOcFmVAbYHYcYfmRr",
+    "status": "completed",
+    "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/066c24e7-4d11-4655-b4f6-20aa68c63981.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "ios",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T18:34:34.834Z",
+    "kieTaskId": "593923e8838ba0e40dd977808410dedf",
+    "completedAt": "2025-08-09T18:36:42.402Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/fbdadcca-718a-4749-b96e-71bc335629d8.png"
+    ]
+  },
+  "task_qPp9xLyHn9YwZ5nnRNBVg": {
+    "taskId": "task_qPp9xLyHn9YwZ5nnRNBVg",
+    "status": "processing",
+    "prompt": "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/27607ed3-ed0c-47d1-a173-e85f8754d036.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T18:57:26.989Z",
+    "kieTaskId": "f25b68a2df88cefd74edcb5e052e1b37"
+  },
+  "task_tgmyWj2_GRDGZWIVTZPMx": {
+    "taskId": "task_tgmyWj2_GRDGZWIVTZPMx",
+    "status": "processing",
+    "prompt": "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/a639f6c9-e32f-4f3d-9110-578feeb7e67d.png"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T19:23:24.925Z",
+    "kieTaskId": "ca0e9c03515c746f2c688ede1185c139"
+  },
+  "task_tiCf-Jhi8_Hio9xfadtSx": {
+    "taskId": "task_tiCf-Jhi8_Hio9xfadtSx",
+    "status": "completed",
+    "prompt": "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
+    "filesUrl": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/user-uploads/1add7600-b383-47ef-849f-05065f99cf22.jpg"
+    ],
+    "size": "1:1",
+    "nVariants": 1,
+    "style": "snoopy",
+    "userId": "4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY",
+    "createdAt": "2025-08-09T19:33:36.595Z",
+    "kieTaskId": "d1241a7e421cc8968f9f7261f0a76d96",
+    "completedAt": "2025-08-09T19:35:49.765Z",
+    "resultUrls": [
+      "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/roboneo/generated-stickers/4fc7336f-7113-4e4f-9c8a-5c942f7cc2eb.png"
+    ]
+  }
+}

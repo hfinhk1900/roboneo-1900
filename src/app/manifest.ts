@@ -24,7 +24,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: defaultMessages.Metadata.name,
     short_name: defaultMessages.Metadata.name,
-    description: defaultMessages.Metadata.description,
+    // description: defaultMessages.Metadata.description, // 隐藏详细描述
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

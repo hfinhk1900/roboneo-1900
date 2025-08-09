@@ -1,0 +1,964 @@
+
+> roboneo art webapp@0.1.0 dev
+> next dev -p 3000
+
+[MDX] updated map file in 19.40212500000007ms
+[MDX] started dev server
+   ▲ Next.js 15.2.1
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.77:3000
+   - Environments: .env.local, .env.development, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+ ○ Compiling /api/ping ...
+ ✓ Compiled /api/ping in 1484ms (408 modules)
+ GET /api/ping 200 in 1729ms
+ ○ Compiling /api/image-to-sticker-ai ...
+ ✓ Compiled /api/image-to-sticker-ai in 2.9s (1175 modules)
+ GET /api/image-to-sticker-ai?taskId=task_EO2rAgpasq4d49X-YdM0J 404 in 3084ms
+ ✓ Compiled /api/kie-ai-callback in 433ms (1175 modules)
+ HEAD /api/kie-ai-callback 200 in 527ms
+ HEAD /api/kie-ai-callback 200 in 11ms
+ ✓ Compiled in 331ms (896 modules)
+ ✓ Compiled in 19ms
+ ○ Compiling /api/image-to-sticker-ai ...
+ ✓ Compiled /api/image-to-sticker-ai in 844ms (895 modules)
+🚀 Starting AI image-to-sticker generation...
+🧪 [TEST MODE] Using test token authentication
+🧪 [TEST MODE] Applying cost optimization settings for user test-user-123
+🎨 [STYLE] Applied ios style: iOS Sticker
+🧪 [COST OPTIMIZATION] Settings applied: {
+  style: 'ios',
+  size: '1:1',
+  nVariants: 1,
+  isEnhance: false,
+  enableFallback: false,
+  inputImages: 1,
+  promptApplied: true
+}
+📝 Created task task_yVbZ5UyzcZ7k8YPgM0BDj for user test-user-123
+🔄 Processing task task_yVbZ5UyzcZ7k8YPgM0BDj...
+🤖 Calling real KIE AI API for task task_yVbZ5UyzcZ7k8YPgM0BDj...
+🎨 Style: ios
+🔗 Setting callback URL: https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback
+🚀 Calling KIE AI API with: {
+  "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
+  "filesUrl": [
+    "https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=400"
+  ],
+  "size": "1:1",
+  "nVariants": 1,
+  "callBackUrl": "https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback",
+  "isEnhance": false,
+  "uploadCn": false,
+  "enableFallback": false,
+  "fallbackModel": "FLUX_MAX"
+}
+🧪 [TEST MODE] Skipping credit deduction for task task_yVbZ5UyzcZ7k8YPgM0BDj
+ POST /api/image-to-sticker-ai 200 in 1011ms
+✅ KIE AI API response: {
+  code: 200,
+  msg: 'success',
+  data: { taskId: 'b0bc9d404d64178ea365a0c9962adecc' }
+}
+✅ KIE AI task created: b0bc9d404d64178ea365a0c9962adecc
+🚀 Using callback mode - no polling needed! Will receive notification at callback URL.
+💾 Stored KIE AI task ID b0bc9d404d64178ea365a0c9962adecc for local task task_yVbZ5UyzcZ7k8YPgM0BDj
+✅ KIE AI task created successfully: b0bc9d404d64178ea365a0c9962adecc
+🚀 Using callback mode - results will be delivered via callback URL
+⏳ Task task_yVbZ5UyzcZ7k8YPgM0BDj is now waiting for KIE AI callback...
+⏳ Task task_yVbZ5UyzcZ7k8YPgM0BDj is now PROCESSING, waiting for KIE AI callback...
+ GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 200 in 39ms
+ GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 200 in 15ms
+ ✓ Compiled in 505ms (895 modules)
+ GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 404 in 68ms
+ ✓ Compiled /api/kie-ai-callback in 287ms (897 modules)
+📞 收到 KIE AI 回调通知
+📋 回调数据: {
+  "code": 200,
+  "data": {
+    "info": {
+      "result_urls": [
+        "https://tempfile.aiquickdraw.com/s/b0bc9d404d64178ea365a0c9962adecc_0_1754691386_1525.png"
+      ]
+    },
+    "taskId": "b0bc9d404d64178ea365a0c9962adecc"
+  },
+  "msg": "Gpt4o-image generated successfully."
+}
+⚠️ 未找到对应的本地任务: b0bc9d404d64178ea365a0c9962adecc
+ POST /api/kie-ai-callback 200 in 357ms
+📞 收到 KIE AI 回调通知
+📋 回调数据: {
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "taskId": "b0bc9d404d64178ea365a0c9962adecc",
+    "info": {
+      "result_urls": [
+        "https://tempfile.aiquickdraw.com/s/b0bc9d404d64178ea365a0c9962adecc_0_1754691386_1525.png"
+      ]
+    }
+  }
+}
+⚠️ 未找到对应的本地任务: b0bc9d404d64178ea365a0c9962adecc
+ POST /api/kie-ai-callback 200 in 23ms
+ GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 404 in 21ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 8.4s (2585 modules)
+ POST /api/test-download-save 404 in 10680ms
+ ○ Compiling /api/storage/upload ...
+ ✓ Compiled /api/storage/upload in 3.2s (2606 modules)
+uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png
+uploadFile, result {
+  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png',
+  key: 'image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png'
+}
+ POST /api/storage/upload 200 in 4780ms
+ ✓ Compiled in 1015ms (636 modules)
+ ✓ Compiled in 973ms (636 modules)
+ ✓ Compiled in 564ms (636 modules)
+ ✓ Compiled in 1031ms (636 modules)
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 3s (2968 modules)
+ GET /step-showcase3.png 404 in 3859ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+ GET /magic02.png 404 in 2167ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+ GET /magic03.png 404 in 2172ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+ GET /step-showcase2.png 404 in 4396ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled in 783ms (811 modules)
+ ✓ Compiled in 1555ms (811 modules)
+ ✓ Compiled in 815ms (811 modules)
+ ✓ Compiled in 957ms (811 modules)
+ ✓ Compiled in 599ms (811 modules)
+ ✓ Compiled in 616ms (811 modules)
+ ✓ Compiled in 949ms (811 modules)
+ ✓ Compiled in 818ms (811 modules)
+ ✓ Compiled in 752ms (811 modules)
+ ○ Compiling /api/storage/upload ...
+ ✓ Compiled /api/storage/upload in 518ms (141 modules)
+uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp
+uploadFile, result {
+  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp',
+  key: '88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp'
+}
+ POST /api/storage/upload 200 in 1428ms
+ ○ Compiling /api/image-to-sticker-ai ...
+ ✓ Compiled /api/image-to-sticker-ai in 2.6s (897 modules)
+🚀 Starting AI image-to-sticker generation...
+🧪 [TEST MODE] Using test token authentication
+🧪 [TEST MODE] Applying cost optimization settings for user test-user-123
+🎨 [STYLE] Applied ios style: iOS Sticker
+🧪 [COST OPTIMIZATION] Settings applied: {
+  style: 'ios',
+  size: '1:1',
+  nVariants: 1,
+  isEnhance: false,
+  enableFallback: false,
+  inputImages: 1,
+  promptApplied: true
+}
+📝 Created task task_q9eFXI0SdAfzUTbmI4cmS for user test-user-123
+🔄 Processing task task_q9eFXI0SdAfzUTbmI4cmS...
+🤖 Calling real KIE AI API for task task_q9eFXI0SdAfzUTbmI4cmS...
+🎨 Style: ios
+🔗 Setting callback URL: https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback
+🚀 Calling KIE AI API with: {
+  "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
+  "filesUrl": [
+    "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp"
+  ],
+  "size": "1:1",
+  "nVariants": 1,
+  "callBackUrl": "https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback",
+  "isEnhance": false,
+  "uploadCn": false,
+  "enableFallback": false,
+  "fallbackModel": "FLUX_MAX"
+}
+🧪 [TEST MODE] Skipping credit deduction for task task_q9eFXI0SdAfzUTbmI4cmS
+ POST /api/image-to-sticker-ai 200 in 2664ms
+✅ KIE AI API response: {
+  code: 200,
+  msg: 'success',
+  data: { taskId: '6eb3ba8afe948648a9d4976af4fc547f' }
+}
+✅ KIE AI task created: 6eb3ba8afe948648a9d4976af4fc547f
+🚀 Using callback mode - no polling needed! Will receive notification at callback URL.
+💾 Stored KIE AI task ID 6eb3ba8afe948648a9d4976af4fc547f for local task task_q9eFXI0SdAfzUTbmI4cmS
+✅ KIE AI task created successfully: 6eb3ba8afe948648a9d4976af4fc547f
+🚀 Using callback mode - results will be delivered via callback URL
+⏳ Task task_q9eFXI0SdAfzUTbmI4cmS is now waiting for KIE AI callback...
+⏳ Task task_q9eFXI0SdAfzUTbmI4cmS is now PROCESSING, waiting for KIE AI callback...
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 6ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 9ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 9ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 13ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 22ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 10ms
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 16ms
+ ✓ Compiled /middleware in 368ms (183 modules)
+>> middleware start, pathname /
+ ○ Compiling /api/auth/[...all] ...
+ ✓ Compiled /api/auth/[...all] in 1472ms (1711 modules)
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 404 in 1232ms
+ GET /api/auth/get-session 200 in 4891ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 4.5s (2895 modules)
+ GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 404 in 4228ms
+ GET / 200 in 7036ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 607ms (2898 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1581ms
+ GET /step-showcase1.png 404 in 1770ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+ GET /ios-style.png 404 in 1720ms
+ ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
+ GET /showcase01.png 404 in 1689ms
+ ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
+ GET /showcase02.png 404 in 1673ms
+ ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
+ GET /magic01.png 404 in 1441ms
+ ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /showcase03.png 404 in 169ms
+ ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
+ GET /showcase04.png 404 in 179ms
+ ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /magic02.png 404 in 169ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+ GET /magic03.png 404 in 179ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ○ Compiling /manifest.webmanifest ...
+>> middleware start, pathname /
+ ✓ Compiled /manifest.webmanifest in 1752ms (3699 modules)
+ GET /manifest.webmanifest 200 in 2380ms
+ GET /pixel-style.png 404 in 1208ms
+ ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
+ GET /snoopy-style.png 404 in 962ms
+ ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /lego-style.png 404 in 1089ms
+ ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /api/auth/get-session 200 in 1942ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 2786ms
+ GET /step-showcase2.png 404 in 85ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ POST / 200 in 2037ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 26ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 38ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 21ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 244ms
+ GET /step-showcase3.png 404 in 64ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase1.png 404 in 288ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ○ Compiling /api/kie-ai-callback ...
+ ✓ Compiled /api/kie-ai-callback in 1052ms (2893 modules)
+📞 收到 KIE AI 回调通知
+📋 回调数据: {
+  "code": 400,
+  "data": {
+    "taskId": "6eb3ba8afe948648a9d4976af4fc547f"
+  },
+  "msg": "Your content was flagged by OpenAI as violating content policies."
+}
+⚠️ 未找到对应的本地任务: 6eb3ba8afe948648a9d4976af4fc547f
+ POST /api/kie-ai-callback 200 in 1280ms
+>> middleware start, pathname /
+ ○ Compiling /api/auth/[...all] ...
+ ✓ Compiled /api/auth/[...all] in 589ms (2896 modules)
+ GET /api/auth/get-session 200 in 1550ms
+<< middleware end, applying intlMiddleware
+ GET /step-showcase3.png 404 in 306ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET / 200 in 351ms
+ GET /showcase01.png 404 in 118ms
+ ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
+ GET /showcase02.png 404 in 122ms
+ ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled /manifest.webmanifest in 432ms (2900 modules)
+>> middleware start, pathname /
+ ✓ Compiled in 0ms (2900 modules)
+ ✓ Compiled in 0ms (2900 modules)
+ ✓ Compiled in 0ms (2900 modules)
+ GET /manifest.webmanifest 200 in 2951ms
+ GET /showcase03.png 404 in 3191ms
+ ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
+ GET /showcase04.png 404 in 3197ms
+ ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
+ GET /magic01.png 404 in 3188ms
+ ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
+ GET /magic02.png 404 in 3194ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+ GET /magic03.png 404 in 3189ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /api/auth/get-session 200 in 3451ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 108ms
+ GET /manifest.webmanifest 200 in 37ms
+ GET /step-showcase2.png 404 in 100ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled in 1207ms (811 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 70ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 52ms
+ GET /manifest.webmanifest 200 in 26ms
+ ✓ Compiled in 631ms (811 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 51ms
+ GET /manifest.webmanifest 200 in 22ms
+ GET /step-showcase1.png 404 in 76ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase3.png 404 in 125ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 16ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 529ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 1509ms (2892 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2221ms
+ GET /showcase01.png 404 in 2530ms
+ ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
+ GET /showcase02.png 404 in 2536ms
+ ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
+ GET /magic01.png 404 in 2543ms
+ ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
+ GET /ios-style.png 404 in 1965ms
+ ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
+ GET /showcase03.png 404 in 1402ms
+ ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
+ GET /showcase04.png 404 in 1383ms
+ ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /manifest.webmanifest 200 in 164ms
+ GET /api/auth/get-session 200 in 436ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 15ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 1272ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 18ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 166ms
+ GET /step-showcase2.png 404 in 83ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ○ Compiling /api/storage/upload ...
+ ✓ Compiled /api/storage/upload in 846ms (2899 modules)
+uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/6064786a-01d0-4e11-895a-7a12b6ba82b4.webp
+uploadFile, result {
+  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/6064786a-01d0-4e11-895a-7a12b6ba82b4.webp',
+  key: '6064786a-01d0-4e11-895a-7a12b6ba82b4.webp'
+}
+ POST /api/storage/upload 200 in 1481ms
+ ○ Compiling /api/image-to-sticker-ai ...
+ ✓ Compiled /api/image-to-sticker-ai in 1066ms (2904 modules)
+🚀 Starting AI image-to-sticker generation...
+ POST /api/image-to-sticker-ai 401 in 1163ms
+ POST /api/auth/sign-in/social 200 in 1131ms
+ GET /api/auth/get-session 200 in 30ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 488ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 20ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 702ms
+ GET /api/auth/callback/google?state=qTe87jG8KqtTnKKBL92muJkbEn4RxOZM&code=4%2F0AVMBsJjNiDNz-ct1Qq21VoX_HgzKn4s0jW2369MDOEJK-seCk-TCTaJhIJcekHEnMv9eKA&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 1650ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 554ms
+ GET /step-showcase1.png 404 in 283ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 291ms
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /manifest.webmanifest 200 in 27ms
+ GET /api/auth/get-session 200 in 11ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 14ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 144ms
+ GET /magic02.png 404 in 58ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /magic03.png 404 in 122ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /manifest.webmanifest 200 in 58ms
+ GET /pixel-style.png 404 in 69ms
+ ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /lego-style.png 404 in 160ms
+ ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
+ GET /snoopy-style.png 404 in 166ms
+ ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 298ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 133ms
+ GET /manifest.webmanifest 200 in 7ms
+ GET /api/auth/get-session 200 in 15ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 14ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 157ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 29ms
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 19ms
+ POST / 200 in 198ms
+ GET /step-showcase3.png 404 in 74ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase2.png 404 in 63ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+>> middleware start, pathname /
+ ✓ Compiled in 3.5s (3703 modules)
+ GET /api/auth/get-session 200 in 2760ms
+<< middleware end, applying intlMiddleware
+ GET /ios-style.png 404 in 3231ms
+ ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
+ GET /pixel-style.png 404 in 3208ms
+ ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
+ GET /lego-style.png 404 in 3162ms
+ ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
+ GET /snoopy-style.png 404 in 3170ms
+ ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase1.png 404 in 61ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ POST / 200 in 1587ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 18ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 66ms
+ GET /showcase01.png 404 in 148ms
+ ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
+ GET /showcase02.png 404 in 155ms
+ ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /manifest.webmanifest 200 in 30ms
+ GET /showcase03.png 404 in 181ms
+ ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
+ GET /showcase04.png 404 in 186ms
+ ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
+ GET /magic01.png 404 in 171ms
+ ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /magic02.png 404 in 295ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+ GET /magic03.png 404 in 292ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled in 1392ms (3700 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 343ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 126ms
+ GET /manifest.webmanifest 200 in 32ms
+ ✓ Compiled in 2.6s (3700 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 207ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 159ms
+ GET /manifest.webmanifest 200 in 31ms
+ ✓ Compiled in 1041ms (3700 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 187ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 112ms
+ GET /manifest.webmanifest 200 in 33ms
+ GET /step-showcase3.png 404 in 79ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase2.png 404 in 136ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled in 1081ms (3700 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 198ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 127ms
+ GET /manifest.webmanifest 200 in 23ms
+ ✓ Compiled in 1549ms (3700 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 205ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 231ms
+ GET /manifest.webmanifest 200 in 24ms
+ GET /step-showcase1.png 404 in 182ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 16ms
+<< middleware end, applying intlMiddleware
+ HEAD / 200 in 716ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 38ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 711ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 2.6s (2892 modules)
+>> middleware start, pathname /
+ ✓ Compiled in 0ms (2892 modules)
+ ✓ Compiled in 3ms (2892 modules)
+ ✓ Compiled in 0ms (2892 modules)
+ GET /showcase01.png 404 in 7170ms
+ ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
+ GET /showcase02.png 404 in 7144ms
+ ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
+ GET /magic01.png 404 in 7136ms
+ ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
+ GET /ios-style.png 404 in 5343ms
+ ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
+ GET /showcase03.png 404 in 5175ms
+ ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
+ GET /showcase04.png 404 in 5169ms
+ ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 7414ms
+>> middleware start, pathname /
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ ✓ Compiled in 1ms (2892 modules)
+ GET /api/auth/get-session 200 in 5516ms
+<< middleware end, applying intlMiddleware
+ ✓ Compiled in 1ms (2892 modules)
+ GET /manifest.webmanifest 200 in 5159ms
+ ✓ Compiled in 0ms (2892 modules)
+ GET /api/auth/get-session 200 in 5574ms
+ GET /api/auth/get-session 200 in 2582ms
+<< middleware end, applying intlMiddleware
+ GET /magic03.png 404 in 3373ms
+ ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
+ GET /pixel-style.png 404 in 3364ms
+ ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
+ GET /lego-style.png 404 in 3341ms
+ ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
+ GET /snoopy-style.png 404 in 3352ms
+ ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
+ GET /magic02.png 404 in 3994ms
+ ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
+ POST / 200 in 1605ms
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+>> middleware start, pathname /
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '3485663598' }
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 798ms
+ GET /api/auth/get-session 200 in 486ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 4806ms
+ GET /manifest.webmanifest 200 in 42ms
+ GET /api/auth/get-session 200 in 27ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 843ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 17ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+DEBUGGING: All subscriptions found: [
+  {
+    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.633Z"
+  },
+  {
+    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+    "status": "active",
+    "type": "subscription",
+    "interval": "month",
+    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
+    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
+    "cancelAtPeriodEnd": true,
+    "createdAt": "2025-07-29T00:40:17.503Z"
+  },
+  {
+    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
+    "customerId": "cus_SlXXgVndnUTJDU",
+    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
+    "status": "active",
+    "type": "subscription",
+    "interval": "year",
+    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
+    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
+    "cancelAtPeriodEnd": false,
+    "createdAt": "2025-07-29T00:40:17.369Z"
+  }
+]
+DEBUGGING: Active subscription found: {
+  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
+  "customerId": "cus_SlXXgVndnUTJDU",
+  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
+  "status": "active",
+  "type": "subscription",
+  "interval": "month",
+  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
+  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
+  "cancelAtPeriodEnd": true,
+  "createdAt": "2025-07-29T00:40:17.633Z"
+}
+ POST / 200 in 730ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 27ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 148ms
+ GET /step-showcase2.png 404 in 67ms
+ ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase3.png 404 in 60ms
+ ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ GET /step-showcase1.png 404 in 78ms
+ ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[?25h
+[MDX] closing dev server
