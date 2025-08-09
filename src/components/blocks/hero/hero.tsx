@@ -137,7 +137,7 @@ export default function HeroSection() {
     setGeneratedImageUrl(null);
     setIsGenerating(true);
     setFileError(null);
-    setGenerationStep('📤 Uploading your image...');
+    setGenerationStep('🎨 Generating your sticker...');
     setGenerationProgress(10);
 
     // Request notification permission for completion notification
