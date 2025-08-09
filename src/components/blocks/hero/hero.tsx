@@ -643,6 +643,7 @@ export default function HeroSection() {
                       height={400}
                       style={{ height: "auto" }}
                       className="object-contain max-h-full rounded-lg shadow-md"
+                      priority={true}
                     />
                     <Image
                       src="/hero-2.webp"
