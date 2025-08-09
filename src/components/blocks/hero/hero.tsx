@@ -67,6 +67,7 @@ export default function HeroSection() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+  const [lastTaskId, setLastTaskId] = useState<string | null>(null);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -203,71 +204,118 @@ export default function HeroSection() {
 
             const taskData = await taskResponse.json();
       const taskId = taskData.data.taskId;
+      setLastTaskId(taskId); // Save for manual check if needed
 
             setGenerationStep('🎨 High-res artwork in the making...');
       setGenerationProgress(50);
 
-      // Step 3: Poll task status until completion
-      let attempts = 0;
-      const maxAttempts = 40; // Max 3.3 minutes (40 * 5s intervals)
-
+      // Step 3: Smart polling with progressive intervals (Vercel bandwidth optimized)
+      const smartIntervals = [30, 60, 120]; // 30s, 1m, 2m - total 3.5 minutes, only 3 requests
       const startTime = Date.now();
 
-      while (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-        attempts++;
+      setGenerationStep('🎨 High-quality generation in progress...');
+      setGenerationProgress(60);
+
+      for (let i = 0; i < smartIntervals.length; i++) {
+        const intervalSeconds = smartIntervals[i];
+        const currentCheck = i + 1;
+
+        // Wait for the specified interval
+        await new Promise(resolve => setTimeout(resolve, intervalSeconds * 1000));
 
         // Calculate elapsed time
         const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-        const estimatedTotal = 120; // 2 minutes estimate
-        const remainingSeconds = Math.max(0, estimatedTotal - elapsedSeconds);
+        const totalEstimated = 210; // 3.5 minutes total
+        const remainingSeconds = Math.max(0, totalEstimated - elapsedSeconds);
 
-        // Update progress during polling (50% to 90%)
-        const pollingProgress = Math.min(90, 50 + (attempts / maxAttempts) * 40);
-        setGenerationProgress(pollingProgress);
+        // Update progress (60% to 90% across 3 checks)
+        const progressIncrement = 30 / smartIntervals.length;
+        const currentProgress = Math.min(90, 60 + (progressIncrement * (i + 1)));
+        setGenerationProgress(currentProgress);
 
-        // Enhanced progress messages
-        if (attempts <= 5) {
-          setGenerationStep('🧠 AI analyzing your image...');
-        } else if (attempts <= 15) {
-          setGenerationStep(`🎨 Creating ${selectedOption?.label || 'sticker'} (${remainingSeconds}s remaining)...`);
+        // Smart progress messages based on check number
+        if (i === 0) {
+          setGenerationStep(`🧠 Processing your ${selectedOption?.label || 'sticker'}... (${remainingSeconds}s remaining)`);
+        } else if (i === 1) {
+          setGenerationStep(`🎨 Fine-tuning details... (${remainingSeconds}s remaining)`);
         } else {
-          setGenerationStep(`✨ Finalizing your sticker (${remainingSeconds}s remaining)...`);
+          setGenerationStep(`✨ Almost ready... (${remainingSeconds}s remaining)`);
         }
 
-        const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
+        try {
+          console.log(`Smart polling check ${currentCheck}/${smartIntervals.length} after ${intervalSeconds}s interval`);
+
+          const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
+            method: 'GET',
+          });
+
+          if (!statusResponse.ok) {
+            console.log(`Status check ${currentCheck} failed, continuing...`);
+            continue;
+          }
+
+          const statusData = await statusResponse.json();
+
+          if (statusData.data?.status === 'completed') {
+            const resultUrls = statusData.data.resultUrls;
+            if (resultUrls && resultUrls.length > 0) {
+              setGenerationStep('🎉 Your sticker is ready!');
+              setGenerationProgress(100);
+              setGeneratedImageUrl(resultUrls[0]);
+              // Clear credits cache to trigger refresh of credits display
+              creditsCache.clear();
+              // Send completion notification
+              sendCompletionNotification();
+              return;
+            } else {
+              throw new Error('Task completed but no result URLs found');
+            }
+          } else if (statusData.data?.status === 'failed') {
+            throw new Error(statusData.data.error || 'Sticker generation failed');
+          }
+
+          // Task is still processing, continue with next interval
+          console.log(`Check ${currentCheck}: Task still processing, next check in ${i < smartIntervals.length - 1 ? smartIntervals[i + 1] + 's' : 'manual mode'}`);
+
+        } catch (checkError) {
+          console.log(`Status check ${currentCheck} error:`, checkError);
+          // Continue to next check unless it's the last one
+          if (i === smartIntervals.length - 1) {
+            throw checkError;
+          }
+        }
+      }
+
+      // If we reach here, smart polling completed - task may still be processing
+      console.log('Smart polling completed (3 checks over 3.5 minutes), task may still be processing in background');
+
+      // Try one final status check before giving up
+      try {
+        const finalStatusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
           method: 'GET',
         });
 
-        if (!statusResponse.ok) {
-          continue;
-        }
+        if (finalStatusResponse.ok) {
+          const finalStatusData = await finalStatusResponse.json();
 
-        const statusData = await statusResponse.json();
+          if (finalStatusData.data?.status === 'completed') {
+            const resultUrls = finalStatusData.data.resultUrls;
+            if (resultUrls && resultUrls.length > 0) {
+              setGeneratedImageUrl(resultUrls[0]);
+              setGenerationStep('✅ Sticker generated successfully!');
+              setGenerationProgress(100);
 
-        if (statusData.data?.status === 'completed') {
-          const resultUrls = statusData.data.resultUrls;
-          if (resultUrls && resultUrls.length > 0) {
-            setGenerationStep('🎉 Your sticker is ready!');
-            setGenerationProgress(100);
-            setGeneratedImageUrl(resultUrls[0]);
-            // Clear credits cache to trigger refresh of credits display
-            creditsCache.clear();
-            // Send completion notification
-            sendCompletionNotification();
-            return;
-          } else {
-            throw new Error('Task completed but no result URLs found');
+              // Send completion notification
+              sendCompletionNotification();
+              return; // Success!
+            }
           }
-        } else if (statusData.data?.status === 'failed') {
-          throw new Error(statusData.data.error || 'Sticker generation failed');
         }
-
-        // Task is still processing, continue polling
+      } catch (finalCheckError) {
+        console.log('Final status check failed:', finalCheckError);
       }
 
-      // If we reach here, polling timed out
-      throw new Error('Sticker generation timed out. Please try again.');
+      throw new Error('🎨 High-quality generation takes time! Your sticker may still be processing. Use the Check Result button below to see if it\'s ready.');
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -276,6 +324,12 @@ export default function HeroSection() {
       // Show user-friendly error message
       if (errorMessage.includes('Authentication required') || errorMessage.includes('Unauthorized')) {
         setFileError('Please login to generate stickers');
+      } else if (errorMessage.includes('High-quality generation takes time')) {
+        setFileError('🎨 High-quality generation in progress - check result below or wait a few minutes');
+      } else if (errorMessage.includes('taking longer than expected')) {
+        setFileError('⏰ Generation optimized for quality - may take up to 5 minutes. Check result button available below.');
+      } else if (errorMessage.includes('timed out')) {
+        setFileError('⚠️ Request timeout - your sticker may still be generating. Please use the Check Result button.');
       } else {
         setFileError(errorMessage);
       }
@@ -296,6 +350,42 @@ export default function HeroSection() {
       performGeneration();
     }
   }, [currentUser, performGeneration, selectedImage]);
+
+  // 手动检查任务结果
+  const checkTaskResult = async () => {
+    if (!lastTaskId) return;
+
+    setIsGenerating(true);
+    setGenerationStep('🔍 Checking your sticker status...');
+
+    try {
+      const response = await fetch(`/api/image-to-sticker-ai?taskId=${lastTaskId}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.data?.status === 'completed' && data.data.resultUrls?.length > 0) {
+          setGeneratedImageUrl(data.data.resultUrls[0]);
+          setGenerationStep('✅ Found your completed sticker!');
+          setGenerationProgress(100);
+          setFileError(null);
+          sendCompletionNotification();
+        } else if (data.data?.status === 'failed') {
+          setFileError(data.data.error || 'Generation failed');
+        } else {
+          setFileError('⏳ Your sticker is still being generated. Please try again in a few minutes.');
+        }
+      } else {
+        setFileError('Unable to check task status');
+      }
+    } catch (error) {
+      setFileError('Error checking task status');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // 删除上传的图片
   const removeUploadedImage = () => {
@@ -554,10 +644,22 @@ export default function HeroSection() {
                       />
                     </div>
                     {fileError && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
-                        <span>{fileError}</span>
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
+                          <span>{fileError}</span>
+                        </p>
+                        {/* Show check result button for timeout/delay errors */}
+                        {(fileError.includes('High-quality generation takes time') || fileError.includes('taking longer than expected') || fileError.includes('timeout') || fileError.includes('in progress') || fileError.includes('check result')) && lastTaskId && (
+                          <button
+                            onClick={checkTaskResult}
+                            disabled={isGenerating}
+                            className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isGenerating ? 'Checking...' : '🔍 Check Result'}
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -665,7 +767,7 @@ export default function HeroSection() {
                                <div className="text-blue-600 dark:text-blue-400 mt-0.5">⏱️</div>
                                <div className="text-sm">
                                  <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
-                                   High-res artwork in the making—this usually takes 1-2 min. Feel free to browse other tabs; we'll notify you.
+                                   High-res artwork in the making—this usually takes 2-4 min. We use smart checking to save bandwidth. Feel free to browse other tabs; we'll notify you.
                                  </p>
                                </div>
                              </div>
