@@ -38,14 +38,44 @@ async function saveTaskBackup(taskId: string, task: any): Promise<void> {
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    // Parse callback data from KIE AI
-    const callbackData = await req.json();
+    // 先获取原始请求体用于调试
+    const rawBody = await req.text();
+    console.log('📥 收到KIE AI callback，原始请求体长度:', rawBody.length);
 
-    const { code, msg, data } = callbackData;
+    // 检查请求体是否为空
+    if (!rawBody || rawBody.trim().length === 0) {
+      console.error('❌ KIE AI callback请求体为空');
+      return NextResponse.json({
+        status: 'received',
+        message: 'Empty callback body received'
+      }, { status: 200 });
+    }
+
+    // 尝试解析JSON
+    let callbackData;
+    try {
+      callbackData = JSON.parse(rawBody);
+      console.log('✅ 成功解析callback JSON:', JSON.stringify(callbackData, null, 2));
+        } catch (parseError: unknown) {
+      console.error('❌ JSON解析失败:', parseError);
+      console.error('原始请求体内容:', rawBody);
+
+      const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown JSON parse error';
+
+      // 返回成功状态避免KIE AI重试，但记录错误
+      return NextResponse.json({
+        status: 'received',
+        message: 'JSON parse error but acknowledged',
+        error: errorMessage
+      }, { status: 200 });
+    }
+
+    const { code, msg, data } = callbackData || {};
     const { taskId, info } = data || {};
 
     if (!taskId) {
       console.error('❌ 回调数据中缺少 taskId');
+      console.error('完整回调数据:', JSON.stringify(callbackData, null, 2));
       return NextResponse.json({ error: 'Missing taskId in callback data' }, { status: 400 });
     }
 
