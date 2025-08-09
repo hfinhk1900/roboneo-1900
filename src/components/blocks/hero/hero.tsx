@@ -165,8 +165,8 @@ export default function HeroSection() {
       setGenerationStep('🚀 Preparing AI generation...');
       setGenerationProgress(30);
 
-      // Step 2: Create KIE AI sticker generation task
-      const taskResponse = await fetch('/api/image-to-sticker-ai', {
+      // Step 2: Create KIE AI sticker generation task (using optimized API)
+      const taskResponse = await fetch('/api/image-to-sticker-optimized', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -174,8 +174,7 @@ export default function HeroSection() {
         body: JSON.stringify({
           filesUrl: [imageUrl],
           style: selectedStyle,
-          nVariants: 1,
-          size: '1:1'
+          // Simplified - API handles optimal settings internally
         }),
       });
 
@@ -235,7 +234,7 @@ export default function HeroSection() {
           setGenerationStep(`✨ Finalizing your sticker (${remainingSeconds}s remaining)...`);
         }
 
-        const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
+        const statusResponse = await fetch(`/api/image-to-sticker-optimized?taskId=${taskId}`, {
           method: 'GET',
         });
 
@@ -246,11 +245,12 @@ export default function HeroSection() {
         const statusData = await statusResponse.json();
 
         if (statusData.data?.status === 'completed') {
-          const resultUrls = statusData.data.resultUrls;
-          if (resultUrls && resultUrls.length > 0) {
+          // Optimized API returns single resultUrl instead of array
+          const resultUrl = statusData.data.resultUrl;
+          if (resultUrl) {
             setGenerationStep('🎉 Your sticker is ready!');
             setGenerationProgress(100);
-            setGeneratedImageUrl(resultUrls[0]);
+            setGeneratedImageUrl(resultUrl);
             // Clear credits cache to trigger refresh of credits display
             creditsCache.clear();
             // Send completion notification
