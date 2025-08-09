@@ -65,6 +65,7 @@ export default function HeroSection() {
   const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -73,7 +74,53 @@ export default function HeroSection() {
   // Fix hydration mismatch by ensuring client-side state consistency
   useEffect(() => {
     setIsMounted(true);
+
+    // Check notification permission on mount
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
   }, []);
+
+  // Request notification permission when generation starts
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        return permission;
+      } catch (error) {
+        console.log('Error requesting notification permission:', error);
+        return 'denied';
+      }
+    }
+    return Notification.permission;
+  };
+
+  // Send notification when generation completes
+  const sendCompletionNotification = () => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const notification = new Notification('🎉 Your sticker is ready!', {
+          body: 'Your high-res artwork has been generated successfully.',
+          icon: '/favicon-96x96.png',
+          tag: 'sticker-generation-complete'
+        });
+
+        // Auto-close notification after 5 seconds
+        setTimeout(() => {
+          notification.close();
+        }, 5000);
+
+        // Focus window when notification is clicked
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      } catch (error) {
+        console.log('Error sending notification:', error);
+      }
+    }
+  };
 
   // Function to perform the actual generation (without auth check) - Updated for KIE AI
   const performGeneration = useCallback(async () => {
@@ -89,8 +136,11 @@ export default function HeroSection() {
     setGeneratedImageUrl(null);
     setIsGenerating(true);
     setFileError(null);
-    setGenerationStep('Uploading image...');
+    setGenerationStep('📤 Uploading your image...');
     setGenerationProgress(10);
+
+    // Request notification permission for completion notification
+    requestNotificationPermission();
 
     try {
       // Step 1: Upload image to cloud storage to get public URL
@@ -111,7 +161,7 @@ export default function HeroSection() {
       const uploadData = await uploadResponse.json();
       const imageUrl = uploadData.url;
 
-      setGenerationStep('Creating AI task...');
+      setGenerationStep('🚀 Preparing AI generation...');
       setGenerationProgress(30);
 
       // Step 2: Create KIE AI sticker generation task
@@ -153,22 +203,36 @@ export default function HeroSection() {
             const taskData = await taskResponse.json();
       const taskId = taskData.data.taskId;
 
-      setGenerationStep('AI generating, please wait...');
+            setGenerationStep('🎨 High-res artwork in the making...');
       setGenerationProgress(50);
 
       // Step 3: Poll task status until completion
       let attempts = 0;
-      const maxAttempts = 40; // Max 3.3 minutes (40 * 5s intervals) - 减少等待时间
+      const maxAttempts = 40; // Max 3.3 minutes (40 * 5s intervals)
+
+      const startTime = Date.now();
 
       while (attempts < maxAttempts) {
         await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
         attempts++;
 
+        // Calculate elapsed time
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const estimatedTotal = 120; // 2 minutes estimate
+        const remainingSeconds = Math.max(0, estimatedTotal - elapsedSeconds);
+
         // Update progress during polling (50% to 90%)
-                  const pollingProgress = Math.min(90, 50 + (attempts / maxAttempts) * 40);
-          setGenerationProgress(pollingProgress);
-          const progressPercent = Math.round((attempts / maxAttempts) * 100);
-          setGenerationStep(`AI generating... ${progressPercent}%`);
+        const pollingProgress = Math.min(90, 50 + (attempts / maxAttempts) * 40);
+        setGenerationProgress(pollingProgress);
+
+        // Enhanced progress messages
+        if (attempts <= 5) {
+          setGenerationStep('🧠 AI analyzing your image...');
+        } else if (attempts <= 15) {
+          setGenerationStep(`🎨 Creating ${selectedOption?.label || 'sticker'} (${remainingSeconds}s remaining)...`);
+        } else {
+          setGenerationStep(`✨ Finalizing your sticker (${remainingSeconds}s remaining)...`);
+        }
 
         const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
           method: 'GET',
@@ -183,11 +247,13 @@ export default function HeroSection() {
         if (statusData.data?.status === 'completed') {
           const resultUrls = statusData.data.resultUrls;
           if (resultUrls && resultUrls.length > 0) {
-            setGenerationStep('Generation completed!');
+            setGenerationStep('🎉 Your sticker is ready!');
             setGenerationProgress(100);
             setGeneratedImageUrl(resultUrls[0]);
             // Clear credits cache to trigger refresh of credits display
             creditsCache.clear();
+            // Send completion notification
+            sendCompletionNotification();
             return;
           } else {
             throw new Error('Task completed but no result URLs found');
@@ -544,19 +610,36 @@ export default function HeroSection() {
                       }
                     </Button>
 
-                    {/* Progress bar for KIE AI generation */}
+                    {/* Enhanced Progress UI for KIE AI generation */}
                     {isGenerating && generationProgress > 0 && (
-                      <div className="w-full space-y-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
-                            style={{ width: `${generationProgress}%` }}
-                          />
+                      <div className="w-full space-y-4">
+                        {/* Main Progress Bar */}
+                        <div className="w-full space-y-2">
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div
+                              className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 ease-out"
+                              style={{ width: `${generationProgress}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span className="font-medium">{generationStep}</span>
+                            <span className="font-medium">{generationProgress}%</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{generationStep}</span>
-                          <span>{generationProgress}%</span>
-                        </div>
+
+                                                 {/* Generation Status Message */}
+                         {generationProgress >= 50 && (
+                           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                             <div className="flex items-start gap-3">
+                               <div className="text-blue-600 dark:text-blue-400 mt-0.5">⏱️</div>
+                               <div className="text-sm">
+                                 <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
+                                   High-res artwork in the making—this usually takes 1-2 min. Feel free to browse other tabs; we'll notify you.
+                                 </p>
+                               </div>
+                             </div>
+                           </div>
+                         )}
                       </div>
                     )}
                   </div>
