@@ -29,12 +29,10 @@ import { cn } from '@/lib/utils';
 import {
   AlertCircleIcon,
   DownloadIcon,
-  ImageIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
   Trash2Icon,
-  UploadIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -79,8 +77,6 @@ export default function HeroSection() {
   // Fix hydration mismatch by ensuring client-side state consistency
   useEffect(() => {
     setIsMounted(true);
-
-    // Check notification permission on mount
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
@@ -111,12 +107,10 @@ export default function HeroSection() {
           tag: 'sticker-generation-complete',
         });
 
-        // Auto-close notification after 5 seconds
         setTimeout(() => {
           notification.close();
         }, 5000);
 
-        // Focus window when notification is clicked
         notification.onclick = () => {
           window.focus();
           notification.close();
@@ -127,11 +121,10 @@ export default function HeroSection() {
     }
   };
 
-  // Function to perform the actual generation (without auth check) - Updated for KIE AI
+  // Enhanced KIE AI generation function
   const performGeneration = useCallback(async () => {
     if (!selectedImage) return;
 
-    // Double-check file validation before sending
     const validation = validateImageFile(selectedImage);
     if (!validation.isValid) {
       setFileError(validation.error || 'Invalid file');
@@ -144,76 +137,139 @@ export default function HeroSection() {
     setGenerationStep('🎨 Generating your sticker...');
     setGenerationProgress(10);
 
-    // Request notification permission for completion notification
     requestNotificationPermission();
 
     try {
-      setGenerationStep('🚀 Preparing AI generation...');
-      setGenerationProgress(20);
-
-      // Generate sticker using OpenAI API (direct synchronous call with FormData)
-      setGenerationStep('🧠 AI analyzing your image...');
-      setGenerationProgress(40);
-
+      // Step 1: Upload image to cloud storage
       const formData = new FormData();
-      formData.append('imageFile', selectedImage);
-      formData.append('style', selectedStyle);
+      formData.append('file', selectedImage);
+      formData.append('folder', 'roboneo/user-uploads');
 
-      const stickerResponse = await fetch('/api/image-to-sticker', {
+      const uploadResponse = await fetch('/api/storage/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (!stickerResponse.ok) {
-        const stickerError = await stickerResponse.json();
+      if (!uploadResponse.ok) {
+        const uploadError = await uploadResponse.json();
+        throw new Error(uploadError.error || 'Failed to upload image');
+      }
 
-        // Handle insufficient credits error
-        if (stickerResponse.status === 402) {
+      const uploadData = await uploadResponse.json();
+      const imageUrl = uploadData.url;
+
+      setGenerationStep('🚀 Creating AI task...');
+      setGenerationProgress(30);
+
+      // Step 2: Create KIE AI sticker generation task
+      const taskResponse = await fetch('/api/image-to-sticker-ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filesUrl: [imageUrl],
+          style: selectedStyle,
+          nVariants: 1,
+          size: '1:1',
+        }),
+      });
+
+      if (!taskResponse.ok) {
+        const taskError = await taskResponse.json();
+
+        if (taskResponse.status === 402) {
           setCreditsError({
-            required: stickerError.required || 10,
-            current: stickerError.current || 0,
+            required: taskError.required,
+            current: taskError.current,
           });
           setShowCreditsDialog(true);
           return;
         }
 
-        // Handle authentication error
-        if (stickerResponse.status === 401) {
+        if (taskResponse.status === 401) {
           setShowLoginDialog(true);
           return;
         }
 
         throw new Error(
-          stickerError.error || stickerError.message || 'Failed to generate sticker'
+          taskError.msg || taskError.error || 'Failed to create sticker task'
         );
       }
 
-      setGenerationStep('🎨 Creating your sticker...');
-      setGenerationProgress(70);
+      const taskData = await taskResponse.json();
+      const taskId = taskData.data.taskId;
 
-      const stickerData = await stickerResponse.json();
+      setGenerationStep('🎨 High-res artwork in progress...');
+      setGenerationProgress(50);
 
-      setGenerationStep('✨ Finalizing your sticker...');
-      setGenerationProgress(90);
+      // Step 3: Enhanced polling with better UX
+      let attempts = 0;
+      const maxAttempts = 40;
+      const startTime = Date.now();
 
-      if (stickerData.url || stickerData.imageUrl) {
-        setGenerationStep('🎉 Your sticker is ready!');
-        setGenerationProgress(100);
-        setGeneratedImageUrl(stickerData.url || stickerData.imageUrl);
-        // Clear credits cache to trigger refresh of credits display
-        creditsCache.clear();
-        // Send completion notification
-        sendCompletionNotification();
-        return;
-      } else {
-        throw new Error('No sticker image was generated');
+      while (attempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        attempts++;
+
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const estimatedTotal = 120;
+        const remainingSeconds = Math.max(0, estimatedTotal - elapsedSeconds);
+
+        const pollingProgress = Math.min(
+          90,
+          50 + (attempts / maxAttempts) * 40
+        );
+        setGenerationProgress(pollingProgress);
+
+        // Enhanced progress messages
+        if (attempts <= 5) {
+          setGenerationStep('🧠 AI analyzing your image...');
+        } else if (attempts <= 15) {
+          setGenerationStep(
+            `🎨 Creating ${selectedOption?.label || 'sticker'} (${remainingSeconds}s remaining)...`
+          );
+        } else {
+          setGenerationStep(
+            `✨ Finalizing your sticker (${remainingSeconds}s remaining)...`
+          );
+        }
+
+        const statusResponse = await fetch(
+          `/api/image-to-sticker-ai?taskId=${taskId}`,
+          { method: 'GET' }
+        );
+
+        if (!statusResponse.ok) {
+          continue;
+        }
+
+        const statusData = await statusResponse.json();
+
+        if (statusData.data?.status === 'completed') {
+          const resultUrls = statusData.data.resultUrls;
+          if (resultUrls && resultUrls.length > 0) {
+            setGenerationStep('🎉 Your sticker is ready!');
+            setGenerationProgress(100);
+            setGeneratedImageUrl(resultUrls[0]);
+            creditsCache.clear();
+            sendCompletionNotification();
+            return;
+          }
+          throw new Error('Task completed but no result URLs found');
+        }
+
+        if (statusData.data?.status === 'failed') {
+          throw new Error(statusData.data.error || 'Sticker generation failed');
+        }
       }
+
+      throw new Error('Sticker generation timed out. Please try again.');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred.';
       console.error('Error generating sticker:', errorMessage);
 
-      // Show user-friendly error message
       if (
         errorMessage.includes('Authentication required') ||
         errorMessage.includes('Unauthorized')
@@ -227,39 +283,30 @@ export default function HeroSection() {
       setGenerationStep(null);
       setGenerationProgress(0);
     }
-  }, [selectedImage, selectedStyle]);
+  }, [selectedImage, selectedStyle, selectedOption]);
 
   // Effect to handle automatic generation after login
   useEffect(() => {
     if (currentUser && pendingGeneration.current && selectedImage) {
-      // User just logged in and we have a pending generation
       pendingGeneration.current = false;
       setShowLoginDialog(false);
-      // Automatically continue with generation
       performGeneration();
     }
   }, [currentUser, performGeneration, selectedImage]);
 
-  // 删除上传的图片
+  // File handling functions
   const removeUploadedImage = () => {
-    // Clean up preview URL to prevent memory leaks
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-
-    // Reset all image-related states
     setSelectedImage(null);
     setPreviewUrl(null);
     setGeneratedImageUrl(null);
     setFileError(null);
   };
 
-  // 通用文件处理函数
   const processFile = (file: File) => {
-    // Clear previous errors
     setFileError(null);
-
-    // Validate file
     const validation = validateImageFile(file);
     if (!validation.isValid) {
       setFileError(validation.error || 'Invalid file');
@@ -269,13 +316,9 @@ export default function HeroSection() {
     }
 
     setSelectedImage(file);
-    setGeneratedImageUrl(null); // Reset previous generation
-
-    // Create a preview URL
+    setGeneratedImageUrl(null);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-
-    // Clean up the URL when component unmounts
     return () => URL.revokeObjectURL(objectUrl);
   };
 
@@ -285,7 +328,7 @@ export default function HeroSection() {
     processFile(file);
   };
 
-  // 拖拽事件处理
+  // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -303,7 +346,6 @@ export default function HeroSection() {
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // 只有当离开整个拖拽区域时才设置为false
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
@@ -325,12 +367,10 @@ export default function HeroSection() {
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      processFile(file);
+      processFile(files[0]);
     }
   };
 
-  // Add click handler for upload area
   const handleUploadClick = () => {
     document.getElementById('image-upload')?.click();
   };
@@ -338,15 +378,12 @@ export default function HeroSection() {
   const handleGenerate = async () => {
     if (!selectedImage || !isMounted) return;
 
-    // Check if user is authenticated
     if (!currentUser) {
-      // Set pending generation flag and show login dialog
       pendingGeneration.current = true;
       setShowLoginDialog(true);
       return;
     }
 
-    // User is authenticated, proceed with generation
     await performGeneration();
   };
 
@@ -354,7 +391,6 @@ export default function HeroSection() {
     if (!generatedImageUrl) return;
 
     try {
-      // Use proxy API to avoid CORS issues
       const proxyUrl = `/api/proxy-image/${encodeURIComponent(generatedImageUrl)}`;
       const response = await fetch(proxyUrl);
 
@@ -363,16 +399,12 @@ export default function HeroSection() {
       }
 
       const blob = await response.blob();
-
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
-
-      // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -383,7 +415,7 @@ export default function HeroSection() {
 
   return (
     <section id="hero" className="overflow-hidden py-12 bg-[#F5F5F5]">
-      {/* background, light shadows on top of the hero section */}
+      {/* Background elements */}
       <div
         aria-hidden
         className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
@@ -395,18 +427,9 @@ export default function HeroSection() {
 
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center sm:mx-auto lg:mr-auto">
-          {/* title */}
-          <h1
-            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
-            style={{
-              fontFamily:
-                'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-            }}
-          >
+          <h1 className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl">
             Turn Any Photo into a Sticker with RoboNeo AI
           </h1>
-
-          {/* description */}
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
             Try our image-to-sticker demo, then explore text-to-image &
             image-to-image for limitless creativity.
@@ -428,6 +451,7 @@ export default function HeroSection() {
                 </div>
 
                 <div className="space-y-5">
+                  {/* Upload Area */}
                   <div className="space-y-3">
                     <Label
                       htmlFor="image-upload"
@@ -461,16 +485,14 @@ export default function HeroSection() {
                             fill
                             className="object-contain transition-opacity group-hover:opacity-75"
                           />
-
-                          {/* Delete button overlay - shows on hover */}
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm rounded-2xl">
                             <button
                               type="button"
                               onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering upload dialog
+                                e.stopPropagation();
                                 removeUploadedImage();
                               }}
-                              className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-110 cursor-pointer"
+                              className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-110"
                               title="Remove image"
                             >
                               <Trash2Icon className="w-6 h-6" />
@@ -509,6 +531,8 @@ export default function HeroSection() {
                         onChange={handleImageUpload}
                       />
                     </div>
+
+                    {/* Error handling with retry */}
                     {fileError && (
                       <div className="space-y-2">
                         <p className="text-xs text-red-500 flex items-center gap-1">
@@ -532,6 +556,7 @@ export default function HeroSection() {
                     )}
                   </div>
 
+                  {/* Style Selection */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">Output Style</Label>
                     <Select
@@ -559,7 +584,7 @@ export default function HeroSection() {
                           )}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md">
                         <SelectGroup>
                           {styleOptions.map((option) => (
                             <SelectItem
@@ -589,6 +614,7 @@ export default function HeroSection() {
                     </Select>
                   </div>
 
+                  {/* Generate Button */}
                   <div className="space-y-3">
                     <Button
                       onClick={handleGenerate}
@@ -611,10 +637,9 @@ export default function HeroSection() {
                               : 'Generate My Sticker'}
                     </Button>
 
-                    {/* Enhanced Progress UI for KIE AI generation */}
+                    {/* Enhanced Progress UI */}
                     {isGenerating && generationProgress > 0 && (
                       <div className="w-full space-y-4">
-                        {/* Main Progress Bar */}
                         <div className="w-full space-y-2">
                           <div className="w-full bg-gray-200 rounded-full h-3">
                             <div
@@ -632,7 +657,6 @@ export default function HeroSection() {
                           </div>
                         </div>
 
-                        {/* Generation Status Message */}
                         {generationProgress >= 50 && (
                           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                             <div className="flex items-start gap-3">
@@ -655,37 +679,7 @@ export default function HeroSection() {
                     )}
                   </div>
 
-                  {/* Test buttons removed after testing completion */}
-                  {/*
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => {
-                          // Use a local test image to simulate generated result
-                          setGeneratedImageUrl('/hero-1.webp');
-                        }}
-                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
-                        variant="secondary"
-                      >
-                        <ImageIcon className="mr-2 h-5 w-5" />
-                        Test Download (Local Image)
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          // Test with an external image URL (tests proxy functionality)
-                          setGeneratedImageUrl('https://picsum.photos/400/400?random=1');
-                        }}
-                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
-                        variant="outline"
-                      >
-                        <ImageIcon className="mr-2 h-5 w-5" />
-                        Test Download (External URL)
-                      </Button>
-                    </div>
-                  )}
-                  */}
-
-                  {/* Credit info */}
+                  {/* Credits Info */}
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
                     <CreditsDisplay />
                     <span>Powered by RoboNeo</span>
@@ -737,16 +731,14 @@ export default function HeroSection() {
                       alt="Example transformation - Photo to sticker"
                       width={400}
                       height={400}
-                      style={{ height: 'auto' }}
                       className="object-contain max-h-full rounded-lg shadow-md"
-                      priority={true}
+                      priority
                     />
                     <Image
                       src="/hero-2.webp"
                       alt="Decorative camera icon"
                       width={120}
                       height={120}
-                      style={{ height: 'auto' }}
                       className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
                     />
                     <Image
@@ -754,7 +746,6 @@ export default function HeroSection() {
                       alt="Decorative plant icon"
                       width={120}
                       height={120}
-                      style={{ height: 'auto' }}
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <img
@@ -770,7 +761,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Insufficient Credits Dialog */}
+      {/* Dialogs */}
       {creditsError && (
         <InsufficientCreditsDialog
           open={showCreditsDialog}
@@ -779,7 +770,6 @@ export default function HeroSection() {
         />
       )}
 
-      {/* Login Dialog */}
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
         <DialogContent className="sm:max-w-[400px] p-0">
           <DialogHeader className="hidden">
