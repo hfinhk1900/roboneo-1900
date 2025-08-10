@@ -196,8 +196,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Check user authentication and credits
-    const { getSession } = await import('@/lib/server');
-    const session = await getSession();
+    const { auth } = await import('@/lib/auth');
+    const session = await auth.api.getSession({
+      headers: req.headers as any,
+    });
 
     if (!session?.user) {
       return NextResponse.json(
