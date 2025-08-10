@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "Bash(PORT=3001 npx next dev)",
+      "Bash(test:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(node:*)",
+      "Bash(pnpm update:*)",
+      "Bash(rm:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(cp:*)",
+      "Bash(pnpm build)",
+      "WebFetch(domain:docs.kie.ai)",
+      "Bash(echo $NGROK_URL)",
+      "Bash(env)"
+    ],
+    "deny": []
+  }
+}
