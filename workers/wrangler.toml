@@ -1,0 +1,36 @@
+name = "r2-upload-worker"
+main = "r2-upload-worker.js"
+compatibility_date = "2024-01-01"
+
+# Account ID - replace with your Cloudflare account ID
+# Get it from: https://dash.cloudflare.com/?to=/:account/workers
+account_id = "YOUR_ACCOUNT_ID"
+
+# Worker route (optional, can use workers.dev subdomain)
+# route = "https://r2-upload.your-domain.com/*"
+
+# R2 bucket binding
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "roboneo"
+
+# Environment variables
+[vars]
+R2_PUBLIC_URL = "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev"
+# API_SECRET will be set via Cloudflare dashboard for security
+
+# Optional: Scheduled cleanup (runs daily at 2 AM UTC)
+[triggers]
+crons = ["0 2 * * *"]
+
+# Development settings
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Production settings
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# Limits
+[limits]
+cpu_ms = 50  # 50ms CPU time per request

@@ -39,9 +39,13 @@ export interface TaskData {
   userId: string;
   createdAt: Date;
   completedAt?: Date;
-  resultUrls?: string[];
+  resultUrls?: string[];  // URLs of generated images (may be KIE or R2)
   error?: string;
   callbackUrl?: string;
+  // R2 optimization fields
+  r2Key?: string;        // R2 storage key for future upload
+  r2Pending?: boolean;   // Whether R2 upload is pending
+  r2Urls?: string[];     // Final R2 CDN URLs (after upload)
 }
 
 // In-memory task storage (in production, use Redis or database)
@@ -125,13 +129,13 @@ export const STICKER_STYLES = {
   lego: {
     name: 'LEGO',
     userPrompt:
-      'Transform the people in this photo into LEGO minifigure style stickers. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with glossy, plastic-like appearance and the iconic blocky shapes and features of classic LEGO characters. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a professional die-cut sticker appearance.',
+      'Learn the LEGO Minifigure style and turn the people in the photo into sticker avatars in this style. Mimic the body shape, face shape, skin tone, facial features and expressions. Keep the facial decorations, hairstyle and hair accessories, clothing, accessories, expressions, and poses consistent with the original image. Remove background and include only the complete figure, ensuring the final image looks like a character in LEGO Minifigure style.',
     imageUrl: '/styles/lego.png',
   },
   snoopy: {
     name: 'Snoopy',
     userPrompt:
-      "Transform the people in this photo into stickers in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy-like characteristics. Keep all the original details of the people - their poses, expressions, clothing, and accessories - but render them with simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+      "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
     imageUrl: '/styles/snoopy.png',
   },
 } as const;
@@ -465,12 +469,9 @@ async function processTask(taskId: string): Promise<void> {
     const kieApiKey = process.env.KIE_AI_API_KEY;
     const isValidApiKey = kieApiKey && kieApiKey !== 'your-kie-ai-api-key-here' && kieApiKey.length > 10;
 
-    if (!isValidApiKey && process.env.NODE_ENV !== 'development') {
-      throw new Error('KIE AI API key not configured');
-    }
-
-    // In development mode without valid API key, use mock results
-    const isTestMode = process.env.NODE_ENV === 'development' && !isValidApiKey;
+    // Force test mode via env flag or fallback to prior logic
+    const forceTest = (process.env.KIE_FORCE_TEST_MODE || '').toLowerCase() === 'true' || process.env.KIE_FORCE_TEST_MODE === '1';
+    const isTestMode = forceTest || (process.env.NODE_ENV === 'development' && !isValidApiKey);
 
     // Prepare request for KIE AI API
     const kieRequest: ImageToStickerRequest = {
@@ -478,43 +479,69 @@ async function processTask(taskId: string): Promise<void> {
       filesUrl: task.filesUrl,
       size: task.size as SupportedSize,
       nVariants: task.nVariants as SupportedVariant,
-      style: task.style  // Include style information
+      style: task.style,  // Include style information
+      callBackUrl: task.callbackUrl // Pass the callback URL from the task object
     };
 
     if (isTestMode) {
-      // Test mode: simulate API call with mock results
-      console.log(`🧪 [TEST MODE] Simulating KIE AI API call for task ${taskId}...`);
+      // Test mode: simulate KIE flow and callback without real API calls
+      console.log(`🧪 [TEST MODE${forceTest ? ' (FORCED)' : ''}] Simulating KIE AI API for task ${taskId}...`);
       console.log(`🎨 [TEST MODE] Style: ${task.style || 'custom prompt'}`);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call time
 
-      // Generate mock URLs with style indication
-      resultUrls = Array.from({ length: task.nVariants }, (_, i) => {
-        const stylePrefix = task.style ? `${task.style}-style` : 'custom';
-        return `https://storage.example.com/test-${stylePrefix}-sticker-${taskId}-${i + 1}.png`;
-      });
+      // Assign a fake KIE task id for mapping
+      const fakeKieTaskId = `test_${nanoid()}`;
+      task.kieTaskId = fakeKieTaskId;
+      task.status = TaskStatus.PROCESSING;
+      taskStorage.set(taskId, task);
+      await saveTaskBackup(taskId, task);
+
+      // Simulate KIE callback after a brief delay using a better mock image
+      const callbackUrl = task.callbackUrl;
+      // Use a nice placeholder image based on style
+      const mockImages = {
+        ios: 'https://placehold.co/1024x1024/6B46C1/FFF/png?text=iOS+Sticker+✨',
+        pixel: 'https://placehold.co/1024x1024/16A34A/FFF/png?text=Pixel+Art+🎮',
+        lego: 'https://placehold.co/1024x1024/DC2626/FFF/png?text=LEGO+Style+🧱',
+        snoopy: 'https://placehold.co/1024x1024/2563EB/FFF/png?text=Snoopy+Style+🐕',
+        default: 'https://placehold.co/1024x1024/6B7280/FFF/png?text=AI+Sticker+🎨'
+      };
+      const dummyImage = mockImages[task.style] || mockImages.default;
+      if (callbackUrl) {
+        setTimeout(async () => {
+          try {
+            const payload = {
+              code: 200,
+              msg: 'success',
+              data: {
+                taskId: fakeKieTaskId,
+                info: { result_urls: [dummyImage] }
+              }
+            };
+            console.log(`🧪 [TEST MODE] Posting simulated callback to ${callbackUrl}`);
+            await fetch(callbackUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+          } catch (e) {
+            console.warn('🧪 [TEST MODE] Failed to post simulated callback:', e);
+          }
+        }, 800);
+      } else {
+        console.warn('🧪 [TEST MODE] No callbackUrl available to simulate callback');
+      }
+
     } else {
       // Production mode: actual KIE AI API call
       console.log(`🤖 Calling real KIE AI API for task ${taskId}...`);
       console.log(`🎨 Style: ${task.style || 'custom prompt'}`);
+      console.log(`🔗 Setting callback URL: ${kieRequest.callBackUrl}`);
 
-      // Skip connectivity test - directly attempt main request for better efficiency
-      // If there are connection issues, the main request will fail with clear error messages
-
-            try {
-        // Set callback URL for receiving results (use ngrok for development)
-        const callbackUrl = `https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback`;
-        kieRequest.callBackUrl = callbackUrl;
-
-        console.log(`🔗 Setting callback URL: ${callbackUrl}`);
-
+      try {
         // Call the real KIE AI API (callback mode - only 1 API call!)
         const kieResult = await generateWithKieAI(kieRequest, kieApiKey!, taskId);
         console.log(`✅ KIE AI task created successfully: ${kieResult.kieTaskId}`);
         console.log(`🚀 Using callback mode - results will be delivered via callback URL`);
-
-        // In callback mode, we don't get immediate results
-        // The task will be marked as PROCESSING and updated via callback
-        console.log(`⏳ Task ${taskId} is now waiting for KIE AI callback...`);
 
       } catch (error) {
         console.error(`❌ KIE AI API call failed for task ${taskId}:`, error);
@@ -523,7 +550,6 @@ async function processTask(taskId: string): Promise<void> {
         let errorMessage = 'KIE AI API failed: ';
         if (error instanceof Error) {
           if (error.message.includes('timeout') || error.message.includes('after') && error.message.includes('attempts')) {
-            // Special handling for timeout errors - suggest user to check KIE AI dashboard
             errorMessage += 'Request timeout. The image generation is taking longer than expected. ';
             errorMessage += 'Please check your KIE AI dashboard to see if the task completed successfully. ';
             errorMessage += 'If it did complete, the generated images may be available there.';
@@ -551,41 +577,15 @@ async function processTask(taskId: string): Promise<void> {
       task.status = TaskStatus.PROCESSING;
       console.log(`⏳ Task ${taskId} is now PROCESSING, waiting for KIE AI callback...`);
     } else {
-      // Test mode completes immediately with mock results
-      task.status = TaskStatus.COMPLETED;
-      task.completedAt = new Date();
-      task.resultUrls = resultUrls || [];
-      console.log(`✅ [TEST MODE] Task ${taskId} completed with ${(resultUrls || []).length} variants`);
-      if (resultUrls && resultUrls.length > 0) {
-        console.log(`🎨 [TEST MODE] Generated ${task.style || 'custom'} style sticker(s):`);
-        resultUrls.forEach((url, i) => {
-          console.log(`   ${i + 1}. ${url}`);
-        });
-      }
+      // For TEST MODE, we already set PROCESSING and scheduled simulated callback above
     }
 
-      taskStorage.set(taskId, task);
+    taskStorage.set(taskId, task);
 
-  // 【新增】备份任务到文件
-  saveTaskBackup(taskId, task).catch(console.warn);
+    // 【新增】备份任务到文件
+    await saveTaskBackup(taskId, task);
 
-  // Send callback notification if provided
-  if (task.callbackUrl) {
-      try {
-        await fetch(task.callbackUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            taskId: task.taskId,
-            status: task.status,
-            resultUrls: task.resultUrls
-          })
-        });
-        console.log(`📞 Callback sent to ${task.callbackUrl}`);
-      } catch (error) {
-        console.error(`Failed to send callback for task ${taskId}:`, error);
-      }
-    }
+    // Note: Do not POST to our own callback URL here. KIE AI will call our callback.
 
   } catch (error) {
     console.error(`❌ Task ${taskId} failed:`, error);
@@ -600,6 +600,7 @@ async function processTask(taskId: string): Promise<void> {
  */
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
+    console.log(`[DEBUG] Loaded SITE_URL: ${process.env.SITE_URL}`);
     console.log('🚀 Starting AI image-to-sticker generation...');
 
     // 1. Check user authentication using session (consistent with improved API)
@@ -755,6 +756,19 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
 
     // 6. Create task with optimized settings
     const taskId = `task_${nanoid()}`;
+
+    // Dynamically construct the callback URL from request headers for robustness
+    const protocol = req.headers.get('x-forwarded-proto') || 'http';
+    const host = req.headers.get('host');
+    const siteUrl = host ? `${protocol}://${host}` : undefined;
+
+    if (!siteUrl) {
+      console.error('❌ Could not determine site URL from request headers!');
+    }
+    const callbackUrl = siteUrl ? `${siteUrl}/api/kie-ai-callback` : undefined;
+    console.log(`[DEBUG] Determined callback base URL: ${siteUrl}`);
+
+
     const task: TaskData = {
       taskId,
       status: TaskStatus.PENDING,
@@ -765,14 +779,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       style: requestBody.style,  // Store original style selection
       userId: user.id,
       createdAt: new Date(),
-      callbackUrl: optimizedRequest.callBackUrl
+      callbackUrl: callbackUrl // Use the dynamically constructed URL
     };
 
     taskStorage.set(taskId, task);
     requestCache.set(requestHash, taskId); // Cache for deduplication
 
-    // Save task to backup file
-    saveTaskBackup(taskId, task).catch(console.warn);
+    // Save task to backup file BEFORE processing
+    await saveTaskBackup(taskId, task);
 
     // 8. Deduct credits after task creation (pre-deduction to prevent abuse)
     const { deductCreditsAction } = await import('@/actions/credits-actions');
@@ -787,7 +801,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       console.warn(`⚠️ Failed to deduct credits from user ${user.id}, but task was created successfully`);
     }
 
-    // 9. Start async processing
+    // 9. Start async processing, but DO NOT await it
     processTask(taskId).catch(error => {
       console.error(`Failed to process task ${taskId}:`, error);
     });
@@ -859,23 +873,83 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }, { status: 404 });
   }
 
-  // Return minimal data for frontend - hide sensitive info
-  const responseData: any = {
-    status: task.status,
-    resultUrls: task.resultUrls,
-    error: task.error
-  };
+  // Check for client type from headers (can be used to determine format)
+  const acceptHeader = req.headers.get('accept');
+  const userAgent = req.headers.get('user-agent');
+  const wantsMinimal = req.headers.get('x-minimal-response') === 'true';
+  
+  const isCompleted = task.status === TaskStatus.COMPLETED;
+  const isFailed = task.status === TaskStatus.FAILED;
+  
+  // Prepare response data
+  let responseData: any;
+  
+  if (wantsMinimal) {
+    // New minimal format (for optimized clients)
+    responseData = {
+      s: task.status,  // status
+    };
+    
+    if (isCompleted && task.resultUrls?.length > 0) {
+      responseData.u = task.resultUrls[0];  // url
+      if (task.r2Urls?.length > 0) {
+        responseData.u = task.r2Urls[0];
+      }
+    }
+    
+    if (isFailed && task.error) {
+      responseData.e = task.error.substring(0, 100);  // error
+    }
+    
+    if (task.status === TaskStatus.PROCESSING || task.status === TaskStatus.PENDING) {
+      const elapsed = Date.now() - task.createdAt.getTime();
+      const estimatedTotal = 120000; // 2 minutes average
+      const progress = Math.min(Math.round((elapsed / estimatedTotal) * 100), 95);
+      responseData.p = progress;  // progress percentage
+    }
+  } else {
+    // Legacy format (for backward compatibility with current frontend)
+    responseData = {
+      status: task.status,
+      resultUrls: task.resultUrls || [],
+      error: task.error
+    };
+    
+    // Include R2 URLs if available (preferred over KIE URLs)
+    if (task.r2Urls?.length > 0) {
+      responseData.resultUrls = task.r2Urls;
+    }
+    
+    // Include progress for processing tasks
+    if (task.status === TaskStatus.PROCESSING || task.status === TaskStatus.PENDING) {
+      const elapsed = Date.now() - task.createdAt.getTime();
+      const estimatedTotal = 120000; // 2 minutes average
+      responseData.progress = Math.min(Math.round((elapsed / estimatedTotal) * 100), 95);
+    }
+    
+    // Include creation time for timing purposes
+    if (task.createdAt) {
+      responseData.createdAt = task.createdAt;
+    }
+  }
 
-  // Only include createdAt for timing purposes (no sensitive info)
-  if (task.createdAt) {
-    responseData.createdAt = task.createdAt;
+  // Set appropriate cache headers
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Cache completed/failed tasks longer
+  if (isCompleted || isFailed) {
+    headers['Cache-Control'] = 'private, max-age=3600'; // 1 hour
+  } else {
+    headers['Cache-Control'] = 'private, max-age=5'; // 5 seconds for active tasks
   }
 
   return NextResponse.json({
     code: RESPONSE_CODES.SUCCESS,
     msg: 'success',
     data: responseData
-  });
+  }, { headers });
 }
 
 // Task persistence helpers
