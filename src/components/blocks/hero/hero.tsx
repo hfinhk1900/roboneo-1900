@@ -442,40 +442,39 @@ export default function HeroSection() {
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
                       className={cn(
-                        'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
-                        'hover:bg-muted/50 transition-all duration-200 cursor-pointer h-48 bg-[#f5f5f5]',
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-2 border',
+                        'hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5]',
                         fileError
                           ? 'border-red-300 bg-red-50'
                           : isDragging
                             ? 'border-primary bg-primary/10 scale-[1.02]'
-                            : previewUrl
-                              ? 'border-primary'
-                              : 'border-border'
+                            : 'border-border'
                       )}
                     >
                       {previewUrl ? (
-                        <div className="relative w-full h-full group">
-                          <OptimizedImage
-                            src={previewUrl}
-                            alt="Roboneo AI Sticker Preview - Upload your image"
-                            fill
-                            className="object-contain transition-opacity group-hover:opacity-75"
-                          />
-
-                          {/* Delete button overlay - shows on hover */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm rounded-2xl">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering upload dialog
-                                removeUploadedImage();
-                              }}
-                              className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-110 cursor-pointer"
-                              title="Remove image"
-                            >
-                              <Trash2Icon className="w-6 h-6" />
-                            </button>
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <div className="relative max-w-32 max-h-32 w-full h-auto mx-auto mb-2 flex items-center justify-center">
+                            <OptimizedImage
+                              src={previewUrl}
+                              alt="Roboneo AI Sticker Preview - Upload your image"
+                              width={128}
+                              height={128}
+                              className="object-contain rounded-lg max-w-full max-h-full w-auto h-auto"
+                            />
                           </div>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeUploadedImage();
+                            }}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-1.5 cursor-pointer"
+                            aria-label="Remove uploaded image"
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                            Remove
+                          </Button>
                         </div>
                       ) : (
                         <>
@@ -567,9 +566,9 @@ export default function HeroSection() {
                               value={option.value}
                               className={cn(
                                 'cursor-pointer h-[50px] py-2 px-3 transition-colors',
-                                'hover:bg-gray-100 hover:text-gray-900',
-                                'focus:bg-gray-100 focus:text-gray-900',
-                                'data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900'
+                                'hover:bg-muted/50 hover:text-foreground',
+                                'focus:bg-muted/50 focus:text-foreground',
+                                'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
                               )}
                             >
                               <div className="flex items-center gap-3">
@@ -710,13 +709,13 @@ export default function HeroSection() {
                   </div>
                 ) : generatedImageUrl ? (
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                    <div className="relative flex items-center justify-center">
+                    <div className="relative w-full max-w-sm max-h-64 flex items-center justify-center">
                       <Image
                         src={generatedImageUrl}
                         alt="Generated sticker"
                         width={400}
                         height={400}
-                        className="object-contain max-h-full rounded-lg shadow-md"
+                        className="object-contain rounded-lg shadow-md max-w-full max-h-full w-auto h-auto"
                       />
                     </div>
                     <div className="space-y-3">
