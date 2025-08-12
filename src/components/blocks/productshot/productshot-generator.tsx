@@ -159,12 +159,18 @@ export default function ProductShotGeneratorSection() {
   return (
     <section id="generator" className="py-24 bg-[#F5F5F5]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <div className="text-center sm:mx-auto lg:mr-auto mb-12">
+          <h1
+            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+            style={{
+              fontFamily:
+                'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+            }}
+          >
             Product Shots
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Transform product descriptions into professional scene photography with FLUX.1-Kontext
+          </h1>
+          <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
+            Transform product descriptions into professional scene photography
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -250,11 +256,6 @@ export default function ProductShotGeneratorSection() {
                       maxLength={500}
                       aria-label="Product description for AI scene generation"
                     />
-                    <div className="flex items-center justify-end">
-                      <span className="text-xs text-muted-foreground">
-                        {productDescription.length}/500
-                      </span>
-                    </div>
                   </div>
 
                   <div className="space-y-3">
@@ -384,7 +385,7 @@ export default function ProductShotGeneratorSection() {
                       <SparklesIcon className="mr-2 h-5 w-5" />
                     )}
                     {isLoading
-                      ? 'Generating Product Scene with FLUX.1-Kontext...'
+                      ? 'Generating Product Scene...'
                       : 'Generate Product Scene'}
                   </Button>
 
@@ -439,31 +440,18 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center space-y-4 text-muted-foreground">
+                  <div className="flex items-center justify-center min-h-[400px] p-8">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
-                      <div className="relative grid grid-cols-2 gap-4 p-8">
-                        <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                          <ShoppingBagIcon className="h-12 w-12 text-purple-500" />
-                        </div>
-                        <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
-                          <CameraIcon className="h-12 w-12 text-blue-500" />
-                        </div>
-                        <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                          <BoxIcon className="h-12 w-12 text-green-500" />
-                        </div>
-                        <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
-                          <PackageIcon className="h-12 w-12 text-orange-500" />
-                        </div>
+                      <div className="relative flex items-center justify-center">
+                        <Image
+                          src="/productshots/productshot.jpg"
+                          alt="Product Scene Example"
+                          width={400}
+                          height={300}
+                          className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
+                        />
                       </div>
-                    </div>
-                    <div className="text-center space-y-2">
-                      <p className="text-lg font-medium">
-                        Your AI-Generated Product Scene Will Appear Here
-                      </p>
-                      <p className="text-sm">
-                        Powered by FLUX.1-Kontext for professional product scene generation
-                      </p>
                     </div>
                   </div>
                 )}

@@ -65,7 +65,7 @@ export default function ProductShotPage() {
               Automated Product Photography - No Camera Needed
             </span>
             <h1
-              className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl mb-4"
+              className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
               style={{
                 fontFamily:
                   'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
@@ -74,8 +74,7 @@ export default function ProductShotPage() {
               Product Shots
             </h1>
             <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-              Transform product descriptions into professional scene photography.
-              Perfect for e-commerce, social media, and marketing campaigns.
+              Transform product descriptions into professional scene photography
             </p>
           </div>
 
