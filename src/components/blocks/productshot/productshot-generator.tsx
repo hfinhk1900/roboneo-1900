@@ -190,24 +190,23 @@ export default function ProductShotGeneratorSection() {
                     </Label>
                     <div>
                       {imagePreview ? (
-                        <div className="rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border">
-                          <div className="relative max-w-28 max-h-28 w-full h-auto mx-auto mb-2 flex items-center justify-center">
+                        <div className="rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border">
+                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex-shrink-0 overflow-hidden rounded-lg bg-white">
                             <Image
                               src={imagePreview}
                               alt="Product preview"
-                              width={112}
-                              height={112}
-                              className="object-contain rounded-lg max-w-full max-h-full w-auto h-auto"
+                              fill
+                              className="object-contain p-1"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
                             {uploadedImage?.name}
                           </p>
                           <Button
                             onClick={clearImage}
                             variant="outline"
                             size="sm"
-                            className="flex items-center gap-1.5 cursor-pointer"
+                            className="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
                             aria-label="Remove uploaded image"
                           >
                             <Trash2Icon className="h-4 w-4" />

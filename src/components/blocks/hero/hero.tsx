@@ -452,16 +452,18 @@ export default function HeroSection() {
                       )}
                     >
                       {previewUrl ? (
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <div className="relative max-w-32 max-h-32 w-full h-auto mx-auto mb-2 flex items-center justify-center">
+                        <div className="flex flex-col items-center justify-center gap-3 py-2">
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-lg bg-white">
                             <OptimizedImage
                               src={previewUrl}
                               alt="Roboneo AI Sticker Preview - Upload your image"
-                              width={128}
-                              height={128}
-                              className="object-contain rounded-lg max-w-full max-h-full w-auto h-auto"
+                              fill
+                              className="object-contain p-1"
                             />
                           </div>
+                          <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
+                            {selectedImage?.name}
+                          </p>
                           <Button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -469,7 +471,7 @@ export default function HeroSection() {
                             }}
                             variant="outline"
                             size="sm"
-                            className="flex items-center gap-1.5 cursor-pointer"
+                            className="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
                             aria-label="Remove uploaded image"
                           >
                             <Trash2Icon className="h-4 w-4" />
