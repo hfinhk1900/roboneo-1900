@@ -182,11 +182,11 @@ export function Navbar({ scroll }: NavBarProps) {
                       </button>
                       {openMenus[item.title] && (
                         <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto">
-                          {/* Check if this is Text to Image menu */}
-                          {item.title.includes('Text to Image') ||
-                          item.title.includes('文本转图像') ? (
+                          {/* Check if this is AI Tools menu */}
+                          {item.title.includes('AI Tools') ||
+                          item.title.includes('AI 工具') ? (
                             <div className="p-6 flex flex-col gap-6">
-                              {/* Row 1: Main Text to Image item */}
+                              {/* Row 1: Main AI Tools item */}
                               {item.items?.[0] && (
                                 <LocaleLink
                                   href={item.items[0].href || '#'}
@@ -418,12 +418,12 @@ export function Navbar({ scroll }: NavBarProps) {
                                         <div
                                           className={cn(
                                             'text-sm font-medium',
-                                            // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                            // AI Tools和Image to Image菜单的标题使用黑色，其他菜单保持原色
                                             item.title.includes(
-                                              'Text to Image'
+                                              'AI Tools'
                                             ) ||
                                               item.title.includes(
-                                                '文本转图像'
+                                                'AI 工具'
                                               ) ||
                                               item.title.includes(
                                                 'Image to Image'

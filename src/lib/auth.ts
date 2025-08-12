@@ -126,21 +126,7 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          // Auto subscribe user to newsletter after sign up if enabled in website config
-          if (user.email && websiteConfig.newsletter.autoSubscribeAfterSignUp) {
-            try {
-              const subscribed = await subscribe(user.email);
-              if (!subscribed) {
-                console.error(
-                  `Failed to subscribe user ${user.email} to newsletter`
-                );
-              } else {
-                console.log(`User ${user.email} subscribed to newsletter`);
-              }
-            } catch (error) {
-              console.error('Newsletter subscription error:', error);
-            }
-          }
+          // Newsletter auto-subscribe disabled
         },
       },
     },

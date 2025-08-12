@@ -53,9 +53,10 @@ const sceneIcons = {
 } as const;
 
 export default function ProductShotGeneratorSection() {
-  const [productDescription, setProductDescription] = useState('');
+  const [additionalContext, setAdditionalContext] = useState('');
   const [selectedScene, setSelectedScene] = useState<SceneType | ''>('');
   const [customSceneDescription, setCustomSceneDescription] = useState('');
+  const [productTypeHint, setProductTypeHint] = useState<'small' | 'medium' | 'large' | 'auto'>('auto');
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
     required: number;
@@ -65,6 +66,7 @@ export default function ProductShotGeneratorSection() {
   // Image upload state
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // 使用新的 ProductShot Hook
   const {
@@ -87,11 +89,8 @@ export default function ProductShotGeneratorSection() {
   const scenes = availableScenes.length > 0 ? availableScenes : DEFAULT_SCENES;
   const selectedSceneConfig = scenes.find(scene => scene.id === selectedScene);
 
-  // Handle image upload
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  // 通用文件处理函数
+  const processFile = (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
@@ -114,6 +113,42 @@ export default function ProductShotGeneratorSection() {
     reader.readAsDataURL(file);
   };
 
+  // Handle image upload from input
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  };
+
+  // Handle drag and drop
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      processFile(files[0]);
+    }
+  };
+
   // Clear uploaded image
   const clearImage = () => {
     setUploadedImage(null);
@@ -121,31 +156,38 @@ export default function ProductShotGeneratorSection() {
   };
 
   const handleGenerate = async () => {
-    if (!productDescription.trim()) {
-      toast.error('Please enter a product description');
+    if (!uploadedImage) {
+      toast.error('Please upload a product image');
+      return;
+    }
+
+    if (!selectedScene) {
+      toast.error('Please select a scene type');
       return;
     }
 
     try {
-      // Enhanced product description with image context
-      let enhancedDescription = productDescription;
-      if (uploadedImage) {
-        enhancedDescription += ' (based on uploaded product image)';
-      }
-
-      // Type guard to ensure selectedScene is not empty
-      if (!selectedScene) {
-        return;
-      }
-
       await generateProductShot({
-        productDescription: enhancedDescription,
-        sceneType: selectedScene as SceneType,
-        customSceneDescription: selectedScene === 'custom' ? customSceneDescription : undefined
+        sceneType: selectedScene,
+        uploaded_image: uploadedImage,
+        customSceneDescription: selectedScene === 'custom' ? customSceneDescription : undefined,
+        additionalContext: additionalContext.trim() || undefined,
+        productTypeHint: productTypeHint,
+        quality: 'standard'
       });
-    } catch (error) {
-      console.error('Error generating product shot:', error);
-      // Error handling is done in the hook
+    } catch (err) {
+      console.error('Generation failed:', err);
+      const error = err as Error;
+      if (error.message?.includes('credits')) {
+        const match = error.message.match(/required: (\d+), current: (\d+)/);
+        if (match) {
+          setCreditsError({
+            required: parseInt(match[1]),
+            current: parseInt(match[2])
+          });
+          setShowCreditsDialog(true);
+        }
+      }
     }
   };
 
@@ -192,17 +234,34 @@ export default function ProductShotGeneratorSection() {
                   {/* Image Upload Section */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      Product Image (Optional)
+                      Product Image (Required)
                     </Label>
-                    <div>
+                    <div
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      className={cn(
+                        "rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border",
+                        isDragOver && "bg-muted/50 border-primary"
+                      )}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                      />
+
                       {imagePreview ? (
-                        <div className="rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border">
+                        <>
                           <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex-shrink-0 overflow-hidden rounded-lg bg-white">
                             <Image
                               src={imagePreview}
                               alt="Product preview"
                               fill
-                              className="object-contain p-1"
+                              className="object-cover"
                             />
                           </div>
                           <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
@@ -212,49 +271,85 @@ export default function ProductShotGeneratorSection() {
                             onClick={clearImage}
                             variant="outline"
                             size="sm"
-                            className="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
-                            aria-label="Remove uploaded image"
+                            className="text-xs"
                           >
-                            <Trash2Icon className="h-4 w-4" />
+                            <XIcon className="h-3 w-3 mr-1" />
                             Remove
                           </Button>
-                        </div>
+                        </>
                       ) : (
-                        <div className="rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            id="image-upload"
-                          />
-                          <label
-                            htmlFor="image-upload"
-                            className="cursor-pointer flex flex-col items-center justify-center"
-                          >
-                            <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
-                            <p className="text-sm transition-colors text-muted-foreground">Click or drag & drop to upload</p>
-                          </label>
-                        </div>
+                        <label
+                          htmlFor="image-upload"
+                          className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
+                        >
+                          <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
+                          <p className="text-sm transition-colors text-muted-foreground text-center">
+                            Click or drag & drop to upload
+                          </p>
+                        </label>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label
-                      htmlFor="product-description"
-                      className="text-sm font-medium"
-                    >
-                      Product Description
-                    </Label>
+                    {/* 产品类型选择器 */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        Product Size Hint (Optional)
+                      </Label>
+                      <Select
+                        value={productTypeHint}
+                        onValueChange={(value) => setProductTypeHint(value as 'small' | 'medium' | 'large' | 'auto')}
+                      >
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Auto-detect from scene" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">
+                            <div className="flex items-center gap-2">
+                              <span>🤖 Auto-detect</span>
+                              <span className="text-sm transition-colors text-muted-foreground">
+                                Smart detection based on scene
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectSeparator />
+                          <SelectItem value="small">
+                            <div className="flex items-center gap-2">
+                              <span>📱 Small</span>
+                              <span className="text-sm transition-colors text-muted-foreground">
+                                Jewelry, cosmetics, accessories
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="medium">
+                            <div className="flex items-center gap-2">
+                              <span>👜 Medium</span>
+                              <span className="text-sm transition-colors text-muted-foreground">
+                                Bags, shoes, books, clothing
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="large">
+                            <div className="flex items-center gap-2">
+                              <span>🛋️ Large</span>
+                              <span className="text-sm transition-colors text-muted-foreground">
+                                Furniture, large decor items
+                              </span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <Textarea
-                      id="product-description"
-                      placeholder="Describe your product (e.g., 'red cotton t-shirt', 'leather hiking boots', 'silk evening dress')"
-                      value={productDescription}
-                      onChange={(e) => setProductDescription(e.target.value)}
+                      id="additional-context"
+                      placeholder="e.g. small perfume bottle', 'compact jewelry', 'handheld device', or styling requests like 'warm lighting', 'elegant mood'"
+                      value={additionalContext}
+                      onChange={(e) => setAdditionalContext(e.target.value)}
                       className="min-h-[120px] resize-none rounded-xl"
                       maxLength={500}
-                      aria-label="Product description for AI scene generation"
+                      aria-label="Additional context for AI scene generation"
                     />
                   </div>
 
@@ -373,7 +468,7 @@ export default function ProductShotGeneratorSection() {
                     onClick={handleGenerate}
                     className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                     disabled={
-                      !productDescription.trim() ||
+                      !uploadedImage ||
                       !selectedScene ||
                       isLoading ||
                       (selectedScene === 'custom' && !customSceneDescription.trim())
