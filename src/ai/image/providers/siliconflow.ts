@@ -41,70 +41,191 @@ export class SiliconFlowProvider {
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input?: string; // base64 encoded image for image-to-image
   }): Promise<ProductShotResult> {
-    // SiliconFlow API 请求体 - 支持图像输入的完整格式
+    
+    console.log('🎯 SiliconFlow ProductShot generation starting...');
+    
+    // 临时：暂时使用标准图像生成，忽略图像输入
+    // TODO: 实现图像输入功能
+    if (params.image_input) {
+      console.log('⚠️ Image input provided but temporarily using text-to-image generation');
+      // 在提示词中添加关于产品的描述
+      params.prompt = `Based on an uploaded product image: ${params.prompt}`;
+    }
+    
+    // 使用标准图像生成API
+    return this.generateStandardImage(params);
+  }
+
+  // 使用图像编辑API处理有图像输入的请求
+  private async generateImageEdit(params: {
+    prompt: string;
+    model?: string;
+    size?: string;
+    quality?: 'standard' | 'hd';
+    steps?: number;
+    seed?: number;
+    guidance_scale?: number;
+    num_images?: number;
+    output_format?: 'jpeg' | 'png' | 'webp';
+    image_input: string; // base64 encoded image
+  }): Promise<ProductShotResult> {
+    
+    console.log('✅ Using SiliconFlow image editing API for product shot generation');
+    
+    try {
+      // 在Node.js环境中使用form-data包
+      const FormDataNode = (await import('form-data')).default;
+      const formData = new FormDataNode();
+      
+      // 将base64转换为Buffer
+      const imageBuffer = Buffer.from(params.image_input, 'base64');
+      
+      // 添加图像数据
+      formData.append('image', imageBuffer, {
+        filename: 'product.png',
+        contentType: 'image/png'
+      });
+      formData.append('prompt', params.prompt);
+      
+      // 根据API文档，图像编辑支持这些模型
+      const model = params.model?.includes('gpt-image-1') ? 'gpt-image-1' : 'dall-e-2';
+      formData.append('model', model);
+      
+      if (params.size) {
+        formData.append('size', params.size);
+      } else {
+        formData.append('size', '1024x1024');
+      }
+      
+      if (params.num_images) {
+        formData.append('n', params.num_images.toString());
+      }
+      
+      // 设置质量（仅gpt-image-1支持）
+      if (model === 'gpt-image-1') {
+        const quality = params.quality === 'hd' ? 'high' : 'medium';
+        formData.append('quality', quality);
+      }
+      
+      console.log('🚀 SiliconFlow image edit request:', {
+        model,
+        prompt: params.prompt.substring(0, 100) + '...',
+        size: params.size || '1024x1024',
+        hasImage: true
+      });
+
+      const response = await fetch(`${this.baseUrl}/images/edits`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          // 不设置 Content-Type，让浏览器自动设置multipart边界
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ SiliconFlow image edit API 错误:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: errorText
+        });
+        throw new Error(`SiliconFlow API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      // 下载图片并保存到R2
+      let finalResultUrl = data.data?.[0]?.url;
+
+      if (finalResultUrl) {
+        try {
+          console.log('📥 Downloading generated image from SiliconFlow...');
+          const imageResponse = await fetch(finalResultUrl);
+          if (imageResponse.ok) {
+            const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+
+            // 导入存储模块
+            const { uploadFile } = await import('../../../storage');
+
+            // 生成文件名
+            const timestamp = Date.now();
+            const filename = `productshot-${timestamp}.png`;
+
+            console.log('☁️ Uploading to R2 productshots folder...');
+            const uploadResult = await uploadFile(
+              imageBuffer,
+              filename,
+              'image/png',
+              'productshots'  // 保存到 R2 的 productshots 文件夹
+            );
+
+            console.log('✅ Image saved to R2:', uploadResult.url);
+            finalResultUrl = uploadResult.url;  // 使用R2的URL
+          }
+        } catch (uploadError) {
+          console.error('⚠️ Failed to save to R2:', uploadError);
+          // 如果R2上传失败，仍然返回原始URL
+        }
+      }
+
+      return {
+        taskId: `sf_edit_${Date.now()}`,
+        status: 'completed',
+        resultUrl: finalResultUrl,
+        seed: data.seed,
+        processingTime: Date.now(), // API不返回处理时间
+        provider: 'siliconflow',
+        model: model
+      };
+      
+    } catch (error) {
+      console.error('SiliconFlow image edit error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Image edit failed: ${errorMessage}`);
+    }
+  }
+
+  // 标准图像生成API（无图像输入）
+  private async generateStandardImage(params: {
+    prompt: string;
+    model?: string;
+    size?: string;
+    quality?: 'standard' | 'hd';
+    steps?: number;
+    seed?: number;
+    guidance_scale?: number;
+    num_images?: number;
+    output_format?: 'jpeg' | 'png' | 'webp';
+  }): Promise<ProductShotResult> {
+    
+    console.log('🎨 Using SiliconFlow standard image generation API');
+    
+    // SiliconFlow API 请求体
     const requestBody: any = {
-      model: params.model || 'black-forest-labs/FLUX.1-dev',
+      model: params.model || 'recraftv3', // 使用默认模型
       prompt: params.prompt,
-      prompt_enhancement: false, // 官方文档参数，默认关闭
+      size: params.size || '1024x1024'
     };
 
-    // ✅ 正确处理图像输入 - FLUX.1-Kontext-dev 需要图像作为主体
-    if (params.image_input) {
-      console.log('✅ Processing image input for FLUX.1-Kontext-dev');
-      // 根据 SiliconFlow 官方文档，image 参数用于 image-to-image 生成
-      requestBody.image = params.image_input;
-
-      // 如果提供了图像，模型应该使用 FLUX.1-Kontext-dev 以获得更好的图像理解能力
-      if (params.model?.includes('FLUX.1-dev')) {
-        requestBody.model = 'black-forest-labs/FLUX.1-Kontext-dev';
-        console.log('🎯 Using FLUX.1-Kontext-dev for better image understanding');
-      }
-
-      // 尝试添加一些可能影响比例的参数
-      // 注意：这些参数可能不被支持，但不会导致错误
-      if (params.guidance_scale) {
-        requestBody.guidance_scale = Math.min(params.guidance_scale, 5.0); // 限制在合理范围
-        console.log('🎛️ Attempting to set guidance_scale:', requestBody.guidance_scale);
-      }
-
-      // 设置默认的适度控制参数
-      requestBody.prompt_enhancement = false; // 避免过度增强导致比例失真
-
-    } else {
-      console.warn('⚠️ No image input provided - this may not work well with FLUX.1-Kontext-dev');
-    }
-
-    // 根据官方文档，重新启用尺寸参数支持
-    if (params.size) {
-      const [width, height] = params.size.split('x').map(Number);
-      if (width && height) {
-        requestBody.width = width;
-        requestBody.height = height;
-        requestBody.image_size = params.size; // 官方文档显示的 image_size 参数
-      }
-    }
-
-    // 可选的 seed 参数（范围：0-9999999999）
-    if (params.seed !== undefined && params.seed >= 0 && params.seed <= 9999999999) {
+    // 可选参数
+    if (params.seed !== undefined) {
       requestBody.seed = params.seed;
     }
-
-    // 官方支持的输出格式参数
-    if (params.output_format) {
-      requestBody.output_format = params.output_format;
+    
+    if (params.steps) {
+      requestBody.steps = params.steps;
+    }
+    
+    if (params.guidance_scale) {
+      requestBody.guidance = params.guidance_scale;
     }
 
-    // TODO: 添加更多官方参数支持
-    // - prompt_upsampling
-    // - safety_tolerance
-    // - raw
-
-    console.log('🚀 SiliconFlow request body:', {
+    console.log('🚀 SiliconFlow standard request:', {
       model: requestBody.model,
-      hasImage: !!requestBody.image,
       prompt: requestBody.prompt.substring(0, 100) + '...',
-      size: requestBody.image_size || `${requestBody.width}x${requestBody.height}`,
-      seed: requestBody.seed
+      size: requestBody.size
     });
 
     try {
@@ -129,9 +250,17 @@ export class SiliconFlowProvider {
       }
 
       const data = await response.json();
+      
+      console.log('✅ SiliconFlow API response:', {
+        hasData: !!data,
+        dataKeys: Object.keys(data || {}),
+        images: data.images ? `${data.images.length} images` : 'no images array',
+        data_array: data.data ? `${data.data.length} data items` : 'no data array'
+      });
 
       // 下载图片并保存到R2 productshots文件夹
-      let finalResultUrl = data.images[0]?.url;
+      // 尝试两种可能的响应格式
+      let finalResultUrl = data.images?.[0]?.url || data.data?.[0]?.url;
 
       if (finalResultUrl) {
         try {

@@ -20,25 +20,25 @@ import {
   BoxIcon,
   CameraIcon,
   DownloadIcon,
+  ImagePlusIcon,
   LoaderIcon,
   PackageIcon,
   ShoppingBagIcon,
   SparklesIcon,
-  UploadIcon,
-  ImagePlusIcon,
   Trash2Icon,
+  UploadIcon,
   XIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // 导入新的 ProductShot 功能
 import {
-  useProductShot,
   DEFAULT_SCENES,
+  type SceneConfig,
   type SceneType,
-  type SceneConfig
+  useProductShot,
 } from '@/ai/image/hooks/use-productshot';
 
 // 场景图标映射
@@ -49,14 +49,50 @@ const sceneIcons = {
   'elegant-evening': '✨',
   'street-style': '🏙️',
   'minimalist-clean': '🎯',
-  'custom': '🎨'
+  custom: '🎨',
 } as const;
+
+// 新增：产品呈现方式提示映射
+const PRESENTATION_HINTS: Record<
+  | 'model'
+  | 'studio-white'
+  | 'studio-shadow'
+  | 'home-lifestyle'
+  | 'nature-outdoor'
+  | 'table-flatlay'
+  | 'minimalist-clean',
+  string
+> = {
+  model:
+    'with a person model interacting with the product, natural human interaction',
+  'studio-white':
+    'product-only, no person, isolated on pure white seamless background, soft studio lighting',
+  'studio-shadow':
+    'product-only, no person, on white background with distinct studio shadows, high-contrast studio lighting',
+  'home-lifestyle': 'product featured in cozy home lifestyle setting',
+  'nature-outdoor': 'product shown in natural outdoor environment',
+  'table-flatlay':
+    'product-only, no person, flat lay on tabletop, overhead shot, realistic soft shadows',
+  'minimalist-clean': 'product-only, no person, minimalist clean background',
+};
 
 export default function ProductShotGeneratorSection() {
   const [additionalContext, setAdditionalContext] = useState('');
   const [selectedScene, setSelectedScene] = useState<SceneType | ''>('');
   const [customSceneDescription, setCustomSceneDescription] = useState('');
-  const [productTypeHint, setProductTypeHint] = useState<'small' | 'medium' | 'large' | 'auto'>('auto');
+  const [productTypeHint, setProductTypeHint] = useState<
+    'small' | 'medium' | 'large' | 'auto'
+  >('auto');
+  // 新增：呈现方式选择
+  const [presentationStyle, setPresentationStyle] = useState<
+    | 'model'
+    | 'studio-white'
+    | 'studio-shadow'
+    | 'home-lifestyle'
+    | 'nature-outdoor'
+    | 'table-flatlay'
+    | 'minimalist-clean'
+  >('model');
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
     required: number;
@@ -77,7 +113,7 @@ export default function ProductShotGeneratorSection() {
     generateProductShot,
     clearResult,
     downloadImage,
-    fetchAvailableScenes
+    fetchAvailableScenes,
   } = useProductShot();
 
   // 初始化时获取可用场景
@@ -87,7 +123,9 @@ export default function ProductShotGeneratorSection() {
 
   // 使用默认场景或从API获取的场景
   const scenes = availableScenes.length > 0 ? availableScenes : DEFAULT_SCENES;
-  const selectedSceneConfig = scenes.find(scene => scene.id === selectedScene);
+  const selectedSceneConfig = scenes.find(
+    (scene) => scene.id === selectedScene
+  );
 
   // 通用文件处理函数
   const processFile = (file: File) => {
@@ -167,13 +205,23 @@ export default function ProductShotGeneratorSection() {
     }
 
     try {
+      // 合并用户上下文与呈现方式提示
+      const presentationHint = PRESENTATION_HINTS[presentationStyle];
+      const mergedAdditionalContext = [
+        additionalContext.trim(),
+        presentationHint,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
       await generateProductShot({
         sceneType: selectedScene,
         uploaded_image: uploadedImage,
-        customSceneDescription: selectedScene === 'custom' ? customSceneDescription : undefined,
-        additionalContext: additionalContext.trim() || undefined,
+        customSceneDescription:
+          selectedScene === 'custom' ? customSceneDescription : undefined,
+        additionalContext: mergedAdditionalContext || undefined,
         productTypeHint: productTypeHint,
-        quality: 'standard'
+        quality: 'standard',
       });
     } catch (err) {
       console.error('Generation failed:', err);
@@ -182,8 +230,8 @@ export default function ProductShotGeneratorSection() {
         const match = error.message.match(/required: (\d+), current: (\d+)/);
         if (match) {
           setCreditsError({
-            required: parseInt(match[1]),
-            current: parseInt(match[2])
+            required: Number.parseInt(match[1]),
+            current: Number.parseInt(match[2]),
           });
           setShowCreditsDialog(true);
         }
@@ -215,7 +263,7 @@ export default function ProductShotGeneratorSection() {
             Transform product descriptions into professional scene photography
           </p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Text Input */}
           <div>
             <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
@@ -226,7 +274,8 @@ export default function ProductShotGeneratorSection() {
                     Product Shots
                   </h3>
                   <p className="text-muted-foreground">
-                    Transform product descriptions into professional scene photography.
+                    Transform product descriptions into professional scene
+                    photography.
                   </p>
                 </div>
 
@@ -242,8 +291,8 @@ export default function ProductShotGeneratorSection() {
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       className={cn(
-                        "rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border",
-                        isDragOver && "bg-muted/50 border-primary"
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border',
+                        isDragOver && 'bg-muted/50 border-primary'
                       )}
                     >
                       <input
@@ -299,9 +348,13 @@ export default function ProductShotGeneratorSection() {
                       </Label>
                       <Select
                         value={productTypeHint}
-                        onValueChange={(value) => setProductTypeHint(value as 'small' | 'medium' | 'large' | 'auto')}
+                        onValueChange={(value) =>
+                          setProductTypeHint(
+                            value as 'small' | 'medium' | 'large' | 'auto'
+                          )
+                        }
                       >
-                        <SelectTrigger className="rounded-xl">
+                        <SelectTrigger className="w-full rounded-xl">
                           <SelectValue placeholder="Auto-detect from scene" />
                         </SelectTrigger>
                         <SelectContent>
@@ -359,7 +412,9 @@ export default function ProductShotGeneratorSection() {
                     </Label>
                     <Select
                       value={selectedScene}
-                      onValueChange={(value) => setSelectedScene(value as SceneType | '')}
+                      onValueChange={(value) =>
+                        setSelectedScene(value as SceneType | '')
+                      }
                     >
                       <SelectTrigger
                         className="w-full rounded-2xl bg-white border border-input cursor-pointer"
@@ -378,61 +433,131 @@ export default function ProductShotGeneratorSection() {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-muted-foreground">Please select a photography scene</span>
+                            <span className="text-muted-foreground">
+                              Please select a photography scene
+                            </span>
                           )}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
                         <SelectGroup>
                           {/* Preset Scenes */}
-                          {scenes.filter(scene => scene.id !== 'custom').map((scene) => (
-                            <SelectItem
-                              key={scene.id}
-                              value={scene.id}
-                              className={cn(
-                                'cursor-pointer py-3 px-3 transition-colors',
-                                'hover:bg-muted/50 hover:text-foreground',
-                                'focus:bg-muted/50 focus:text-foreground',
-                                'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl">{sceneIcons[scene.id]}</span>
-                                <div className="text-left">
-                                  <div className="font-medium">
-                                    {scene.name}
+                          {scenes
+                            .filter((scene) => scene.id !== 'custom')
+                            .map((scene) => (
+                              <SelectItem
+                                key={scene.id}
+                                value={scene.id}
+                                className={cn(
+                                  'cursor-pointer py-3 px-3 transition-colors',
+                                  'hover:bg-muted/50 hover:text-foreground',
+                                  'focus:bg-muted/50 focus:text-foreground',
+                                  'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">
+                                    {sceneIcons[scene.id]}
+                                  </span>
+                                  <div className="text-left">
+                                    <div className="font-medium">
+                                      {scene.name}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </SelectItem>
-                          ))}
+                              </SelectItem>
+                            ))}
 
                           {/* Separator between preset and custom scenes */}
                           <SelectSeparator className="my-1" />
 
                           {/* Custom Scene */}
-                          {scenes.filter(scene => scene.id === 'custom').map((scene) => (
-                            <SelectItem
-                              key={scene.id}
-                              value={scene.id}
-                              className={cn(
-                                'cursor-pointer py-3 px-3 transition-colors',
-                                'hover:bg-muted/50 hover:text-foreground',
-                                'focus:bg-muted/50 focus:text-foreground',
-                                'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl">{sceneIcons[scene.id]}</span>
-                                <div className="text-left">
-                                  <div className="font-medium">
-                                    {scene.name}
+                          {scenes
+                            .filter((scene) => scene.id === 'custom')
+                            .map((scene) => (
+                              <SelectItem
+                                key={scene.id}
+                                value={scene.id}
+                                className={cn(
+                                  'cursor-pointer py-3 px-3 transition-colors',
+                                  'hover:bg-muted/50 hover:text-foreground',
+                                  'focus:bg-muted/50 focus:text-foreground',
+                                  'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">
+                                    {sceneIcons[scene.id]}
+                                  </span>
+                                  <div className="text-left">
+                                    <div className="font-medium">
+                                      {scene.name}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </SelectItem>
-                          ))}
+                              </SelectItem>
+                            ))}
                         </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* 新增：Presentation Style 选择器 */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">
+                      Presentation Style
+                    </Label>
+                    <Select
+                      value={presentationStyle}
+                      onValueChange={(v) =>
+                        setPresentationStyle(v as typeof presentationStyle)
+                      }
+                    >
+                      <SelectTrigger
+                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                        style={{ height: '46px', padding: '0px 12px' }}
+                      >
+                        <SelectValue placeholder="Select presentation style" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                        <SelectItem value="model">
+                          <span className="text-sm transition-colors">
+                            Model presentation
+                          </span>
+                        </SelectItem>
+                        <SelectSeparator />
+                        <SelectItem value="studio-white">
+                          <span className="text-sm transition-colors">
+                            Studio White
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="studio-shadow">
+                          <span className="text-sm transition-colors">
+                            Studio Shadow
+                          </span>
+                        </SelectItem>
+                        <SelectSeparator />
+                        <SelectItem value="home-lifestyle">
+                          <span className="text-sm transition-colors">
+                            Home Lifestyle
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="nature-outdoor">
+                          <span className="text-sm transition-colors">
+                            Nature Outdoor
+                          </span>
+                        </SelectItem>
+                        <SelectSeparator />
+                        <SelectItem value="table-flatlay">
+                          <span className="text-sm transition-colors">
+                            Table Flatlay
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="minimalist-clean">
+                          <span className="text-sm transition-colors">
+                            Minimalist Clean
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -450,7 +575,9 @@ export default function ProductShotGeneratorSection() {
                         id="custom-scene"
                         placeholder="Describe your custom scene, e.g., 'Product displayed on a wooden table in a cozy coffee shop with warm lighting and plants in the background'"
                         value={customSceneDescription}
-                        onChange={(e) => setCustomSceneDescription(e.target.value)}
+                        onChange={(e) =>
+                          setCustomSceneDescription(e.target.value)
+                        }
                         className="min-h-[100px] resize-none rounded-xl"
                         maxLength={300}
                       />
@@ -462,8 +589,6 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   )}
 
-
-
                   <Button
                     onClick={handleGenerate}
                     className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
@@ -471,7 +596,8 @@ export default function ProductShotGeneratorSection() {
                       !uploadedImage ||
                       !selectedScene ||
                       isLoading ||
-                      (selectedScene === 'custom' && !customSceneDescription.trim())
+                      (selectedScene === 'custom' &&
+                        !customSceneDescription.trim())
                     }
                   >
                     {isLoading ? (
@@ -508,15 +634,7 @@ export default function ProductShotGeneratorSection() {
                         className="object-contain rounded-lg"
                       />
                     </div>
-                    <div className="text-center space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Scene: {result.sceneConfig.name} | Model: {result.model}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Credits used: {result.credits_used} | Processing: {result.processingTime}ms
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap justify-center">
                       <Button
                         onClick={handleDownload}
                         variant="outline"
@@ -524,13 +642,6 @@ export default function ProductShotGeneratorSection() {
                       >
                         <DownloadIcon className="h-4 w-4" />
                         Download Image
-                      </Button>
-                      <Button
-                        onClick={clearResult}
-                        variant="ghost"
-                        size="sm"
-                      >
-                        Generate Another
                       </Button>
                     </div>
                   </div>

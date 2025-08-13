@@ -92,12 +92,35 @@ export function useProductShot(): UseProductShotReturn {
       }
 
       const data = await response.json();
-      setAvailableScenes(data.availableScenes || []);
+      // 后端返回的数据结构是 { scenes: [...] }，需要转换为 SceneConfig 格式
+      const scenes = data.scenes || [];
+      const formattedScenes: SceneConfig[] = scenes.map((scene: any) => ({
+        id: scene.id,
+        name: scene.name,
+        category: scene.category,
+        description: scene.description || '' // 后端没有 description 字段，使用空字符串
+      }));
+      setAvailableScenes(formattedScenes);
     } catch (err) {
       console.error('Error fetching scenes:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to load scenes: ${errorMessage}`);
     }
+  };
+
+  // 辅助函数：将 File 转换为 base64 字符串
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // 移除 data:image/...;base64, 前缀，只保留 base64 数据
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   // 生成产品照片
@@ -109,12 +132,28 @@ export function useProductShot(): UseProductShotReturn {
     try {
       console.log('🎬 Generating ProductShot with SiliconFlow:', params);
 
+      // 将 File 对象转换为 base64 字符串
+      const image_input = await fileToBase64(params.uploaded_image);
+
+      // 构建请求数据，将 uploaded_image 替换为 image_input
+      const requestData = {
+        ...params,
+        image_input,
+        // 移除 uploaded_image 字段
+        uploaded_image: undefined
+      };
+
+      console.log('📤 Request data prepared:', {
+        ...requestData,
+        image_input: image_input.substring(0, 50) + '...' // 只显示前50个字符
+      });
+
       const response = await fetch('/api/productshot/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
@@ -143,9 +182,22 @@ export function useProductShot(): UseProductShotReturn {
 
     } catch (err) {
       console.error('ProductShot generation error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      let errorMessage = 'Unknown error occurred';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // 如果是网络错误，显示更多调试信息
+        if (err.message.includes('fetch')) {
+          console.error('Fetch error details:', {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+          });
+        }
+      }
+      
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(`Generation failed: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -160,29 +212,71 @@ export function useProductShot(): UseProductShotReturn {
   // 下载图片
   const downloadImage = async (url: string, filename?: string) => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch image');
-      }
-
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-
+      const downloadFilename = filename || `productshot-${Date.now()}.png`;
+      
+      console.log('🔽 Starting image download:', { url, filename: downloadFilename });
+      
+      // 使用后端代理API进行下载
+      const downloadUrl = `/api/download-image?${new URLSearchParams({
+        url: url,
+        filename: downloadFilename
+      })}`;
+      
+      console.log('📡 Using download proxy:', downloadUrl);
+      
+      // 创建临时链接并触发下载
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = filename || `productshot-${Date.now()}.png`;
-
+      link.download = downloadFilename;
+      link.style.display = 'none';
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(downloadUrl);
-      toast.success('Image downloaded successfully!');
-
+      
+      toast.success('Image download started!');
+      
     } catch (err) {
       console.error('Download error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Download failed';
-      toast.error(errorMessage);
+      
+      // 备用方案1：尝试直接下载
+      try {
+        console.warn('Proxy download failed, trying direct download...');
+        
+        const response = await fetch(url, { mode: 'cors' });
+        if (response.ok) {
+          const blob = await response.blob();
+          const downloadUrl = window.URL.createObjectURL(blob);
+
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = filename || `productshot-${Date.now()}.png`;
+          link.style.display = 'none';
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          window.URL.revokeObjectURL(downloadUrl);
+          toast.success('Image downloaded successfully!');
+          return;
+        }
+      } catch (directError) {
+        console.warn('Direct download also failed:', directError);
+      }
+      
+      // 备用方案2：在新标签页打开
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Opening image in new tab - you can right-click to save it');
     }
   };
 

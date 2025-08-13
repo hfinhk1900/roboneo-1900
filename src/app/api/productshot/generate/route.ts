@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 
 // 产品尺寸映射 - 基于常见产品类型的合理尺寸
 const PRODUCT_SIZE_HINTS = {
@@ -243,22 +244,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. 检查 Credits (TODO: 集成现有的 Credits 系统)
-    // const creditsManager = new CreditsManager();
-    // const requiredCredits = quality === 'hd' ? 30 : 20;
-    // const canGenerate = await creditsManager.canUserGenerate(
-    //   session.user.id,
-    //   'siliconflow',
-    //   requiredCredits
-    // );
+    // 4. 检查用户 Credits
+    const { canGenerateStickerAction } = await import('@/actions/credits-actions');
+    const creditsCheck = await canGenerateStickerAction({
+      requiredCredits: CREDITS_PER_IMAGE,
+    });
 
-    // if (!canGenerate.canGenerate) {
-    //   return NextResponse.json({
-    //     error: 'Insufficient credits',
-    //     required: requiredCredits,
-    //     current: canGenerate.balance
-    //   }, { status: 402 });
-    // }
+    if (
+      !creditsCheck?.data?.success ||
+      !creditsCheck.data.data?.canGenerate
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          required: CREDITS_PER_IMAGE,
+          current: creditsCheck?.data?.data?.currentCredits || 0,
+        },
+        { status: 402 }
+      );
+    }
+
+    console.log(
+      `💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with ProductShot generation...`
+    );
 
     // 5. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
@@ -337,15 +345,22 @@ export async function POST(request: NextRequest) {
       image_input
     });
 
-    // 8. 扣减 Credits (TODO: 集成现有的 Credits 系统)
-    // if (result.status === 'completed') {
-    //   await creditsManager.deductCredits(
-    //     session.user.id,
-    //     requiredCredits,
-    //     result.taskId,
-    //     'ProductShot Generation'
-    //   );
-    // }
+    // 8. 扣减 Credits - 成功生成后
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deductResult = await deductCreditsAction({
+      userId: session.user.id,
+      amount: CREDITS_PER_IMAGE,
+    });
+
+    if (deductResult?.data?.success) {
+      console.log(
+        `💰 Deducted ${CREDITS_PER_IMAGE} credits for ProductShot. Remaining: ${deductResult.data.data?.remainingCredits}`
+      );
+    } else {
+      console.warn(
+        '⚠️ Failed to deduct credits, but ProductShot was generated successfully'
+      );
+    }
 
     // 9. 返回结果
     return NextResponse.json({
@@ -360,7 +375,8 @@ export async function POST(request: NextRequest) {
       processingTime: result.processingTime,
       model: 'FLUX.1-Kontext-dev',
       provider: 'SiliconFlow',
-      credits_used: quality === 'hd' ? 30 : 20
+      credits_used: CREDITS_PER_IMAGE,
+      remaining_credits: deductResult?.data?.data?.remainingCredits || 0
     });
 
   } catch (error) {
