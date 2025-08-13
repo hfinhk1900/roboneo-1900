@@ -1,59 +1,177 @@
-import { NextRequest, NextResponse } from 'next/server';
+// 不使用付费 API，改为基于启发式规则的免费分析
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // 产品尺寸映射 - 基于常见产品类型的合理尺寸
 const PRODUCT_SIZE_HINTS = {
   // 小型产品
   small: ['small', 'compact', 'handheld', 'pocket-sized', 'delicate'],
   // 中型产品
-  medium: ['medium-sized', 'standard', 'appropriately sized', 'well-proportioned'],
+  medium: [
+    'medium-sized',
+    'standard',
+    'appropriately sized',
+    'well-proportioned',
+  ],
   // 大型产品
   large: ['substantial', 'prominent', 'statement piece', 'centerpiece'],
   // 默认
-  default: ['properly sized', 'well-proportioned', 'naturally scaled']
+  default: ['properly sized', 'well-proportioned', 'naturally scaled'],
 };
 
 // 场景与产品类型的智能映射
 const SCENE_PRODUCT_PREFERENCES = {
-  'studio-model': {
-    likely: 'small',  // 模特摄影通常是小型产品（时尚、美妆、配饰）
-    description: 'fashion and beauty products',
-    contextHints: ['fashion accessory', 'beauty product', 'handheld item']
+  'studio-white': {
+    likely: 'medium', // 电商产品通常是标准商品
+    description: 'e-commerce products for online stores',
+    contextHints: [
+      'commercial product',
+      'retail item',
+      'e-commerce merchandise',
+    ],
   },
-  'lifestyle-casual': {
-    likely: 'medium', // 生活方式场景适合中型日用品
-    description: 'everyday lifestyle products',
-    contextHints: ['everyday item', 'lifestyle product', 'daily use object']
+  'studio-shadow': {
+    likely: 'medium', // 高端产品适合展现质感
+    description: 'premium products with luxury appeal',
+    contextHints: ['luxury item', 'premium product', 'high-end merchandise'],
   },
-  'outdoor-adventure': {
-    likely: 'medium', // 户外运动适合便携装备
-    description: 'portable outdoor gear',
-    contextHints: ['portable gear', 'outdoor equipment', 'sports accessory']
+  'home-lifestyle': {
+    likely: 'medium', // 家居生活产品适合日常使用
+    description: 'everyday household products',
+    contextHints: ['home product', 'lifestyle item', 'daily use object'],
   },
-  'elegant-evening': {
-    likely: 'small',  // 优雅晚宴场景适合精致小物件
-    description: 'luxury accessories',
-    contextHints: ['luxury item', 'elegant accessory', 'refined product']
+  'nature-outdoor': {
+    likely: 'medium', // 户外产品适合自然环境
+    description: 'outdoor and adventure products',
+    contextHints: ['outdoor gear', 'nature product', 'adventure equipment'],
   },
-  'street-style': {
-    likely: 'medium', // 街头风格适合中型时尚单品
-    description: 'trendy fashion items',
-    contextHints: ['fashion item', 'trendy accessory', 'style statement']
+  'table-flatlay': {
+    likely: 'small', // 俯拍适合小到中型产品
+    description: 'small to medium products for overhead photography',
+    contextHints: ['flatlay item', 'desk accessory', 'portable product'],
   },
   'minimalist-clean': {
-    likely: 'small',  // 极简风格适合精致小物件
+    likely: 'small', // 极简风格适合设计感产品
     description: 'design-focused products',
-    contextHints: ['design object', 'minimalist item', 'clean aesthetic']
+    contextHints: ['design object', 'modern item', 'minimalist product'],
   },
-  'custom': {
-    likely: 'default',
-    description: 'various products',
-    contextHints: ['product item']
-  }
+  custom: {
+    likely: 'medium', // 自定义场景默认中等尺寸
+    description: 'custom products',
+    contextHints: ['product item', 'custom merchandise', 'unique product'],
+  },
 } as const;
 
-// 多层智能尺寸检测函数
+// 快速关键词分析（完全免费，零延迟）
+function analyzeContextKeywords(context: string): {
+  category: 'small' | 'medium' | 'large';
+  confidence: number;
+} {
+  const text = context.toLowerCase();
+
+  // 高置信度关键词匹配
+  const smallProducts = [
+    'ring',
+    'watch',
+    'phone',
+    'perfume',
+    'cosmetic',
+    'jewelry',
+    'lipstick',
+    'earring',
+    'necklace',
+    'bracelet',
+    'charm',
+    'pendant',
+    'bottle',
+    'tube',
+    'compact',
+    'tiny',
+    'mini',
+    'small',
+    'delicate',
+    'pocket',
+  ];
+
+  const largeProducts = [
+    'furniture',
+    'chair',
+    'table',
+    'sofa',
+    'lamp',
+    'cabinet',
+    'bed',
+    'desk',
+    'bookshelf',
+    'dresser',
+    'mirror',
+    'artwork',
+    'sculpture',
+    'vase',
+    'large',
+    'big',
+    'huge',
+    'substantial',
+    'massive',
+    'oversized',
+  ];
+
+  const mediumProducts = [
+    'bag',
+    'handbag',
+    'backpack',
+    'purse',
+    'shoe',
+    'boot',
+    'sneaker',
+    'tablet',
+    'laptop',
+    'book',
+    'clothing',
+    'shirt',
+    'dress',
+    'jacket',
+    'hat',
+    'cap',
+    'glasses',
+    'headphones',
+    'camera',
+    'tool',
+  ];
+
+  // 计算匹配得分
+  const smallScore = smallProducts.reduce(
+    (score, word) => (text.includes(word) ? score + 1 : score),
+    0
+  );
+  const largeScore = largeProducts.reduce(
+    (score, word) => (text.includes(word) ? score + 1 : score),
+    0
+  );
+  const mediumScore = mediumProducts.reduce(
+    (score, word) => (text.includes(word) ? score + 1 : score),
+    0
+  );
+
+  const maxScore = Math.max(smallScore, largeScore, mediumScore);
+
+  if (maxScore === 0) {
+    return { category: 'medium', confidence: 0.3 };
+  }
+
+  let category: 'small' | 'medium' | 'large';
+  if (smallScore === maxScore) category = 'small';
+  else if (largeScore === maxScore) category = 'large';
+  else category = 'medium';
+
+  // 置信度基于匹配强度
+  const confidence = Math.min(0.95, 0.6 + maxScore * 0.1);
+
+  return { category, confidence };
+}
+
+// 多层智能尺寸检测函数（免费高效版本）
 function detectProductSize(
   additionalContext?: string,
   sceneType?: SceneType,
@@ -63,33 +181,27 @@ function detectProductSize(
   confidence: 'high' | 'medium' | 'low';
   source: 'user_hint' | 'user_input' | 'scene_inference' | 'default';
 } {
-
   // 第0层：用户明确选择的产品类型提示（最高优先级）
   if (productTypeHint && productTypeHint !== 'auto') {
     return {
       category: productTypeHint,
       confidence: 'high',
-      source: 'user_hint'
+      source: 'user_hint',
     };
   }
 
-  // 第1层：用户明确输入的产品信息（高优先级）
+  // 第1层：免费启发式分析（基于文本上下文关键词，零延迟）
   if (additionalContext?.trim()) {
-    const context = additionalContext.toLowerCase();
-
-    // 小型产品关键词
-    if (context.match(/\b(perfume|cologne|lipstick|ring|earrings|watch|phone|makeup|cosmetic|jewelry|small|tiny|mini|compact)\b/)) {
-      return { category: 'small', confidence: 'high', source: 'user_input' };
-    }
-
-    // 大型产品关键词
-    if (context.match(/\b(furniture|lamp|vase|large|big|substantial|prominent|statement|sofa|chair|table)\b/)) {
-      return { category: 'large', confidence: 'high', source: 'user_input' };
-    }
-
-    // 中型产品关键词
-    if (context.match(/\b(bag|handbag|shoes|boots|tablet|book|medium|standard|backpack|clothing|apparel)\b/)) {
-      return { category: 'medium', confidence: 'high', source: 'user_input' };
+    const quickAnalysis = analyzeContextKeywords(additionalContext);
+    if (quickAnalysis.confidence > 0.7) {
+      console.log(
+        `🚀 Quick Analysis: "${additionalContext}" → ${quickAnalysis.category} (confidence: ${quickAnalysis.confidence})`
+      );
+      return {
+        category: quickAnalysis.category,
+        confidence: 'high',
+        source: 'user_input',
+      };
     }
   }
 
@@ -99,16 +211,20 @@ function detectProductSize(
     return {
       category: scenePreference.likely,
       confidence: 'medium',
-      source: 'scene_inference'
+      source: 'scene_inference',
     };
   }
 
-  // 第3层：安全默认值（最低优先级）
+  // 第4层：安全默认值（最低优先级）
   return { category: 'default', confidence: 'low', source: 'default' };
 }
 
 // 获取尺寸提示词（增强版）
-function getSizeHints(detection: ReturnType<typeof detectProductSize>): string {
+function getSizeHints(detection: {
+  category: keyof typeof PRODUCT_SIZE_HINTS;
+  confidence: 'high' | 'medium' | 'low';
+  source: string;
+}): string {
   const hints = PRODUCT_SIZE_HINTS[detection.category];
 
   // 根据信心度调整提示词数量
@@ -125,44 +241,91 @@ function getSceneContext(sceneType: SceneType): string {
   return 'product item';
 }
 
-// 简化的场景预设配置 - 使用通用词汇，不需要产品类型检测
+// 6种专业产品摄影场景配置 - 以产品为主体
 const SCENE_PRESETS = {
-  'studio-model': {
-    name: 'Professional Model',
-    prompt: 'professional model elegantly holding a small product item in hands, product is properly sized as handheld object, clean studio setting, high-end product photography, perfect lighting, commercial quality, realistic proportions',
-    category: 'model'
+  'studio-white': {
+    name: 'Studio White',
+    prompt:
+      'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details',
+    category: 'studio',
+    icon: '⚪',
+    description: '电商白底图 - 纯净白色背景，完美商业展示',
   },
-  'lifestyle-casual': {
-    name: 'Casual Lifestyle',
-    prompt: 'person naturally using a reasonably sized product in casual lifestyle setting, product appears as normal everyday item, natural lighting, comfortable environment, realistic scale and proportions',
-    category: 'lifestyle'
+  'studio-shadow': {
+    name: 'Studio Shadow',
+    prompt:
+      'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic',
+    category: 'studio',
+    icon: '🎭',
+    description: '质感工作室图 - 专业灯光，突出产品质感',
   },
-  'outdoor-adventure': {
-    name: 'Outdoor Adventure',
-    prompt: 'person carrying a compact product during outdoor activities, product is appropriately sized for portable use, dynamic action shot, nature background, realistic proportions',
-    category: 'sport'
+  'home-lifestyle': {
+    name: 'Home Lifestyle',
+    prompt:
+      'natural home lifestyle setting, modern interior background, warm ambient lighting, cozy domestic environment, product in everyday use context, soft natural light, lived-in atmosphere, relatable home scene',
+    category: 'lifestyle',
+    icon: '🏠',
+    description: '生活场景 - 温馨家居环境，日常使用情境',
   },
-  'elegant-evening': {
-    name: 'Elegant Evening',
-    prompt: 'elegant person gracefully displaying a refined product at sophisticated evening event, product is elegantly proportioned, luxury setting, formal atmosphere, perfect scale',
-    category: 'formal'
+  'nature-outdoor': {
+    name: 'Nature Outdoor',
+    prompt:
+      'natural outdoor environment, soft daylight, organic natural background, fresh air atmosphere, product in nature setting, golden hour lighting, adventure lifestyle vibe, authentic outdoor scene',
+    category: 'nature',
+    icon: '🌿',
+    description: '户外自然 - 自然光线，有机环境背景',
   },
-  'street-style': {
-    name: 'Street Style',
-    prompt: 'stylish person casually featuring a trendy product in urban street style, product is street-appropriate size, modern city background, trendy lifestyle, natural proportions',
-    category: 'urban'
+  'table-flatlay': {
+    name: 'Table Flatlay',
+    prompt:
+      'clean tabletop flatlay photography, overhead perspective, organized composition, modern surface texture, soft overhead lighting, minimalist arrangement, product showcase style, editorial layout',
+    category: 'flatlay',
+    icon: '📷',
+    description: '桌面俯拍 - 俯视角度，整洁构图',
   },
   'minimalist-clean': {
     name: 'Minimalist Clean',
-    prompt: 'person thoughtfully presenting a well-proportioned product in minimalist clean environment, product appears as designed accessory, soft neutral lighting, simple background, balanced composition',
-    category: 'minimal'
+    prompt:
+      'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style',
+    category: 'minimal',
+    icon: '✨',
+    description: '简约美学 - 极简设计，突出产品线条',
   },
-  'custom': {
+  custom: {
     name: 'Custom Scene',
-    prompt: 'this product in {customScene}', // Will be replaced with actual custom scene description
-    category: 'custom'
-  }
+    prompt: 'product in {customScene}',
+    category: 'custom',
+    icon: '🎨',
+    description: 'Create your own unique scene description',
+  },
 } as const;
+
+// 产品专用场景提示词（无人物版本）- 与新场景匹配
+const PRODUCT_ONLY_SCENE_PROMPTS = {
+  'studio-white':
+    'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details',
+  'studio-shadow':
+    'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic',
+  'home-lifestyle':
+    'natural home lifestyle setting, modern interior background, warm ambient lighting, cozy domestic environment, product in everyday use context, soft natural light, lived-in atmosphere, relatable home scene',
+  'nature-outdoor':
+    'natural outdoor environment, soft daylight, organic natural background, fresh air atmosphere, product in nature setting, golden hour lighting, adventure lifestyle vibe, authentic outdoor scene',
+  'table-flatlay':
+    'clean tabletop flatlay photography, overhead perspective, organized composition, modern surface texture, soft overhead lighting, minimalist arrangement, product showcase style, editorial layout',
+  'minimalist-clean':
+    'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style',
+  custom: '{customScene}', // Will be replaced with actual custom scene description
+} as const;
+
+/**
+ * 获取无人物的场景提示词
+ */
+function getProductOnlyScenePrompt(sceneType: SceneType): string {
+  return (
+    PRODUCT_ONLY_SCENE_PROMPTS[sceneType] ||
+    PRODUCT_ONLY_SCENE_PROMPTS['minimalist-clean']
+  );
+}
 
 type SceneType = keyof typeof SCENE_PRESETS;
 
@@ -198,10 +361,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. 解析请求参数
@@ -218,7 +378,7 @@ export async function POST(request: NextRequest) {
       output_format,
       image_input,
       additionalContext,
-      productTypeHint
+      productTypeHint,
     } = body;
 
     // 3. 验证必需参数 - 简化验证逻辑
@@ -239,21 +399,23 @@ export async function POST(request: NextRequest) {
     // 验证自定义场景
     if (sceneType === 'custom' && !customSceneDescription?.trim()) {
       return NextResponse.json(
-        { error: 'Custom scene description is required when using custom scene type' },
+        {
+          error:
+            'Custom scene description is required when using custom scene type',
+        },
         { status: 400 }
       );
     }
 
     // 4. 检查用户 Credits
-    const { canGenerateStickerAction } = await import('@/actions/credits-actions');
+    const { canGenerateStickerAction } = await import(
+      '@/actions/credits-actions'
+    );
     const creditsCheck = await canGenerateStickerAction({
       requiredCredits: CREDITS_PER_IMAGE,
     });
 
-    if (
-      !creditsCheck?.data?.success ||
-      !creditsCheck.data.data?.canGenerate
-    ) {
+    if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
       return NextResponse.json(
         {
           error: 'Insufficient credits',
@@ -280,33 +442,60 @@ export async function POST(request: NextRequest) {
 
     const provider = new SiliconFlowProvider(apiKey);
 
-    // 6. 构建简化的提示词 - 不需要复杂的产品类型检测
+    // 6. 构建简化的提示词 - 新场景预设已经明确定义了风格
     const sceneConfig = SCENE_PRESETS[sceneType];
     let basePrompt: string;
 
+    console.log(`🎯 Using scene: ${sceneType} (${sceneConfig.name})`);
+
     if (sceneType === 'custom' && customSceneDescription) {
       // 对于自定义场景，使用用户提供的场景描述
-      basePrompt = sceneConfig.prompt.replace('{customScene}', customSceneDescription);
+      basePrompt = sceneConfig.prompt.replace(
+        '{customScene}',
+        customSceneDescription
+      );
+      console.log('🎨 Using custom scene prompt');
     } else {
-      // 对于预设场景，直接使用模板
+      // 直接使用场景预设的提示词
       basePrompt = sceneConfig.prompt;
+      console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
     }
 
-    let finalPrompt = basePrompt;
+    // 强化产品主体识别 - 以用户上传的图片为核心
+    const productFocusEnhancers = [
+      'uploaded product image as main subject',
+      'product is the central focus',
+      'preserve product characteristics from original image',
+      'maintain product details and features',
+      'product prominently featured and clearly visible',
+    ];
 
-    // 添加智能尺寸控制
-    const sizeDetection = detectProductSize(additionalContext, sceneType, productTypeHint);
+    let finalPrompt = `${productFocusEnhancers.join(', ')}, ${basePrompt}`;
+
+    // 添加智能尺寸控制（免费，零延迟）
+    const sizeDetection = detectProductSize(
+      additionalContext,
+      sceneType,
+      productTypeHint
+    );
     const sizeHints = getSizeHints(sizeDetection);
     finalPrompt += `, ${sizeHints}`;
 
     // 智能添加场景相关的产品上下文（当用户没有提供具体描述时）
-    if (!additionalContext?.trim() && sizeDetection.source === 'scene_inference') {
+    if (
+      !additionalContext?.trim() &&
+      sizeDetection.source === 'scene_inference'
+    ) {
       const sceneContext = getSceneContext(sceneType);
       finalPrompt += `, ${sceneContext}`;
-      console.log(`🎭 Scene context added: "${sceneContext}" (user provided no additional context)`);
+      console.log(
+        `🎭 Scene context added: "${sceneContext}" (user provided no additional context)`
+      );
     }
 
-    console.log(`🎯 Size optimization: detected category "${sizeDetection.category}" (${sizeDetection.confidence} confidence, source: ${sizeDetection.source}) → using hints "${sizeHints}"`);
+    console.log(
+      `🎯 Size optimization: detected category "${sizeDetection.category}" (${sizeDetection.confidence} confidence, source: ${sizeDetection.source}) → using hints "${sizeHints}"`
+    );
 
     // 添加额外上下文
     if (additionalContext?.trim()) {
@@ -319,30 +508,75 @@ export async function POST(request: NextRequest) {
       'high quality commercial image',
       'detailed textures and realistic materials',
       'perfect composition and lighting',
-      'marketing ready photograph'
+      'marketing ready photograph',
     ].join(', ');
 
     finalPrompt += `, ${kontextEnhancements}`;
 
+    // 6. 场景特定的质量参数优化
+    const sceneOptimizations = {
+      'studio-white': {
+        steps: steps || 35,
+        guidance_scale: guidance_scale || 4.0,
+        size: size || '1024x1024',
+      }, // 高精度白底图
+      'studio-shadow': {
+        steps: steps || 40,
+        guidance_scale: guidance_scale || 4.2,
+        size: size || '1024x1024',
+      }, // 强调光影效果
+      'home-lifestyle': {
+        steps: steps || 32,
+        guidance_scale: guidance_scale || 3.8,
+        size: size || '1024x768',
+      }, // 生活场景平衡
+      'nature-outdoor': {
+        steps: steps || 35,
+        guidance_scale: guidance_scale || 4.0,
+        size: size || '1216x832',
+      }, // 自然场景宽屏
+      'table-flatlay': {
+        steps: steps || 30,
+        guidance_scale: guidance_scale || 3.8,
+        size: size || '1024x1024',
+      }, // 俯视构图优化
+      'minimalist-clean': {
+        steps: steps || 28,
+        guidance_scale: guidance_scale || 3.5,
+        size: size || '1024x1024',
+      }, // 简约快速生成
+      custom: {
+        steps: steps || 32,
+        guidance_scale: guidance_scale || 3.6,
+        size: size || '1024x1024',
+      }, // 自定义默认
+    };
+
+    const optimizedParams =
+      sceneOptimizations[sceneType] || sceneOptimizations['minimalist-clean'];
+
+    console.log(`🎛️ Scene optimization for ${sceneType}:`, optimizedParams);
+
     // 7. 调用 AI 生成
     console.log('Generating ProductShot with SiliconFlow:', {
       model: 'black-forest-labs/FLUX.1-Kontext-dev',
-      prompt: finalPrompt,
+      prompt: finalPrompt.substring(0, 100) + '...',
       quality,
-      hasImageInput: !!image_input
+      hasImageInput: !!image_input,
+      optimizedParams,
     });
 
     const result = await provider.generateProductShot({
       prompt: finalPrompt,
-      model: 'black-forest-labs/FLUX.1-dev',
-      size: size || '1024x1024',
+      model: 'black-forest-labs/FLUX.1-Kontext-dev',
+      size: optimizedParams.size,
       quality,
-      steps,
+      steps: optimizedParams.steps,
       seed,
-      guidance_scale,
+      guidance_scale: optimizedParams.guidance_scale,
       num_images,
       output_format,
-      image_input
+      image_input,
     });
 
     // 8. 扣减 Credits - 成功生成后
@@ -370,25 +604,25 @@ export async function POST(request: NextRequest) {
       sceneType,
       sceneConfig: {
         name: sceneConfig.name,
-        category: sceneConfig.category
+        category: sceneConfig.category,
       },
       processingTime: result.processingTime,
       model: 'FLUX.1-Kontext-dev',
       provider: 'SiliconFlow',
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits || 0
+      remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
     });
-
   } catch (error) {
     console.error('ProductShot generation error:', error);
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
 
     return NextResponse.json(
       {
         error: 'Generation failed',
         details: errorMessage,
-        provider: 'SiliconFlow'
+        provider: 'SiliconFlow',
       },
       { status: 500 }
     );
@@ -401,7 +635,7 @@ export async function GET() {
     scenes: Object.entries(SCENE_PRESETS).map(([id, config]) => ({
       id,
       name: config.name,
-      category: config.category
-    }))
+      category: config.category,
+    })),
   });
 }

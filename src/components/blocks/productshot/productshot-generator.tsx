@@ -41,40 +41,18 @@ import {
   useProductShot,
 } from '@/ai/image/hooks/use-productshot';
 
-// 场景图标映射
+// 6种专业产品摄影场景图标映射
 const sceneIcons = {
-  'studio-model': '👤',
-  'lifestyle-casual': '🏠',
-  'outdoor-adventure': '🏔️',
-  'elegant-evening': '✨',
-  'street-style': '🏙️',
-  'minimalist-clean': '🎯',
+  'studio-white': '⚪',
+  'studio-shadow': '🎭',
+  'home-lifestyle': '🏠',
+  'nature-outdoor': '🌿',
+  'table-flatlay': '📷',
+  'minimalist-clean': '✨',
   custom: '🎨',
 } as const;
 
-// 新增：产品呈现方式提示映射
-const PRESENTATION_HINTS: Record<
-  | 'model'
-  | 'studio-white'
-  | 'studio-shadow'
-  | 'home-lifestyle'
-  | 'nature-outdoor'
-  | 'table-flatlay'
-  | 'minimalist-clean',
-  string
-> = {
-  model:
-    'with a person model interacting with the product, natural human interaction',
-  'studio-white':
-    'product-only, no person, isolated on pure white seamless background, soft studio lighting',
-  'studio-shadow':
-    'product-only, no person, on white background with distinct studio shadows, high-contrast studio lighting',
-  'home-lifestyle': 'product featured in cozy home lifestyle setting',
-  'nature-outdoor': 'product shown in natural outdoor environment',
-  'table-flatlay':
-    'product-only, no person, flat lay on tabletop, overhead shot, realistic soft shadows',
-  'minimalist-clean': 'product-only, no person, minimalist clean background',
-};
+// Presentation Style 已经整合到场景选择中，不再需要单独配置
 
 export default function ProductShotGeneratorSection() {
   const [additionalContext, setAdditionalContext] = useState('');
@@ -83,21 +61,15 @@ export default function ProductShotGeneratorSection() {
   const [productTypeHint, setProductTypeHint] = useState<
     'small' | 'medium' | 'large' | 'auto'
   >('auto');
-  // 新增：呈现方式选择
-  const [presentationStyle, setPresentationStyle] = useState<
-    | 'model'
-    | 'studio-white'
-    | 'studio-shadow'
-    | 'home-lifestyle'
-    | 'nature-outdoor'
-    | 'table-flatlay'
-    | 'minimalist-clean'
-  >('model');
+  // Presentation Style 已移除，现在由场景选择统一控制
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
     required: number;
     current: number;
   } | null>(null);
+
+  // 新增：生成进度状态
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   // Image upload state
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -193,6 +165,21 @@ export default function ProductShotGeneratorSection() {
     setImagePreview(null);
   };
 
+  // 模拟生成进度
+  const simulateProgress = () => {
+    setGenerationProgress(0);
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15 + 5; // 每次增加5-20%
+      if (progress >= 95) {
+        progress = 95; // 停在95%，等待实际完成
+      }
+      setGenerationProgress(Math.min(progress, 95));
+    }, 800); // 每800ms更新一次
+
+    return interval;
+  };
+
   const handleGenerate = async () => {
     if (!uploadedImage) {
       toast.error('Please upload a product image');
@@ -204,26 +191,34 @@ export default function ProductShotGeneratorSection() {
       return;
     }
 
-    try {
-      // 合并用户上下文与呈现方式提示
-      const presentationHint = PRESENTATION_HINTS[presentationStyle];
-      const mergedAdditionalContext = [
-        additionalContext.trim(),
-        presentationHint,
-      ]
-        .filter(Boolean)
-        .join(', ');
+    // 开始进度模拟
+    const progressInterval = simulateProgress();
 
+    try {
+      // 直接使用用户提供的上下文，场景已经包含所有必要信息
       await generateProductShot({
         sceneType: selectedScene,
         uploaded_image: uploadedImage,
         customSceneDescription:
           selectedScene === 'custom' ? customSceneDescription : undefined,
-        additionalContext: mergedAdditionalContext || undefined,
+        additionalContext: additionalContext.trim() || undefined,
         productTypeHint: productTypeHint,
         quality: 'standard',
       });
+
+      // 生成完成，设置进度为100%
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+
+      // 短暂显示100%后重置
+      setTimeout(() => {
+        setGenerationProgress(0);
+      }, 1000);
     } catch (err) {
+      // 清理进度
+      clearInterval(progressInterval);
+      setGenerationProgress(0);
+
       console.error('Generation failed:', err);
       const error = err as Error;
       if (error.message?.includes('credits')) {
@@ -463,6 +458,11 @@ export default function ProductShotGeneratorSection() {
                                     <div className="font-medium">
                                       {scene.name}
                                     </div>
+                                    {scene.description && (
+                                      <div className="text-xs text-muted-foreground mt-1">
+                                        {scene.description}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </SelectItem>
@@ -493,6 +493,11 @@ export default function ProductShotGeneratorSection() {
                                     <div className="font-medium">
                                       {scene.name}
                                     </div>
+                                    {scene.description && (
+                                      <div className="text-xs text-muted-foreground mt-1">
+                                        {scene.description}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </SelectItem>
@@ -502,65 +507,7 @@ export default function ProductShotGeneratorSection() {
                     </Select>
                   </div>
 
-                  {/* 新增：Presentation Style 选择器 */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Presentation Style
-                    </Label>
-                    <Select
-                      value={presentationStyle}
-                      onValueChange={(v) =>
-                        setPresentationStyle(v as typeof presentationStyle)
-                      }
-                    >
-                      <SelectTrigger
-                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                        style={{ height: '46px', padding: '0px 12px' }}
-                      >
-                        <SelectValue placeholder="Select presentation style" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
-                        <SelectItem value="model">
-                          <span className="text-sm transition-colors">
-                            Model presentation
-                          </span>
-                        </SelectItem>
-                        <SelectSeparator />
-                        <SelectItem value="studio-white">
-                          <span className="text-sm transition-colors">
-                            Studio White
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="studio-shadow">
-                          <span className="text-sm transition-colors">
-                            Studio Shadow
-                          </span>
-                        </SelectItem>
-                        <SelectSeparator />
-                        <SelectItem value="home-lifestyle">
-                          <span className="text-sm transition-colors">
-                            Home Lifestyle
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="nature-outdoor">
-                          <span className="text-sm transition-colors">
-                            Nature Outdoor
-                          </span>
-                        </SelectItem>
-                        <SelectSeparator />
-                        <SelectItem value="table-flatlay">
-                          <span className="text-sm transition-colors">
-                            Table Flatlay
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="minimalist-clean">
-                          <span className="text-sm transition-colors">
-                            Minimalist Clean
-                          </span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Presentation Style 已整合到场景选择中 */}
 
                   {/* Custom Scene Description Input - Only show when custom is selected */}
                   {selectedScene === 'custom' && (
@@ -645,18 +592,92 @@ export default function ProductShotGeneratorSection() {
                       </Button>
                     </div>
                   </div>
+                ) : isLoading ? (
+                  /* Loading 状态 - 显示进度条和灰色遮罩 */
+                  <div className="flex items-center justify-center min-h-[400px] p-8 relative">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                      <div className="relative flex items-center justify-center">
+                        {/* 用户上传的图片带灰色遮罩 */}
+                        <div className="relative">
+                          {imagePreview ? (
+                            <img
+                              src={imagePreview}
+                              alt="Processing your product"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          ) : (
+                            <Image
+                              src="/productshots/productshot.jpg"
+                              alt="Product Scene Example"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          )}
+                          {/* 进度遮罩层 */}
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
+                            {/* 生成中图标 */}
+                            <div className="flex items-center space-x-2 text-white">
+                              <LoaderIcon className="h-6 w-6 animate-spin" />
+                              <span className="text-lg font-medium">
+                                Generating...
+                              </span>
+                            </div>
+
+                            {/* 进度条 */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                style={{ width: `${generationProgress}%` }}
+                              />
+                            </div>
+
+                            {/* 进度百分比 */}
+                            <div className="text-white text-sm font-medium">
+                              {Math.round(generationProgress)}%
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ) : (
+                  /* 默认状态 - 显示用户上传的图片或示例图片 */
                   <div className="flex items-center justify-center min-h-[400px] p-8">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
-                        <Image
-                          src="/productshots/productshot.jpg"
-                          alt="Product Scene Example"
-                          width={400}
-                          height={300}
-                          className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
-                        />
+                        {imagePreview ? (
+                          <div className="text-center space-y-4">
+                            <img
+                              src={imagePreview}
+                              alt="Your uploaded product"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
+                            />
+                            <div className="text-sm text-muted-foreground">
+                              Your product is ready! Select a scene and click
+                              generate.
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center space-y-4">
+                            <Image
+                              src="/productshots/productshot.jpg"
+                              alt="Product Scene Example"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
+                            />
+                            <div className="text-sm text-muted-foreground">
+                              Upload your product image to get started
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

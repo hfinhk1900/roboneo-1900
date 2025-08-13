@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-// 场景类型定义（与 API 保持一致）
+// 6种专业产品摄影场景类型定义（与 API 保持一致）
 export type SceneType =
-  | 'studio-model'
-  | 'lifestyle-casual'
-  | 'outdoor-adventure'
-  | 'elegant-evening'
-  | 'street-style'
+  | 'studio-white'
+  | 'studio-shadow'
+  | 'home-lifestyle'
+  | 'nature-outdoor'
+  | 'table-flatlay'
   | 'minimalist-clean'
   | 'custom';
 
@@ -26,21 +26,21 @@ export interface ProductShotRequest {
   quality?: 'standard' | 'hd';
 
   // Advanced generation controls
-  steps?: number;              // 推理步数 (28-50, 默认根据quality)
-  seed?: number;               // 随机种子 (-1为随机, 固定值可重现)
-  guidance_scale?: number;     // CFG引导系数 (1.0-10.0, 默认3.5)
-  num_images?: number;         // 生成图片数量 (1-4, 默认1)
-  size?: string;               // 图像尺寸 (默认"1024x1024")
-  output_format?: 'jpeg' | 'png' | 'webp';  // 输出格式
+  steps?: number; // 推理步数 (28-50, 默认根据quality)
+  seed?: number; // 随机种子 (-1为随机, 固定值可重现)
+  guidance_scale?: number; // CFG引导系数 (1.0-10.0, 默认3.5)
+  num_images?: number; // 生成图片数量 (1-4, 默认1)
+  size?: string; // 图像尺寸 (默认"1024x1024")
+  output_format?: 'jpeg' | 'png' | 'webp'; // 输出格式
 
   // Image input for img2img - NOW REQUIRED
-  uploaded_image: File;        // 上传的产品图片文件 (必需)
+  uploaded_image: File; // 上传的产品图片文件 (必需)
 
   // Optional additional context instead of product description
-  additionalContext?: string;  // 额外的场景描述或风格要求
+  additionalContext?: string; // 额外的场景描述或风格要求
 
   // Optional product type hint for better detection
-  productTypeHint?: 'small' | 'medium' | 'large' | 'auto';  // 产品尺寸提示
+  productTypeHint?: 'small' | 'medium' | 'large' | 'auto'; // 产品尺寸提示
 }
 
 export interface ProductShotResult {
@@ -85,6 +85,7 @@ export function useProductShot(): UseProductShotReturn {
     try {
       const response = await fetch('/api/productshot/generate', {
         method: 'GET',
+        credentials: 'include', // 确保包含认证 cookies
       });
 
       if (!response.ok) {
@@ -98,7 +99,7 @@ export function useProductShot(): UseProductShotReturn {
         id: scene.id,
         name: scene.name,
         category: scene.category,
-        description: scene.description || '' // 后端没有 description 字段，使用空字符串
+        description: scene.description || '', // 后端没有 description 字段，使用空字符串
       }));
       setAvailableScenes(formattedScenes);
     } catch (err) {
@@ -140,12 +141,12 @@ export function useProductShot(): UseProductShotReturn {
         ...params,
         image_input,
         // 移除 uploaded_image 字段
-        uploaded_image: undefined
+        uploaded_image: undefined,
       };
 
       console.log('📤 Request data prepared:', {
         ...requestData,
-        image_input: image_input.substring(0, 50) + '...' // 只显示前50个字符
+        image_input: image_input.substring(0, 50) + '...', // 只显示前50个字符
       });
 
       const response = await fetch('/api/productshot/generate', {
@@ -153,6 +154,7 @@ export function useProductShot(): UseProductShotReturn {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保包含认证 cookies
         body: JSON.stringify(requestData),
       });
 
@@ -162,15 +164,21 @@ export function useProductShot(): UseProductShotReturn {
         // 处理不同类型的错误
         if (response.status === 401) {
           throw new Error('Please sign in to generate product shots');
-        } else if (response.status === 402) {
-          throw new Error(`Insufficient credits. Required: ${data.required}, Current: ${data.current}`);
-        } else if (response.status === 400) {
-          throw new Error(data.error || 'Invalid request parameters');
-        } else if (response.status === 503) {
-          throw new Error('AI service temporarily unavailable. Please try again later.');
-        } else {
-          throw new Error(data.error || 'Failed to generate product shot');
         }
+        if (response.status === 402) {
+          throw new Error(
+            `Insufficient credits. Required: ${data.required}, Current: ${data.current}`
+          );
+        }
+        if (response.status === 400) {
+          throw new Error(data.error || 'Invalid request parameters');
+        }
+        if (response.status === 503) {
+          throw new Error(
+            'AI service temporarily unavailable. Please try again later.'
+          );
+        }
+        throw new Error(data.error || 'Failed to generate product shot');
       }
 
       if (!data.success || !data.resultUrl) {
@@ -178,12 +186,13 @@ export function useProductShot(): UseProductShotReturn {
       }
 
       setResult(data);
-      toast.success(`Product shot generated successfully! (${data.credits_used} credits used)`);
-
+      toast.success(
+        `Product shot generated successfully! (${data.credits_used} credits used)`
+      );
     } catch (err) {
       console.error('ProductShot generation error:', err);
       let errorMessage = 'Unknown error occurred';
-      
+
       if (err instanceof Error) {
         errorMessage = err.message;
         // 如果是网络错误，显示更多调试信息
@@ -191,13 +200,32 @@ export function useProductShot(): UseProductShotReturn {
           console.error('Fetch error details:', {
             name: err.name,
             message: err.message,
-            stack: err.stack
+            stack: err.stack,
           });
         }
       }
-      
+
       setError(errorMessage);
-      toast.error(`Generation failed: ${errorMessage}`);
+
+      // 提供更有用的错误信息
+      if (
+        errorMessage.includes('Unauthorized') ||
+        errorMessage.includes('Please sign in')
+      ) {
+        toast.error(
+          'Please sign in to generate product shots. Try refreshing the page and logging in again.'
+        );
+      } else if (errorMessage.includes('Insufficient credits')) {
+        toast.error(
+          "You don't have enough credits. Please purchase more credits to continue."
+        );
+      } else if (errorMessage.includes('temporarily unavailable')) {
+        toast.error(
+          'AI service is temporarily unavailable. Please try again in a few minutes.'
+        );
+      } else {
+        toast.error(`ProductShot generation failed: ${errorMessage}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -213,36 +241,38 @@ export function useProductShot(): UseProductShotReturn {
   const downloadImage = async (url: string, filename?: string) => {
     try {
       const downloadFilename = filename || `productshot-${Date.now()}.png`;
-      
-      console.log('🔽 Starting image download:', { url, filename: downloadFilename });
-      
+
+      console.log('🔽 Starting image download:', {
+        url,
+        filename: downloadFilename,
+      });
+
       // 使用后端代理API进行下载
       const downloadUrl = `/api/download-image?${new URLSearchParams({
         url: url,
-        filename: downloadFilename
+        filename: downloadFilename,
       })}`;
-      
+
       console.log('📡 Using download proxy:', downloadUrl);
-      
+
       // 创建临时链接并触发下载
       const link = document.createElement('a');
       link.href = downloadUrl;
       link.download = downloadFilename;
       link.style.display = 'none';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success('Image download started!');
-      
     } catch (err) {
       console.error('Download error:', err);
-      
+
       // 备用方案1：尝试直接下载
       try {
         console.warn('Proxy download failed, trying direct download...');
-        
+
         const response = await fetch(url, { mode: 'cors' });
         if (response.ok) {
           const blob = await response.blob();
@@ -264,19 +294,21 @@ export function useProductShot(): UseProductShotReturn {
       } catch (directError) {
         console.warn('Direct download also failed:', directError);
       }
-      
+
       // 备用方案2：在新标签页打开
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       link.style.display = 'none';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      toast.success('Opening image in new tab - you can right-click to save it');
+
+      toast.success(
+        'Opening image in new tab - you can right-click to save it'
+      );
     }
   };
 
@@ -292,58 +324,58 @@ export function useProductShot(): UseProductShotReturn {
   };
 }
 
-// Default scene presets (consistent with backend API)
+// 6种专业产品摄影场景配置（与后端API保持一致）
 export const DEFAULT_SCENES: SceneConfig[] = [
   {
-    id: 'studio-model',
-    name: 'Professional Model',
-    category: 'model',
-    description: 'Product worn by professional model in studio setting'
+    id: 'studio-white',
+    name: 'Studio White',
+    category: 'studio',
+    description: '电商白底图 - 纯净白色背景，完美商业展示',
   },
   {
-    id: 'lifestyle-casual',
-    name: 'Casual Lifestyle',
+    id: 'studio-shadow',
+    name: 'Studio Shadow',
+    category: 'studio',
+    description: '质感工作室图 - 专业灯光，突出产品质感',
+  },
+  {
+    id: 'home-lifestyle',
+    name: 'Home Lifestyle',
     category: 'lifestyle',
-    description: 'Product in natural everyday environment'
+    description: '生活场景 - 温馨家居环境，日常使用情境',
   },
   {
-    id: 'outdoor-adventure',
-    name: 'Outdoor Adventure',
-    category: 'sport',
-    description: 'Product in dynamic outdoor or sports setting'
+    id: 'nature-outdoor',
+    name: 'Nature Outdoor',
+    category: 'nature',
+    description: '户外自然 - 自然光线，有机环境背景',
   },
   {
-    id: 'elegant-evening',
-    name: 'Elegant Evening',
-    category: 'formal',
-    description: 'Product in sophisticated formal setting'
-  },
-  {
-    id: 'street-style',
-    name: 'Street Style',
-    category: 'urban',
-    description: 'Product in trendy urban street fashion setting'
+    id: 'table-flatlay',
+    name: 'Table Flatlay',
+    category: 'flatlay',
+    description: '桌面俯拍 - 俯视角度，整洁构图',
   },
   {
     id: 'minimalist-clean',
     name: 'Minimalist Clean',
     category: 'minimal',
-    description: 'Product in clean minimalist environment'
+    description: '简约美学 - 极简设计，突出产品线条',
   },
   {
     id: 'custom',
     name: 'Custom Scene',
     category: 'custom',
-    description: 'Create your own custom scene description'
-  }
+    description: 'Create your own unique scene description',
+  },
 ];
 
 // 辅助函数：根据场景ID获取场景信息
 export function getSceneById(sceneId: SceneType): SceneConfig | undefined {
-  return DEFAULT_SCENES.find(scene => scene.id === sceneId);
+  return DEFAULT_SCENES.find((scene) => scene.id === sceneId);
 }
 
 // 辅助函数：根据类别获取场景
 export function getScenesByCategory(category: string): SceneConfig[] {
-  return DEFAULT_SCENES.filter(scene => scene.category === category);
+  return DEFAULT_SCENES.filter((scene) => scene.category === category);
 }
