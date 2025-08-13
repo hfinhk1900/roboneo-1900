@@ -596,19 +596,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. 返回结果
+    // 9. 返回简化结果 - 隐藏技术细节
     return NextResponse.json({
       success: true,
-      taskId: result.taskId,
       resultUrl: result.resultUrl,
-      sceneType,
-      sceneConfig: {
-        name: sceneConfig.name,
-        category: sceneConfig.category,
-      },
-      processingTime: result.processingTime,
-      model: 'FLUX.1-Kontext-dev',
-      provider: 'SiliconFlow',
+      scene: sceneConfig.name,
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
     });

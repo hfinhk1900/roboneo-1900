@@ -45,17 +45,10 @@ export interface ProductShotRequest {
 
 export interface ProductShotResult {
   success: boolean;
-  taskId: string;
   resultUrl: string;
-  sceneType: SceneType;
-  sceneConfig: {
-    name: string;
-    category: string;
-  };
-  processingTime?: number;
-  model: string;
-  provider: string;
+  scene: string;
   credits_used: number;
+  remaining_credits: number;
 }
 
 export interface UseProductShotReturn {
