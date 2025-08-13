@@ -58,9 +58,8 @@ export default function ProductShotGeneratorSection() {
   const [additionalContext, setAdditionalContext] = useState('');
   const [selectedScene, setSelectedScene] = useState<SceneType | ''>('');
   const [customSceneDescription, setCustomSceneDescription] = useState('');
-  const [productTypeHint, setProductTypeHint] = useState<
-    'small' | 'medium' | 'large' | 'auto'
-  >('auto');
+  // Product Size Hint 已隐藏，系统自动智能检测
+  const [productTypeHint] = useState<'auto'>('auto');
   // Presentation Style 已移除，现在由场景选择统一控制
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
@@ -336,7 +335,8 @@ export default function ProductShotGeneratorSection() {
                   </div>
 
                   <div className="space-y-3">
-                    {/* 产品类型选择器 */}
+                    {/* Product Size Hint 已隐藏 - 系统自动智能检测 */}
+                    {/*
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Product Size Hint (Optional)
@@ -389,16 +389,23 @@ export default function ProductShotGeneratorSection() {
                         </SelectContent>
                       </Select>
                     </div>
+                    */}
 
-                    <Textarea
-                      id="additional-context"
-                      placeholder="e.g. small perfume bottle', 'compact jewelry', 'handheld device', or styling requests like 'warm lighting', 'elegant mood'"
-                      value={additionalContext}
-                      onChange={(e) => setAdditionalContext(e.target.value)}
-                      className="min-h-[120px] resize-none rounded-xl"
-                      maxLength={500}
-                      aria-label="Additional context for AI scene generation"
-                    />
+                    {/* 额外描述输入框 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="additional-context" className="text-sm font-medium">
+                        Additional Context (Optional)
+                      </Label>
+                      <Textarea
+                        id="additional-context"
+                        placeholder="Describe product features or scene requirements, e.g., 'premium skincare product', 'warm lighting', 'luxurious feel', 'modern minimalist style'"
+                        value={additionalContext}
+                        onChange={(e) => setAdditionalContext(e.target.value)}
+                        className="min-h-[120px] resize-none rounded-xl"
+                        maxLength={500}
+                        aria-label="Additional context for AI scene generation"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-3">
