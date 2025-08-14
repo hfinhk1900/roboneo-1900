@@ -301,9 +301,9 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                                   <span
                                     className={cn(
                                       'text-sm',
-                                      // Text to Image和Image to Image菜单的标题使用黑色，其他菜单保持原色
-                                      item.title.includes('Text to Image') ||
-                                        item.title.includes('文本转图像') ||
+                                      // AI Tools和Image to Image菜单的标题使用黑色，其他菜单保持原色
+                                      item.title.includes('AI Tools') ||
+                                        item.title.includes('AI 工具') ||
                                         item.title.includes('Image to Image') ||
                                         item.title.includes('图像转图像')
                                         ? 'text-black'

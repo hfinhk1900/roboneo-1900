@@ -4,7 +4,8 @@ export type ProviderKey =
   | 'openai'
   | 'fireworks'
   | 'fal'
-  | 'laozhang'; // 新增 Laozhang AI 提供商
+  | 'laozhang' // 新增 Laozhang AI 提供商
+  | 'siliconflow'; // 新增 SiliconFlow AI 提供商
 
 export type ModelMode = 'performance' | 'quality';
 
@@ -101,6 +102,21 @@ export const PROVIDERS: Record<
       'gpt-image-1', // for image editing API
     ],
   },
+  // SiliconFlow AI provider for FLUX.1-Kontext models
+  siliconflow: {
+    displayName: 'SiliconFlow',
+    iconPath: '/provider-icons/siliconflow.svg',
+    color: 'from-blue-500 to-purple-500',
+    models: [
+      'black-forest-labs/FLUX.1-Kontext-dev',
+      'black-forest-labs/FLUX.1-Kontext',
+      'black-forest-labs/FLUX.1-Kontext-max',
+      'black-forest-labs/FLUX-1.1-pro',
+      'black-forest-labs/FLUX-1.1-pro-Ultra',
+      'black-forest-labs/FLUX.1-schnell',
+      'black-forest-labs/FLUX.1-dev'
+    ],
+  },
 };
 
 export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
@@ -111,6 +127,7 @@ export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
     fireworks: 'accounts/fireworks/models/flux-1-schnell-fp8',
     fal: 'fal-ai/flux/dev',
     laozhang: 'gpt-4o-image',
+    siliconflow: 'black-forest-labs/FLUX.1-Kontext-dev', // 性能优先：Kontext-dev
   },
   quality: {
     replicate: 'stability-ai/stable-diffusion-3.5-large',
@@ -119,6 +136,7 @@ export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
     fireworks: 'accounts/fireworks/models/flux-1-dev-fp8',
     fal: 'fal-ai/flux-pro/v1.1-ultra',
     laozhang: 'gpt-4-vision-preview',
+    siliconflow: 'black-forest-labs/FLUX.1-Kontext-max', // 质量优先：Kontext-max
   },
 };
 
@@ -129,6 +147,7 @@ export const PROVIDER_ORDER: ProviderKey[] = [
   'fireworks',
   'fal',
   'laozhang',
+  'siliconflow', // 添加 SiliconFlow
 ];
 
 export const initializeProviderRecord = <T>(defaultValue?: T) =>

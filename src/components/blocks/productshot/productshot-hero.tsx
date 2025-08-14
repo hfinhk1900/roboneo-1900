@@ -17,8 +17,8 @@ export default function ProductShotHeroSection() {
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:radial-gradient(ellipse_at_center,white,transparent_75%)]" />
 
-      <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+      <div className="relative mx-auto max-w-7xl px-6 py-12 lg:px-8">
+        <div className="text-center sm:mx-auto lg:mr-auto">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -38,7 +38,11 @@ export default function ProductShotHeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"
+            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+            style={{
+              fontFamily:
+                'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+            }}
           >
             Create Professional
             <span className="relative">
@@ -56,7 +60,7 @@ export default function ProductShotHeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 text-lg leading-8 text-gray-600"
+            className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground"
           >
             Transform text descriptions into stunning e-commerce product photos.
             No camera, no studio, no photographer needed. Perfect for Amazon

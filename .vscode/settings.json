@@ -25,5 +25,7 @@
     ".source": true,
     ".wrangler": true,
     ".open-next": true
-  }
+  },
+  "search.useGlobalIgnoreFiles": true,
+  "search.useParentIgnoreFiles": true
 }

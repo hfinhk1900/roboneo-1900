@@ -67,7 +67,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
       external: false,
     },
     {
-      title: 'Text to Image',
+      title: 'AI Tools',
       items: [
         {
           title: 'Text to Image',

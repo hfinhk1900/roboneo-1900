@@ -5,7 +5,6 @@ import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
 import HeroSection from '@/components/blocks/hero/hero';
 import PricingSection from '@/components/blocks/pricing/pricing';
 import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
-import { NewsletterCard } from '@/components/newsletter/newsletter-card';
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
 import { getUrlWithLocale } from '@/lib/urls/urls';
@@ -62,7 +61,6 @@ export default async function HomePage(props: HomePageProps) {
 
         <TestimonialsSection />
 
-        <NewsletterCard />
       </div>
     </>
   );

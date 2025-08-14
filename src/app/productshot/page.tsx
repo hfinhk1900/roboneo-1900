@@ -64,36 +64,41 @@ export default function ProductShotPage() {
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-4">
               Automated Product Photography - No Camera Needed
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              AI Product Photography Generator
+            <h1
+              className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+              style={{
+                fontFamily:
+                  'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+              }}
+            >
+              Product Shots
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Create professional e-commerce product photos in seconds. Perfect for Amazon listings,
-              Shopify stores, social media marketing, and print materials.
+            <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
+              Transform product descriptions into professional scene photography
             </p>
           </div>
 
           {/* What is AI Product Photography Section */}
           <div className="max-w-4xl mx-auto mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              What is AI Product Photography?
+              What is AI Product Scene Generation?
             </h2>
             <p className="text-gray-600 mb-4">
-              AI product photography uses advanced artificial intelligence to automatically generate
-              professional-quality product images without traditional photography equipment. Our
-              generator creates stunning product shots with perfect lighting, backgrounds, and
-              compositions - all optimized for e-commerce and digital marketing.
+              AI product scene generation uses FLUX.1-Kontext technology to create professional
+              product photography by placing your products in contextual scenes. Our advanced AI
+              understands product descriptions and generates realistic lifestyle photography with
+              perfect lighting, composition, and styling.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">
-              How AI Product Photo Generation Works
+              How AI Product Scene Generation Works
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-gray-600">
-              <li>Upload your product image or describe your product</li>
-              <li>AI removes background and enhances product details</li>
-              <li>Choose from professional photography styles and backgrounds</li>
-              <li>Generate multiple variations instantly</li>
-              <li>Download high-resolution images ready for any platform</li>
+              <li>Describe your product or upload a product image</li>
+              <li>Choose from professional scene types (studio, lifestyle, outdoor, etc.)</li>
+              <li>FLUX.1-Kontext AI generates contextual product photography</li>
+              <li>Get high-quality results with realistic lighting and composition</li>
+              <li>Download professional images ready for any marketing use</li>
             </ol>
           </div>
 

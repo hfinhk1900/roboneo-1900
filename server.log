@@ -2,119 +2,17 @@
 > roboneo art webapp@0.1.0 dev /Users/hf/Desktop/Web Template/Products/roboneo art
 > next dev -p 3000
 
-[MDX] updated map file in 16.19802999999979ms
+[MDX] updated map file in 13.254365000000007ms
 [MDX] started dev server
-   ▲ Next.js 15.2.1
-   - Local:        http://localhost:3000
-   - Network:      http://192.168.1.77:3000
-   - Environments: .env.local, .env
-
- ✓ Starting...
- ✓ Ready in 1865ms
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
- ○ Compiling /middleware ...
- ✓ Compiled /middleware in 727ms (183 modules)
->> middleware start, pathname /
- ○ Compiling /api/auth/[...all] ...
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
- ✓ Compiled /api/auth/[...all] in 5s (1152 modules)
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 6842ms
- GET /api/auth/get-session 200 in 451ms
-<< middleware end, applying intlMiddleware
-<< middleware end, applying intlMiddleware
- ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 10.5s (3707 modules)
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
- ✓ Compiled in 1033ms (798 modules)
- ✓ Compiled in 97ms (784 modules)
- GET / 200 in 12537ms
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 1152ms (3642 modules)
- ○ Compiling /manifest.webmanifest ...
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 3142ms
- ✓ Compiled /manifest.webmanifest in 1701ms (3658 modules)
- GET /manifest.webmanifest 200 in 1833ms
- GET /api/auth/get-session 200 in 1929ms
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 14ms
-<< middleware end, applying intlMiddleware
- POST / 200 in 754ms
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 62ms
-<< middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
 }
- POST / 200 in 1238ms
- ○ Compiling /api/image-to-sticker ...
- ✓ Compiled /api/image-to-sticker in 757ms (3668 modules)
-🚀 Starting sticker generation...
-📊 Original image: { format: 'png', size: '992x676', fileSize: '1044KB' }
-✅ Preprocessing complete: { finalSize: '1024x1024', fileSize: '1036KB' }
-✅ Using direct prompt for style: ios
-🎨 Calling GPT Image 1 for style transfer...
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
-✅ GPT Image 1 generation successful.
-☁️ Uploading sticker to R2...
-uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/2e69b5f2-88a6-44b3-961b-88f400a622f4.png
-✅ Upload successful! URL: https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/2e69b5f2-88a6-44b3-961b-88f400a622f4.png
-🎉 Sticker generation complete! Total time: 57s
- POST /api/image-to-sticker 200 in 57491ms
-objc[41887]: Class GNotificationCenterDelegate is implemented in both /Users/hf/Desktop/Web Template/Products/roboneo art/node_modules/@img/sharp-libvips-darwin-x64/lib/libvips-cpp.8.17.1.dylib (0x3b50b6b18) and /Users/hf/Desktop/Web Template/Products/roboneo art/node_modules/next/node_modules/@img/sharp-libvips-darwin-x64/lib/libvips-cpp.42.dylib (0x3b7579340). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
 [?25h
 [MDX] closing dev server
