@@ -393,7 +393,10 @@ export default function ProductShotGeneratorSection() {
 
                     {/* 额外描述输入框 */}
                     <div className="space-y-2">
-                      <Label htmlFor="additional-context" className="text-sm font-medium">
+                      <Label
+                        htmlFor="additional-context"
+                        className="text-sm font-medium"
+                      >
                         Additional Context (Optional)
                       </Label>
                       <Textarea
