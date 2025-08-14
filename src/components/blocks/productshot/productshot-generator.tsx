@@ -105,9 +105,17 @@ export default function ProductShotGeneratorSection() {
 
   // 通用文件处理函数
   const processFile = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
+    // 严格验证支持的图片格式
+    const supportedFormats = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+    ];
+    if (!supportedFormats.includes(file.type)) {
+      toast.error(
+        `Unsupported image format: ${file.type}. Please use JPEG, PNG, or WebP format. AVIF is not currently supported.`
+      );
       return;
     }
 
@@ -171,9 +179,17 @@ export default function ProductShotGeneratorSection() {
 
   // NEW: Reference image handling functions
   const processReferenceFile = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file for reference');
+    // 严格验证支持的图片格式
+    const supportedFormats = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+    ];
+    if (!supportedFormats.includes(file.type)) {
+      toast.error(
+        `Unsupported reference image format: ${file.type}. Please use JPEG, PNG, or WebP format. AVIF is not currently supported.`
+      );
       return;
     }
 
@@ -268,10 +284,10 @@ export default function ProductShotGeneratorSection() {
 
     try {
       // 确定使用的场景类型
-      // 双图模式：使用智能默认scene或用户选择的scene
+      // 双图模式：纯reference image引导，不使用默认场景
       // 单图模式：使用用户选择的scene
       const effectiveSceneType = referenceImage
-        ? selectedScene || 'minimalist-clean' // 双图模式默认使用简约风格，让参考图片主导
+        ? selectedScene // 双图模式：只使用用户明确选择的场景，无默认场景
         : selectedScene; // 单图模式使用用户选择
 
       console.log('🎭 Generation mode:', {
@@ -379,7 +395,7 @@ export default function ProductShotGeneratorSection() {
                     >
                       <input
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.webp"
                         onChange={handleImageUpload}
                         className="hidden"
                         id="image-upload"
@@ -447,7 +463,7 @@ export default function ProductShotGeneratorSection() {
                     >
                       <input
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.webp"
                         onChange={handleReferenceImageUpload}
                         className="hidden"
                         id="reference-image-upload"

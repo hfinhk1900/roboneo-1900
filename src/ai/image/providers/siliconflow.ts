@@ -77,7 +77,7 @@ export class SiliconFlowProvider {
       // 使用 SiliconFlow 的 image-to-image API
       const model = params.model || 'black-forest-labs/FLUX.1-Kontext-dev';
 
-      // 构建请求体 - 根据 SiliconFlow FLUX.1-Kontext-dev 文档
+      // 构建请求体 - 只使用SiliconFlow FLUX.1-Kontext-dev支持的参数
       const requestBody: any = {
         model: model,
         prompt: params.prompt,

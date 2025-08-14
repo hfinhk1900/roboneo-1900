@@ -385,15 +385,16 @@ export async function POST(request: NextRequest) {
       productTypeHint,
     } = body;
 
-    // 3. 验证必需参数 - 简化验证逻辑
-    if (!sceneType || !image_input) {
+    // 3. 验证必需参数 - 简化验证逻辑，允许空场景（双图模式）
+    if (!image_input) {
       return NextResponse.json(
-        { error: 'Scene type and product image are required' },
+        { error: 'Product image is required' },
         { status: 400 }
       );
     }
 
-    if (!SCENE_PRESETS[sceneType]) {
+    // 场景验证：允许空场景（双图模式），但如果提供了场景必须有效
+    if (sceneType && !SCENE_PRESETS[sceneType]) {
       return NextResponse.json(
         { error: 'Invalid scene type' },
         { status: 400 }
@@ -446,23 +447,31 @@ export async function POST(request: NextRequest) {
 
     const provider = new SiliconFlowProvider(apiKey);
 
-    // 6. 构建简化的提示词 - 新场景预设已经明确定义了风格
-    const sceneConfig = SCENE_PRESETS[sceneType];
+    // 6. 构建提示词 - 处理有场景和无场景两种情况
     let basePrompt: string;
 
-    console.log(`🎯 Using scene: ${sceneType} (${sceneConfig.name})`);
-
-    if (sceneType === 'custom' && customSceneDescription) {
-      // 对于自定义场景，使用用户提供的场景描述
-      basePrompt = sceneConfig.prompt.replace(
-        '{customScene}',
-        customSceneDescription
-      );
-      console.log('🎨 Using custom scene prompt');
+    if (!sceneType) {
+      // 双图模式无场景：使用通用的高质量描述，让reference image主导风格
+      basePrompt =
+        'professional product photography, high quality commercial image, natural lighting, clean composition';
+      console.log('🖼️ No scene selected - using reference image guided mode');
     } else {
-      // 直接使用场景预设的提示词
-      basePrompt = sceneConfig.prompt;
-      console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
+      // 有场景：使用场景预设
+      const sceneConfig = SCENE_PRESETS[sceneType];
+      console.log(`🎯 Using scene: ${sceneType} (${sceneConfig.name})`);
+
+      if (sceneType === 'custom' && customSceneDescription) {
+        // 对于自定义场景，使用用户提供的场景描述
+        basePrompt = sceneConfig.prompt.replace(
+          '{customScene}',
+          customSceneDescription
+        );
+        console.log('🎨 Using custom scene prompt');
+      } else {
+        // 直接使用场景预设的提示词
+        basePrompt = sceneConfig.prompt;
+        console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
+      }
     }
 
     // 强化产品主体识别 - 以用户上传的图片为核心
@@ -616,7 +625,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       resultUrl: result.resultUrl,
-      scene: sceneConfig.name,
+      scene: sceneType
+        ? SCENE_PRESETS[sceneType].name
+        : 'Reference Image Guided',
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
     });

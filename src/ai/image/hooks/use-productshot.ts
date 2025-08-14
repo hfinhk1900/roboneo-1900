@@ -105,7 +105,7 @@ export function useProductShot(): UseProductShotReturn {
     }
   };
 
-  // 辅助函数：将 File 转换为 base64 字符串
+  // 辅助函数：压缩并将 File 转换为 base64 字符串
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       // 验证输入
@@ -114,57 +114,82 @@ export function useProductShot(): UseProductShotReturn {
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
+      // 严格验证支持的图片格式
+      const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!supportedFormats.includes(file.type)) {
         reject(
-          new Error(`Invalid file type: ${file.type}. Expected image file.`)
+          new Error(`Unsupported file type: ${file.type}. Please use ${supportedFormats.join(', ')}. AVIF format is not currently supported.`)
         );
         return;
       }
 
-      const reader = new FileReader();
+      // 创建压缩canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
 
-      reader.onload = () => {
+      img.onload = () => {
         try {
-          const result = reader.result as string;
-
-          // 验证结果格式
-          if (!result || typeof result !== 'string') {
-            reject(new Error('FileReader returned invalid result'));
-            return;
+          // 计算压缩尺寸 - 最大1024x1024，保持宽高比
+          const maxSize = 1024;
+          let { width, height } = img;
+          
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
           }
 
-          // 检查是否包含 base64 数据
-          if (!result.includes(',')) {
-            reject(
-              new Error(
-                `Invalid data URL format: ${result.substring(0, 100)}...`
-              )
-            );
-            return;
-          }
+          canvas.width = width;
+          canvas.height = height;
 
-          // 移除 data:image/...;base64, 前缀，只保留 base64 数据
-          const base64 = result.split(',')[1];
+          // 绘制压缩后的图片
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // 转换为base64，使用JPEG格式以减小文件大小
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          
+          // 移除 data:image/jpeg;base64, 前缀，只保留 base64 数据
+          const base64 = compressedDataUrl.split(',')[1];
 
           if (!base64) {
-            reject(new Error('Failed to extract base64 data from result'));
+            reject(new Error('Failed to extract base64 data from compressed image'));
             return;
           }
 
+          console.log(`📸 Image compressed: ${file.name} (${Math.round(file.size/1024)}KB → ${Math.round(base64.length*0.75/1024)}KB)`);
           resolve(base64);
         } catch (error) {
           reject(
             new Error(
-              `Error processing file: ${error instanceof Error ? error.message : 'Unknown error'}`
+              `Error compressing image: ${error instanceof Error ? error.message : 'Unknown error'}`
             )
           );
         }
       };
 
-      reader.onerror = (error) => {
-        reject(new Error(`FileReader error: ${error}`));
+      img.onerror = () => {
+        reject(new Error('Failed to load image for compression'));
       };
 
+      // 读取文件并设置图片源
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          img.src = e.target.result as string;
+        } else {
+          reject(new Error('Failed to read file'));
+        }
+      };
+      reader.onerror = () => {
+        reject(new Error('FileReader error'));
+      };
       reader.readAsDataURL(file);
     });
   };
