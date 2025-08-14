@@ -451,10 +451,17 @@ export async function POST(request: NextRequest) {
     let basePrompt: string;
 
     if (!sceneType) {
-      // 双图模式无场景：使用通用的高质量描述，让reference image主导风格
-      basePrompt =
-        'professional product photography, high quality commercial image, natural lighting, clean composition';
-      console.log('🖼️ No scene selected - using reference image guided mode');
+      // 双图模式无场景：强调参考图的风格和环境引导
+      if (reference_image) {
+        basePrompt =
+          'match the style, lighting, environment, and aesthetic of the reference background image, adopt the same color palette and mood, recreate similar lighting conditions, maintain the overall atmosphere and visual style from reference image, professional product photography with consistent visual theme';
+        console.log('🖼️ No scene selected - using strong reference image guided mode');
+      } else {
+        // 单图模式无场景：使用通用描述
+        basePrompt =
+          'professional product photography, high quality commercial image, natural lighting, clean composition';
+        console.log('📸 No scene selected - using general product photography mode');
+      }
     } else {
       // 有场景：使用场景预设
       const sceneConfig = SCENE_PRESETS[sceneType];
@@ -472,6 +479,12 @@ export async function POST(request: NextRequest) {
         basePrompt = sceneConfig.prompt;
         console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
       }
+
+      // 双图模式下增强场景与参考图的融合
+      if (reference_image) {
+        basePrompt += ', blend scene style with reference image elements, incorporate reference image color palette and lighting into the scene, harmoniously merge scene concept with reference background aesthetic';
+        console.log('🎨 Enhanced scene-reference fusion for dual-image mode');
+      }
     }
 
     // 强化产品主体识别 - 以用户上传的图片为核心
@@ -486,10 +499,13 @@ export async function POST(request: NextRequest) {
     // 双图模式的提示词优化
     if (reference_image) {
       productFocusEnhancers.push(
-        'integrate product seamlessly with reference background',
-        'combine product and scene naturally and professionally'
+        'integrate product seamlessly with reference background style',
+        'combine product and reference scene naturally and professionally',
+        'extract visual elements from reference image',
+        'reference image provides the environment and style guidance',
+        'follow reference image lighting and color scheme'
       );
-      console.log('🖼️ Dual-image mode activated: product + reference image');
+      console.log('🖼️ Dual-image mode activated: product + reference image with enhanced style matching');
     }
 
     let finalPrompt = `${productFocusEnhancers.join(', ')}, ${basePrompt}`;
