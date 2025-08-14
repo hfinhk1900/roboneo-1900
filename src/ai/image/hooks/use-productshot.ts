@@ -36,6 +36,9 @@ export interface ProductShotRequest {
   // Image input for img2img - NOW REQUIRED
   uploaded_image: File; // 上传的产品图片文件 (必需)
 
+  // NEW: Reference image for dual-image generation (optional)
+  reference_image?: File; // 可选的参考背景图片文件
+
   // Optional additional context instead of product description
   additionalContext?: string; // 额外的场景描述或风格要求
 
@@ -105,14 +108,63 @@ export function useProductShot(): UseProductShotReturn {
   // 辅助函数：将 File 转换为 base64 字符串
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
+      // 验证输入
+      if (!file) {
+        reject(new Error('File is null or undefined'));
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        reject(
+          new Error(`Invalid file type: ${file.type}. Expected image file.`)
+        );
+        return;
+      }
+
       const reader = new FileReader();
+
       reader.onload = () => {
-        const result = reader.result as string;
-        // 移除 data:image/...;base64, 前缀，只保留 base64 数据
-        const base64 = result.split(',')[1];
-        resolve(base64);
+        try {
+          const result = reader.result as string;
+
+          // 验证结果格式
+          if (!result || typeof result !== 'string') {
+            reject(new Error('FileReader returned invalid result'));
+            return;
+          }
+
+          // 检查是否包含 base64 数据
+          if (!result.includes(',')) {
+            reject(
+              new Error(
+                `Invalid data URL format: ${result.substring(0, 100)}...`
+              )
+            );
+            return;
+          }
+
+          // 移除 data:image/...;base64, 前缀，只保留 base64 数据
+          const base64 = result.split(',')[1];
+
+          if (!base64) {
+            reject(new Error('Failed to extract base64 data from result'));
+            return;
+          }
+
+          resolve(base64);
+        } catch (error) {
+          reject(
+            new Error(
+              `Error processing file: ${error instanceof Error ? error.message : 'Unknown error'}`
+            )
+          );
+        }
       };
-      reader.onerror = reject;
+
+      reader.onerror = (error) => {
+        reject(new Error(`FileReader error: ${error}`));
+      };
+
       reader.readAsDataURL(file);
     });
   };
@@ -124,24 +176,57 @@ export function useProductShot(): UseProductShotReturn {
     setResult(null);
 
     try {
-      console.log('🎬 Generating ProductShot with SiliconFlow:', params);
+      console.log('🎬 Generating ProductShot with SiliconFlow:', {
+        ...params,
+        uploaded_image: params.uploaded_image
+          ? `File: ${params.uploaded_image.name} (${params.uploaded_image.size} bytes, ${params.uploaded_image.type})`
+          : undefined,
+        reference_image: params.reference_image
+          ? `File: ${params.reference_image.name} (${params.reference_image.size} bytes, ${params.reference_image.type})`
+          : undefined,
+        dualImageMode: !!params.reference_image,
+      });
+
+      // 验证必需的文件
+      if (!params.uploaded_image) {
+        throw new Error('Product image is required');
+      }
 
       // 将 File 对象转换为 base64 字符串
+      console.log('📸 Converting product image to base64...');
       const image_input = await fileToBase64(params.uploaded_image);
+      console.log(
+        `✅ Product image converted: ${image_input.length} characters`
+      );
 
-      // 构建请求数据，将 uploaded_image 替换为 image_input
+      // 处理可选的reference_image
+      let reference_image_base64: string | undefined;
+      if (params.reference_image) {
+        console.log(
+          '🖼️ Processing reference image for dual-image generation...'
+        );
+        reference_image_base64 = await fileToBase64(params.reference_image);
+      }
+
+      // 构建请求数据，将 File 对象替换为 base64 字符串
       const requestData = {
         ...params,
         image_input,
-        // 移除 uploaded_image 字段
+        reference_image: reference_image_base64,
+        // 移除 File 对象字段
         uploaded_image: undefined,
       };
 
       console.log('📤 Request data prepared:', {
         ...requestData,
         image_input: image_input.substring(0, 50) + '...', // 只显示前50个字符
+        reference_image: reference_image_base64
+          ? reference_image_base64.substring(0, 50) + '...'
+          : undefined,
+        dualImageMode: !!reference_image_base64,
       });
 
+      console.log('🚀 Sending request to API...');
       const response = await fetch('/api/productshot/generate', {
         method: 'POST',
         headers: {
@@ -151,7 +236,9 @@ export function useProductShot(): UseProductShotReturn {
         body: JSON.stringify(requestData),
       });
 
+      console.log(`📡 API Response: ${response.status} ${response.statusText}`);
       const data = await response.json();
+      console.log('📦 Response data:', data);
 
       if (!response.ok) {
         // 处理不同类型的错误

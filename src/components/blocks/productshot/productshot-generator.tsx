@@ -70,10 +70,15 @@ export default function ProductShotGeneratorSection() {
   // 新增：生成进度状态
   const [generationProgress, setGenerationProgress] = useState(0);
 
-  // Image upload state
+  // Image upload state - Main Product Image
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // NEW: Reference Image upload state for dual-image generation
+  const [referenceImage, setReferenceImage] = useState<File | null>(null);
+  const [referencePreview, setReferencePreview] = useState<string | null>(null);
+  const [isReferenceDragOver, setIsReferenceDragOver] = useState(false);
 
   // 使用新的 ProductShot Hook
   const {
@@ -164,6 +169,72 @@ export default function ProductShotGeneratorSection() {
     setImagePreview(null);
   };
 
+  // NEW: Reference image handling functions
+  const processReferenceFile = (file: File) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file for reference');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Reference image size must be less than 5MB');
+      return;
+    }
+
+    setReferenceImage(file);
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setReferencePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleReferenceImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    processReferenceFile(file);
+  };
+
+  // Reference image drag and drop handlers
+  const handleReferenceDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsReferenceDragOver(true);
+  };
+
+  const handleReferenceDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsReferenceDragOver(false);
+  };
+
+  const handleReferenceDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleReferenceDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsReferenceDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      processReferenceFile(files[0]);
+    }
+  };
+
+  const clearReferenceImage = () => {
+    setReferenceImage(null);
+    setReferencePreview(null);
+  };
+
   // 模拟生成进度
   const simulateProgress = () => {
     setGenerationProgress(0);
@@ -185,7 +256,9 @@ export default function ProductShotGeneratorSection() {
       return;
     }
 
-    if (!selectedScene) {
+    // 双图模式：如果有参考图片，不需要选择Scene
+    // 单图模式：必须选择Scene
+    if (!referenceImage && !selectedScene) {
       toast.error('Please select a scene type');
       return;
     }
@@ -194,10 +267,25 @@ export default function ProductShotGeneratorSection() {
     const progressInterval = simulateProgress();
 
     try {
+      // 确定使用的场景类型
+      // 双图模式：使用智能默认scene或用户选择的scene
+      // 单图模式：使用用户选择的scene
+      const effectiveSceneType = referenceImage
+        ? selectedScene || 'minimalist-clean' // 双图模式默认使用简约风格，让参考图片主导
+        : selectedScene; // 单图模式使用用户选择
+
+      console.log('🎭 Generation mode:', {
+        mode: referenceImage ? 'Dual-Image' : 'Single-Image',
+        effectiveScene: effectiveSceneType,
+        userSelectedScene: selectedScene,
+        hasReferenceImage: !!referenceImage,
+      });
+
       // 直接使用用户提供的上下文，场景已经包含所有必要信息
       await generateProductShot({
-        sceneType: selectedScene,
+        sceneType: effectiveSceneType as SceneType,
         uploaded_image: uploadedImage,
+        reference_image: referenceImage || undefined, // NEW: Pass reference image if available
         customSceneDescription:
           selectedScene === 'custom' ? customSceneDescription : undefined,
         additionalContext: additionalContext.trim() || undefined,
@@ -285,7 +373,7 @@ export default function ProductShotGeneratorSection() {
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       className={cn(
-                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-48 bg-[#f5f5f5] border border-border',
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f5f5f5] border border-border',
                         isDragOver && 'bg-muted/50 border-primary'
                       )}
                     >
@@ -323,6 +411,74 @@ export default function ProductShotGeneratorSection() {
                       ) : (
                         <label
                           htmlFor="image-upload"
+                          className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
+                        >
+                          <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
+                          <p className="text-sm transition-colors text-muted-foreground text-center">
+                            Click or drag & drop to upload
+                          </p>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* NEW: Reference Image Upload Section for Dual-Image Generation */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">
+                      Reference Background (Optional)
+                    </Label>
+                    {referenceImage && (
+                      <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                        💡 Dual-image mode: Your reference background will guide
+                        the scene style and environment.
+                      </p>
+                    )}
+
+                    <div
+                      onDragEnter={handleReferenceDragEnter}
+                      onDragLeave={handleReferenceDragLeave}
+                      onDragOver={handleReferenceDragOver}
+                      onDrop={handleReferenceDrop}
+                      className={cn(
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f8f9fa] border border-dashed border-border',
+                        isReferenceDragOver && 'bg-muted/50 border-primary',
+                        referencePreview && 'min-h-20'
+                      )}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleReferenceImageUpload}
+                        className="hidden"
+                        id="reference-image-upload"
+                      />
+
+                      {referencePreview ? (
+                        <>
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
+                            <Image
+                              src={referencePreview}
+                              alt="Reference preview"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
+                            {referenceImage?.name}
+                          </p>
+                          <Button
+                            onClick={clearReferenceImage}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-7"
+                          >
+                            <XIcon className="h-3 w-3 mr-1" />
+                            Remove
+                          </Button>
+                        </>
+                      ) : (
+                        <label
+                          htmlFor="reference-image-upload"
                           className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
                         >
                           <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
@@ -411,111 +567,114 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Photography Scene
-                    </Label>
-                    <Select
-                      value={selectedScene}
-                      onValueChange={(value) =>
-                        setSelectedScene(value as SceneType | '')
-                      }
-                    >
-                      <SelectTrigger
-                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                        style={{ height: '50px', padding: '0px 12px' }}
+                  {/* Photography Scene - 仅在单图模式下显示 */}
+                  {!referenceImage && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">
+                        Photography Scene
+                      </Label>
+                      <Select
+                        value={selectedScene}
+                        onValueChange={(value) =>
+                          setSelectedScene(value as SceneType | '')
+                        }
                       >
-                        <SelectValue placeholder="Please select a photography scene">
-                          {selectedSceneConfig ? (
-                            <div className="flex items-center gap-3">
-                              <span className="text-2xl">
-                                {sceneIcons[selectedSceneConfig.id]}
-                              </span>
-                              <div className="text-left">
-                                <div className="font-medium">
-                                  {selectedSceneConfig.name}
+                        <SelectTrigger
+                          className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                          style={{ height: '50px', padding: '0px 12px' }}
+                        >
+                          <SelectValue placeholder="Please select a photography scene">
+                            {selectedSceneConfig ? (
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">
+                                  {sceneIcons[selectedSceneConfig.id]}
+                                </span>
+                                <div className="text-left">
+                                  <div className="font-medium">
+                                    {selectedSceneConfig.name}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Please select a photography scene
-                            </span>
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
-                        <SelectGroup>
-                          {/* Preset Scenes */}
-                          {scenes
-                            .filter((scene) => scene.id !== 'custom')
-                            .map((scene) => (
-                              <SelectItem
-                                key={scene.id}
-                                value={scene.id}
-                                className={cn(
-                                  'cursor-pointer py-3 px-3 transition-colors',
-                                  'hover:bg-muted/50 hover:text-foreground',
-                                  'focus:bg-muted/50 focus:text-foreground',
-                                  'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                                )}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">
-                                    {sceneIcons[scene.id]}
-                                  </span>
-                                  <div className="text-left">
-                                    <div className="font-medium">
-                                      {scene.name}
-                                    </div>
-                                    {scene.description && (
-                                      <div className="text-xs text-muted-foreground mt-1">
-                                        {scene.description}
+                            ) : (
+                              <span className="text-muted-foreground">
+                                Please select a photography scene
+                              </span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                          <SelectGroup>
+                            {/* Preset Scenes */}
+                            {scenes
+                              .filter((scene) => scene.id !== 'custom')
+                              .map((scene) => (
+                                <SelectItem
+                                  key={scene.id}
+                                  value={scene.id}
+                                  className={cn(
+                                    'cursor-pointer py-3 px-3 transition-colors',
+                                    'hover:bg-muted/50 hover:text-foreground',
+                                    'focus:bg-muted/50 focus:text-foreground',
+                                    'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-2xl">
+                                      {sceneIcons[scene.id]}
+                                    </span>
+                                    <div className="text-left">
+                                      <div className="font-medium">
+                                        {scene.name}
                                       </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            ))}
-
-                          {/* Separator between preset and custom scenes */}
-                          <SelectSeparator className="my-1" />
-
-                          {/* Custom Scene */}
-                          {scenes
-                            .filter((scene) => scene.id === 'custom')
-                            .map((scene) => (
-                              <SelectItem
-                                key={scene.id}
-                                value={scene.id}
-                                className={cn(
-                                  'cursor-pointer py-3 px-3 transition-colors',
-                                  'hover:bg-muted/50 hover:text-foreground',
-                                  'focus:bg-muted/50 focus:text-foreground',
-                                  'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                                )}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">
-                                    {sceneIcons[scene.id]}
-                                  </span>
-                                  <div className="text-left">
-                                    <div className="font-medium">
-                                      {scene.name}
+                                      {scene.description && (
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {scene.description}
+                                        </div>
+                                      )}
                                     </div>
-                                    {scene.description && (
-                                      <div className="text-xs text-muted-foreground mt-1">
-                                        {scene.description}
-                                      </div>
-                                    )}
                                   </div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                                </SelectItem>
+                              ))}
+
+                            {/* Separator between preset and custom scenes */}
+                            <SelectSeparator className="my-1" />
+
+                            {/* Custom Scene */}
+                            {scenes
+                              .filter((scene) => scene.id === 'custom')
+                              .map((scene) => (
+                                <SelectItem
+                                  key={scene.id}
+                                  value={scene.id}
+                                  className={cn(
+                                    'cursor-pointer py-3 px-3 transition-colors',
+                                    'hover:bg-muted/50 hover:text-foreground',
+                                    'focus:bg-muted/50 focus:text-foreground',
+                                    'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-2xl">
+                                      {sceneIcons[scene.id]}
+                                    </span>
+                                    <div className="text-left">
+                                      <div className="font-medium">
+                                        {scene.name}
+                                      </div>
+                                      {scene.description && (
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {scene.description}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   {/* Presentation Style 已整合到场景选择中 */}
 
@@ -551,7 +710,7 @@ export default function ProductShotGeneratorSection() {
                     className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                     disabled={
                       !uploadedImage ||
-                      !selectedScene ||
+                      (!referenceImage && !selectedScene) || // 单图模式需要selectedScene，双图模式不需要
                       isLoading ||
                       (selectedScene === 'custom' &&
                         !customSceneDescription.trim())
@@ -670,8 +829,9 @@ export default function ProductShotGeneratorSection() {
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
                             />
                             <div className="text-sm text-muted-foreground">
-                              Your product is ready! Select a scene and click
-                              generate.
+                              {referenceImage
+                                ? 'Your images are ready! Click generate to create your product scene.'
+                                : 'Your product is ready! Select a scene and click generate.'}
                             </div>
                           </div>
                         ) : (

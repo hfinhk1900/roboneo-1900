@@ -40,6 +40,7 @@ export class SiliconFlowProvider {
     num_images?: number;
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input?: string; // base64 encoded image for image-to-image
+    reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
   }): Promise<ProductShotResult> {
     console.log('🎯 SiliconFlow ProductShot generation starting...');
 
@@ -66,6 +67,7 @@ export class SiliconFlowProvider {
     num_images?: number;
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input: string; // base64 encoded image
+    reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
   }): Promise<ProductShotResult> {
     console.log(
       '🎨 Using SiliconFlow image-to-image generation with FLUX.1-Kontext-dev'
@@ -83,6 +85,12 @@ export class SiliconFlowProvider {
         prompt_enhancement: false, // 禁用提示词增强以保持原始输入
       };
 
+      // 双图支持：添加reference_image参数
+      if (params.reference_image) {
+        requestBody.reference_image = `data:image/png;base64,${params.reference_image}`;
+        console.log('🖼️ Dual-image mode: Added reference_image to request');
+      }
+
       // 可选参数
       if (params.seed !== undefined) {
         requestBody.seed = params.seed;
@@ -93,6 +101,8 @@ export class SiliconFlowProvider {
         prompt: requestBody.prompt.substring(0, 100) + '...',
         prompt_enhancement: requestBody.prompt_enhancement,
         hasImageInput: !!params.image_input,
+        hasReferenceImage: !!params.reference_image,
+        dualImageMode: !!params.reference_image,
         hasSeed: !!requestBody.seed,
       });
 
@@ -105,8 +115,18 @@ export class SiliconFlowProvider {
         body: JSON.stringify(requestBody),
       });
 
+      console.log(
+        `📡 SiliconFlow API Response: ${response.status} ${response.statusText}`
+      );
+
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = 'Unknown error';
+        try {
+          errorText = await response.text();
+        } catch (textError) {
+          console.error('Failed to read error response text:', textError);
+        }
+
         console.error('SiliconFlow API error:', {
           status: response.status,
           statusText: response.statusText,
@@ -117,7 +137,21 @@ export class SiliconFlowProvider {
         );
       }
 
-      const result = await response.json();
+      let result: any;
+      try {
+        result = await response.json();
+        console.log(
+          '📦 SiliconFlow raw response:',
+          JSON.stringify(result, null, 2)
+        );
+      } catch (jsonError) {
+        console.error('Failed to parse response as JSON:', jsonError);
+        const responseText = await response.text();
+        console.error('Response text:', responseText);
+        throw new Error(
+          `Invalid JSON response from SiliconFlow API: ${jsonError}`
+        );
+      }
 
       console.log('✅ SiliconFlow API response:', {
         hasData: !!result.data,
@@ -134,47 +168,91 @@ export class SiliconFlowProvider {
       let imageUrl: string;
       let seed: number | undefined;
 
-      if (
-        result.data?.images &&
-        Array.isArray(result.data.images) &&
-        result.data.images.length > 0
-      ) {
-        // 标准响应格式
-        imageUrl = result.data.images[0].url;
-        seed = result.data.images[0].seed;
-      } else if (Array.isArray(result.data) && result.data.length > 0) {
-        // 备用响应格式
-        imageUrl = result.data[0].url;
-        seed = result.data[0].seed;
-      } else {
-        throw new Error('No image data found in SiliconFlow response');
+      console.log('🔍 Analyzing response structure...');
+      console.log('result.data type:', typeof result.data);
+      console.log('result.data:', result.data);
+
+      try {
+        if (
+          result.data?.images &&
+          Array.isArray(result.data.images) &&
+          result.data.images.length > 0
+        ) {
+          // 标准响应格式
+          console.log('📋 Using standard response format (result.data.images)');
+          imageUrl = result.data.images[0].url;
+          seed = result.data.images[0].seed;
+        } else if (Array.isArray(result.data) && result.data.length > 0) {
+          // 备用响应格式
+          console.log(
+            '📋 Using alternative response format (result.data array)'
+          );
+          imageUrl = result.data[0].url;
+          seed = result.data[0].seed;
+        } else {
+          console.error('❌ Unexpected response structure:', {
+            hasData: !!result.data,
+            dataType: typeof result.data,
+            isArray: Array.isArray(result.data),
+            dataLength: Array.isArray(result.data) ? result.data.length : 'N/A',
+            dataKeys: result.data ? Object.keys(result.data) : 'N/A',
+          });
+          throw new Error('No image data found in SiliconFlow response');
+        }
+
+        if (!imageUrl) {
+          throw new Error('Image URL is empty or undefined in response');
+        }
+
+        console.log(`✅ Extracted image URL: ${imageUrl.substring(0, 100)}...`);
+      } catch (extractError) {
+        console.error('❌ Error extracting image data:', extractError);
+        throw new Error(
+          `Failed to extract image data: ${extractError instanceof Error ? extractError.message : 'Unknown error'}`
+        );
       }
 
       // 下载生成的图像并上传到 R2
       console.log('📥 Downloading generated image from SiliconFlow...');
-      const imageResponse = await fetch(imageUrl);
+      let imageBuffer: ArrayBuffer;
+      try {
+        const imageResponse = await fetch(imageUrl);
 
-      if (!imageResponse.ok) {
+        if (!imageResponse.ok) {
+          throw new Error(
+            `Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`
+          );
+        }
+
+        imageBuffer = await imageResponse.arrayBuffer();
+        console.log(`✅ Image downloaded: ${imageBuffer.byteLength} bytes`);
+      } catch (downloadError) {
+        console.error('❌ Error downloading image:', downloadError);
         throw new Error(
-          `Failed to download image: ${imageResponse.statusText}`
+          `Failed to download generated image: ${downloadError instanceof Error ? downloadError.message : 'Unknown error'}`
         );
       }
 
-      const imageBuffer = await imageResponse.arrayBuffer();
-
       // 上传到 R2
       console.log('☁️ Uploading to R2 productshots folder...');
-      const { uploadFile } = await import('@/storage');
-      const filename = `${crypto.randomUUID()}.png`;
-      const uploadResult = await uploadFile(
-        Buffer.from(imageBuffer),
-        filename,
-        'image/png',
-        'productshots'
-      );
-      const publicUrl = uploadResult.url;
-
-      console.log(`✅ Image saved to R2: ${publicUrl}`);
+      let publicUrl: string;
+      try {
+        const { uploadFile } = await import('@/storage');
+        const filename = `${crypto.randomUUID()}.png`;
+        const uploadResult = await uploadFile(
+          Buffer.from(imageBuffer),
+          filename,
+          'image/png',
+          'productshots'
+        );
+        publicUrl = uploadResult.url;
+        console.log(`✅ Image saved to R2: ${publicUrl}`);
+      } catch (uploadError) {
+        console.error('❌ Error uploading to R2:', uploadError);
+        throw new Error(
+          `Failed to upload image to storage: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`
+        );
+      }
 
       return {
         taskId: crypto.randomUUID(),

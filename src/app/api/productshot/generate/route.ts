@@ -345,6 +345,9 @@ interface ProductShotRequest {
   // Image input (base64 encoded) - NOW REQUIRED
   image_input: string;
 
+  // NEW: Reference image for dual-image generation (optional)
+  reference_image?: string;
+
   // Optional additional context
   additionalContext?: string;
 
@@ -377,6 +380,7 @@ export async function POST(request: NextRequest) {
       size,
       output_format,
       image_input,
+      reference_image,
       additionalContext,
       productTypeHint,
     } = body;
@@ -469,6 +473,15 @@ export async function POST(request: NextRequest) {
       'maintain product details and features',
       'product prominently featured and clearly visible',
     ];
+
+    // 双图模式的提示词优化
+    if (reference_image) {
+      productFocusEnhancers.push(
+        'integrate product seamlessly with reference background',
+        'combine product and scene naturally and professionally'
+      );
+      console.log('🖼️ Dual-image mode activated: product + reference image');
+    }
 
     let finalPrompt = `${productFocusEnhancers.join(', ')}, ${basePrompt}`;
 
@@ -563,6 +576,8 @@ export async function POST(request: NextRequest) {
       prompt: finalPrompt.substring(0, 100) + '...',
       quality,
       hasImageInput: !!image_input,
+      hasReferenceImage: !!reference_image,
+      dualImageMode: !!reference_image,
       optimizedParams,
     });
 
@@ -577,6 +592,7 @@ export async function POST(request: NextRequest) {
       num_images,
       output_format,
       image_input,
+      reference_image, // 新增：传递reference_image参数
     });
 
     // 8. 扣减 Credits - 成功生成后
