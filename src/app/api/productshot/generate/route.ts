@@ -451,16 +451,20 @@ export async function POST(request: NextRequest) {
     let basePrompt: string;
 
     if (!sceneType) {
-      // 双图模式无场景：强调参考图的风格和环境引导
+      // 双图模式无场景：使用FLUX.1-Kontext-dev的最强参考图指令
       if (reference_image) {
         basePrompt =
-          'match the style, lighting, environment, and aesthetic of the reference background image, adopt the same color palette and mood, recreate similar lighting conditions, maintain the overall atmosphere and visual style from reference image, professional product photography with consistent visual theme';
-        console.log('🖼️ No scene selected - using strong reference image guided mode');
+          'IMPORTANT: This is a dual-image composition task. You MUST use the reference image as the primary background and environment guide. Copy the exact lighting setup, color grading, atmosphere, and visual style from the reference image. Place the main product from the first image into the environment shown in the reference image. Match the reference image lighting direction, shadows, and overall mood precisely. The reference image defines the scene, background, and aesthetic - follow it exactly while keeping the product as the main subject';
+        console.log(
+          '🖼️ No scene selected - using FLUX.1-Kontext-dev optimized reference mode'
+        );
       } else {
         // 单图模式无场景：使用通用描述
         basePrompt =
           'professional product photography, high quality commercial image, natural lighting, clean composition';
-        console.log('📸 No scene selected - using general product photography mode');
+        console.log(
+          '📸 No scene selected - using general product photography mode'
+        );
       }
     } else {
       // 有场景：使用场景预设
@@ -480,10 +484,13 @@ export async function POST(request: NextRequest) {
         console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
       }
 
-      // 双图模式下增强场景与参考图的融合
+      // 双图模式下强化场景与参考图的融合
       if (reference_image) {
-        basePrompt += ', blend scene style with reference image elements, incorporate reference image color palette and lighting into the scene, harmoniously merge scene concept with reference background aesthetic';
-        console.log('🎨 Enhanced scene-reference fusion for dual-image mode');
+        basePrompt +=
+          '. REFERENCE IMAGE OVERRIDE: Use the reference image as the primary visual guide for lighting, color palette, and environmental atmosphere. The scene concept should be interpreted through the lens of the reference image style. Blend the scene requirements with the reference image aesthetic, prioritizing the reference image visual elements while maintaining the scene concept';
+        console.log(
+          '🎨 FLUX.1-Kontext-dev scene-reference fusion with reference priority'
+        );
       }
     }
 
@@ -496,16 +503,18 @@ export async function POST(request: NextRequest) {
       'product prominently featured and clearly visible',
     ];
 
-    // 双图模式的提示词优化
+    // 双图模式的产品焦点优化
     if (reference_image) {
       productFocusEnhancers.push(
-        'integrate product seamlessly with reference background style',
-        'combine product and reference scene naturally and professionally',
-        'extract visual elements from reference image',
-        'reference image provides the environment and style guidance',
-        'follow reference image lighting and color scheme'
+        'seamlessly composite the product into the reference image environment',
+        'maintain product clarity and details while adopting reference background',
+        'product should appear naturally placed in the reference scene',
+        'preserve product proportions and characteristics from input image',
+        'blend product lighting to match reference image lighting conditions'
       );
-      console.log('🖼️ Dual-image mode activated: product + reference image with enhanced style matching');
+      console.log(
+        '🖼️ Dual-image mode: Enhanced product composition with reference environment'
+      );
     }
 
     let finalPrompt = `${productFocusEnhancers.join(', ')}, ${basePrompt}`;
@@ -605,6 +614,10 @@ export async function POST(request: NextRequest) {
       dualImageMode: !!reference_image,
       optimizedParams,
     });
+
+    console.log(
+      '🤖 Using model: black-forest-labs/FLUX.1-Kontext-dev for dual-image composition'
+    );
 
     const result = await provider.generateProductShot({
       prompt: finalPrompt,

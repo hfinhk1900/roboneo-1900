@@ -47,7 +47,10 @@ export class SiliconFlowProvider {
     // 如果有图像输入，使用 image-to-image 生成
     if (params.image_input) {
       console.log('🖼️ Using image-to-image generation with FLUX.1-Kontext-dev');
-      return this.generateImageToImage(params);
+      return this.generateImageToImage({
+        ...params,
+        image_input: params.image_input,
+      });
     }
 
     // 没有图像输入时使用标准文本生成
@@ -85,7 +88,7 @@ export class SiliconFlowProvider {
         prompt_enhancement: false, // 禁用提示词增强以保持原始输入
       };
 
-      // 双图支持：添加reference_image参数
+      // 双图支持：回退到reference_image参数
       if (params.reference_image) {
         requestBody.reference_image = `data:image/png;base64,${params.reference_image}`;
         console.log('🖼️ Dual-image mode: Added reference_image to request');
@@ -103,6 +106,7 @@ export class SiliconFlowProvider {
         hasImageInput: !!params.image_input,
         hasReferenceImage: !!params.reference_image,
         dualImageMode: !!params.reference_image,
+        usingReferenceImage: !!requestBody.reference_image,
         hasSeed: !!requestBody.seed,
       });
 
@@ -338,7 +342,7 @@ export class SiliconFlowProvider {
           Authorization: `Bearer ${this.apiKey}`,
           // 不设置 Content-Type，让浏览器自动设置multipart边界
         },
-        body: formData,
+        body: formData as any,
       });
 
       if (!response.ok) {
