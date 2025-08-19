@@ -32,6 +32,8 @@ export interface ProductShotRequest {
   num_images?: number; // 生成图片数量 (1-4, 默认1)
   size?: string; // 图像尺寸 (默认"1024x1024")
   output_format?: 'jpeg' | 'png' | 'webp'; // 输出格式
+  // 用户选择的输出比例（例如 '1:1', '9:16'），用于前端裁剪
+  aspectRatio?: string;
 
   // Image input for img2img - NOW REQUIRED
   uploaded_image: File; // 上传的产品图片文件 (必需)
@@ -105,8 +107,25 @@ export function useProductShot(): UseProductShotReturn {
     }
   };
 
+  function parseAspectRatio(
+    aspect?: string
+  ): { w: number; h: number } | undefined {
+    if (!aspect) return undefined;
+    const parts = aspect.split(':');
+    if (parts.length !== 2) return undefined;
+    const w = Number(parts[0]);
+    const h = Number(parts[1]);
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+      return undefined;
+    }
+    return { w, h };
+  }
+
   // 辅助函数：压缩并将 File 转换为 base64 字符串
-  const fileToBase64 = (file: File): Promise<string> => {
+  const fileToBase64 = (
+    file: File,
+    targetAspect?: { w: number; h: number }
+  ): Promise<string> => {
     return new Promise((resolve, reject) => {
       // 验证输入
       if (!file) {
@@ -137,27 +156,75 @@ export function useProductShot(): UseProductShotReturn {
 
       img.onload = () => {
         try {
-          // 计算压缩尺寸 - 最大1024x1024，保持宽高比
-          const maxSize = 1024;
-          let { width, height } = img;
+          // 目标最长边限制
+          const maxSide = 1024;
+          const sourceWidth = img.width;
+          const sourceHeight = img.height;
 
-          if (width > height) {
-            if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
+          if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
+            // 使用 cover 裁剪到目标比例
+            const targetRatio = targetAspect.w / targetAspect.h;
+            const sourceRatio = sourceWidth / sourceHeight;
+
+            // 计算源裁剪区域
+            let cropWidth = sourceWidth;
+            let cropHeight = sourceHeight;
+            let sx = 0;
+            let sy = 0;
+
+            if (sourceRatio > targetRatio) {
+              // 源更宽，裁掉左右
+              cropWidth = Math.round(sourceHeight * targetRatio);
+              sx = Math.round((sourceWidth - cropWidth) / 2);
+            } else if (sourceRatio < targetRatio) {
+              // 源更高，裁掉上下
+              cropHeight = Math.round(sourceWidth / targetRatio);
+              sy = Math.round((sourceHeight - cropHeight) / 2);
             }
+
+            // 确定输出像素尺寸（按比例设置最长边为 maxSide）
+            let outW = 0;
+            let outH = 0;
+            if (targetRatio >= 1) {
+              outW = maxSide;
+              outH = Math.round(maxSide / targetRatio);
+            } else {
+              outH = maxSide;
+              outW = Math.round(maxSide * targetRatio);
+            }
+
+            canvas.width = outW;
+            canvas.height = outH;
+            ctx?.drawImage(
+              img,
+              sx,
+              sy,
+              cropWidth,
+              cropHeight,
+              0,
+              0,
+              outW,
+              outH
+            );
           } else {
-            if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
+            // 旧逻辑：保持宽高比压缩到最长边不超过 maxSide
+            let width = sourceWidth;
+            let height = sourceHeight;
+            if (width > height) {
+              if (width > maxSide) {
+                height = Math.round((height * maxSide) / width);
+                width = maxSide;
+              }
+            } else {
+              if (height > maxSide) {
+                width = Math.round((width * maxSide) / height);
+                height = maxSide;
+              }
             }
+            canvas.width = width;
+            canvas.height = height;
+            ctx?.drawImage(img, 0, 0, width, height);
           }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          // 绘制压缩后的图片
-          ctx?.drawImage(img, 0, 0, width, height);
 
           // 转换为base64，使用JPEG格式以减小文件大小
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
@@ -228,9 +295,12 @@ export function useProductShot(): UseProductShotReturn {
         throw new Error('Product image is required');
       }
 
-      // 将 File 对象转换为 base64 字符串
+      // 将 File 对象转换为 base64 字符串（按选择的比例进行 cover 裁剪）
       console.log('📸 Converting product image to base64...');
-      const image_input = await fileToBase64(params.uploaded_image);
+      const image_input = await fileToBase64(
+        params.uploaded_image,
+        parseAspectRatio(params.aspectRatio)
+      );
       console.log(
         `✅ Product image converted: ${image_input.length} characters`
       );

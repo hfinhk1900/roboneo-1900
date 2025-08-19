@@ -80,6 +80,20 @@ export default function ProductShotGeneratorSection() {
   const [referencePreview, setReferencePreview] = useState<string | null>(null);
   const [isReferenceDragOver, setIsReferenceDragOver] = useState(false);
 
+  // Aspect ratio selection (default 1:1)
+  const [selectedAspect, setSelectedAspect] = useState<string>('1:1');
+
+  const ASPECT_OPTIONS: Array<{ id: string; label: string; ratioClass: string }> = [
+    { id: '9:16', label: '9:16', ratioClass: 'aspect-[9/16]' },
+    { id: '2:3', label: '2:3', ratioClass: 'aspect-[2/3]' },
+    { id: '4:5', label: '4:5', ratioClass: 'aspect-[4/5]' },
+    { id: '1:1', label: '1:1', ratioClass: 'aspect-[1/1]' },
+    { id: '5:4', label: '5:4', ratioClass: 'aspect-[5/4]' },
+    { id: '3:2', label: '3:2', ratioClass: 'aspect-[3/2]' },
+    { id: '16:9', label: '16:9', ratioClass: 'aspect-[16/9]' },
+    { id: '21:9', label: '21:9', ratioClass: 'aspect-[21/9]' },
+  ];
+
   // 使用新的 ProductShot Hook
   const {
     isLoading,
@@ -306,6 +320,7 @@ export default function ProductShotGeneratorSection() {
           selectedScene === 'custom' ? customSceneDescription : undefined,
         additionalContext: additionalContext.trim() || undefined,
         productTypeHint: productTypeHint,
+        aspectRatio: selectedAspect,
         quality: 'standard',
       });
 
@@ -383,6 +398,24 @@ export default function ProductShotGeneratorSection() {
                     <Label className="text-sm font-medium">
                       Product Image (Required)
                     </Label>
+                    {/* Aspect Ratio Selector */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {ASPECT_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setSelectedAspect(opt.id)}
+                          className={cn(
+                            'flex flex-col items-center gap-1 border rounded-lg p-2 hover:bg-muted/50 transition-colors',
+                            selectedAspect === opt.id && 'border-primary ring-1 ring-primary/30'
+                          )}
+                          aria-pressed={selectedAspect === opt.id}
+                        >
+                          <div className={cn('w-full bg-[#f0f0f0] rounded-sm', opt.ratioClass)} />
+                          <span className="text-xs text-muted-foreground">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
                     <div
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
