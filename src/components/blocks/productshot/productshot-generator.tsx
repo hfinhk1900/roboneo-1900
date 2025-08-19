@@ -438,73 +438,75 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   </div>
 
-                  {/* NEW: Reference Image Upload Section for Dual-Image Generation */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Reference Background (Optional)
-                    </Label>
-                    {referenceImage && (
-                      <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                        💡 Dual-image mode: Your reference background will guide
-                        the scene style and environment.
-                      </p>
-                    )}
-
-                    <div
-                      onDragEnter={handleReferenceDragEnter}
-                      onDragLeave={handleReferenceDragLeave}
-                      onDragOver={handleReferenceDragOver}
-                      onDrop={handleReferenceDrop}
-                      className={cn(
-                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f8f9fa] border border-dashed border-border',
-                        isReferenceDragOver && 'bg-muted/50 border-primary',
-                        referencePreview && 'min-h-20'
+                  {/* Reference Background upload hidden (API not supported) */}
+                  {false && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">
+                        Reference Background (Optional)
+                      </Label>
+                      {referenceImage && (
+                        <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                          💡 Dual-image mode: Your reference background will
+                          guide the scene style and environment.
+                        </p>
                       )}
-                    >
-                      <input
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.webp"
-                        onChange={handleReferenceImageUpload}
-                        className="hidden"
-                        id="reference-image-upload"
-                      />
 
-                      {referencePreview ? (
-                        <>
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
-                            <Image
-                              src={referencePreview}
-                              alt="Reference preview"
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
-                            {referenceImage?.name}
-                          </p>
-                          <Button
-                            onClick={clearReferenceImage}
-                            variant="outline"
-                            size="sm"
-                            className="text-xs h-7"
+                      <div
+                        onDragEnter={handleReferenceDragEnter}
+                        onDragLeave={handleReferenceDragLeave}
+                        onDragOver={handleReferenceDragOver}
+                        onDrop={handleReferenceDrop}
+                        className={cn(
+                          'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f8f9fa] border border-dashed border-border',
+                          isReferenceDragOver && 'bg-muted/50 border-primary',
+                          referencePreview && 'min-h-20'
+                        )}
+                      >
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.webp"
+                          onChange={handleReferenceImageUpload}
+                          className="hidden"
+                          id="reference-image-upload"
+                        />
+
+                        {referencePreview ? (
+                          <>
+                            <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
+                              <Image
+                                src={referencePreview ?? '/favicon.ico'}
+                                alt="Reference preview"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
+                              {referenceImage?.name}
+                            </p>
+                            <Button
+                              onClick={clearReferenceImage}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-7"
+                            >
+                              <XIcon className="h-3 w-3 mr-1" />
+                              Remove
+                            </Button>
+                          </>
+                        ) : (
+                          <label
+                            htmlFor="reference-image-upload"
+                            className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
                           >
-                            <XIcon className="h-3 w-3 mr-1" />
-                            Remove
-                          </Button>
-                        </>
-                      ) : (
-                        <label
-                          htmlFor="reference-image-upload"
-                          className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
-                        >
-                          <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
-                          <p className="text-sm transition-colors text-muted-foreground text-center">
-                            Click or drag & drop to upload
-                          </p>
-                        </label>
-                      )}
+                            <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
+                            <p className="text-sm transition-colors text-muted-foreground text-center">
+                              Click or drag & drop to upload
+                            </p>
+                          </label>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="space-y-3">
                     {/* Product Size Hint 已隐藏 - 系统自动智能检测 */}
