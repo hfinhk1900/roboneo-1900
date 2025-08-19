@@ -110,6 +110,7 @@ export class SiliconFlowProvider {
         hasSeed: !!requestBody.seed,
       });
 
+      // 添加请求超时和重试机制
       const response = await fetch(`${this.baseUrl}/image/generations`, {
         method: 'POST',
         headers: {
@@ -117,6 +118,7 @@ export class SiliconFlowProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(30000), // 30秒超时
       });
 
       console.log(
@@ -136,6 +138,15 @@ export class SiliconFlowProvider {
           statusText: response.statusText,
           body: errorText,
         });
+
+        // 特殊处理500错误和60000错误代码
+        if (response.status === 500) {
+          console.warn('⚠️ SiliconFlow API 服务端错误，可能是临时问题');
+          throw new Error(
+            'AI服务暂时不可用，请稍后重试。这可能是由于服务器负载过高或临时维护。'
+          );
+        }
+
         throw new Error(
           `SiliconFlow API error: ${response.status} ${response.statusText} - ${errorText}`
         );

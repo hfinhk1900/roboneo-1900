@@ -666,24 +666,52 @@ export async function POST(request: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
 
+    // 根据错误类型返回不同的HTTP状态码和用户友好的消息
+    let statusCode = 500;
+    let userMessage = 'Generation failed';
+
+    if (errorMessage.includes('AI服务暂时不可用')) {
+      statusCode = 503;
+      userMessage = 'AI服务暂时不可用，请稍后重试';
+    } else if (
+      errorMessage.includes('timeout') ||
+      errorMessage.includes('AbortError')
+    ) {
+      statusCode = 408;
+      userMessage = '请求超时，请重试';
+    } else if (errorMessage.includes('网络')) {
+      statusCode = 503;
+      userMessage = '网络连接问题，请检查网络后重试';
+    }
+
     return NextResponse.json(
       {
-        error: 'Generation failed',
+        error: userMessage,
         details: errorMessage,
         provider: 'SiliconFlow',
+        suggestion: '如果问题持续存在，请稍后重试或联系技术支持',
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }
 
 // GET 方法用于获取可用的场景类型
 export async function GET() {
+  // 获取所有场景
+  const allScenes = Object.entries(SCENE_PRESETS).map(([id, config]) => ({
+    id,
+    name: config.name,
+    category: config.category,
+  }));
+
+  // 将 custom 场景移到第一位
+  const customScene = allScenes.find((scene) => scene.id === 'custom');
+  const otherScenes = allScenes.filter((scene) => scene.id !== 'custom');
+
+  const orderedScenes = customScene ? [customScene, ...otherScenes] : allScenes;
+
   return NextResponse.json({
-    scenes: Object.entries(SCENE_PRESETS).map(([id, config]) => ({
-      id,
-      name: config.name,
-      category: config.category,
-    })),
+    scenes: orderedScenes,
   });
 }

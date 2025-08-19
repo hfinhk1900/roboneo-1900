@@ -1,6 +1,7 @@
 'use client';
 
 import { getUserCreditsAction } from '@/actions/credits-actions';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
 import { CreditCardIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -10,7 +11,8 @@ interface CreditsDisplayProps {
   className?: string;
 }
 
-export function CreditsDisplay({ className }: CreditsDisplayProps) {
+export function CreditsDisplay({ className = '' }: CreditsDisplayProps) {
+  const currentUser = useCurrentUser();
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -66,16 +68,24 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
   // 在客户端挂载前始终显示 loading 状态，避免 hydration 不匹配
   if (!mounted) {
     return (
-      <span className={`text-sm text-muted-foreground ${className}`}>
+      <span className={`text-sm text-muted-foreground ${className || ''}`}>
         <CreditCardIcon className="h-4 w-4 mr-1 inline" />
         Loading...
       </span>
     );
   }
 
+  // 客户端挂载后检查用户登录状态
+  if (!currentUser) {
+    // 返回空的 span 而不是 null，保持布局一致性
+    return (
+      <span className={`text-sm text-muted-foreground ${className || ''}`} />
+    );
+  }
+
   if (loading) {
     return (
-      <span className={`text-sm text-muted-foreground ${className}`}>
+      <span className={`text-sm text-muted-foreground ${className || ''}`}>
         <CreditCardIcon className="h-4 w-4 mr-1 inline" />
         Loading...
       </span>
@@ -83,7 +93,7 @@ export function CreditsDisplay({ className }: CreditsDisplayProps) {
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2 ${className || ''}`}>
       <span
         className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'}`}
       >

@@ -30,7 +30,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 // 导入新的 ProductShot 功能
@@ -403,7 +403,7 @@ export default function ProductShotGeneratorSection() {
 
                       {imagePreview ? (
                         <>
-                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 flex-shrink-0 overflow-hidden rounded-lg bg-white">
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
                             <Image
                               src={imagePreview}
                               alt="Product preview"
@@ -620,12 +620,10 @@ export default function ProductShotGeneratorSection() {
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
                           <SelectGroup>
-                            {/* Preset Scenes */}
-                            {scenes
-                              .filter((scene) => scene.id !== 'custom')
-                              .map((scene) => (
+                            {/* All Scenes in order */}
+                            {scenes.map((scene) => (
+                              <React.Fragment key={scene.id}>
                                 <SelectItem
-                                  key={scene.id}
                                   value={scene.id}
                                   className={cn(
                                     'cursor-pointer py-3 px-3 transition-colors',
@@ -650,42 +648,12 @@ export default function ProductShotGeneratorSection() {
                                     </div>
                                   </div>
                                 </SelectItem>
-                              ))}
-
-                            {/* Separator between preset and custom scenes */}
-                            <SelectSeparator className="my-1" />
-
-                            {/* Custom Scene */}
-                            {scenes
-                              .filter((scene) => scene.id === 'custom')
-                              .map((scene) => (
-                                <SelectItem
-                                  key={scene.id}
-                                  value={scene.id}
-                                  className={cn(
-                                    'cursor-pointer py-3 px-3 transition-colors',
-                                    'hover:bg-muted/50 hover:text-foreground',
-                                    'focus:bg-muted/50 focus:text-foreground',
-                                    'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                                  )}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-2xl">
-                                      {sceneIcons[scene.id]}
-                                    </span>
-                                    <div className="text-left">
-                                      <div className="font-medium">
-                                        {scene.name}
-                                      </div>
-                                      {scene.description && (
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                          {scene.description}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </SelectItem>
-                              ))}
+                                {/* Add separator after custom scene */}
+                                {scene.id === 'custom' && (
+                                  <SelectSeparator className="my-1" />
+                                )}
+                              </React.Fragment>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -859,9 +827,6 @@ export default function ProductShotGeneratorSection() {
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
                             />
-                            <div className="text-sm text-muted-foreground">
-                              Upload your product image to get started
-                            </div>
                           </div>
                         )}
                       </div>

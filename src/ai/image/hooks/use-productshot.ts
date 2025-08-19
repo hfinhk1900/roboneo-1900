@@ -115,10 +115,17 @@ export function useProductShot(): UseProductShotReturn {
       }
 
       // 严格验证支持的图片格式
-      const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      const supportedFormats = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
+      ];
       if (!supportedFormats.includes(file.type)) {
         reject(
-          new Error(`Unsupported file type: ${file.type}. Please use ${supportedFormats.join(', ')}. AVIF format is not currently supported.`)
+          new Error(
+            `Unsupported file type: ${file.type}. Please use ${supportedFormats.join(', ')}. AVIF format is not currently supported.`
+          )
         );
         return;
       }
@@ -133,7 +140,7 @@ export function useProductShot(): UseProductShotReturn {
           // 计算压缩尺寸 - 最大1024x1024，保持宽高比
           const maxSize = 1024;
           let { width, height } = img;
-          
+
           if (width > height) {
             if (width > maxSize) {
               height = (height * maxSize) / width;
@@ -154,16 +161,20 @@ export function useProductShot(): UseProductShotReturn {
 
           // 转换为base64，使用JPEG格式以减小文件大小
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          
+
           // 移除 data:image/jpeg;base64, 前缀，只保留 base64 数据
           const base64 = compressedDataUrl.split(',')[1];
 
           if (!base64) {
-            reject(new Error('Failed to extract base64 data from compressed image'));
+            reject(
+              new Error('Failed to extract base64 data from compressed image')
+            );
             return;
           }
 
-          console.log(`📸 Image compressed: ${file.name} (${Math.round(file.size/1024)}KB → ${Math.round(base64.length*0.75/1024)}KB)`);
+          console.log(
+            `📸 Image compressed: ${file.name} (${Math.round(file.size / 1024)}KB → ${Math.round((base64.length * 0.75) / 1024)}KB)`
+          );
           resolve(base64);
         } catch (error) {
           reject(
@@ -280,8 +291,12 @@ export function useProductShot(): UseProductShotReturn {
         }
         if (response.status === 503) {
           throw new Error(
-            'AI service temporarily unavailable. Please try again later.'
+            data.error ||
+              'AI service temporarily unavailable. Please try again later.'
           );
+        }
+        if (response.status === 408) {
+          throw new Error(data.error || 'Request timeout. Please try again.');
         }
         throw new Error(data.error || 'Failed to generate product shot');
       }
@@ -324,9 +339,23 @@ export function useProductShot(): UseProductShotReturn {
         toast.error(
           "You don't have enough credits. Please purchase more credits to continue."
         );
-      } else if (errorMessage.includes('temporarily unavailable')) {
+      } else if (
+        errorMessage.includes('temporarily unavailable') ||
+        errorMessage.includes('AI服务暂时不可用')
+      ) {
         toast.error(
           'AI service is temporarily unavailable. Please try again in a few minutes.'
+        );
+      } else if (
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('请求超时')
+      ) {
+        toast.error(
+          'Request timeout. The AI service is taking longer than expected. Please try again.'
+        );
+      } else if (errorMessage.includes('网络连接问题')) {
+        toast.error(
+          'Network connection issue. Please check your internet connection and try again.'
         );
       } else {
         toast.error(`ProductShot generation failed: ${errorMessage}`);
@@ -432,6 +461,12 @@ export function useProductShot(): UseProductShotReturn {
 // 6种专业产品摄影场景配置（与后端API保持一致）
 export const DEFAULT_SCENES: SceneConfig[] = [
   {
+    id: 'custom',
+    name: 'Custom Scene',
+    category: 'custom',
+    description: 'Create your own unique scene description',
+  },
+  {
     id: 'studio-white',
     name: 'Studio White',
     category: 'studio',
@@ -466,12 +501,6 @@ export const DEFAULT_SCENES: SceneConfig[] = [
     name: 'Minimalist Clean',
     category: 'minimal',
     description: '简约美学 - 极简设计，突出产品线条',
-  },
-  {
-    id: 'custom',
-    name: 'Custom Scene',
-    category: 'custom',
-    description: 'Create your own unique scene description',
   },
 ];
 

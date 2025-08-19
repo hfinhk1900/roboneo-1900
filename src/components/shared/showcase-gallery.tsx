@@ -124,7 +124,7 @@ export function ShowcaseGallery({ className }: ShowcaseGalleryProps) {
         </div>
 
         {/* Gallery Grid - Responsive uniform spacing layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-x-4 gap-y-4 lg:gap-x-6 lg:gap-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-4 lg:gap-x-6 lg:gap-y-6">
           {showcaseImages.map((image, index) => (
             <div
               key={index}
@@ -138,7 +138,7 @@ export function ShowcaseGallery({ className }: ShowcaseGalleryProps) {
                 src={image.src}
                 alt={image.alt}
                 fill
-                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 25vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 priority={index < 4} // Priority load for first 4 images
               />
