@@ -740,7 +740,7 @@ export default function ProductShotGeneratorSection() {
                       <Button
                         onClick={handleDownload}
                         variant="outline"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                       >
                         <DownloadIcon className="h-4 w-4" />
                         Download Image
