@@ -83,7 +83,11 @@ export default function ProductShotGeneratorSection() {
   // Aspect ratio selection (default 1:1)
   const [selectedAspect, setSelectedAspect] = useState<string>('1:1');
 
-  const ASPECT_OPTIONS: Array<{ id: string; label: string; ratioClass: string }> = [
+  const ASPECT_OPTIONS: Array<{
+    id: string;
+    label: string;
+    ratioClass: string;
+  }> = [
     { id: '9:16', label: '9:16', ratioClass: 'aspect-[9/16]' },
     { id: '2:3', label: '2:3', ratioClass: 'aspect-[2/3]' },
     { id: '4:5', label: '4:5', ratioClass: 'aspect-[4/5]' },
@@ -398,24 +402,66 @@ export default function ProductShotGeneratorSection() {
                     <Label className="text-sm font-medium">
                       Product Image (Required)
                     </Label>
-                    {/* Aspect Ratio Selector */}
-                    <div className="grid grid-cols-4 gap-2">
-                      {ASPECT_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => setSelectedAspect(opt.id)}
-                          className={cn(
-                            'flex flex-col items-center gap-1 border rounded-lg p-2 hover:bg-muted/50 transition-colors',
-                            selectedAspect === opt.id && 'border-primary ring-1 ring-primary/30'
+                    {/* Aspect Ratio Selector - dropdown */}
+                    <Select
+                      value={selectedAspect}
+                      onValueChange={(value) => setSelectedAspect(value)}
+                    >
+                      <SelectTrigger
+                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                        style={{ height: '50px', padding: '0px 12px' }}
+                      >
+                        <SelectValue placeholder="Aspect Ratio (Default 1:1)">
+                          {ASPECT_OPTIONS.find((o) => o.id === selectedAspect) ? (
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={cn(
+                                  'w-6 h-6 bg-[#f0f0f0] rounded-sm',
+                                  ASPECT_OPTIONS.find((o) => o.id === selectedAspect)?.ratioClass
+                                )}
+                              />
+                              <div className="text-left">
+                                <div className="font-medium">
+                                  {ASPECT_OPTIONS.find((o) => o.id === selectedAspect)?.label}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              Aspect Ratio (Default 1:1)
+                            </span>
                           )}
-                          aria-pressed={selectedAspect === opt.id}
-                        >
-                          <div className={cn('w-full bg-[#f0f0f0] rounded-sm', opt.ratioClass)} />
-                          <span className="text-xs text-muted-foreground">{opt.label}</span>
-                        </button>
-                      ))}
-                    </div>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                        <SelectGroup>
+                          {ASPECT_OPTIONS.map((opt) => (
+                            <SelectItem
+                              key={opt.id}
+                              value={opt.id}
+                              className={cn(
+                                'cursor-pointer py-3 px-3 transition-colors',
+                                'hover:bg-muted/50 hover:text-foreground',
+                                'focus:bg-muted/50 focus:text-foreground',
+                                'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                              )}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={cn(
+                                    'w-6 h-6 bg-[#f0f0f0] rounded-sm',
+                                    opt.ratioClass
+                                  )}
+                                />
+                                <div className="text-left">
+                                  <div className="font-medium">{opt.label}</div>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     <div
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
