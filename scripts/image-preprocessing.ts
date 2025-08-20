@@ -10,7 +10,7 @@ import * as path from 'path';
 // sharp 是一个高性能的图片处理库
 async function preprocessImageForOpenAI() {
   // 检查是否安装了 sharp
-  let sharp;
+  let sharp: any;
   try {
     sharp = require('sharp');
   } catch (error) {
@@ -58,8 +58,6 @@ async function preprocessImageForOpenAI() {
     const { width = 0, height = 0 } = metadata;
     const aspectRatio = width / height;
 
-    let targetWidth: number, targetHeight: number;
-
     // OpenAI 支持的尺寸
     const supportedSizes = [
       { w: 1024, h: 1024, ratio: 1.0 }, // 正方形
@@ -74,8 +72,8 @@ async function preprocessImageForOpenAI() {
         : prev
     );
 
-    targetWidth = closest.w;
-    targetHeight = closest.h;
+    const targetWidth: number = closest.w;
+    const targetHeight: number = closest.h;
 
     console.log(
       `📏 调整尺寸: ${width}x${height} → ${targetWidth}x${targetHeight}`

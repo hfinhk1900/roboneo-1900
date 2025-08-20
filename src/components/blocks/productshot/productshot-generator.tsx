@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
 import {
   BoxIcon,
@@ -414,8 +415,8 @@ export default function ProductShotGeneratorSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Text Input */}
           <div>
-            <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
-              <CardContent className="pt-6 px-6 pb-4 space-y-5">
+            <Card className="relative overflow-hidden border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
+              <CardContent className="pt-6 px-6 pb-4 space-y-5 flex-grow flex flex-col">
                 <div className="pb-1 pt-0">
                   <h3 className="text-xl font-semibold mb-0.5 flex items-center gap-2">
                     <PackageIcon className="h-5 w-5" />
@@ -427,7 +428,7 @@ export default function ProductShotGeneratorSection() {
                   </p>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-5 flex-grow">
                   {/* Image Upload Section */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
@@ -766,7 +767,10 @@ export default function ProductShotGeneratorSection() {
 
                   {/* Credit info */}
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
-                    <CreditsDisplay />
+                    <CreditsDisplay
+                      cost={CREDITS_PER_IMAGE}
+                      actionLabel="Generate"
+                    />
                     <span>Powered by RoboNeo</span>
                   </div>
                 </div>

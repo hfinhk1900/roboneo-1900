@@ -1,11 +1,13 @@
 'use client';
 
+import { getUserCreditsAction } from '@/actions/credits-actions';
 import { LoginWrapper } from '@/components/auth/login-wrapper';
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
 import { ModeSwitcher } from '@/components/layout/mode-switcher';
 import { NavbarMobile } from '@/components/layout/navbar-mobile';
 import { UserButton } from '@/components/layout/user-button';
+import { CreditsDisplay } from '@/components/shared/credits-display';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -18,11 +20,14 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { getNavbarLinks } from '@/config/navbar-config';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { useScroll } from '@/hooks/use-scroll';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
+import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
+import { CoinsIcon } from 'lucide-react';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -43,6 +48,86 @@ const customNavigationMenuTriggerStyle = cn(
   'data-active:font-semibold data-active:bg-transparent data-active:text-foreground',
   'data-[state=open]:bg-transparent data-[state=open]:text-foreground'
 );
+
+function HeaderCreditsDisplay() {
+  const [credits, setCredits] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // 提取获取 credits 的函数
+  const fetchCredits = async () => {
+    try {
+      setLoading(true);
+      const result = await getUserCreditsAction({});
+      if (result?.data?.success) {
+        const newCredits = result.data.data?.credits || 0;
+        creditsCache.set(newCredits);
+        setCredits(newCredits);
+      }
+    } catch (error) {
+      console.error('Failed to fetch credits:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setMounted(true);
+
+    const cachedCredits = creditsCache.get();
+    if (cachedCredits !== null) {
+      setCredits(cachedCredits);
+      setLoading(false);
+    }
+
+    const unsubscribe = creditsCache.addListener(() => {
+      const newCredits = creditsCache.get();
+      if (newCredits !== null) {
+        setCredits(newCredits);
+        setLoading(false);
+      } else {
+        fetchCredits();
+      }
+    });
+
+    if (cachedCredits === null) {
+      fetchCredits();
+    }
+
+    return unsubscribe;
+  }, []);
+
+  if (!mounted || loading) {
+    return (
+      <div className="bg-white h-9 rounded-2xl w-[100px] flex items-center justify-center gap-2 px-3">
+        <CoinsIcon className="size-6" />
+        <span className="font-medium text-base text-black">...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white h-9 rounded-2xl min-w-[100px] flex items-center justify-center gap-2 px-3 border border-gray-100">
+      <CoinsIcon className="size-6 text-yellow-500" />
+      <span className="font-medium text-base text-black">
+        {(credits || 0).toLocaleString()}
+      </span>
+      <button
+        type="button"
+        onClick={() => window.open('/pricing', '_blank')}
+        className="size-[22px] rounded-full hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer"
+      >
+        <Image
+          src="/icons/icon-add.svg"
+          alt="Add credits"
+          width={16}
+          height={16}
+          className="w-4 h-4"
+        />
+      </button>
+    </div>
+  );
+}
 
 export function Navbar({ scroll }: NavBarProps) {
   const t = useTranslations();
@@ -419,12 +504,8 @@ export function Navbar({ scroll }: NavBarProps) {
                                           className={cn(
                                             'text-sm font-medium',
                                             // AI Tools和Image to Image菜单的标题使用黑色，其他菜单保持原色
-                                            item.title.includes(
-                                              'AI Tools'
-                                            ) ||
-                                              item.title.includes(
-                                                'AI 工具'
-                                              ) ||
+                                            item.title.includes('AI Tools') ||
+                                              item.title.includes('AI 工具') ||
                                               item.title.includes(
                                                 'Image to Image'
                                               ) ||
@@ -508,7 +589,13 @@ export function Navbar({ scroll }: NavBarProps) {
             {!mounted || isPending ? (
               <Skeleton className="size-8 border rounded-full" />
             ) : currentUser ? (
-              <UserButton user={currentUser} />
+              <div className="flex items-center gap-x-3">
+                {/* Credits display for logged in users */}
+                <div className="hidden sm:block">
+                  <HeaderCreditsDisplay />
+                </div>
+                <UserButton user={currentUser} />
+              </div>
             ) : (
               <div className="flex items-center gap-x-4">
                 <LoginWrapper mode="modal" asChild>

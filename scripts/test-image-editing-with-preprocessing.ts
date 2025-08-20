@@ -103,7 +103,7 @@ async function completeImageEditingTest() {
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应数据:`, {
+        console.log('响应数据:', {
           model: testCase.model,
           style: testCase.style,
           hasData: Boolean(data.data?.length),
@@ -131,7 +131,7 @@ async function completeImageEditingTest() {
         try {
           const errorJson = JSON.parse(errorData);
           if (errorJson.error?.message?.includes('Invalid input image')) {
-            console.log(`🔧 图片格式问题，预处理可能需要改进`);
+            console.log('🔧 图片格式问题，预处理可能需要改进');
           }
         } catch (e) {
           // 忽略解析错误
@@ -139,14 +139,14 @@ async function completeImageEditingTest() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
     }
 
     // 等待间隔避免频率限制
     if (index < testCases.length - 1) {
-      console.log(`⏳ 等待3秒避免频率限制...`);
+      console.log('⏳ 等待3秒避免频率限制...');
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }

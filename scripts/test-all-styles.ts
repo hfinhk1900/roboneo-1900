@@ -112,7 +112,7 @@ async function testAllStyles() {
               data.analysis?.originalDescription?.substring(0, 100) + '...',
           });
         } else {
-          console.log(`   ❌ 失败: 未收到图片数据`);
+          console.log('   ❌ 失败: 未收到图片数据');
           results.push({ style, success: false, error: 'No image data' });
         }
       } else {
@@ -156,7 +156,7 @@ async function testAllStyles() {
     });
 
     console.log('\n🎯 对比方法:');
-    console.log(`   📷 原图: public/test-img.jpg`);
+    console.log('   📷 原图: public/test-img.jpg');
     successful.forEach((result) => {
       console.log(
         `   🎨 ${result.style.toUpperCase()}: public/${result.filename}`

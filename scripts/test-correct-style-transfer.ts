@@ -64,7 +64,7 @@ async function testCorrectStyleTransfer() {
     if (response.ok) {
       const data = await response.json();
       console.log(`✅ 成功! 总耗时: ${elapsed}ms`);
-      console.log(`📊 转换信息:`, {
+      console.log('📊 转换信息:', {
         success: data.success,
         style: data.style,
         method: data.analysis?.method,
@@ -106,7 +106,7 @@ async function testCorrectStyleTransfer() {
       console.log(`❌ 失败 (${response.status}):`, errorData);
     }
   } catch (error) {
-    console.log(`💥 请求异常:`, error instanceof Error ? error.message : error);
+    console.log('💥 请求异常:', error instanceof Error ? error.message : error);
   }
 
   // 测试 API 信息端点

@@ -10,10 +10,10 @@ import * as path from 'path';
 // 使用免费的 jimp 库进行图片处理
 async function freeImagePreprocessing() {
   // 检查是否安装了 jimp
-  let Jimp;
+  let Jimp: any;
   try {
     const jimpModule = await import('jimp');
-    Jimp = jimpModule.default || jimpModule;
+    Jimp = (jimpModule as any).default || jimpModule;
 
     // 检查 Jimp 是否有 read 方法
     if (!Jimp.read) {
@@ -82,7 +82,8 @@ async function freeImagePreprocessing() {
     const canvas = new Jimp(closest.w, closest.h, 0x00000000); // 完全透明
 
     // 计算图片在画布中的位置（居中显示，保持原始比例）
-    let resizedWidth: number, resizedHeight: number;
+    let resizedWidth: number;
+    let resizedHeight: number;
 
     if (originalWidth / originalHeight > closest.w / closest.h) {
       // 原图更宽，以宽度为准
@@ -142,10 +143,10 @@ async function freeImagePreprocessing() {
       console.log(`💾 处理后的图片: ${outputPath}`);
 
       return outputPath;
-    } else {
-      console.log('⚠️  图片可能仍有兼容性问题');
-      return null;
     }
+
+    console.log('⚠️  图片可能仍有兼容性问题');
+    return null;
   } catch (error) {
     console.error('❌ 图片预处理失败:', error);
     return null;

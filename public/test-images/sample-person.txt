@@ -1,0 +1,4 @@
+This is a placeholder. Please add a real test image (JPG/PNG) at:
+public/test-images/sample-person.jpg
+
+The image should contain a person for testing the sticker generation.

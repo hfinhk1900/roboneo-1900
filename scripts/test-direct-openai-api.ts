@@ -64,7 +64,7 @@ async function testDirectOpenAI() {
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应数据:`, {
+        console.log('响应数据:', {
           model: testCase.payload.model,
           hasData: Boolean(data.data?.length),
           imageCount: data.data?.length || 0,
@@ -102,7 +102,7 @@ async function testDirectOpenAI() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
     }

@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
@@ -71,39 +72,6 @@ export default function HeroSection() {
   const [isDragging, setIsDragging] = useState(false);
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>('default');
-  const [lastTaskId, setLastTaskId] = useState<string | null>(null);
-
-  // Load lastTaskId from localStorage on mount
-  useEffect(() => {
-    try {
-      const savedTaskId = localStorage.getItem('lastTaskId');
-      if (savedTaskId) {
-        console.log(
-          `🔧 DEBUG: Loaded lastTaskId from localStorage: ${savedTaskId}`
-        );
-        setLastTaskId(savedTaskId);
-      }
-    } catch (error) {
-      console.warn('Failed to load lastTaskId from localStorage:', error);
-    }
-  }, []);
-
-  // Save lastTaskId to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      if (lastTaskId) {
-        localStorage.setItem('lastTaskId', lastTaskId);
-        console.log(
-          `🔧 DEBUG: Saved lastTaskId to localStorage: ${lastTaskId}`
-        );
-      } else {
-        localStorage.removeItem('lastTaskId');
-        console.log('🔧 DEBUG: Removed lastTaskId from localStorage');
-      }
-    } catch (error) {
-      console.warn('Failed to save lastTaskId to localStorage:', error);
-    }
-  }, [lastTaskId]);
 
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
@@ -114,21 +82,23 @@ export default function HeroSection() {
     setIsMounted(true);
 
     // Check notification permission on mount
-    if ('Notification' in window) {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
   }, []);
 
   // Request notification permission when generation starts
   const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      try {
-        const permission = await Notification.requestPermission();
-        setNotificationPermission(permission);
-        return permission;
-      } catch (error) {
-        console.log('Error requesting notification permission:', error);
-        return 'denied';
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        try {
+          const permission = await Notification.requestPermission();
+          setNotificationPermission(permission);
+          return permission;
+        } catch (error) {
+          console.log('Error requesting notification permission:', error);
+          return 'denied';
+        }
       }
     }
     return Notification.permission;
@@ -136,7 +106,11 @@ export default function HeroSection() {
 
   // Send notification when generation completes
   const sendCompletionNotification = () => {
-    if ('Notification' in window && Notification.permission === 'granted') {
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
       try {
         const notification = new Notification('🎉 Your sticker is ready!', {
           body: 'Your high-res artwork has been generated successfully.',
@@ -160,7 +134,7 @@ export default function HeroSection() {
     }
   };
 
-  // Function to perform the actual generation (without auth check) - Updated for KIE AI
+  // Function to perform the actual generation (without auth check) - Using OpenAI API
   const performGeneration = useCallback(async () => {
     if (!selectedImage) return;
 
@@ -181,242 +155,78 @@ export default function HeroSection() {
     requestNotificationPermission();
 
     try {
-      // Step 1: Upload image to cloud storage to get public URL
-      console.log('🔧 DEBUG: Starting image upload process...');
-      console.log(
-        '🔧 DEBUG: Selected image:',
-        selectedImage?.name,
-        selectedImage?.size,
-        'bytes'
-      );
+      // Step 1: Generate sticker using OpenAI API (synchronous)
+      setGenerationStep('🚀 Generating sticker with OpenAI...');
+      setGenerationProgress(50);
+
+      console.log('🔧 DEBUG: Calling /api/image-to-sticker with OpenAI');
 
       const formData = new FormData();
-      formData.append('file', selectedImage);
-      formData.append('folder', 'roboneo/user-uploads'); // 专门的用户上传文件夹
+      formData.append('imageFile', selectedImage);
+      formData.append('style', selectedStyle);
 
-      console.log('🔧 DEBUG: Calling /api/storage/upload...');
-      const uploadResponse = await fetch('/api/storage/upload', {
+      const stickerResponse = await fetch('/api/image-to-sticker', {
         method: 'POST',
         body: formData,
       });
 
       console.log(
-        '🔧 DEBUG: Upload response status:',
-        uploadResponse.status,
-        uploadResponse.statusText
+        '🔧 DEBUG: Sticker response status:',
+        stickerResponse.status,
+        stickerResponse.statusText
       );
 
-      if (!uploadResponse.ok) {
-        const uploadError = await uploadResponse.json();
-        throw new Error(uploadError.error || 'Failed to upload image');
-      }
-
-      const uploadData = await uploadResponse.json();
-      const imageUrl = uploadData.url;
-
-      console.log('🔧 DEBUG: Upload successful, image URL:', imageUrl);
-
-      setGenerationStep('🚀 Preparing AI generation...');
-      setGenerationProgress(30);
-
-      // Step 2: Create KIE AI sticker generation task
-      console.log('🔧 DEBUG: Calling /api/image-to-sticker-ai with payload:', {
-        filesUrl: [imageUrl],
-        style: selectedStyle,
-        nVariants: 1,
-        size: '1:1',
-      });
-
-      const taskResponse = await fetch('/api/image-to-sticker-ai', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filesUrl: [imageUrl],
-          style: selectedStyle,
-          nVariants: 1,
-          size: '1:1',
-        }),
-      });
-
-      console.log(
-        '🔧 DEBUG: Task response status:',
-        taskResponse.status,
-        taskResponse.statusText
-      );
-
-      if (!taskResponse.ok) {
-        const taskError = await taskResponse.json();
+      if (!stickerResponse.ok) {
+        const stickerError = await stickerResponse.json();
 
         // Handle insufficient credits error
-        if (taskResponse.status === 402) {
+        if (stickerResponse.status === 402) {
           setCreditsError({
-            required: taskError.required,
-            current: taskError.current,
+            required: stickerError.required,
+            current: stickerError.current,
           });
           setShowCreditsDialog(true);
           return;
         }
 
         // Handle authentication error
-        if (taskResponse.status === 401) {
+        if (stickerResponse.status === 401) {
           setShowLoginDialog(true);
           return;
         }
 
-        throw new Error(
-          taskError.msg || taskError.error || 'Failed to create sticker task'
-        );
+        throw new Error(stickerError.error || 'Failed to generate sticker');
       }
 
-      const taskData = await taskResponse.json();
-      const taskId = taskData.data.taskId;
-      setLastTaskId(taskId); // Save for manual check if needed
+      const stickerData = await stickerResponse.json();
+      console.log('🔧 DEBUG: Sticker generated successfully!', stickerData);
 
-      console.log('🔧 DEBUG: Task created successfully! TaskID:', taskId);
-      console.log('🔧 DEBUG: Full task response:', taskData);
+      // Step 3: Process the completed result (OpenAI returns result immediately)
+      setGenerationStep('✨ Processing final result...');
+      setGenerationProgress(90);
 
-      setGenerationStep('🎨 High-res artwork in the making...');
-      setGenerationProgress(50);
+      // OpenAI API returns the result synchronously
+      setGenerationStep('🎉 Your sticker is ready!');
+      setGenerationProgress(100);
+      setGeneratedImageUrl(stickerData.url);
+      setIsGenerating(false);
 
-      // Step 3: Minimal polling optimized for callback (KIE AI Best Practice + Vercel Reality)
-      // Primary: KIE AI callback handles completion
-      // Fallback: Minimal check after expected completion time
+      // Clear credits cache to trigger refresh of credits display
+      creditsCache.clear();
 
-      console.log(
-        '🚀 Task created successfully, waiting for KIE AI callback...'
-      );
-      console.log(
-        '📝 Using callback-first approach with minimal fallback polling'
-      );
+      // Send completion notification
+      sendCompletionNotification();
 
-      setGenerationStep('🎨 High-quality AI generation in progress...');
-      setGenerationProgress(60);
-
-      // Show realistic progress without polling
-      setTimeout(() => {
-        if (isGenerating) {
-          setGenerationStep(
-            '🧠 AI analyzing your image and style preferences...'
-          );
-          setGenerationProgress(70);
-        }
-      }, 20000); // 20 seconds
-
-      setTimeout(() => {
-        if (isGenerating) {
-          setGenerationStep('🎨 Creating your custom sticker...');
-          setGenerationProgress(80);
-        }
-      }, 60000); // 1 minute
-
-      setTimeout(() => {
-        if (isGenerating) {
-          setGenerationStep('✨ Applying final touches and optimizations...');
-          setGenerationProgress(85);
-        }
-      }, 120000); // 2 minutes
-
-      // Single callback check after expected completion (KIE AI usually completes in 2-3 min)
-      setTimeout(async () => {
-        if (isGenerating && !generatedImageUrl) {
-          console.log(
-            '⏰ Expected completion time reached, checking callback result...'
-          );
-
-          try {
-            const statusResponse = await fetch(
-              `/api/image-to-sticker-ai?taskId=${taskId}`,
-              {
-                method: 'GET',
-              }
-            );
-
-            if (statusResponse.ok) {
-              const statusData = await statusResponse.json();
-
-              if (statusData.data?.status === 'completed') {
-                const resultUrls = statusData.data.resultUrls;
-                if (resultUrls && resultUrls.length > 0) {
-                  setGenerationStep('🎉 Your sticker is ready!');
-                  setGenerationProgress(100);
-                  setGeneratedImageUrl(resultUrls[0]);
-                  // Clear credits cache to trigger refresh of credits display
-                  creditsCache.clear();
-                  // Send completion notification
-                  sendCompletionNotification();
-                  return;
-                }
-              } else if (statusData.data?.status === 'failed') {
-                throw new Error(
-                  statusData.data.error || 'Sticker generation failed'
-                );
-              }
-            }
-
-            // If still processing, suggest manual check
-            setGenerationProgress(95);
-            setGenerationStep(
-              '⏳ High-quality generation taking extra time...'
-            );
-            setFileError(
-              "🎨 Your sticker may be ready! Click Check Result below to see if it's completed."
-            );
-            setIsGenerating(false);
-          } catch (error) {
-            console.log('Single callback check failed:', error);
-            setFileError(
-              '🎨 Generation may be complete! Use Check Result button to verify.'
-            );
-            setIsGenerating(false);
-          }
-        }
-      }, 180000); // 3 minutes - single check
+      console.log('🎉 Sticker generation completed successfully!');
     } catch (error) {
+      console.error('❌ Sticker generation failed:', error);
+
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred.';
-      console.error('🔧 DEBUG: Error in performGeneration:', error);
-      console.error('🔧 DEBUG: Error message:', errorMessage);
-      console.error(
-        '🔧 DEBUG: Error stack:',
-        error instanceof Error ? error.stack : 'No stack trace'
-      );
-
-      // Show user-friendly error message and reset generation state for real errors
-      if (
-        errorMessage.includes('Authentication required') ||
-        errorMessage.includes('Unauthorized')
-      ) {
-        setFileError('Please login to generate stickers');
-        setIsGenerating(false);
-        setGenerationStep(null);
-        setGenerationProgress(0);
-      } else if (errorMessage.includes('High-quality generation takes time')) {
-        setFileError(
-          '🎨 High-quality generation in progress - check result below or wait a few minutes'
-        );
-        // Don't reset generation state - task is still processing
-      } else if (errorMessage.includes('taking longer than expected')) {
-        setFileError(
-          '⏰ Generation optimized for quality - may take up to 5 minutes. Check result button available below.'
-        );
-        // Don't reset generation state - task is still processing
-      } else if (errorMessage.includes('timed out')) {
-        setFileError(
-          '⚠️ Request timeout - your sticker may still be generating. Please use the Check Result button.'
-        );
-        // Don't reset generation state - task is still processing
-      } else {
-        // Real error - reset generation state
-        setFileError(errorMessage);
-        setIsGenerating(false);
-        setGenerationStep(null);
-        setGenerationProgress(0);
-      }
-    } finally {
-      // Only reset state if there was an actual error, not for successful task creation
-      // Callback or timeout will handle stopping generation for successful cases
+      setFileError(errorMessage);
+      setIsGenerating(false);
+      setGenerationStep(null);
+      setGenerationProgress(0);
     }
   }, [selectedImage, selectedStyle]);
 
@@ -430,171 +240,6 @@ export default function HeroSection() {
       performGeneration();
     }
   }, [currentUser, performGeneration, selectedImage]);
-
-  // Effect to recover any pending tasks on component mount
-  useEffect(() => {
-    const recoverPendingTask = async () => {
-      // Only recover if we don't already have a generated image and user is logged in
-      if (!generatedImageUrl && lastTaskId && currentUser && !isGenerating) {
-        console.log(
-          `🔧 DEBUG: Attempting to recover pending task: ${lastTaskId}`
-        );
-
-        try {
-          const response = await fetch(
-            `/api/image-to-sticker-ai?taskId=${lastTaskId}`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('🔧 DEBUG: Recovered task data:', data);
-
-            if (
-              data.data?.status === 'completed' &&
-              data.data.resultUrls?.length > 0
-            ) {
-              console.log('🔧 DEBUG: Auto-recovering completed task!');
-              setGeneratedImageUrl(data.data.resultUrls[0]);
-              setGenerationProgress(100);
-              setGenerationStep('✅ Previous sticker generation completed!');
-              setIsGenerating(false);
-              setFileError(null);
-              // Clear credits cache to trigger refresh of credits display
-              creditsCache.clear();
-              sendCompletionNotification();
-              // Clear lastTaskId since task is now complete
-              setLastTaskId(null);
-            } else if (data.data?.status === 'processing') {
-              console.log(
-                '🔧 DEBUG: Task still processing, will wait for callback'
-              );
-              // Don't set error, let the callback or timeout handle it
-            } else if (data.data?.status === 'failed') {
-              setFileError(data.data.error || 'Previous generation failed');
-            }
-          }
-        } catch (error) {
-          console.log(
-            '🔧 DEBUG: Task recovery failed (this is normal for new sessions):',
-            error
-          );
-        }
-      }
-    };
-
-    // Run recovery after a short delay to allow component to fully mount
-    const recoveryTimer = setTimeout(recoverPendingTask, 1000);
-
-    return () => clearTimeout(recoveryTimer);
-  }, [lastTaskId, currentUser, generatedImageUrl, isGenerating]);
-
-  // 手动检查任务结果 - 增强版
-  const checkTaskResult = async () => {
-    if (!lastTaskId) {
-      setFileError(
-        'No task ID available to check. Please try generating again.'
-      );
-      return;
-    }
-
-    console.log(`🔧 DEBUG: Checking task result for: ${lastTaskId}`);
-    setIsGenerating(true);
-    setGenerationStep('🔍 Checking your sticker status...');
-    setFileError(null); // Clear previous errors
-
-    try {
-      const response = await fetch(
-        `/api/image-to-sticker-ai?taskId=${lastTaskId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      console.log(
-        `🔧 DEBUG: Check response: ${response.status} ${response.statusText}`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🔧 DEBUG: Task data:', data);
-
-        if (
-          data.data?.status === 'completed' &&
-          data.data.resultUrls?.length > 0
-        ) {
-          console.log(
-            '🔧 DEBUG: Task completed! Setting result URL:',
-            data.data.resultUrls[0]
-          );
-          setGeneratedImageUrl(data.data.resultUrls[0]);
-          setGenerationStep('✅ Found your completed sticker!');
-          setGenerationProgress(100);
-          setFileError(null);
-          // Clear credits cache to trigger refresh of credits display
-          creditsCache.clear();
-          sendCompletionNotification();
-          // Clear lastTaskId since task is now complete
-          setLastTaskId(null);
-        } else if (data.data?.status === 'failed') {
-          const errorMsg = data.data.error || 'Generation failed';
-
-          // Provide user-friendly error messages
-          if (errorMsg.includes('timed out')) {
-            setFileError(
-              '⏱️ Generation took longer than expected and timed out. This might be due to high server load. Please try again.'
-            );
-          } else if (errorMsg.includes('expired')) {
-            setFileError(
-              '⏰ The generation task expired. Please try uploading your image again.'
-            );
-          } else if (errorMsg.includes('KIE AI task')) {
-            setFileError(
-              '🔧 There was an issue with the AI service. Please try again or contact support if the problem persists.'
-            );
-          } else {
-            setFileError(`❌ Generation failed: ${errorMsg}`);
-          }
-        } else if (data.data?.status === 'processing') {
-          setFileError(
-            '⏳ Your sticker is still being generated. Please try again in a few minutes.'
-          );
-        } else {
-          setFileError(
-            `Task status: ${data.data?.status || 'unknown'}. Please try again or contact support.`
-          );
-        }
-      } else {
-        const errorText = await response.text();
-        console.log('🔧 DEBUG: Check API error:', errorText);
-
-        if (response.status === 404) {
-          setFileError(
-            'Task not found. It may have expired. Please try generating again.'
-          );
-        } else {
-          setFileError(
-            `Unable to check task status: ${response.status} ${response.statusText}`
-          );
-        }
-      }
-    } catch (error) {
-      console.error('🔧 DEBUG: Error checking task status:', error);
-      setFileError(
-        'Error checking task status. Please check your connection and try again.'
-      );
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   // 删除上传的图片
   const removeUploadedImage = () => {
@@ -871,24 +516,6 @@ export default function HeroSection() {
                           <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
                           <span>{fileError}</span>
                         </p>
-                        {/* Show check result button for timeout/delay errors */}
-                        {(fileError.includes(
-                          'High-quality generation takes time'
-                        ) ||
-                          fileError.includes('taking longer than expected') ||
-                          fileError.includes('timeout') ||
-                          fileError.includes('in progress') ||
-                          fileError.includes('check result')) &&
-                          lastTaskId && (
-                            <button
-                              type="button"
-                              onClick={checkTaskResult}
-                              disabled={isGenerating}
-                              className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isGenerating ? 'Checking...' : '🔍 Check Result'}
-                            </button>
-                          )}
                       </div>
                     )}
                   </div>
@@ -972,7 +599,7 @@ export default function HeroSection() {
                               : 'Generate My Sticker'}
                     </Button>
 
-                    {/* Enhanced Progress UI for KIE AI generation */}
+                    {/* Enhanced Progress UI for generation */}
                     {isGenerating && generationProgress > 0 && (
                       <div className="w-full space-y-4">
                         {/* Main Progress Bar */}
@@ -992,61 +619,16 @@ export default function HeroSection() {
                             </span>
                           </div>
                         </div>
-
-                        {/* Generation Status Message */}
-                        {generationProgress >= 50 && (
-                          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                              <div className="text-blue-600 dark:text-blue-400 mt-0.5">
-                                ⏱️
-                              </div>
-                              <div className="text-sm">
-                                <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
-                                  High-res artwork in the making—this usually
-                                  takes 2-3 min. Feel free to browse other tabs;
-                                  we'll notify you.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
 
-                  {/* Test buttons removed after testing completion */}
-                  {/*
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => {
-                          // Use a local test image to simulate generated result
-                          setGeneratedImageUrl('/hero-1.webp');
-                        }}
-                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
-                        variant="secondary"
-                      >
-                        <ImageIcon className="mr-2 h-5 w-5" />
-                        Test Download (Local Image)
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          // Test with an external image URL (tests proxy functionality)
-                          setGeneratedImageUrl('https://picsum.photos/400/400?random=1');
-                        }}
-                        className="w-full font-semibold h-[50px] rounded-2xl text-base"
-                        variant="outline"
-                      >
-                        <ImageIcon className="mr-2 h-5 w-5" />
-                        Test Download (External URL)
-                      </Button>
-                    </div>
-                  )}
-                  */}
-
                   {/* Credit info */}
                   <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
-                    <CreditsDisplay />
+                    <CreditsDisplay
+                      cost={CREDITS_PER_IMAGE}
+                      actionLabel="Create"
+                    />
                     <span>Powered by RoboNeo</span>
                   </div>
                 </div>

@@ -29,7 +29,7 @@ async function testImageEditing() {
 
   if (!fs.existsSync(testImagePath)) {
     console.log('📷 未找到测试图片 apple-touch-icon.png');
-    console.log(`请确保 public/ 目录中有 apple-touch-icon.png 文件`);
+    console.log('请确保 public/ 目录中有 apple-touch-icon.png 文件');
     return;
   }
 
@@ -115,7 +115,7 @@ async function testImageEditing() {
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应数据:`, {
+        console.log('响应数据:', {
           model: testCase.model,
           style: testCase.style,
           hasData: Boolean(data.data?.length),
@@ -143,7 +143,7 @@ async function testImageEditing() {
           if (errorJson.error?.code === 'model_not_found') {
             console.log(`🔍 模型 "${testCase.model}" 不支持图片编辑`);
           } else if (errorJson.error?.message?.includes('edit')) {
-            console.log(`🔧 图片编辑参数可能有误`);
+            console.log('🔧 图片编辑参数可能有误');
           }
         } catch (e) {
           // 忽略解析错误
@@ -151,7 +151,7 @@ async function testImageEditing() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
     }

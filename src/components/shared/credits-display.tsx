@@ -3,15 +3,28 @@
 import { getUserCreditsAction } from '@/actions/credits-actions';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
-import { CreditCardIcon } from 'lucide-react';
+import { CoinsIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface CreditsDisplayProps {
   className?: string;
+  /**
+   * Cost per operation (e.g., 10 for ProductShot)
+   * When provided, shows "Costs X credits • Y remaining"
+   */
+  cost?: number;
+  /**
+   * Action label for the cost display (e.g., "Generate", "Create")
+   */
+  actionLabel?: string;
 }
 
-export function CreditsDisplay({ className = '' }: CreditsDisplayProps) {
+export function CreditsDisplay({
+  className = '',
+  cost,
+  actionLabel = 'Generate',
+}: CreditsDisplayProps) {
   const currentUser = useCurrentUser();
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +82,7 @@ export function CreditsDisplay({ className = '' }: CreditsDisplayProps) {
   if (!mounted) {
     return (
       <span className={`text-sm text-muted-foreground ${className || ''}`}>
-        <CreditCardIcon className="h-4 w-4 mr-1 inline" />
+        <CoinsIcon className="h-4 w-4 mr-1 inline" />
         Loading...
       </span>
     );
@@ -86,21 +99,40 @@ export function CreditsDisplay({ className = '' }: CreditsDisplayProps) {
   if (loading) {
     return (
       <span className={`text-sm text-muted-foreground ${className || ''}`}>
-        <CreditCardIcon className="h-4 w-4 mr-1 inline" />
+        <CoinsIcon className="h-4 w-4 mr-1 inline" />
         Loading...
       </span>
     );
   }
 
+  // Calculate remaining credits after the operation
+  const remainingAfterOperation = cost
+    ? Math.max(0, (credits || 0) - cost)
+    : credits;
+  const hasInsufficientCredits = cost && (credits || 0) < cost;
+
   return (
     <div className={`flex items-center gap-2 ${className || ''}`}>
       <span
-        className={`text-sm ${credits && credits > 0 ? 'text-foreground' : 'text-destructive'}`}
+        className={`text-sm ${
+          hasInsufficientCredits
+            ? 'text-destructive'
+            : credits && credits > 0
+              ? 'text-foreground'
+              : 'text-destructive'
+        }`}
       >
-        <CreditCardIcon className="h-4 w-4 mr-1 inline" />
-        {credits || 0} Credits
+        <CoinsIcon className="h-4 w-4 mr-1 inline" />
+        {cost ? (
+          <>
+            Spent {cost} credits | {remainingAfterOperation?.toLocaleString()}{' '}
+            left
+          </>
+        ) : (
+          <>{(credits || 0).toLocaleString()} Credits</>
+        )}
       </span>
-      {(credits === 0 || credits === null) && (
+      {(credits === 0 || credits === null || hasInsufficientCredits) && (
         <Link
           href="/pricing"
           className="text-sm text-black hover:text-black/80 underline cursor-pointer"

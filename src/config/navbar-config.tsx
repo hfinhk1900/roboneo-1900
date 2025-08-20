@@ -96,7 +96,6 @@ export function getNavbarLinks(): NestedMenuItem[] {
           icon: '/text-to-image02.webp',
           href: Routes.AISticker,
           external: false,
-
         },
         {
           title: 'AI Anime Art',
@@ -107,39 +106,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
         },
       ],
     },
-    {
-      title: t('imageToImageGenerator.title'),
-      items: [
-        {
-          title: t('imageToImageGenerator.items.styleswap.title'),
-          description: t('imageToImageGenerator.items.styleswap.description'),
-          icon: '/image-to-image01.webp',
-          href: Routes.AIImageToSticker,
-          external: false,
-        },
-        {
-          title: t('imageToImageGenerator.items.elementsswap.title'),
-          description: t('imageToImageGenerator.items.elementsswap.description'),
-          icon: '/image-to-image02.webp',
-          href: Routes.AIImageToImage,
-          external: false,
-        },
-        {
-          title: t('imageToImageGenerator.items.moodshift.title'),
-          description: t('imageToImageGenerator.items.moodshift.description'),
-          icon: '/image-to-image03.webp',
-          href: Routes.AIPortrait,
-          external: false,
-        },
-        {
-          title: t('imageToImageGenerator.items.portraitseries.title'),
-          description: t('imageToImageGenerator.items.portraitseries.description'),
-          icon: '/image-to-image04.webp',
-          href: Routes.AIImageToSticker,
-          external: false,
-        },
-      ],
-    },
+
     {
       title: t('pricing.title'),
       href: Routes.Pricing,
