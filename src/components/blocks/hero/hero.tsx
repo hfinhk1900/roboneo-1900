@@ -701,7 +701,7 @@ export default function HeroSection() {
                             </div>
                           </div>
                         ) : (
-                          <div className="text-center space-y-4">
+                          <div className="text-center">
                             <Image
                               src="/hero-1.webp"
                               alt="Example transformation - Photo to sticker"
