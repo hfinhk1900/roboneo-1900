@@ -11,8 +11,8 @@ export default function ImageShowcaseSection() {
       {/* Gallery Section */}
       <ShowcaseGallery className="bg-[#f5f5f5]" />
 
-      {/* Key Benefits Section */}
-      <KeyBenefits className="bg-white" />
+      {/* Key Benefits Section - Hidden */}
+      {/* <KeyBenefits className="bg-white" /> */}
 
       {/* More AI Tools Section */}
       <MoreAITools />
