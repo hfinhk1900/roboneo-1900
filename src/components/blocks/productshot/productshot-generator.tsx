@@ -762,17 +762,8 @@ export default function ProductShotGeneratorSection() {
                     )}
                     {isLoading
                       ? 'Generating Product Scene...'
-                      : 'Generate Product Scene'}
+                      : `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`}
                   </Button>
-
-                  {/* Credit info */}
-                  <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
-                    <CreditsDisplay
-                      cost={CREDITS_PER_IMAGE}
-                      actionLabel="Generate"
-                    />
-                    <span>Powered by RoboNeo</span>
-                  </div>
                 </div>
               </CardContent>
             </Card>
