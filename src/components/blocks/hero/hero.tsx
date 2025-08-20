@@ -618,15 +618,59 @@ export default function HeroSection() {
             <Card className="border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
               <CardContent className="p-6 flex-grow flex flex-col items-center justify-center space-y-4 relative">
                 {isGenerating ? (
-                  <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="relative h-16 w-16 animate-pulse">
-                      <LoaderIcon className="h-16 w-16 animate-spin text-primary" />
+                  /* Loading 状态 - 显示进度条和灰色遮罩 */
+                  <div className="flex items-center justify-center min-h-[400px] p-8 relative">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                      <div className="relative flex items-center justify-center">
+                        {/* 用户上传的图片带灰色遮罩 */}
+                        <div className="relative">
+                          {previewUrl ? (
+                            <img
+                              src={previewUrl}
+                              alt="Processing your image"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          ) : (
+                            <Image
+                              src="/hero-1.webp"
+                              alt="Sticker Example"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          )}
+                          {/* 进度遮罩层 */}
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
+                            {/* 生成中图标 */}
+                            <div className="flex items-center space-x-2 text-white">
+                              <LoaderIcon className="h-6 w-6 animate-spin" />
+                              <span className="text-lg font-medium">
+                                {generationStep || 'Generating...'}
+                              </span>
+                            </div>
+
+                            {/* 进度条 */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                style={{ width: `${generationProgress}%` }}
+                              />
+                            </div>
+
+                            {/* 进度百分比 */}
+                            <div className="text-white text-sm font-medium">
+                              {Math.round(generationProgress)}%
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-center text-muted-foreground">
-                      Generating your sticker...
-                    </p>
                   </div>
                 ) : generatedImageUrl ? (
+                  /* 生成完成状态 */
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     <div className="relative flex items-center justify-center">
                       <Image
@@ -647,37 +691,60 @@ export default function HeroSection() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative">
-                    <Image
-                      src="/hero-1.webp"
-                      alt="Example transformation - Photo to sticker"
-                      width={400}
-                      height={400}
-                      style={{ height: 'auto' }}
-                      className="object-contain max-h-full rounded-lg shadow-md"
-                      priority={true}
-                    />
-                    <Image
-                      src="/hero-2.webp"
-                      alt="Decorative camera icon"
-                      width={120}
-                      height={120}
-                      style={{ height: 'auto' }}
-                      className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
-                    />
-                    <Image
-                      src="/hero-3.webp"
-                      alt="Decorative plant icon"
-                      width={120}
-                      height={120}
-                      style={{ height: 'auto' }}
-                      className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
-                    />
-                    <img
-                      src="/hero-video.gif"
-                      alt="Hero animation"
-                      className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
-                    />
+                  /* 默认状态 - 显示用户上传的图片或示例图片 */
+                  <div className="flex items-center justify-center min-h-[400px] p-8">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                      <div className="relative flex items-center justify-center">
+                        {previewUrl ? (
+                          <div className="text-center space-y-4">
+                            <img
+                              src={previewUrl}
+                              alt="Your uploaded image"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
+                            />
+                            <div className="text-sm text-muted-foreground">
+                              Your image is ready! Select a style and click generate.
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center space-y-4">
+                            <Image
+                              src="/hero-1.webp"
+                              alt="Example transformation - Photo to sticker"
+                              width={400}
+                              height={400}
+                              style={{ height: 'auto' }}
+                              className="object-contain max-h-full rounded-lg shadow-md"
+                              priority={true}
+                            />
+                            <Image
+                              src="/hero-2.webp"
+                              alt="Decorative camera icon"
+                              width={120}
+                              height={120}
+                              style={{ height: 'auto' }}
+                              className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
+                            />
+                            <Image
+                              src="/hero-3.webp"
+                              alt="Decorative plant icon"
+                              width={120}
+                              height={120}
+                              style={{ height: 'auto' }}
+                              className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
+                            />
+                            <img
+                              src="/hero-video.gif"
+                              alt="Hero animation"
+                              className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
