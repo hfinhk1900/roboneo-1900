@@ -428,9 +428,9 @@ export default function ProductShotGeneratorSection() {
                   </p>
                 </div>
 
-                <div className="space-y-5 flex-grow">
+                <div className="space-y-5 flex-grow flex flex-col">
                   {/* Image Upload Section */}
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-grow flex flex-col">
                     <Label className="text-sm font-medium">
                       Product Image (Required)
                     </Label>
@@ -441,7 +441,7 @@ export default function ProductShotGeneratorSection() {
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       className={cn(
-                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f5f5f5] border border-border',
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer flex-grow bg-[#f5f5f5] border border-border',
                         isDragOver && 'bg-muted/50 border-primary'
                       )}
                     >
