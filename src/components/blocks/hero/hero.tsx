@@ -576,6 +576,14 @@ export default function HeroSection() {
                               : 'Generate My Sticker'}
                     </Button>
 
+                    {/* Credit info */}
+                    <div className="flex items-center justify-center text-xs text-muted-foreground">
+                      <CreditsDisplay
+                        cost={CREDITS_PER_IMAGE}
+                        actionLabel="Create"
+                      />
+                    </div>
+
                     {/* Enhanced Progress UI for generation */}
                     {isGenerating && generationProgress > 0 && (
                       <div className="w-full space-y-4">
@@ -598,15 +606,6 @@ export default function HeroSection() {
                         </div>
                       </div>
                     )}
-                  </div>
-
-                  {/* Credit info */}
-                  <div className="flex items-center justify-between pt-2 border-t text-sm text-muted-foreground">
-                    <CreditsDisplay
-                      cost={CREDITS_PER_IMAGE}
-                      actionLabel="Create"
-                    />
-                    <span>Powered by RoboNeo</span>
                   </div>
                 </div>
               </CardContent>
