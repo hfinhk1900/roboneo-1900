@@ -4,6 +4,13 @@ import { CreditsDisplay } from '@/components/shared/credits-display';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -55,7 +62,6 @@ const sceneIcons = {
 // Presentation Style 已经整合到场景选择中，不再需要单独配置
 
 export default function ProductShotGeneratorSection() {
-  const [additionalContext, setAdditionalContext] = useState('');
   const [selectedScene, setSelectedScene] = useState<SceneType | ''>('');
   const [customSceneDescription, setCustomSceneDescription] = useState('');
   // Product Size Hint 已隐藏，系统自动智能检测
@@ -80,30 +86,39 @@ export default function ProductShotGeneratorSection() {
   const [referencePreview, setReferencePreview] = useState<string | null>(null);
   const [isReferenceDragOver, setIsReferenceDragOver] = useState(false);
 
-  // Aspect ratio selection (default 1:1)
-  const [selectedAspect, setSelectedAspect] = useState<string>('1:1');
+  // Aspect ratio selection (default original)
+  const [selectedAspect, setSelectedAspect] = useState<string>('original');
+
+  // Image preview modal state
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   const ASPECT_OPTIONS: Array<{
     id: string; // ratio id, e.g. '2:3'
-    label: string; // display label, e.g. 'tall'
+    label: string; // display label, e.g. 'Tall'
     icon: string; // icon path
     ratioClass: string; // kept for potential future use
   }> = [
     {
+      id: 'original',
+      label: 'Original',
+      icon: '/icons/original.svg',
+      ratioClass: 'aspect-auto',
+    },
+    {
       id: '2:3',
-      label: 'tall',
+      label: 'Tall',
       icon: '/icons/tall.svg',
       ratioClass: 'aspect-[2/3]',
     },
     {
       id: '1:1',
-      label: 'square',
+      label: 'Square',
       icon: '/icons/square.svg',
       ratioClass: 'aspect-[1/1]',
     },
     {
       id: '3:2',
-      label: 'wide',
+      label: 'Wide',
       icon: '/icons/wide.svg',
       ratioClass: 'aspect-[3/2]',
     },
@@ -333,7 +348,6 @@ export default function ProductShotGeneratorSection() {
         reference_image: referenceImage || undefined, // NEW: Pass reference image if available
         customSceneDescription:
           selectedScene === 'custom' ? customSceneDescription : undefined,
-        additionalContext: additionalContext.trim() || undefined,
         productTypeHint: productTypeHint,
         aspectRatio: selectedAspect,
         quality: 'standard',
@@ -372,6 +386,12 @@ export default function ProductShotGeneratorSection() {
 
     const filename = `productshot-${selectedSceneConfig?.name}-${Date.now()}.png`;
     await downloadImage(result.resultUrl, filename);
+  };
+
+  const handleImageClick = () => {
+    if (result?.resultUrl) {
+      setShowImagePreview(true);
+    }
   };
 
   return (
@@ -539,83 +559,6 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   )}
 
-                  <div className="space-y-3">
-                    {/* Product Size Hint 已隐藏 - 系统自动智能检测 */}
-                    {/*
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">
-                        Product Size Hint (Optional)
-                      </Label>
-                      <Select
-                        value={productTypeHint}
-                        onValueChange={(value) =>
-                          setProductTypeHint(
-                            value as 'small' | 'medium' | 'large' | 'auto'
-                          )
-                        }
-                      >
-                        <SelectTrigger className="w-full rounded-xl">
-                          <SelectValue placeholder="Auto-detect from scene" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="auto">
-                            <div className="flex items-center gap-2">
-                              <span>🤖 Auto-detect</span>
-                              <span className="text-sm transition-colors text-muted-foreground">
-                                Smart detection based on scene
-                              </span>
-                            </div>
-                          </SelectItem>
-                          <SelectSeparator />
-                          <SelectItem value="small">
-                            <div className="flex items-center gap-2">
-                              <span>📱 Small</span>
-                              <span className="text-sm transition-colors text-muted-foreground">
-                                Jewelry, cosmetics, accessories
-                              </span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="medium">
-                            <div className="flex items-center gap-2">
-                              <span>👜 Medium</span>
-                              <span className="text-sm transition-colors text-muted-foreground">
-                                Bags, shoes, books, clothing
-                              </span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="large">
-                            <div className="flex items-center gap-2">
-                              <span>🛋️ Large</span>
-                              <span className="text-sm transition-colors text-muted-foreground">
-                                Furniture, large decor items
-                              </span>
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    */}
-
-                    {/* 额外描述输入框 */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="additional-context"
-                        className="text-sm font-medium"
-                      >
-                        Additional Context (Optional)
-                      </Label>
-                      <Textarea
-                        id="additional-context"
-                        placeholder="Describe product features or scene requirements, e.g., 'premium skincare product', 'warm lighting', 'luxurious feel', 'modern minimalist style'"
-                        value={additionalContext}
-                        onChange={(e) => setAdditionalContext(e.target.value)}
-                        className="min-h-[120px] resize-none rounded-xl"
-                        maxLength={500}
-                        aria-label="Additional context for AI scene generation"
-                      />
-                    </div>
-                  </div>
-
                   {/* Photography Scene - 仅在单图模式下显示 */}
                   {!referenceImage && (
                     <div className="space-y-3">
@@ -693,6 +636,33 @@ export default function ProductShotGeneratorSection() {
                     </div>
                   )}
 
+                  {/* Custom Scene Description Input - Only show when custom is selected - 紧接着Scene选择器后面 */}
+                  {selectedScene === 'custom' && (
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor="custom-scene"
+                        className="text-sm font-medium"
+                      >
+                        Custom Scene Description
+                      </Label>
+                      <Textarea
+                        id="custom-scene"
+                        placeholder="Describe your custom scene, e.g., 'Product displayed on a wooden table in a cozy coffee shop with warm lighting and plants in the background'"
+                        value={customSceneDescription}
+                        onChange={(e) =>
+                          setCustomSceneDescription(e.target.value)
+                        }
+                        className="min-h-[100px] resize-none rounded-xl"
+                        maxLength={300}
+                      />
+                      <div className="flex items-center justify-end">
+                        <span className="text-xs text-muted-foreground">
+                          {customSceneDescription.length}/300
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Output Aspect Ratio - independent component */}
                   {!referenceImage && (
                     <div className="space-y-3">
@@ -707,7 +677,7 @@ export default function ProductShotGeneratorSection() {
                           className="w-full rounded-2xl bg-white border border-input cursor-pointer"
                           style={{ height: '50px', padding: '0px 12px' }}
                         >
-                          <SelectValue placeholder="Aspect Ratio (Default 1:1)">
+                          <SelectValue placeholder="Aspect Ratio (Default Original)">
                             {ASPECT_OPTIONS.find(
                               (o) => o.id === selectedAspect
                             ) ? (
@@ -733,7 +703,7 @@ export default function ProductShotGeneratorSection() {
                               </div>
                             ) : (
                               <span className="text-muted-foreground">
-                                Aspect Ratio (Default 1:1)
+                                Aspect Ratio (Default Original)
                               </span>
                             )}
                           </SelectValue>
@@ -773,33 +743,6 @@ export default function ProductShotGeneratorSection() {
 
                   {/* Presentation Style 已整合到场景选择中 */}
 
-                  {/* Custom Scene Description Input - Only show when custom is selected */}
-                  {selectedScene === 'custom' && (
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="custom-scene"
-                        className="text-sm font-medium"
-                      >
-                        Custom Scene Description
-                      </Label>
-                      <Textarea
-                        id="custom-scene"
-                        placeholder="Describe your custom scene, e.g., 'Product displayed on a wooden table in a cozy coffee shop with warm lighting and plants in the background'"
-                        value={customSceneDescription}
-                        onChange={(e) =>
-                          setCustomSceneDescription(e.target.value)
-                        }
-                        className="min-h-[100px] resize-none rounded-xl"
-                        maxLength={300}
-                      />
-                      <div className="flex items-center justify-end">
-                        <span className="text-xs text-muted-foreground">
-                          {customSceneDescription.length}/300
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
                   <Button
                     onClick={handleGenerate}
                     className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
@@ -837,14 +780,37 @@ export default function ProductShotGeneratorSection() {
               <CardContent className="p-6 flex-grow flex flex-col items-center justify-center space-y-4 relative">
                 {result?.resultUrl ? (
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                    <div className="relative w-full max-w-md aspect-square">
+                    <button
+                      type="button"
+                      className="relative w-full max-w-md aspect-square cursor-pointer group transition-all duration-200 hover:scale-[1.02] border-none bg-transparent p-0"
+                      onClick={handleImageClick}
+                      title="Click to view full size"
+                    >
                       <Image
                         src={result.resultUrl}
                         alt={`Generated product shot - ${selectedSceneConfig?.name || 'Unknown scene'}`}
                         fill
-                        className="object-contain rounded-lg"
+                        className="object-contain rounded-lg transition-all duration-200 group-hover:brightness-110"
                       />
-                    </div>
+                      {/* Zoom overlay icon */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200 rounded-lg flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 backdrop-blur-sm rounded-full p-2">
+                          <svg
+                            className="w-6 h-6 text-gray-700"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
                     <div className="flex gap-2 flex-wrap justify-center">
                       <Button
                         onClick={handleDownload}
@@ -958,6 +924,108 @@ export default function ProductShotGeneratorSection() {
           current={creditsError.current}
         />
       )}
+
+      {/* Image Preview Modal */}
+      <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
+        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+          {/* Header */}
+          <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-yellow-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Generated Product Shot
+                </DialogTitle>
+                <DialogDescription className="text-gray-300 text-sm mt-1">
+                  Scene: {selectedSceneConfig?.name || 'Custom'} • Aspect Ratio:{' '}
+                  {selectedAspect === 'original' ? 'Original' : selectedAspect}
+                </DialogDescription>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setShowImagePreview(false)}
+                className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </DialogHeader>
+
+          {/* Main image area */}
+          <div
+            className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+            onClick={() => setShowImagePreview(false)}
+          >
+            {result?.resultUrl && (
+              <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
+                <Image
+                  src={result.resultUrl}
+                  alt={`Generated product shot - ${selectedSceneConfig?.name || 'Unknown scene'}`}
+                  width={1200}
+                  height={1200}
+                  className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                  quality={100}
+                  priority
+                  draggable={false}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Bottom controls */}
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload();
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                size="lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Full Size
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowImagePreview(false);
+                }}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                size="lg"
+              >
+                Close Preview
+              </Button>
+            </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="text-center mt-3 text-gray-400 text-xs">
+              Press{' '}
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-white font-mono">
+                ESC
+              </kbd>{' '}
+              to close
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

@@ -1,12 +1,7 @@
-import ProductShotFeaturesSection from '@/components/blocks/productshot/productshot-features';
 import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
-import {
-  ProductShotBenefitsSection,
-  ProductShotCTASection,
-  ProductShotShowcaseSection,
-} from '@/components/blocks/productshot/productshot-placeholders';
 import MoreAITools from '@/components/more-ai-tools';
 import { StructuredData } from '@/components/seo/structured-data';
+import PhotostockGallery from '@/components/shared/photostock-gallery';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -42,19 +37,10 @@ export default function ProductShotPage() {
         <ProductShotGeneratorSection />
 
         {/* Showcase Gallery */}
-        <ProductShotShowcaseSection />
-
-        {/* Benefits Section */}
-        <ProductShotBenefitsSection />
-
-        {/* Features Section */}
-        <ProductShotFeaturesSection />
+        <PhotostockGallery />
 
         {/* More AI Tools */}
         <MoreAITools />
-
-        {/* CTA Section */}
-        <ProductShotCTASection />
       </div>
     </>
   );

@@ -110,7 +110,7 @@ export function useProductShot(): UseProductShotReturn {
   function parseAspectRatio(
     aspect?: string
   ): { w: number; h: number } | undefined {
-    if (!aspect) return undefined;
+    if (!aspect || aspect === 'original') return undefined;
     const parts = aspect.split(':');
     if (parts.length !== 2) return undefined;
     const w = Number(parts[0]);

@@ -146,16 +146,6 @@ export function ShowcaseGallery({ className }: ShowcaseGalleryProps) {
             </div>
           ))}
         </div>
-
-        {/* Additional content hint */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-            Showcasing the versatility of RoboNeo AI - from iOS emoji style to
-            pixel art, LEGO style, and magical transformations. Each sticker
-            maintains perfect quality and transparency for seamless sharing
-            across all platforms.
-          </p>
-        </div>
       </div>
     </section>
   );
