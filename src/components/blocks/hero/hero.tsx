@@ -415,8 +415,8 @@ export default function HeroSection() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Image Input */}
           <div>
-            <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
-              <CardContent className="pt-1 px-6 pb-4 space-y-5">
+            <Card className="relative overflow-hidden border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
+              <CardContent className="pt-1 px-6 pb-4 space-y-5 flex-grow flex flex-col">
                 <div className="pb-1 pt-0">
                   <h3 className="text-xl font-semibold mb-0.5">
                     Image to Sticker
@@ -426,8 +426,8 @@ export default function HeroSection() {
                   </p>
                 </div>
 
-                <div className="space-y-5">
-                  <div className="space-y-3">
+                <div className="space-y-5 flex-grow flex flex-col">
+                  <div className="space-y-3 flex-grow flex flex-col">
                     <Label
                       htmlFor="image-upload"
                       className="text-sm font-medium"
@@ -440,7 +440,7 @@ export default function HeroSection() {
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       className={cn(
-                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f5f5f5] border border-border',
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer flex-grow bg-[#f5f5f5] border border-border',
                         isDragging && 'bg-muted/50 border-primary'
                       )}
                     >
@@ -572,17 +572,9 @@ export default function HeroSection() {
                           : !currentUser
                             ? 'Login to Generate Sticker'
                             : generatedImageUrl
-                              ? 'Regenerate'
-                              : 'Generate My Sticker'}
+                              ? `Regenerate (${CREDITS_PER_IMAGE} credits)`
+                              : `Generate My Sticker (${CREDITS_PER_IMAGE} credits)`}
                     </Button>
-
-                    {/* Credit info */}
-                    <div className="flex items-center justify-center text-xs text-muted-foreground">
-                      <CreditsDisplay
-                        cost={CREDITS_PER_IMAGE}
-                        actionLabel="Create"
-                      />
-                    </div>
 
                     {/* Enhanced Progress UI for generation */}
                     {isGenerating && generationProgress > 0 && (
