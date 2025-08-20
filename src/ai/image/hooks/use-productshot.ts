@@ -162,49 +162,61 @@ export function useProductShot(): UseProductShotReturn {
           const sourceHeight = img.height;
 
           if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
-            // 使用 cover 裁剪到目标比例
+            // 使用 contain 模式：保持图片完整内容，不裁剪
             const targetRatio = targetAspect.w / targetAspect.h;
             const sourceRatio = sourceWidth / sourceHeight;
 
-            // 计算源裁剪区域
-            let cropWidth = sourceWidth;
-            let cropHeight = sourceHeight;
-            let sx = 0;
-            let sy = 0;
+            // 确定输出画布尺寸（按比例设置最长边为 maxSide）
+            let canvasW = 0;
+            let canvasH = 0;
+            if (targetRatio >= 1) {
+              canvasW = maxSide;
+              canvasH = Math.round(maxSide / targetRatio);
+            } else {
+              canvasH = maxSide;
+              canvasW = Math.round(maxSide * targetRatio);
+            }
+
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+
+            // 设置白色背景（可以改为透明或其他颜色）
+            if (ctx) {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, canvasW, canvasH);
+            }
+
+            // 计算图片在画布中的位置和大小（contain 模式）
+            let drawWidth = 0;
+            let drawHeight = 0;
+            let drawX = 0;
+            let drawY = 0;
 
             if (sourceRatio > targetRatio) {
-              // 源更宽，裁掉左右
-              cropWidth = Math.round(sourceHeight * targetRatio);
-              sx = Math.round((sourceWidth - cropWidth) / 2);
-            } else if (sourceRatio < targetRatio) {
-              // 源更高，裁掉上下
-              cropHeight = Math.round(sourceWidth / targetRatio);
-              sy = Math.round((sourceHeight - cropHeight) / 2);
-            }
-
-            // 确定输出像素尺寸（按比例设置最长边为 maxSide）
-            let outW = 0;
-            let outH = 0;
-            if (targetRatio >= 1) {
-              outW = maxSide;
-              outH = Math.round(maxSide / targetRatio);
+              // 源图更宽，以画布宽度为准
+              drawWidth = canvasW;
+              drawHeight = Math.round(canvasW / sourceRatio);
+              drawX = 0;
+              drawY = Math.round((canvasH - drawHeight) / 2);
             } else {
-              outH = maxSide;
-              outW = Math.round(maxSide * targetRatio);
+              // 源图更高或比例相同，以画布高度为准
+              drawHeight = canvasH;
+              drawWidth = Math.round(canvasH * sourceRatio);
+              drawX = Math.round((canvasW - drawWidth) / 2);
+              drawY = 0;
             }
 
-            canvas.width = outW;
-            canvas.height = outH;
+            // 绘制完整图片到画布中心
             ctx?.drawImage(
               img,
-              sx,
-              sy,
-              cropWidth,
-              cropHeight,
               0,
               0,
-              outW,
-              outH
+              sourceWidth,
+              sourceHeight,
+              drawX,
+              drawY,
+              drawWidth,
+              drawHeight
             );
           } else {
             // 旧逻辑：保持宽高比压缩到最长边不超过 maxSide
@@ -295,7 +307,7 @@ export function useProductShot(): UseProductShotReturn {
         throw new Error('Product image is required');
       }
 
-      // 将 File 对象转换为 base64 字符串（按选择的比例进行 cover 裁剪）
+      // 将 File 对象转换为 base64 字符串（按选择的比例进行 contain 适配，保持完整内容）
       console.log('📸 Converting product image to base64...');
       const image_input = await fileToBase64(
         params.uploaded_image,

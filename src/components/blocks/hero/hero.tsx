@@ -1,7 +1,17 @@
 'use client';
 
+import { LoginForm } from '@/components/auth/login-form';
+import { OptimizedImage } from '@/components/seo/optimized-image';
+import { CreditsDisplay } from '@/components/shared/credits-display';
+import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,33 +22,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CreditsDisplay } from '@/components/shared/credits-display';
-import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
-import { creditsCache } from '@/lib/credits-cache';
-import { cn } from '@/lib/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { LoginForm } from '@/components/auth/login-form';
+import { creditsCache } from '@/lib/credits-cache';
+import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { cn } from '@/lib/utils';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { validateImageFile, OPENAI_IMAGE_CONFIG } from '@/lib/image-validation';
-import {
+  AlertCircleIcon,
+  DownloadIcon,
   ImageIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
-  UploadIcon,
-  DownloadIcon,
-  AlertCircleIcon,
   Trash2Icon,
+  UploadIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { OptimizedImage } from '@/components/seo/optimized-image';
 import Image from 'next/image';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.webp' },
@@ -63,10 +63,14 @@ export default function HeroSection() {
   const [generationStep, setGenerationStep] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
-  const [creditsError, setCreditsError] = useState<{ required: number; current: number } | null>(null);
+  const [creditsError, setCreditsError] = useState<{
+    required: number;
+    current: number;
+  } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+  const [notificationPermission, setNotificationPermission] =
+    useState<NotificationPermission>('default');
   const [lastTaskId, setLastTaskId] = useState<string | null>(null);
 
   // Load lastTaskId from localStorage on mount
@@ -74,7 +78,9 @@ export default function HeroSection() {
     try {
       const savedTaskId = localStorage.getItem('lastTaskId');
       if (savedTaskId) {
-        console.log(`🔧 DEBUG: Loaded lastTaskId from localStorage: ${savedTaskId}`);
+        console.log(
+          `🔧 DEBUG: Loaded lastTaskId from localStorage: ${savedTaskId}`
+        );
         setLastTaskId(savedTaskId);
       }
     } catch (error) {
@@ -87,7 +93,9 @@ export default function HeroSection() {
     try {
       if (lastTaskId) {
         localStorage.setItem('lastTaskId', lastTaskId);
-        console.log(`🔧 DEBUG: Saved lastTaskId to localStorage: ${lastTaskId}`);
+        console.log(
+          `🔧 DEBUG: Saved lastTaskId to localStorage: ${lastTaskId}`
+        );
       } else {
         localStorage.removeItem('lastTaskId');
         console.log('🔧 DEBUG: Removed lastTaskId from localStorage');
@@ -133,7 +141,7 @@ export default function HeroSection() {
         const notification = new Notification('🎉 Your sticker is ready!', {
           body: 'Your high-res artwork has been generated successfully.',
           icon: '/favicon-96x96.png',
-          tag: 'sticker-generation-complete'
+          tag: 'sticker-generation-complete',
         });
 
         // Auto-close notification after 5 seconds
@@ -175,7 +183,12 @@ export default function HeroSection() {
     try {
       // Step 1: Upload image to cloud storage to get public URL
       console.log('🔧 DEBUG: Starting image upload process...');
-      console.log('🔧 DEBUG: Selected image:', selectedImage?.name, selectedImage?.size, 'bytes');
+      console.log(
+        '🔧 DEBUG: Selected image:',
+        selectedImage?.name,
+        selectedImage?.size,
+        'bytes'
+      );
 
       const formData = new FormData();
       formData.append('file', selectedImage);
@@ -187,7 +200,11 @@ export default function HeroSection() {
         body: formData,
       });
 
-      console.log('🔧 DEBUG: Upload response status:', uploadResponse.status, uploadResponse.statusText);
+      console.log(
+        '🔧 DEBUG: Upload response status:',
+        uploadResponse.status,
+        uploadResponse.statusText
+      );
 
       if (!uploadResponse.ok) {
         const uploadError = await uploadResponse.json();
@@ -207,7 +224,7 @@ export default function HeroSection() {
         filesUrl: [imageUrl],
         style: selectedStyle,
         nVariants: 1,
-        size: '1:1'
+        size: '1:1',
       });
 
       const taskResponse = await fetch('/api/image-to-sticker-ai', {
@@ -219,11 +236,15 @@ export default function HeroSection() {
           filesUrl: [imageUrl],
           style: selectedStyle,
           nVariants: 1,
-          size: '1:1'
+          size: '1:1',
         }),
       });
 
-      console.log('🔧 DEBUG: Task response status:', taskResponse.status, taskResponse.statusText);
+      console.log(
+        '🔧 DEBUG: Task response status:',
+        taskResponse.status,
+        taskResponse.statusText
+      );
 
       if (!taskResponse.ok) {
         const taskError = await taskResponse.json();
@@ -232,7 +253,7 @@ export default function HeroSection() {
         if (taskResponse.status === 402) {
           setCreditsError({
             required: taskError.required,
-            current: taskError.current
+            current: taskError.current,
           });
           setShowCreditsDialog(true);
           return;
@@ -244,25 +265,31 @@ export default function HeroSection() {
           return;
         }
 
-        throw new Error(taskError.msg || taskError.error || 'Failed to create sticker task');
+        throw new Error(
+          taskError.msg || taskError.error || 'Failed to create sticker task'
+        );
       }
 
-            const taskData = await taskResponse.json();
+      const taskData = await taskResponse.json();
       const taskId = taskData.data.taskId;
       setLastTaskId(taskId); // Save for manual check if needed
 
       console.log('🔧 DEBUG: Task created successfully! TaskID:', taskId);
       console.log('🔧 DEBUG: Full task response:', taskData);
 
-            setGenerationStep('🎨 High-res artwork in the making...');
+      setGenerationStep('🎨 High-res artwork in the making...');
       setGenerationProgress(50);
 
-                  // Step 3: Minimal polling optimized for callback (KIE AI Best Practice + Vercel Reality)
+      // Step 3: Minimal polling optimized for callback (KIE AI Best Practice + Vercel Reality)
       // Primary: KIE AI callback handles completion
       // Fallback: Minimal check after expected completion time
 
-      console.log('🚀 Task created successfully, waiting for KIE AI callback...');
-      console.log('📝 Using callback-first approach with minimal fallback polling');
+      console.log(
+        '🚀 Task created successfully, waiting for KIE AI callback...'
+      );
+      console.log(
+        '📝 Using callback-first approach with minimal fallback polling'
+      );
 
       setGenerationStep('🎨 High-quality AI generation in progress...');
       setGenerationProgress(60);
@@ -270,7 +297,9 @@ export default function HeroSection() {
       // Show realistic progress without polling
       setTimeout(() => {
         if (isGenerating) {
-          setGenerationStep('🧠 AI analyzing your image and style preferences...');
+          setGenerationStep(
+            '🧠 AI analyzing your image and style preferences...'
+          );
           setGenerationProgress(70);
         }
       }, 20000); // 20 seconds
@@ -292,12 +321,17 @@ export default function HeroSection() {
       // Single callback check after expected completion (KIE AI usually completes in 2-3 min)
       setTimeout(async () => {
         if (isGenerating && !generatedImageUrl) {
-          console.log('⏰ Expected completion time reached, checking callback result...');
+          console.log(
+            '⏰ Expected completion time reached, checking callback result...'
+          );
 
           try {
-            const statusResponse = await fetch(`/api/image-to-sticker-ai?taskId=${taskId}`, {
-              method: 'GET',
-            });
+            const statusResponse = await fetch(
+              `/api/image-to-sticker-ai?taskId=${taskId}`,
+              {
+                method: 'GET',
+              }
+            );
 
             if (statusResponse.ok) {
               const statusData = await statusResponse.json();
@@ -315,44 +349,63 @@ export default function HeroSection() {
                   return;
                 }
               } else if (statusData.data?.status === 'failed') {
-                throw new Error(statusData.data.error || 'Sticker generation failed');
+                throw new Error(
+                  statusData.data.error || 'Sticker generation failed'
+                );
               }
             }
 
             // If still processing, suggest manual check
             setGenerationProgress(95);
-            setGenerationStep('⏳ High-quality generation taking extra time...');
-            setFileError('🎨 Your sticker may be ready! Click Check Result below to see if it\'s completed.');
+            setGenerationStep(
+              '⏳ High-quality generation taking extra time...'
+            );
+            setFileError(
+              "🎨 Your sticker may be ready! Click Check Result below to see if it's completed."
+            );
             setIsGenerating(false);
-
           } catch (error) {
             console.log('Single callback check failed:', error);
-            setFileError('🎨 Generation may be complete! Use Check Result button to verify.');
+            setFileError(
+              '🎨 Generation may be complete! Use Check Result button to verify.'
+            );
             setIsGenerating(false);
           }
         }
       }, 180000); // 3 minutes - single check
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred.';
       console.error('🔧 DEBUG: Error in performGeneration:', error);
       console.error('🔧 DEBUG: Error message:', errorMessage);
-      console.error('🔧 DEBUG: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error(
+        '🔧 DEBUG: Error stack:',
+        error instanceof Error ? error.stack : 'No stack trace'
+      );
 
       // Show user-friendly error message and reset generation state for real errors
-      if (errorMessage.includes('Authentication required') || errorMessage.includes('Unauthorized')) {
+      if (
+        errorMessage.includes('Authentication required') ||
+        errorMessage.includes('Unauthorized')
+      ) {
         setFileError('Please login to generate stickers');
         setIsGenerating(false);
         setGenerationStep(null);
         setGenerationProgress(0);
       } else if (errorMessage.includes('High-quality generation takes time')) {
-        setFileError('🎨 High-quality generation in progress - check result below or wait a few minutes');
+        setFileError(
+          '🎨 High-quality generation in progress - check result below or wait a few minutes'
+        );
         // Don't reset generation state - task is still processing
       } else if (errorMessage.includes('taking longer than expected')) {
-        setFileError('⏰ Generation optimized for quality - may take up to 5 minutes. Check result button available below.');
+        setFileError(
+          '⏰ Generation optimized for quality - may take up to 5 minutes. Check result button available below.'
+        );
         // Don't reset generation state - task is still processing
       } else if (errorMessage.includes('timed out')) {
-        setFileError('⚠️ Request timeout - your sticker may still be generating. Please use the Check Result button.');
+        setFileError(
+          '⚠️ Request timeout - your sticker may still be generating. Please use the Check Result button.'
+        );
         // Don't reset generation state - task is still processing
       } else {
         // Real error - reset generation state
@@ -383,21 +436,29 @@ export default function HeroSection() {
     const recoverPendingTask = async () => {
       // Only recover if we don't already have a generated image and user is logged in
       if (!generatedImageUrl && lastTaskId && currentUser && !isGenerating) {
-        console.log(`🔧 DEBUG: Attempting to recover pending task: ${lastTaskId}`);
+        console.log(
+          `🔧 DEBUG: Attempting to recover pending task: ${lastTaskId}`
+        );
 
         try {
-          const response = await fetch(`/api/image-to-sticker-ai?taskId=${lastTaskId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
+          const response = await fetch(
+            `/api/image-to-sticker-ai?taskId=${lastTaskId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             }
-          });
+          );
 
           if (response.ok) {
             const data = await response.json();
             console.log('🔧 DEBUG: Recovered task data:', data);
 
-            if (data.data?.status === 'completed' && data.data.resultUrls?.length > 0) {
+            if (
+              data.data?.status === 'completed' &&
+              data.data.resultUrls?.length > 0
+            ) {
               console.log('🔧 DEBUG: Auto-recovering completed task!');
               setGeneratedImageUrl(data.data.resultUrls[0]);
               setGenerationProgress(100);
@@ -410,14 +471,19 @@ export default function HeroSection() {
               // Clear lastTaskId since task is now complete
               setLastTaskId(null);
             } else if (data.data?.status === 'processing') {
-              console.log('🔧 DEBUG: Task still processing, will wait for callback');
+              console.log(
+                '🔧 DEBUG: Task still processing, will wait for callback'
+              );
               // Don't set error, let the callback or timeout handle it
             } else if (data.data?.status === 'failed') {
               setFileError(data.data.error || 'Previous generation failed');
             }
           }
         } catch (error) {
-          console.log('🔧 DEBUG: Task recovery failed (this is normal for new sessions):', error);
+          console.log(
+            '🔧 DEBUG: Task recovery failed (this is normal for new sessions):',
+            error
+          );
         }
       }
     };
@@ -428,10 +494,12 @@ export default function HeroSection() {
     return () => clearTimeout(recoveryTimer);
   }, [lastTaskId, currentUser, generatedImageUrl, isGenerating]);
 
-    // 手动检查任务结果 - 增强版
+  // 手动检查任务结果 - 增强版
   const checkTaskResult = async () => {
     if (!lastTaskId) {
-      setFileError('No task ID available to check. Please try generating again.');
+      setFileError(
+        'No task ID available to check. Please try generating again.'
+      );
       return;
     }
 
@@ -441,21 +509,32 @@ export default function HeroSection() {
     setFileError(null); // Clear previous errors
 
     try {
-      const response = await fetch(`/api/image-to-sticker-ai?taskId=${lastTaskId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `/api/image-to-sticker-ai?taskId=${lastTaskId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
-      console.log(`🔧 DEBUG: Check response: ${response.status} ${response.statusText}`);
+      console.log(
+        `🔧 DEBUG: Check response: ${response.status} ${response.statusText}`
+      );
 
       if (response.ok) {
         const data = await response.json();
         console.log('🔧 DEBUG: Task data:', data);
 
-        if (data.data?.status === 'completed' && data.data.resultUrls?.length > 0) {
-          console.log('🔧 DEBUG: Task completed! Setting result URL:', data.data.resultUrls[0]);
+        if (
+          data.data?.status === 'completed' &&
+          data.data.resultUrls?.length > 0
+        ) {
+          console.log(
+            '🔧 DEBUG: Task completed! Setting result URL:',
+            data.data.resultUrls[0]
+          );
           setGeneratedImageUrl(data.data.resultUrls[0]);
           setGenerationStep('✅ Found your completed sticker!');
           setGenerationProgress(100);
@@ -470,32 +549,48 @@ export default function HeroSection() {
 
           // Provide user-friendly error messages
           if (errorMsg.includes('timed out')) {
-            setFileError('⏱️ Generation took longer than expected and timed out. This might be due to high server load. Please try again.');
+            setFileError(
+              '⏱️ Generation took longer than expected and timed out. This might be due to high server load. Please try again.'
+            );
           } else if (errorMsg.includes('expired')) {
-            setFileError('⏰ The generation task expired. Please try uploading your image again.');
+            setFileError(
+              '⏰ The generation task expired. Please try uploading your image again.'
+            );
           } else if (errorMsg.includes('KIE AI task')) {
-            setFileError('🔧 There was an issue with the AI service. Please try again or contact support if the problem persists.');
+            setFileError(
+              '🔧 There was an issue with the AI service. Please try again or contact support if the problem persists.'
+            );
           } else {
             setFileError(`❌ Generation failed: ${errorMsg}`);
           }
         } else if (data.data?.status === 'processing') {
-          setFileError('⏳ Your sticker is still being generated. Please try again in a few minutes.');
+          setFileError(
+            '⏳ Your sticker is still being generated. Please try again in a few minutes.'
+          );
         } else {
-          setFileError(`Task status: ${data.data?.status || 'unknown'}. Please try again or contact support.`);
+          setFileError(
+            `Task status: ${data.data?.status || 'unknown'}. Please try again or contact support.`
+          );
         }
       } else {
         const errorText = await response.text();
         console.log('🔧 DEBUG: Check API error:', errorText);
 
         if (response.status === 404) {
-          setFileError('Task not found. It may have expired. Please try generating again.');
+          setFileError(
+            'Task not found. It may have expired. Please try generating again.'
+          );
         } else {
-          setFileError(`Unable to check task status: ${response.status} ${response.statusText}`);
+          setFileError(
+            `Unable to check task status: ${response.status} ${response.statusText}`
+          );
         }
       }
     } catch (error) {
       console.error('🔧 DEBUG: Error checking task status:', error);
-      setFileError('Error checking task status. Please check your connection and try again.');
+      setFileError(
+        'Error checking task status. Please check your connection and try again.'
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -569,7 +664,12 @@ export default function HeroSection() {
     const x = e.clientX;
     const y = e.clientY;
 
-    if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+    if (
+      x <= rect.left ||
+      x >= rect.right ||
+      y <= rect.top ||
+      y >= rect.bottom
+    ) {
       setIsDragging(false);
     }
   };
@@ -591,7 +691,7 @@ export default function HeroSection() {
     document.getElementById('image-upload')?.click();
   };
 
-    const handleGenerate = async () => {
+  const handleGenerate = async () => {
     if (!selectedImage || !isMounted) return;
 
     // Check if user is authenticated
@@ -672,7 +772,7 @@ export default function HeroSection() {
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left side: Image Input */}
           <div>
-                        <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
+            <Card className="relative overflow-hidden border shadow-md rounded-2xl bg-white">
               <CardContent className="pt-1 px-6 pb-4 space-y-5">
                 <div className="pb-1 pt-0">
                   <h3 className="text-xl font-semibold mb-0.5">
@@ -721,6 +821,7 @@ export default function HeroSection() {
                           {/* Delete button overlay - shows on hover */}
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm rounded-2xl">
                             <button
+                              type="button"
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevent triggering upload dialog
                                 removeUploadedImage();
@@ -734,18 +835,25 @@ export default function HeroSection() {
                         </div>
                       ) : (
                         <>
-                          <ImagePlusIcon className={cn(
-                            "h-10 w-10 transition-colors",
-                            isDragging ? "text-primary" : "text-muted-foreground"
-                          )} />
-                          <p className={cn(
-                            "text-sm transition-colors",
-                            isDragging ? "text-primary font-medium" : "text-muted-foreground"
-                          )}>
+                          <ImagePlusIcon
+                            className={cn(
+                              'h-10 w-10 transition-colors',
+                              isDragging
+                                ? 'text-primary'
+                                : 'text-muted-foreground'
+                            )}
+                          />
+                          <p
+                            className={cn(
+                              'text-sm transition-colors',
+                              isDragging
+                                ? 'text-primary font-medium'
+                                : 'text-muted-foreground'
+                            )}
+                          >
                             {isDragging
-                              ? "Drop your image here"
-                              : "Click or drag & drop to upload"
-                            }
+                              ? 'Drop your image here'
+                              : 'Click or drag & drop to upload'}
                           </p>
                         </>
                       )}
@@ -764,15 +872,23 @@ export default function HeroSection() {
                           <span>{fileError}</span>
                         </p>
                         {/* Show check result button for timeout/delay errors */}
-                        {(fileError.includes('High-quality generation takes time') || fileError.includes('taking longer than expected') || fileError.includes('timeout') || fileError.includes('in progress') || fileError.includes('check result')) && lastTaskId && (
-                          <button
-                            onClick={checkTaskResult}
-                            disabled={isGenerating}
-                            className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isGenerating ? 'Checking...' : '🔍 Check Result'}
-                          </button>
-                        )}
+                        {(fileError.includes(
+                          'High-quality generation takes time'
+                        ) ||
+                          fileError.includes('taking longer than expected') ||
+                          fileError.includes('timeout') ||
+                          fileError.includes('in progress') ||
+                          fileError.includes('check result')) &&
+                          lastTaskId && (
+                            <button
+                              type="button"
+                              onClick={checkTaskResult}
+                              disabled={isGenerating}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isGenerating ? 'Checking...' : '🔍 Check Result'}
+                            </button>
+                          )}
                       </div>
                     )}
                   </div>
@@ -853,8 +969,7 @@ export default function HeroSection() {
                             ? 'Login to Generate Sticker'
                             : generatedImageUrl
                               ? 'Regenerate'
-                              : 'Generate My Sticker'
-                      }
+                              : 'Generate My Sticker'}
                     </Button>
 
                     {/* Enhanced Progress UI for KIE AI generation */}
@@ -869,24 +984,32 @@ export default function HeroSection() {
                             />
                           </div>
                           <div className="flex justify-between text-xs text-muted-foreground">
-                            <span className="font-medium">{generationStep}</span>
-                            <span className="font-medium">{generationProgress}%</span>
+                            <span className="font-medium">
+                              {generationStep}
+                            </span>
+                            <span className="font-medium">
+                              {generationProgress}%
+                            </span>
                           </div>
                         </div>
 
-                                                 {/* Generation Status Message */}
-                         {generationProgress >= 50 && (
-                           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                             <div className="flex items-start gap-3">
-                               <div className="text-blue-600 dark:text-blue-400 mt-0.5">⏱️</div>
-                               <div className="text-sm">
-                                 <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
-                                   High-res artwork in the making—this usually takes 2-3 min. Feel free to browse other tabs; we'll notify you.
-                                 </p>
-                               </div>
-                             </div>
-                           </div>
-                         )}
+                        {/* Generation Status Message */}
+                        {generationProgress >= 50 && (
+                          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="text-blue-600 dark:text-blue-400 mt-0.5">
+                                ⏱️
+                              </div>
+                              <div className="text-sm">
+                                <p className="text-blue-800 dark:text-blue-200 font-medium leading-relaxed">
+                                  High-res artwork in the making—this usually
+                                  takes 2-3 min. Feel free to browse other tabs;
+                                  we'll notify you.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -971,7 +1094,7 @@ export default function HeroSection() {
                       alt="Example transformation - Photo to sticker"
                       width={400}
                       height={400}
-                      style={{ height: "auto" }}
+                      style={{ height: 'auto' }}
                       className="object-contain max-h-full rounded-lg shadow-md"
                       priority={true}
                     />
@@ -980,7 +1103,7 @@ export default function HeroSection() {
                       alt="Decorative camera icon"
                       width={120}
                       height={120}
-                      style={{ height: "auto" }}
+                      style={{ height: 'auto' }}
                       className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
                     />
                     <Image
@@ -988,7 +1111,7 @@ export default function HeroSection() {
                       alt="Decorative plant icon"
                       width={120}
                       height={120}
-                      style={{ height: "auto" }}
+                      style={{ height: 'auto' }}
                       className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
                     />
                     <img
@@ -1019,8 +1142,10 @@ export default function HeroSection() {
           <DialogHeader className="hidden">
             <DialogTitle>Login</DialogTitle>
           </DialogHeader>
-                    <LoginForm
-            callbackUrl={typeof window !== 'undefined' ? window.location.pathname : '/'}
+          <LoginForm
+            callbackUrl={
+              typeof window !== 'undefined' ? window.location.pathname : '/'
+            }
             className="border-none"
           />
         </DialogContent>
@@ -1028,4 +1153,3 @@ export default function HeroSection() {
     </main>
   );
 }
-

@@ -84,18 +84,29 @@ export default function ProductShotGeneratorSection() {
   const [selectedAspect, setSelectedAspect] = useState<string>('1:1');
 
   const ASPECT_OPTIONS: Array<{
-    id: string;
-    label: string;
-    ratioClass: string;
+    id: string; // ratio id, e.g. '2:3'
+    label: string; // display label, e.g. 'tall'
+    icon: string; // icon path
+    ratioClass: string; // kept for potential future use
   }> = [
-    { id: '9:16', label: '9:16', ratioClass: 'aspect-[9/16]' },
-    { id: '2:3', label: '2:3', ratioClass: 'aspect-[2/3]' },
-    { id: '4:5', label: '4:5', ratioClass: 'aspect-[4/5]' },
-    { id: '1:1', label: '1:1', ratioClass: 'aspect-[1/1]' },
-    { id: '5:4', label: '5:4', ratioClass: 'aspect-[5/4]' },
-    { id: '3:2', label: '3:2', ratioClass: 'aspect-[3/2]' },
-    { id: '16:9', label: '16:9', ratioClass: 'aspect-[16/9]' },
-    { id: '21:9', label: '21:9', ratioClass: 'aspect-[21/9]' },
+    {
+      id: '2:3',
+      label: 'tall',
+      icon: '/icons/tall.svg',
+      ratioClass: 'aspect-[2/3]',
+    },
+    {
+      id: '1:1',
+      label: 'square',
+      icon: '/icons/square.svg',
+      ratioClass: 'aspect-[1/1]',
+    },
+    {
+      id: '3:2',
+      label: 'wide',
+      icon: '/icons/wide.svg',
+      ratioClass: 'aspect-[3/2]',
+    },
   ];
 
   // 使用新的 ProductShot Hook
@@ -402,66 +413,7 @@ export default function ProductShotGeneratorSection() {
                     <Label className="text-sm font-medium">
                       Product Image (Required)
                     </Label>
-                    {/* Aspect Ratio Selector - dropdown */}
-                    <Select
-                      value={selectedAspect}
-                      onValueChange={(value) => setSelectedAspect(value)}
-                    >
-                      <SelectTrigger
-                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                        style={{ height: '50px', padding: '0px 12px' }}
-                      >
-                        <SelectValue placeholder="Aspect Ratio (Default 1:1)">
-                          {ASPECT_OPTIONS.find((o) => o.id === selectedAspect) ? (
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={cn(
-                                  'w-6 h-6 bg-[#f0f0f0] rounded-sm',
-                                  ASPECT_OPTIONS.find((o) => o.id === selectedAspect)?.ratioClass
-                                )}
-                              />
-                              <div className="text-left">
-                                <div className="font-medium">
-                                  {ASPECT_OPTIONS.find((o) => o.id === selectedAspect)?.label}
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Aspect Ratio (Default 1:1)
-                            </span>
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
-                        <SelectGroup>
-                          {ASPECT_OPTIONS.map((opt) => (
-                            <SelectItem
-                              key={opt.id}
-                              value={opt.id}
-                              className={cn(
-                                'cursor-pointer py-3 px-3 transition-colors',
-                                'hover:bg-muted/50 hover:text-foreground',
-                                'focus:bg-muted/50 focus:text-foreground',
-                                'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={cn(
-                                    'w-6 h-6 bg-[#f0f0f0] rounded-sm',
-                                    opt.ratioClass
-                                  )}
-                                />
-                                <div className="text-left">
-                                  <div className="font-medium">{opt.label}</div>
-                                </div>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+
                     <div
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
@@ -734,6 +686,84 @@ export default function ProductShotGeneratorSection() {
                                   <SelectSeparator className="my-1" />
                                 )}
                               </React.Fragment>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Output Aspect Ratio - independent component */}
+                  {!referenceImage && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">
+                        Output Aspect Ratio
+                      </Label>
+                      <Select
+                        value={selectedAspect}
+                        onValueChange={(value) => setSelectedAspect(value)}
+                      >
+                        <SelectTrigger
+                          className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                          style={{ height: '50px', padding: '0px 12px' }}
+                        >
+                          <SelectValue placeholder="Aspect Ratio (Default 1:1)">
+                            {ASPECT_OPTIONS.find(
+                              (o) => o.id === selectedAspect
+                            ) ? (
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={
+                                    ASPECT_OPTIONS.find(
+                                      (o) => o.id === selectedAspect
+                                    )?.icon
+                                  }
+                                  alt="aspect"
+                                  className="w-6 h-6"
+                                />
+                                <div className="text-left">
+                                  <div className="font-medium">
+                                    {
+                                      ASPECT_OPTIONS.find(
+                                        (o) => o.id === selectedAspect
+                                      )?.label
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                Aspect Ratio (Default 1:1)
+                              </span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                          <SelectGroup>
+                            {ASPECT_OPTIONS.map((opt) => (
+                              <SelectItem
+                                key={opt.id}
+                                value={opt.id}
+                                className={cn(
+                                  'cursor-pointer py-3 px-3 transition-colors',
+                                  'hover:bg-muted/50 hover:text-foreground',
+                                  'focus:bg-muted/50 focus:text-foreground',
+                                  'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <img
+                                    src={opt.icon}
+                                    alt="aspect"
+                                    className="w-6 h-6"
+                                  />
+                                  <div className="text-left">
+                                    <div className="font-medium">
+                                      {opt.label}
+                                    </div>
+                                  </div>
+                                </div>
+                              </SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
