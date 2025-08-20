@@ -21,7 +21,7 @@ import { DEFAULT_LOGIN_REDIRECT, Routes } from '@/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -37,6 +37,7 @@ export const LoginForm = ({
   callbackUrl: propCallbackUrl,
 }: LoginFormProps) => {
   const t = useTranslations('AuthPage.login');
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
   const paramCallbackUrl = searchParams.get('callbackUrl');
@@ -93,9 +94,9 @@ export const LoginForm = ({
           setIsPending(false);
         },
         onSuccess: (ctx) => {
-          // console.log("login, success:", ctx.data);
-          // setSuccess("Login successful");
-          // router.push(callbackUrl || "/dashboard");
+          console.log("login, success:", ctx.data);
+          setSuccess("Login successful");
+          router.push(callbackUrl || "/");
         },
         onError: (ctx) => {
           console.error('login, error:', ctx.error);

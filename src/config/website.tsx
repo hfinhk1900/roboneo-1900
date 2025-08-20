@@ -41,7 +41,7 @@ export const websiteConfig: WebsiteConfig = {
     enableTurnstileCaptcha: false,
   },
   routes: {
-    defaultLoginRedirect: '/dashboard',
+    defaultLoginRedirect: '/',
   },
   analytics: {
     enableVercelAnalytics: false,
