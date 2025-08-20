@@ -36,6 +36,7 @@ import {
   SparklesIcon,
   Trash2Icon,
   UploadIcon,
+  XIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -331,10 +332,7 @@ export default function HeroSection() {
     }
   };
 
-  // Add click handler for upload area
-  const handleUploadClick = () => {
-    document.getElementById('image-upload')?.click();
-  };
+
 
   const handleGenerate = async () => {
     if (!selectedImage || !isMounted) return;
@@ -437,78 +435,57 @@ export default function HeroSection() {
                       Upload Image
                     </Label>
                     <div
-                      onClick={handleUploadClick}
-                      onDragOver={handleDragOver}
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
+                      onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       className={cn(
-                        'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2',
-                        'hover:bg-muted/50 transition-all duration-200 cursor-pointer h-48 bg-[#f5f5f5]',
-                        fileError
-                          ? 'border-red-300 bg-red-50'
-                          : isDragging
-                            ? 'border-primary bg-primary/10 scale-[1.02]'
-                            : previewUrl
-                              ? 'border-primary'
-                              : 'border-border'
+                        'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer min-h-32 bg-[#f5f5f5] border border-border',
+                        isDragging && 'bg-muted/50 border-primary'
                       )}
                     >
-                      {previewUrl ? (
-                        <div className="relative w-full h-full group">
-                          <OptimizedImage
-                            src={previewUrl}
-                            alt="Roboneo AI Sticker Preview - Upload your image"
-                            fill
-                            className="object-contain transition-opacity group-hover:opacity-75"
-                          />
-
-                          {/* Delete button overlay - shows on hover */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/10 backdrop-blur-sm rounded-2xl">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering upload dialog
-                                removeUploadedImage();
-                              }}
-                              className="flex items-center justify-center w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl shadow-lg transition-all duration-200 transform hover:scale-110 cursor-pointer"
-                              title="Remove image"
-                            >
-                              <Trash2Icon className="w-6 h-6" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <ImagePlusIcon
-                            className={cn(
-                              'h-10 w-10 transition-colors',
-                              isDragging
-                                ? 'text-primary'
-                                : 'text-muted-foreground'
-                            )}
-                          />
-                          <p
-                            className={cn(
-                              'text-sm transition-colors',
-                              isDragging
-                                ? 'text-primary font-medium'
-                                : 'text-muted-foreground'
-                            )}
-                          >
-                            {isDragging
-                              ? 'Drop your image here'
-                              : 'Click or drag & drop to upload'}
-                          </p>
-                        </>
-                      )}
-                      <Input
-                        id="image-upload"
+                      <input
                         type="file"
-                        accept="image/*"
-                        className="hidden"
+                        accept=".jpg,.jpeg,.png,.webp"
                         onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
                       />
+
+                      {previewUrl ? (
+                        <>
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
+                            <OptimizedImage
+                              src={previewUrl}
+                              alt="Sticker preview"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
+                            {selectedImage?.name}
+                          </p>
+                          <Button
+                            onClick={removeUploadedImage}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            <XIcon className="h-3 w-3 mr-1" />
+                            Remove
+                          </Button>
+                        </>
+                      ) : (
+                        <label
+                          htmlFor="image-upload"
+                          className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
+                        >
+                          <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
+                          <p className="text-sm transition-colors text-muted-foreground text-center">
+                            Click or drag & drop to upload
+                          </p>
+                        </label>
+                      )}
                     </div>
                     {fileError && (
                       <div className="space-y-2">
