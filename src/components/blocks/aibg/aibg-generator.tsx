@@ -124,11 +124,24 @@ export function AIBackgroundGeneratorSection() {
   };
 
   // Demo image click handling
-  const handleDemoImageClick = (demoImage: (typeof DEMO_IMAGES)[0]) => {
-    setProcessedImage(demoImage.src);
-    setUploadedImage(null);
-    setImagePreview(null);
-    toast.success('Demo image loaded');
+  const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
+    setIsProcessing(true);
+    setProcessingProgress(0);
+
+    // Simulate 3-second loading for demo images
+    const interval = setInterval(() => {
+      setProcessingProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsProcessing(false);
+          // Load the processed demo image
+          setProcessedImage(demoImage.src);
+          toast.success('Demo image loaded successfully!');
+          return 100;
+        }
+        return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
+      });
+    }, 100);
   };
 
   // Background color handling
@@ -366,19 +379,50 @@ export function AIBackgroundGeneratorSection() {
             <Card className="gap-6 py-6 border shadow-md h-[588px] flex flex-col rounded-2xl bg-white">
               <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 relative h-full">
                 {processedImage ? (
-                  /* Result state - show processed image */
+                  /* Result state - show processed image with background change interface */
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                    <button
-                      type="button"
-                      className="relative w-full max-w-md aspect-square cursor-pointer group transition-all duration-200 hover:scale-[1.02] border-none bg-transparent p-0"
-                      onClick={handleDownload}
-                      title="Click to download full size"
-                    >
+                    {/* Before/After toggle */}
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative">
+                        <div
+                          className="bg-white h-9 rounded-2xl w-[75px] absolute left-0.5 top-0.5 transition-all duration-300"
+                          style={{
+                            transform:
+                              selectedBackgroundColor === 'transparent'
+                                ? 'translateX(0)'
+                                : 'translateX(73px)',
+                          }}
+                        />
+                        <button
+                          onClick={() =>
+                            setSelectedBackgroundColor('transparent')
+                          }
+                          className="relative z-10 h-10 w-[75px] text-[14px] font-medium text-black"
+                        >
+                          Before
+                        </button>
+                        <button
+                          onClick={() =>
+                            setSelectedBackgroundColor(
+                              selectedBackgroundColor === 'transparent'
+                                ? '#E25241'
+                                : selectedBackgroundColor
+                            )
+                          }
+                          className="relative z-10 h-10 w-[75px] text-[14px] font-medium text-black"
+                        >
+                          After
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Main image display */}
+                    <div className="relative w-full max-w-md aspect-square mb-4">
                       <Image
                         src={processedImage}
                         alt="AI Background processed result"
                         fill
-                        className="object-contain rounded-lg transition-all duration-200 group-hover:brightness-110"
+                        className="object-contain rounded-lg transition-all duration-200"
                         style={{
                           backgroundColor:
                             selectedBackgroundColor === 'transparent'
@@ -386,71 +430,80 @@ export function AIBackgroundGeneratorSection() {
                               : selectedBackgroundColor,
                         }}
                       />
-                      {/* Download overlay icon */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200 rounded-lg flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/90 backdrop-blur-sm rounded-full p-2">
-                          <DownloadIcon className="w-6 h-6 text-gray-700" />
-                        </div>
-                      </div>
-                    </button>
-                    <div className="flex gap-2 flex-wrap justify-center">
-                      <Button
-                        onClick={handleDownload}
-                        variant="outline"
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <DownloadIcon className="h-4 w-4" />
-                        Download Image
-                      </Button>
                     </div>
+
+                    {/* Background color selection */}
+                    <div className="flex gap-2 items-center justify-center mb-4">
+                      <div className="bg-[#3922d1] rounded-2xl size-9 flex items-center justify-center">
+                        <Image
+                          src={processedImage}
+                          alt="Original"
+                          width={36}
+                          height={36}
+                          className="rounded-2xl object-cover"
+                        />
+                      </div>
+                      {PRESET_COLORS.slice(0, 4).map((color) => (
+                        <button
+                          key={color.value}
+                          className="rounded-2xl size-9 hover:scale-105 transition-transform cursor-pointer"
+                          style={{ backgroundColor: color.value }}
+                          onClick={() =>
+                            setSelectedBackgroundColor(color.value)
+                          }
+                          title={color.name}
+                        />
+                      ))}
+                      <button
+                        onClick={() => setShowColorPicker(true)}
+                        className="rounded-2xl size-9 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200"
+                        title="Custom Color"
+                      />
+                    </div>
+
+                    {/* Download button */}
+                    <Button
+                      onClick={handleDownload}
+                      className="bg-white border border-black rounded-2xl px-8 py-4 text-[14px] font-semibold text-black hover:bg-gray-50"
+                    >
+                      Download
+                    </Button>
                   </div>
                 ) : isProcessing ? (
-                  /* Loading state - show progress bar and gray overlay */
+                  /* Loading state - show progress bar and loading animation */
                   <div className="flex items-center justify-center p-8 relative">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
-                        {/* User uploaded image with gray overlay */}
-                        <div className="relative">
-                          {imagePreview ? (
-                            <img
-                              src={imagePreview}
-                              alt="Processing your image"
-                              width={400}
-                              height={300}
-                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
-                            />
-                          ) : (
-                            <Image
-                              src="/aibg.png"
-                              alt="AI Background Example"
-                              width={400}
-                              height={300}
-                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
-                            />
-                          )}
-                          {/* Progress overlay layer */}
-                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
-                            {/* Processing icon */}
-                            <div className="flex items-center space-x-2 text-white">
-                              <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">
-                                Processing...
-                              </span>
-                            </div>
+                        {/* Processing icon and progress */}
+                        <div className="flex flex-col items-center justify-center space-y-6">
+                          {/* Processing icon */}
+                          <div className="flex items-center space-x-3 text-gray-700">
+                            <LoaderIcon className="h-8 w-8 animate-spin text-blue-600" />
+                            <span className="text-xl font-semibold">
+                              Processing...
+                            </span>
+                          </div>
 
-                            {/* Progress bar */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
-                                style={{ width: `${processingProgress}%` }}
-                              />
-                            </div>
+                          {/* Progress bar */}
+                          <div className="w-80 bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out rounded-full"
+                              style={{ width: `${processingProgress}%` }}
+                            />
+                          </div>
 
-                            {/* Progress percentage */}
-                            <div className="text-white text-sm font-medium">
-                              {Math.round(processingProgress)}%
-                            </div>
+                          {/* Progress percentage */}
+                          <div className="text-gray-600 text-lg font-medium">
+                            {Math.round(processingProgress)}%
+                          </div>
+
+                          {/* Loading message */}
+                          <div className="text-gray-500 text-center max-w-sm">
+                            <p>Removing background from your image...</p>
+                            <p className="text-sm mt-1">
+                              This usually takes about 3 seconds
+                            </p>
                           </div>
                         </div>
                       </div>
