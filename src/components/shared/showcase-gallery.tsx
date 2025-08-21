@@ -223,7 +223,7 @@ export function ShowcaseGallery({
                 <div className="text-center">
                   <Button
                     size="sm"
-                    className="bg-white/90 hover:bg-white text-gray-900 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 delay-200 transform translate-y-2 group-hover:translate-y-0"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 delay-200 transform translate-y-2 group-hover:translate-y-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleImageClick(image.style);
