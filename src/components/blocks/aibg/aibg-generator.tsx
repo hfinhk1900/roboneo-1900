@@ -73,6 +73,10 @@ export function AIBackgroundGeneratorSection() {
 
   // Track the current display image for before/after toggle
   const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
+  
+  // Optimize toggle performance by pre-calculating image sources
+  const [beforeImageSrc, setBeforeImageSrc] = useState<string | null>(null);
+  const [afterImageSrc, setAfterImageSrc] = useState<string | null>(null);
 
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
@@ -139,16 +143,22 @@ export function AIBackgroundGeneratorSection() {
     setSelectedDemoImage(null); // Clear demo image selection
     setSelectedDemoImageData(null); // Clear demo image data
     setCurrentDisplayImage(null); // Clear current display image
+    setBeforeImageSrc(null); // Clear pre-calculated before image
+    setAfterImageSrc(null); // Clear pre-calculated after image
     setSelectedBackgroundColor('transparent'); // Reset to default transparent background
   };
 
-  // Demo image click handling
+    // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     setIsProcessing(true);
     setProcessingProgress(0);
     setSelectedDemoImage(demoImage.afterSrc); // Set the selected demo image (after state)
     setSelectedDemoImageData(demoImage); // Store the full demo image data
     setCurrentDisplayImage(demoImage.afterSrc); // Set current display image
+
+    // Pre-calculate image sources for better performance
+    setBeforeImageSrc(demoImage.beforeSrc);
+    setAfterImageSrc(demoImage.afterSrc);
 
     // Simulate 3-second loading for demo images
     const interval = setInterval(() => {
@@ -158,14 +168,14 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Load the processed demo image
           setProcessedImage(demoImage.afterSrc);
-          
+ 
           // Set default background color to transparent (mosaic) for demo images
           // This will show the "After" state with mosaic background
           setTimeout(() => {
             setSelectedBackgroundColor('transparent');
             console.log('Demo image processing completed, setting background to transparent (After state)');
           }, 0);
-          
+ 
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Demo image loaded successfully!');
@@ -425,31 +435,23 @@ export function AIBackgroundGeneratorSection() {
                     <div className="flex items-center justify-center mb-4 w-full">
                       <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative w-[160px]">
                         <div
-                          className="bg-white h-9 rounded-2xl w-[78px] absolute left-0.5 top-0.5 transition-all duration-300"
+                          className="bg-white h-9 rounded-2xl w-[78px] absolute left-0.5 top-0.5 transition-all duration-200 ease-out"
                           style={{
                             transform:
                               selectedBackgroundColor === 'transparent'
-                                ? 'translateX(79px)'
-                                : 'translateX(0)',
+                                ? 'translateX(0)'
+                                : 'translateX(79px)',
                           }}
                         />
                         <button
-                          onClick={() =>
-                            setSelectedBackgroundColor('transparent')
-                          }
-                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
+                          onClick={() => setSelectedBackgroundColor('transparent')}
+                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
                         >
                           After
                         </button>
                         <button
-                          onClick={() =>
-                            setSelectedBackgroundColor(
-                              selectedBackgroundColor === 'transparent'
-                                ? '#E25241'
-                                : selectedBackgroundColor
-                            )
-                          }
-                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
+                          onClick={() => setSelectedBackgroundColor('#E25241')}
+                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
                         >
                           Before
                         </button>
@@ -474,12 +476,12 @@ export function AIBackgroundGeneratorSection() {
                       <Image
                         src={
                           selectedBackgroundColor === 'transparent'
-                            ? (currentDisplayImage || processedImage) // After: 显示去除背景后的图片
-                            : (selectedDemoImageData?.beforeSrc || currentDisplayImage || processedImage) // Before: 显示原图
+                            ? (afterImageSrc || currentDisplayImage || processedImage) // After: 显示去除背景后的图片
+                            : (beforeImageSrc || currentDisplayImage || processedImage) // Before: 显示原图
                         }
                         alt="AI Background processed result"
                         fill
-                        className="object-contain rounded-lg transition-all duration-200"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out"
                         style={{
                           backgroundColor:
                             selectedBackgroundColor === 'transparent'
