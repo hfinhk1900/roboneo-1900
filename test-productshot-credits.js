@@ -33,9 +33,15 @@ async function testProductShotCredits() {
     // 2) 获取会话 Cookie
     const cookie = await getSessionCookie();
     if (!cookie) {
-      console.log('❌ No session cookie found. Please login and set SESSION_TOKEN env var.');
-      console.log('提示：在浏览器登录后，运行 get-session-token.js 拿到 token，然后执行：');
-      console.log('SESSION_TOKEN=<paste_token_here> node test-productshot-credits.js');
+      console.log(
+        '❌ No session cookie found. Please login and set SESSION_TOKEN env var.'
+      );
+      console.log(
+        '提示：在浏览器登录后，运行 get-session-token.js 拿到 token，然后执行：'
+      );
+      console.log(
+        'SESSION_TOKEN=<paste_token_here> node test-productshot-credits.js'
+      );
       return;
     }
 
@@ -43,29 +49,36 @@ async function testProductShotCredits() {
     const scene = process.env.SCENE || 'lifestyle-casual';
     console.log(`➡️  Scene: ${scene}`);
 
-    const response = await fetch('http://localhost:3000/api/productshot/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': cookie,
-      },
-      body: JSON.stringify({
-        sceneType: scene,
-        image_input: base64Image,
-        productTypeHint: 'small',
-        additionalContext: 'small perfume bottle',
-        quality: 'standard'
-      }),
-    });
+    const response = await fetch(
+      'http://localhost:3000/api/productshot/generate',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookie,
+        },
+        body: JSON.stringify({
+          sceneType: scene,
+          image_input: base64Image,
+          productTypeHint: 'small',
+          additionalContext: 'small perfume bottle',
+          quality: 'standard',
+        }),
+      }
+    );
 
     const result = await response.json();
     console.log('Status:', response.status);
     console.log(JSON.stringify(result, null, 2));
 
     if (response.status === 402) {
-      console.log(`💳 Insufficient credits. Required: ${result.required}, Current: ${result.current}`);
+      console.log(
+        `💳 Insufficient credits. Required: ${result.required}, Current: ${result.current}`
+      );
     } else if (response.ok) {
-      console.log(`✅ Success. Credits used: ${result.credits_used}. Remaining: ${result.remaining_credits}`);
+      console.log(
+        `✅ Success. Credits used: ${result.credits_used}. Remaining: ${result.remaining_credits}`
+      );
       console.log(`🖼️ URL: ${result.resultUrl}`);
     } else {
       console.log('❌ Failed:', result.error || 'Unknown error');

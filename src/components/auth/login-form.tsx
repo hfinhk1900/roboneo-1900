@@ -94,9 +94,9 @@ export const LoginForm = ({
           setIsPending(false);
         },
         onSuccess: (ctx) => {
-          console.log("login, success:", ctx.data);
-          setSuccess("Login successful");
-          router.push(callbackUrl || "/");
+          console.log('login, success:', ctx.data);
+          setSuccess('Login successful');
+          router.push(callbackUrl || '/');
         },
         onError: (ctx) => {
           console.error('login, error:', ctx.error);

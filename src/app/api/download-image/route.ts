@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
     const allowedDomains = [
       'pub-cfc94129019546e1887e6add7f39ef74.r2.dev',
       'api.siliconflow.com',
-      'img.recraft.ai'
+      'img.recraft.ai',
     ];
-    
+
     const urlDomain = new URL(imageUrl).hostname;
-    if (!allowedDomains.some(domain => urlDomain.includes(domain))) {
+    if (!allowedDomains.some((domain) => urlDomain.includes(domain))) {
       return NextResponse.json(
         { error: 'Unauthorized image source' },
         { status: 403 }
@@ -32,34 +32,38 @@ export async function GET(request: NextRequest) {
 
     // 获取图片
     const imageResponse = await fetch(imageUrl);
-    
+
     if (!imageResponse.ok) {
       throw new Error(`Failed to fetch image: ${imageResponse.status}`);
     }
 
     const imageBuffer = await imageResponse.arrayBuffer();
-    const contentType = imageResponse.headers.get('content-type') || 'image/png';
+    const contentType =
+      imageResponse.headers.get('content-type') || 'image/png';
 
     // 创建响应并设置下载头部
     const response = new NextResponse(imageBuffer);
-    
+
     response.headers.set('Content-Type', contentType);
-    response.headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+    response.headers.set(
+      'Content-Disposition',
+      `attachment; filename="${filename}"`
+    );
     response.headers.set('Content-Length', imageBuffer.byteLength.toString());
-    
+
     // 设置 CORS 头部
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
 
     console.log(`✅ Image download proxy successful: ${filename}`);
-    
-    return response;
 
+    return response;
   } catch (error) {
     console.error('Image download proxy error:', error);
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { error: 'Failed to download image', details: errorMessage },
       { status: 500 }

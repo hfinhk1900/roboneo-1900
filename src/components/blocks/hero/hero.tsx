@@ -74,9 +74,35 @@ export default function HeroSection() {
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>('default');
 
+  // Ref for scrolling to this section
+  const heroRef = useRef<HTMLElement>(null);
+
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
+
+  // Function to handle style selection from gallery
+  const handleStyleSelect = useCallback((style: string) => {
+    setSelectedStyle(style);
+  }, []);
+
+  // Function to scroll to hero section
+  const scrollToHero = useCallback(() => {
+    if (heroRef.current) {
+      heroRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }, []);
+
+  // Expose functions to parent component
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).heroStyleSelect = handleStyleSelect;
+      (window as any).heroScrollToHero = scrollToHero;
+    }
+  }, [handleStyleSelect, scrollToHero]);
 
   // Fix hydration mismatch by ensuring client-side state consistency
   useEffect(() => {
@@ -332,8 +358,6 @@ export default function HeroSection() {
     }
   };
 
-
-
   const handleGenerate = async () => {
     if (!selectedImage || !isMounted) return;
 
@@ -381,7 +405,11 @@ export default function HeroSection() {
   };
 
   return (
-    <main id="hero" className="overflow-hidden py-12 bg-[#F5F5F5]">
+    <main
+      ref={heroRef}
+      id="hero"
+      className="overflow-hidden py-12 bg-[#F5F5F5]"
+    >
       {/* background, light shadows on top of the hero section */}
       <div
         aria-hidden
@@ -697,7 +725,8 @@ export default function HeroSection() {
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
                             />
                             <div className="text-sm text-muted-foreground">
-                              Your image is ready! Select a style and click generate.
+                              Your image is ready! Select a style and click
+                              generate.
                             </div>
                           </div>
                         ) : (

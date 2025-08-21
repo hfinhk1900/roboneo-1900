@@ -108,7 +108,7 @@ function HeaderCreditsDisplay() {
 
   return (
     <div className="bg-white h-9 rounded-2xl min-w-[100px] flex items-center justify-center gap-2 px-3 border border-gray-100">
-              <CoinsIcon className="size-5 text-yellow-500" />
+      <CoinsIcon className="size-5 text-yellow-500" />
       <span className="font-medium text-base text-black">
         {(credits || 0).toLocaleString()}
       </span>

@@ -1,24 +1,29 @@
-import { Metadata } from 'next';
-import ProductShotHero from '@/components/blocks/productshot/productshot-hero';
-import ProductShotGenerator from '@/components/blocks/productshot/productshot-generator';
-import ProductShotFeaturesSection from '@/components/blocks/productshot/productshot-features';
-import FaqSection from '@/components/blocks/faqs/faqs';
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
+import FaqSection from '@/components/blocks/faqs/faqs';
+import ProductShotFeaturesSection from '@/components/blocks/productshot/productshot-features';
+import ProductShotGenerator from '@/components/blocks/productshot/productshot-generator';
+import ProductShotHero from '@/components/blocks/productshot/productshot-hero';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Product Photography Generator | Create Professional Product Shots Instantly | RoboNeo',
-  description: 'Transform your products into stunning professional photos with AI. Generate high-quality e-commerce product photography in seconds. No camera or photography skills needed.',
-  keywords: 'AI product photography, product photo generator, e-commerce photography, automated product shots, AI background removal, product image creator, professional product photos, instant product photography, AI product imaging, commercial photography AI',
+  title:
+    'AI Product Photography Generator | Create Professional Product Shots Instantly | RoboNeo',
+  description:
+    'Transform your products into stunning professional photos with AI. Generate high-quality e-commerce product photography in seconds. No camera or photography skills needed.',
+  keywords:
+    'AI product photography, product photo generator, e-commerce photography, automated product shots, AI background removal, product image creator, professional product photos, instant product photography, AI product imaging, commercial photography AI',
   openGraph: {
     title: 'AI Product Photography Generator - RoboNeo',
-    description: 'Create professional product photos instantly with AI. Perfect for e-commerce, Amazon, Shopify, and social media.',
+    description:
+      'Create professional product photos instantly with AI. Perfect for e-commerce, Amazon, Shopify, and social media.',
     images: ['/images/productshot-og.jpg'],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AI Product Photography Generator - RoboNeo',
-    description: 'Transform products into professional photos with AI in seconds.',
+    description:
+      'Transform products into professional photos with AI in seconds.',
     images: ['/images/productshot-twitter.jpg'],
   },
   alternates: {
@@ -43,7 +48,8 @@ const jsonLd = {
     ratingCount: '2450',
   },
   operatingSystem: 'Web Browser',
-  description: 'AI-powered product photography generator for e-commerce and marketing',
+  description:
+    'AI-powered product photography generator for e-commerce and marketing',
 };
 
 export default function ProductShotPage() {
@@ -84,9 +90,10 @@ export default function ProductShotPage() {
               What is AI Product Scene Generation?
             </h2>
             <p className="text-gray-600 mb-4">
-              AI product scene generation uses FLUX.1-Kontext technology to create professional
-              product photography by placing your products in contextual scenes. Our advanced AI
-              understands product descriptions and generates realistic lifestyle photography with
+              AI product scene generation uses FLUX.1-Kontext technology to
+              create professional product photography by placing your products
+              in contextual scenes. Our advanced AI understands product
+              descriptions and generates realistic lifestyle photography with
               perfect lighting, composition, and styling.
             </p>
 
@@ -95,9 +102,16 @@ export default function ProductShotPage() {
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-gray-600">
               <li>Describe your product or upload a product image</li>
-              <li>Choose from professional scene types (studio, lifestyle, outdoor, etc.)</li>
-              <li>FLUX.1-Kontext AI generates contextual product photography</li>
-              <li>Get high-quality results with realistic lighting and composition</li>
+              <li>
+                Choose from professional scene types (studio, lifestyle,
+                outdoor, etc.)
+              </li>
+              <li>
+                FLUX.1-Kontext AI generates contextual product photography
+              </li>
+              <li>
+                Get high-quality results with realistic lighting and composition
+              </li>
               <li>Download professional images ready for any marketing use</li>
             </ol>
           </div>
@@ -111,31 +125,41 @@ export default function ProductShotPage() {
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-2">Amazon & Marketplaces</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  Amazon & Marketplaces
+                </h3>
                 <p className="text-gray-600">
-                  Generate white background product photos that meet Amazon's strict image requirements.
-                  Create main images, lifestyle shots, and infographics.
+                  Generate white background product photos that meet Amazon's
+                  strict image requirements. Create main images, lifestyle
+                  shots, and infographics.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-2">E-commerce Websites</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  E-commerce Websites
+                </h3>
                 <p className="text-gray-600">
-                  Produce consistent product photography for Shopify, WooCommerce, and other platforms.
-                  Maintain brand consistency across your entire catalog.
+                  Produce consistent product photography for Shopify,
+                  WooCommerce, and other platforms. Maintain brand consistency
+                  across your entire catalog.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
-                <h3 className="font-semibold text-lg mb-2">Social Media Marketing</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  Social Media Marketing
+                </h3>
                 <p className="text-gray-600">
-                  Create eye-catching product images for Instagram, Facebook, Pinterest.
-                  Generate lifestyle shots that drive engagement and sales.
+                  Create eye-catching product images for Instagram, Facebook,
+                  Pinterest. Generate lifestyle shots that drive engagement and
+                  sales.
                 </p>
               </div>
               <div className="border rounded-lg p-6">
                 <h3 className="font-semibold text-lg mb-2">Print & Catalogs</h3>
                 <p className="text-gray-600">
-                  Export high-resolution product photos for print materials, catalogs, and packaging.
-                  4K quality suitable for any professional use.
+                  Export high-resolution product photos for print materials,
+                  catalogs, and packaging. 4K quality suitable for any
+                  professional use.
                 </p>
               </div>
             </div>
@@ -150,31 +174,36 @@ export default function ProductShotPage() {
               <div className="flex items-start">
                 <span className="text-green-500 mr-3">✓</span>
                 <div>
-                  <strong>90% Cost Reduction:</strong> No photographer fees, studio rental, or equipment costs
+                  <strong>90% Cost Reduction:</strong> No photographer fees,
+                  studio rental, or equipment costs
                 </div>
               </div>
               <div className="flex items-start">
                 <span className="text-green-500 mr-3">✓</span>
                 <div>
-                  <strong>Instant Results:</strong> Generate photos in seconds instead of days or weeks
+                  <strong>Instant Results:</strong> Generate photos in seconds
+                  instead of days or weeks
                 </div>
               </div>
               <div className="flex items-start">
                 <span className="text-green-500 mr-3">✓</span>
                 <div>
-                  <strong>Unlimited Variations:</strong> Create multiple styles and angles from a single product
+                  <strong>Unlimited Variations:</strong> Create multiple styles
+                  and angles from a single product
                 </div>
               </div>
               <div className="flex items-start">
                 <span className="text-green-500 mr-3">✓</span>
                 <div>
-                  <strong>Consistent Quality:</strong> Professional results every time, no skill required
+                  <strong>Consistent Quality:</strong> Professional results
+                  every time, no skill required
                 </div>
               </div>
               <div className="flex items-start">
                 <span className="text-green-500 mr-3">✓</span>
                 <div>
-                  <strong>Scale Effortlessly:</strong> Process hundreds of products simultaneously
+                  <strong>Scale Effortlessly:</strong> Process hundreds of
+                  products simultaneously
                 </div>
               </div>
             </div>
@@ -185,7 +214,7 @@ export default function ProductShotPage() {
       {/* Features Section */}
       <ProductShotFeaturesSection />
 
-            {/* FAQ Section */}
+      {/* FAQ Section */}
       <FaqSection />
 
       {/* CTA Section */}

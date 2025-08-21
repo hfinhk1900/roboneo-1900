@@ -241,8 +241,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-
-
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -350,10 +348,10 @@ export async function POST(req: NextRequest) {
 
     // 5. Deduct credits after successful generation
     const { deductCreditsAction } = await import('@/actions/credits-actions');
-          const deductResult = await deductCreditsAction({
-        userId: session.user.id,
-        amount: CREDITS_PER_IMAGE,
-      });
+    const deductResult = await deductCreditsAction({
+      userId: session.user.id,
+      amount: CREDITS_PER_IMAGE,
+    });
 
     if (deductResult?.data?.success) {
       console.log(

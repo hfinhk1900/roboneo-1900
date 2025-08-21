@@ -114,7 +114,7 @@ export const PROVIDERS: Record<
       'black-forest-labs/FLUX-1.1-pro',
       'black-forest-labs/FLUX-1.1-pro-Ultra',
       'black-forest-labs/FLUX.1-schnell',
-      'black-forest-labs/FLUX.1-dev'
+      'black-forest-labs/FLUX.1-dev',
     ],
   },
 };

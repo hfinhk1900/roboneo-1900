@@ -9,21 +9,27 @@ function getSessionToken() {
   const cookies = document.cookie.split(';');
 
   // 查找session token
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
     if (name === 'better-auth.session_token') {
       console.log('✅ Session Token Found!');
       console.log('🔑 Token:', value);
       console.log('📋 Copy this token for testing:');
-      console.log('%c' + value, 'background: #f0f0f0; padding: 5px; border-radius: 3px; font-family: monospace;');
+      console.log(
+        '%c' + value,
+        'background: #f0f0f0; padding: 5px; border-radius: 3px; font-family: monospace;'
+      );
 
       // 尝试复制到剪贴板
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(value).then(() => {
-          console.log('✅ Token copied to clipboard!');
-        }).catch(() => {
-          console.log('⚠️ Could not copy to clipboard, please copy manually');
-        });
+        navigator.clipboard
+          .writeText(value)
+          .then(() => {
+            console.log('✅ Token copied to clipboard!');
+          })
+          .catch(() => {
+            console.log('⚠️ Could not copy to clipboard, please copy manually');
+          });
       }
 
       return value;

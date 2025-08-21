@@ -98,7 +98,6 @@
         "feature-6": "无广告，无水印"
       }
     }
-
   },
   "NotFoundPage": {
     "title": "404",
@@ -280,11 +279,11 @@
           },
           "postercraft": {
             "title": "AI Headshot",
-                          "description": "使用AI技术创建专业照片。"
+            "description": "使用AI技术创建专业照片。"
           },
           "scenedreamer": {
             "title": "AI Anime Art",
-                          "description": "在几秒钟内创建令人惊叹的AI动漫艺术。"
+            "description": "在几秒钟内创建令人惊叹的AI动漫艺术。"
           }
         }
       },

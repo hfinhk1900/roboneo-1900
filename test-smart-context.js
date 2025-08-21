@@ -6,7 +6,10 @@ async function testSmartContext() {
     console.log('🧪 Testing Smart Context System for Different Products...\n');
 
     // 读取测试图片
-    const imagePath = path.join(__dirname, 'public/productshots/productshot44.png');
+    const imagePath = path.join(
+      __dirname,
+      'public/productshots/productshot44.png'
+    );
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`;
     console.log('✅ Image loaded successfully\n');
@@ -20,14 +23,14 @@ async function testSmartContext() {
           image_input: base64Image,
           productTypeHint: 'small',
           additionalContext: '', // 空上下文
-          quality: 'standard'
+          quality: 'standard',
         },
         expected: {
           category: 'small',
           confidence: 'high',
           source: 'user_hint',
-          sceneContext: 'beauty product' // 应该添加场景上下文
-        }
+          sceneContext: 'beauty product', // 应该添加场景上下文
+        },
       },
       {
         name: '2. 用户描述产品 (高优先级)',
@@ -36,14 +39,14 @@ async function testSmartContext() {
           image_input: base64Image,
           productTypeHint: 'auto',
           additionalContext: 'vintage leather handbag',
-          quality: 'standard'
+          quality: 'standard',
         },
         expected: {
           category: 'medium',
           confidence: 'high',
           source: 'user_input',
-          sceneContext: null // 不应该添加，用户已提供描述
-        }
+          sceneContext: null, // 不应该添加，用户已提供描述
+        },
       },
       {
         name: '3. 基于场景智能推断 (中等优先级)',
@@ -52,14 +55,14 @@ async function testSmartContext() {
           image_input: base64Image,
           productTypeHint: 'auto',
           additionalContext: '', // 空上下文
-          quality: 'standard'
+          quality: 'standard',
         },
         expected: {
           category: 'small',
           confidence: 'medium',
           source: 'scene_inference',
-          sceneContext: 'luxury item' // 应该添加场景上下文
-        }
+          sceneContext: 'luxury item', // 应该添加场景上下文
+        },
       },
       {
         name: '4. 街头风格场景 (中型产品推断)',
@@ -68,15 +71,15 @@ async function testSmartContext() {
           image_input: base64Image,
           productTypeHint: 'auto',
           additionalContext: '',
-          quality: 'standard'
+          quality: 'standard',
         },
         expected: {
           category: 'medium',
           confidence: 'medium',
           source: 'scene_inference',
-          sceneContext: 'fashion item'
-        }
-      }
+          sceneContext: 'fashion item',
+        },
+      },
     ];
 
     console.log('🎯 Testing scenarios:\n');
@@ -87,14 +90,16 @@ async function testSmartContext() {
         sceneType: testCase.payload.sceneType,
         productTypeHint: testCase.payload.productTypeHint,
         additionalContext: testCase.payload.additionalContext || '(empty)',
-        hasImageInput: !!testCase.payload.image_input
+        hasImageInput: !!testCase.payload.image_input,
       });
 
       console.log('🎯 Expected behavior:');
       console.log(`  - Size category: ${testCase.expected.category}`);
       console.log(`  - Confidence: ${testCase.expected.confidence}`);
       console.log(`  - Source: ${testCase.expected.source}`);
-      console.log(`  - Scene context: ${testCase.expected.sceneContext || 'none'}`);
+      console.log(
+        `  - Scene context: ${testCase.expected.sceneContext || 'none'}`
+      );
 
       console.log('  ⚠️ Note: Run with temporary auth bypass to test API calls');
     }
@@ -105,15 +110,18 @@ async function testSmartContext() {
     console.log('3. Try different combinations:');
     console.log('   - Set Product Size to "Small" + any scene');
     console.log('   - Set Product Size to "Auto" + type "handbag" in context');
-    console.log('   - Set Product Size to "Auto" + empty context + different scenes');
+    console.log(
+      '   - Set Product Size to "Auto" + empty context + different scenes'
+    );
     console.log('4. Check server logs for detection details');
 
     console.log('\n📊 Expected Smart Behavior:');
     console.log('✅ User selection always wins (user_hint)');
     console.log('✅ User text descriptions detected (user_input)');
-    console.log('✅ Scene-based inference when no user input (scene_inference)');
+    console.log(
+      '✅ Scene-based inference when no user input (scene_inference)'
+    );
     console.log('✅ Automatic scene context added when appropriate');
-
   } catch (error) {
     console.error('Test failed:', error.message);
   }

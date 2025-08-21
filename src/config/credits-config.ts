@@ -80,10 +80,18 @@ export function imagesToCredits(images: number): number {
 export function getPlanIdFromPriceId(priceId: string): string | null {
   // Map of common price ID patterns to plan IDs
   // This should be updated with your actual Stripe price IDs
-  if (priceId.includes('pro') || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY) {
+  if (
+    priceId.includes('pro') ||
+    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ||
+    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY
+  ) {
     return 'pro';
   }
-  if (priceId.includes('ultimate') || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY || priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY) {
+  if (
+    priceId.includes('ultimate') ||
+    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY ||
+    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY
+  ) {
     return 'ultimate';
   }
   return null;

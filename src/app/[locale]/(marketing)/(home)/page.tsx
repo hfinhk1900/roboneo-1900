@@ -60,7 +60,6 @@ export default async function HomePage(props: HomePageProps) {
         <CallToActionSection />
 
         <TestimonialsSection />
-
       </div>
     </>
   );

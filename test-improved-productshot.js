@@ -6,7 +6,10 @@ async function testImprovedProductShot() {
     console.log('🧪 Testing Improved ProductShot with Proportion Control...\n');
 
     // 1. 读取测试图片
-    const imagePath = path.join(__dirname, 'public/productshots/productshot44.png');
+    const imagePath = path.join(
+      __dirname,
+      'public/productshots/productshot44.png'
+    );
     console.log('📷 Reading test image:', imagePath);
 
     if (!fs.existsSync(imagePath)) {
@@ -15,7 +18,11 @@ async function testImprovedProductShot() {
 
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`;
-    console.log('✅ Image loaded successfully, size:', imageBuffer.length, 'bytes\n');
+    console.log(
+      '✅ Image loaded successfully, size:',
+      imageBuffer.length,
+      'bytes\n'
+    );
 
     // 2. 测试场景 1 (studio-model) 使用改进的比例控制
     const testPayload = {
@@ -23,17 +30,19 @@ async function testImprovedProductShot() {
       image_input: base64Image,
       additionalContext: 'small perfume bottle elegant luxury fragrance',
       quality: 'standard',
-      guidance_scale: 4.0
+      guidance_scale: 4.0,
     };
 
-    console.log('🎯 Testing Scene 1: Professional Model (with proportion improvements)');
+    console.log(
+      '🎯 Testing Scene 1: Professional Model (with proportion improvements)'
+    );
     console.log('📝 Test payload:');
     console.log({
       sceneType: testPayload.sceneType,
       hasImageInput: !!testPayload.image_input,
       additionalContext: testPayload.additionalContext,
       quality: testPayload.quality,
-      guidance_scale: testPayload.guidance_scale
+      guidance_scale: testPayload.guidance_scale,
     });
 
     console.log('\n📋 Expected improvements:');
@@ -44,13 +53,16 @@ async function testImprovedProductShot() {
 
     // 3. 调用改进的 API
     console.log('\n🚀 Calling improved ProductShots API...');
-    const response = await fetch('http://localhost:3000/api/productshot/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(testPayload)
-    });
+    const response = await fetch(
+      'http://localhost:3000/api/productshot/generate',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testPayload),
+      }
+    );
 
     console.log('📡 Response status:', response.status);
     const result = await response.json();
@@ -63,7 +75,9 @@ async function testImprovedProductShot() {
         sceneType: result.sceneType,
         model: result.model,
         provider: result.provider,
-        resultUrl: result.resultUrl ? 'Generated image URL received' : 'No image URL'
+        resultUrl: result.resultUrl
+          ? 'Generated image URL received'
+          : 'No image URL',
       });
 
       if (result.resultUrl) {
@@ -78,7 +92,6 @@ async function testImprovedProductShot() {
       console.log('\n❌ ERROR! API response:');
       console.log(result);
     }
-
   } catch (error) {
     console.error('\n💥 Test failed:', error.message);
   }

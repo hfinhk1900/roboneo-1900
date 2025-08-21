@@ -1,22 +1,22 @@
 'use client';
 
+import { HeaderSection } from '@/components/layout/header-section';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { HeaderSection } from '@/components/layout/header-section';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import {
-  Wand2,
+  ArrowRight,
+  Camera,
   Image,
+  Palette,
   ShoppingBag,
   Sparkles,
-  ArrowRight,
+  Wand2,
   Zap,
-  Palette,
-  Camera
 } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 interface Tool {
@@ -35,13 +35,14 @@ const tools: Tool[] = [
   {
     id: 'product-shots',
     title: 'Product Shots',
-    description: 'Generate photoreal ads & e-commerce shots from a single prompt.',
+    description:
+      'Generate photoreal ads & e-commerce shots from a single prompt.',
     icon: <ShoppingBag className="h-6 w-6" />,
     features: [
       'Professional lighting',
       'Multiple backgrounds',
       '360° views',
-      'Marketing ready'
+      'Marketing ready',
     ],
     href: '/productshot',
     badge: 'New',
@@ -50,8 +51,8 @@ const tools: Tool[] = [
       'Product listings',
       'Amazon photos',
       'Social media ads',
-      'Catalog images'
-    ]
+      'Catalog images',
+    ],
   },
   {
     id: 'poster-craft',
@@ -62,7 +63,7 @@ const tools: Tool[] = [
       'Editable text layers',
       'Social media templates',
       'Print-ready formats',
-      'Brand consistency'
+      'Brand consistency',
     ],
     href: '/ai/poster',
     gradient: 'from-blue-500 to-purple-500',
@@ -70,8 +71,8 @@ const tools: Tool[] = [
       'Event posters',
       'Social media posts',
       'Marketing flyers',
-      'Announcements'
-    ]
+      'Announcements',
+    ],
   },
   {
     id: 'avatar-forge',
@@ -82,7 +83,7 @@ const tools: Tool[] = [
       'Multiple avatar styles',
       'Instant transformation',
       'High quality output',
-      'Profile ready'
+      'Profile ready',
     ],
     href: '/ai/sticker',
     badge: 'Most Popular',
@@ -91,8 +92,8 @@ const tools: Tool[] = [
       'Anime avatars',
       'Chibi characters',
       'Cartoon portraits',
-      'LEGO style'
-    ]
+      'LEGO style',
+    ],
   },
   {
     id: 'scene-dreamer',
@@ -103,7 +104,7 @@ const tools: Tool[] = [
       'Cinematic quality',
       'Mood board creation',
       'Concept art styles',
-      'Scene composition'
+      'Scene composition',
     ],
     href: '/ai/illustrator',
     gradient: 'from-purple-500 to-pink-500',
@@ -111,9 +112,9 @@ const tools: Tool[] = [
       'Movie concepts',
       'Game environments',
       'Storyboards',
-      'Visual narratives'
-    ]
-  }
+      'Visual narratives',
+    ],
+  },
 ];
 
 export default function TextToImageToolsSection() {
@@ -144,19 +145,25 @@ export default function TextToImageToolsSection() {
               onHoverStart={() => setHoveredTool(tool.id)}
               onHoverEnd={() => setHoveredTool(null)}
             >
-              <Card className={cn(
-                "relative h-full overflow-hidden transition-all duration-300",
-                hoveredTool === tool.id && "shadow-2xl scale-[1.02]"
-              )}>
+              <Card
+                className={cn(
+                  'relative h-full overflow-hidden transition-all duration-300',
+                  hoveredTool === tool.id && 'shadow-2xl scale-[1.02]'
+                )}
+              >
                 {/* Gradient Border Effect */}
-                <div className={cn(
-                  "absolute inset-0 opacity-0 transition-opacity duration-300",
-                  hoveredTool === tool.id && "opacity-100"
-                )}>
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-r p-[2px]",
-                    tool.gradient
-                  )}>
+                <div
+                  className={cn(
+                    'absolute inset-0 opacity-0 transition-opacity duration-300',
+                    hoveredTool === tool.id && 'opacity-100'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'absolute inset-0 bg-gradient-to-r p-[2px]',
+                      tool.gradient
+                    )}
+                  >
                     <div className="h-full w-full bg-white rounded-lg" />
                   </div>
                 </div>
@@ -165,10 +172,12 @@ export default function TextToImageToolsSection() {
                   {/* Header */}
                   <div className="mb-6 flex items-start justify-between">
                     <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white",
-                        tool.gradient
-                      )}>
+                      <div
+                        className={cn(
+                          'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r text-white',
+                          tool.gradient
+                        )}
+                      >
                         {tool.icon}
                       </div>
                       <div>
@@ -191,10 +200,15 @@ export default function TextToImageToolsSection() {
 
                   {/* Features */}
                   <div className="mb-6 space-y-3">
-                    <div className="text-sm font-medium text-foreground">Key Features:</div>
+                    <div className="text-sm font-medium text-foreground">
+                      Key Features:
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       {tool.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 text-sm text-muted-foreground"
+                        >
                           <Zap className="h-3 w-3 text-primary" />
                           <span>{feature}</span>
                         </div>
@@ -204,7 +218,9 @@ export default function TextToImageToolsSection() {
 
                   {/* Examples */}
                   <div className="mb-6">
-                    <div className="text-sm font-medium text-foreground mb-2">Use Cases:</div>
+                    <div className="text-sm font-medium text-foreground mb-2">
+                      Use Cases:
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {tool.examples.map((example, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
@@ -217,7 +233,7 @@ export default function TextToImageToolsSection() {
                   {/* CTA Button */}
                   <Button
                     className={cn(
-                      "group w-full bg-gradient-to-r text-white",
+                      'group w-full bg-gradient-to-r text-white',
                       tool.gradient
                     )}
                     asChild
@@ -242,7 +258,8 @@ export default function TextToImageToolsSection() {
           className="mt-12 text-center"
         >
           <p className="mb-4 text-lg text-muted-foreground">
-            Not sure which tool to use? Start with our AI Art Generator and explore from there!
+            Not sure which tool to use? Start with our AI Art Generator and
+            explore from there!
           </p>
           <Button size="lg" variant="outline" asChild>
             <Link href="/ai/image">
