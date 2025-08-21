@@ -70,7 +70,7 @@ export function AIBackgroundGeneratorSection() {
     useState<string>('transparent');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [customColor, setCustomColor] = useState<string>('#E25241');
-  
+
   // Track the current display image for before/after toggle
   const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
 
@@ -477,19 +477,57 @@ export function AIBackgroundGeneratorSection() {
 
                     {/* Background color selection */}
                     <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
+                      {/* Transparent (mosaic) button */}
+                      <button
+                        onClick={() => setSelectedBackgroundColor('transparent')}
+                        className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
+                          selectedBackgroundColor === 'transparent' 
+                            ? 'border-blue-500 border-opacity-70' 
+                            : 'border-gray-300'
+                        }`}
+                        title="Transparent Background"
+                      >
+                        <svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 32 32"
+                          className="w-full h-full"
+                        >
+                          <defs>
+                            <pattern
+                              id="mosaic"
+                              patternUnits="userSpaceOnUse"
+                              width="8"
+                              height="8"
+                            >
+                              <rect width="4" height="4" fill="#ffffff" />
+                              <rect x="4" y="0" width="4" height="4" fill="#e5e7eb" />
+                              <rect x="0" y="4" width="4" height="4" fill="#e5e7eb" />
+                              <rect x="4" y="4" width="4" height="4" fill="#ffffff" />
+                            </pattern>
+                          </defs>
+                          <rect width="32" height="32" fill="url(#mosaic)" />
+                        </svg>
+                      </button>
+                      
+                      {/* Original image button */}
                       <div className="bg-[#3922d1] rounded-2xl size-8 flex items-center justify-center flex-shrink-0">
                         <Image
                           src={processedImage}
                           alt="Original"
-                          width={32}
-                          height={32}
+                          width="32"
+                          height="32"
                           className="rounded-2xl object-cover"
                         />
                       </div>
                       {PRESET_COLORS.slice(0, 4).map((color) => (
                         <button
                           key={color.value}
-                          className="rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
+                          className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
+                            selectedBackgroundColor === color.value 
+                              ? 'border-blue-500 border-opacity-70' 
+                              : 'border-gray-300'
+                          }`}
                           style={{ backgroundColor: color.value }}
                           onClick={() =>
                             setSelectedBackgroundColor(color.value)
@@ -499,7 +537,11 @@ export function AIBackgroundGeneratorSection() {
                       ))}
                       <button
                         onClick={() => setShowColorPicker(true)}
-                        className="rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200 flex-shrink-0"
+                        className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200 flex-shrink-0 border-2 ${
+                          selectedBackgroundColor === customColor 
+                            ? 'border-blue-500 border-opacity-70' 
+                            : 'border-gray-300'
+                        }`}
                         title="Custom Color"
                       />
                     </div>
