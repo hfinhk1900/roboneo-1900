@@ -136,7 +136,10 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Load the processed demo image
           setProcessedImage(demoImage.src);
-          toast.success('Demo image loaded successfully!');
+          // Use setTimeout to avoid React rendering conflicts
+          setTimeout(() => {
+            toast.success('Demo image loaded successfully!');
+          }, 0);
           return 100;
         }
         return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
@@ -179,7 +182,10 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Simulate processing completion
           setProcessedImage(imagePreview);
-          toast.success('Background removal completed!');
+          // Use setTimeout to avoid React rendering conflicts
+          setTimeout(() => {
+            toast.success('Background removal completed!');
+          }, 0);
           return 100;
         }
         return prev + 10;
@@ -429,7 +435,7 @@ export function AIBackgroundGeneratorSection() {
                       >
                         <XIcon className="h-4 w-4 text-gray-600" />
                       </button>
-                      
+
                       <Image
                         src={processedImage}
                         alt="AI Background processed result"
