@@ -491,37 +491,57 @@ export function AIBackgroundGeneratorSection() {
                   /* Loading state - show progress bar and loading animation */
                   <div className="flex items-center justify-center p-8 relative">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
-                        {/* Processing icon and progress */}
-                        <div className="flex flex-col items-center justify-center space-y-6">
-                          {/* Processing icon */}
-                          <div className="flex items-center space-x-3 text-gray-700">
-                            <LoaderIcon className="h-8 w-8 animate-spin text-blue-600" />
-                            <span className="text-xl font-semibold">
-                              Processing...
-                            </span>
-                          </div>
-
-                          {/* Progress bar */}
-                          <div className="w-80 bg-gray-200 rounded-full h-3 overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out rounded-full"
-                              style={{ width: `${processingProgress}%` }}
+                        {/* 用户上传的图片带灰色遮罩 */}
+                        <div className="relative">
+                          {imagePreview ? (
+                            <img
+                              src={imagePreview}
+                              alt="Processing your image"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
                             />
-                          </div>
+                          ) : (
+                            <Image
+                              src="/hero-1.webp"
+                              alt="AI Background Example"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          )}
+                          {/* 进度遮罩层 */}
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
+                            {/* 生成中图标 */}
+                            <div className="flex items-center space-x-2 text-white">
+                              <LoaderIcon className="h-6 w-6 animate-spin" />
+                              <span className="text-lg font-medium">
+                                Processing...
+                              </span>
+                            </div>
 
-                          {/* Progress percentage */}
-                          <div className="text-gray-600 text-lg font-medium">
-                            {Math.round(processingProgress)}%
-                          </div>
+                            {/* 进度条 */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                style={{ width: `${processingProgress}%` }}
+                              />
+                            </div>
 
-                          {/* Loading message */}
-                          <div className="text-gray-500 text-center max-w-sm">
-                            <p>Removing background from your image...</p>
-                            <p className="text-sm mt-1">
-                              This usually takes about 3 seconds
-                            </p>
+                            {/* 进度百分比 */}
+                            <div className="text-white text-sm font-medium">
+                              {Math.round(processingProgress)}%
+                            </div>
+
+                            {/* Loading message */}
+                            <div className="text-white text-center max-w-sm">
+                              <p>Removing background from your image...</p>
+                              <p className="text-sm mt-1">
+                                This usually takes about 3 seconds
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
