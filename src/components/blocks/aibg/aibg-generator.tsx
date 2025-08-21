@@ -134,6 +134,7 @@ export function AIBackgroundGeneratorSection() {
     setSelectedDemoImage(null); // Clear demo image selection
     setSelectedDemoImageData(null); // Clear demo image data
     setCurrentDisplayImage(null); // Clear current display image
+    setSelectedBackgroundColor('transparent'); // Reset to default transparent background
   };
 
   // Demo image click handling
@@ -152,6 +153,8 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Load the processed demo image
           setProcessedImage(demoImage.afterSrc);
+          // Set default background color to transparent (mosaic) for demo images
+          setSelectedBackgroundColor('transparent');
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Demo image loaded successfully!');
@@ -481,8 +484,8 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         onClick={() => setSelectedBackgroundColor('transparent')}
                         className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
-                          selectedBackgroundColor === 'transparent' 
-                            ? 'border-blue-500 border-opacity-70' 
+                          selectedBackgroundColor === 'transparent'
+                            ? 'border-blue-500 border-opacity-70'
                             : 'border-gray-300'
                         }`}
                         title="Transparent Background"
@@ -509,7 +512,7 @@ export function AIBackgroundGeneratorSection() {
                           <rect width="32" height="32" fill="url(#mosaic)" />
                         </svg>
                       </button>
-                      
+
                       {/* Original image button */}
                       <div className="bg-[#3922d1] rounded-2xl size-8 flex items-center justify-center flex-shrink-0">
                         <Image
@@ -524,8 +527,8 @@ export function AIBackgroundGeneratorSection() {
                         <button
                           key={color.value}
                           className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
-                            selectedBackgroundColor === color.value 
-                              ? 'border-blue-500 border-opacity-70' 
+                            selectedBackgroundColor === color.value
+                              ? 'border-blue-500 border-opacity-70'
                               : 'border-gray-300'
                           }`}
                           style={{ backgroundColor: color.value }}
@@ -538,8 +541,8 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         onClick={() => setShowColorPicker(true)}
                         className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200 flex-shrink-0 border-2 ${
-                          selectedBackgroundColor === customColor 
-                            ? 'border-blue-500 border-opacity-70' 
+                          selectedBackgroundColor === customColor
+                            ? 'border-blue-500 border-opacity-70'
                             : 'border-gray-300'
                         }`}
                         title="Custom Color"
