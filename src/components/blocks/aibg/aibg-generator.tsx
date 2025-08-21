@@ -380,24 +380,24 @@ export function AIBackgroundGeneratorSection() {
               <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 relative h-full">
                 {processedImage ? (
                   /* Result state - show processed image with background change interface */
-                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
                     {/* Before/After toggle */}
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative">
+                    <div className="flex items-center justify-center mb-4 w-full">
+                      <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative w-[160px]">
                         <div
-                          className="bg-white h-9 rounded-2xl w-[75px] absolute left-0.5 top-0.5 transition-all duration-300"
+                          className="bg-white h-9 rounded-2xl w-[78px] absolute left-0.5 top-0.5 transition-all duration-300"
                           style={{
                             transform:
                               selectedBackgroundColor === 'transparent'
                                 ? 'translateX(0)'
-                                : 'translateX(73px)',
+                                : 'translateX(79px)',
                           }}
                         />
                         <button
                           onClick={() =>
                             setSelectedBackgroundColor('transparent')
                           }
-                          className="relative z-10 h-10 w-[75px] text-[14px] font-medium text-black"
+                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
                         >
                           Before
                         </button>
@@ -409,7 +409,7 @@ export function AIBackgroundGeneratorSection() {
                                 : selectedBackgroundColor
                             )
                           }
-                          className="relative z-10 h-10 w-[75px] text-[14px] font-medium text-black"
+                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
                         >
                           After
                         </button>
@@ -417,7 +417,7 @@ export function AIBackgroundGeneratorSection() {
                     </div>
 
                     {/* Main image display */}
-                    <div className="relative w-full max-w-md aspect-square mb-4">
+                    <div className="relative w-full max-w-sm aspect-square mb-4">
                       <Image
                         src={processedImage}
                         alt="AI Background processed result"
@@ -433,20 +433,20 @@ export function AIBackgroundGeneratorSection() {
                     </div>
 
                     {/* Background color selection */}
-                    <div className="flex gap-2 items-center justify-center mb-4">
-                      <div className="bg-[#3922d1] rounded-2xl size-9 flex items-center justify-center">
+                    <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
+                      <div className="bg-[#3922d1] rounded-2xl size-8 flex items-center justify-center flex-shrink-0">
                         <Image
                           src={processedImage}
                           alt="Original"
-                          width={36}
-                          height={36}
+                          width={32}
+                          height={32}
                           className="rounded-2xl object-cover"
                         />
                       </div>
                       {PRESET_COLORS.slice(0, 4).map((color) => (
                         <button
                           key={color.value}
-                          className="rounded-2xl size-9 hover:scale-105 transition-transform cursor-pointer"
+                          className="rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
                           style={{ backgroundColor: color.value }}
                           onClick={() =>
                             setSelectedBackgroundColor(color.value)
@@ -456,7 +456,7 @@ export function AIBackgroundGeneratorSection() {
                       ))}
                       <button
                         onClick={() => setShowColorPicker(true)}
-                        className="rounded-2xl size-9 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200"
+                        className="rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200 flex-shrink-0"
                         title="Custom Color"
                       />
                     </div>
