@@ -73,7 +73,7 @@ export function AIBackgroundGeneratorSection() {
 
   // Track the current display image for before/after toggle
   const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
-  
+
   // Optimize toggle performance by pre-calculating image sources
   const [beforeImageSrc, setBeforeImageSrc] = useState<string | null>(null);
   const [afterImageSrc, setAfterImageSrc] = useState<string | null>(null);
@@ -168,14 +168,14 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Load the processed demo image
           setProcessedImage(demoImage.afterSrc);
- 
+
           // Set default background color to transparent (mosaic) for demo images
           // This will show the "After" state with mosaic background
           setTimeout(() => {
             setSelectedBackgroundColor('transparent');
             console.log('Demo image processing completed, setting background to transparent (After state)');
           }, 0);
- 
+
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Demo image loaded successfully!');
@@ -526,16 +526,7 @@ export function AIBackgroundGeneratorSection() {
                         </svg>
                       </button>
 
-                      {/* Original image button */}
-                      <div className="bg-[#3922d1] rounded-2xl size-8 flex items-center justify-center flex-shrink-0">
-                        <Image
-                          src={processedImage}
-                          alt="Original"
-                          width="32"
-                          height="32"
-                          className="rounded-2xl object-cover"
-                        />
-                      </div>
+
                       {PRESET_COLORS.slice(0, 4).map((color) => (
                         <button
                           key={color.value}
