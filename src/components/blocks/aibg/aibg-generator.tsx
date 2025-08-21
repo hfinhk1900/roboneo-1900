@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 // Preset color configuration
@@ -83,6 +83,11 @@ export function AIBackgroundGeneratorSection() {
   // Track the currently selected demo image for loading state
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(null);
   const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
+
+  // Debug effect to monitor selectedBackgroundColor changes
+  useEffect(() => {
+    console.log('selectedBackgroundColor changed to:', selectedBackgroundColor);
+  }, [selectedBackgroundColor]);
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -153,12 +158,18 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Load the processed demo image
           setProcessedImage(demoImage.afterSrc);
+          
           // Set default background color to transparent (mosaic) for demo images
-          setSelectedBackgroundColor('transparent');
+          // This will show the "After" state with mosaic background
+          setTimeout(() => {
+            setSelectedBackgroundColor('transparent');
+            console.log('Demo image processing completed, setting background to transparent (After state)');
+          }, 0);
+          
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Demo image loaded successfully!');
-          }, 0);
+          }, 100);
           return 100;
         }
         return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
@@ -418,8 +429,8 @@ export function AIBackgroundGeneratorSection() {
                           style={{
                             transform:
                               selectedBackgroundColor === 'transparent'
-                                ? 'translateX(0)'
-                                : 'translateX(79px)',
+                                ? 'translateX(79px)'
+                                : 'translateX(0)',
                           }}
                         />
                         <button
@@ -428,7 +439,7 @@ export function AIBackgroundGeneratorSection() {
                           }
                           className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
                         >
-                          Before
+                          After
                         </button>
                         <button
                           onClick={() =>
@@ -440,7 +451,7 @@ export function AIBackgroundGeneratorSection() {
                           }
                           className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black"
                         >
-                          After
+                          Before
                         </button>
                       </div>
                     </div>
@@ -463,8 +474,8 @@ export function AIBackgroundGeneratorSection() {
                       <Image
                         src={
                           selectedBackgroundColor === 'transparent'
-                            ? (selectedDemoImageData?.beforeSrc || currentDisplayImage || processedImage)
-                            : (currentDisplayImage || processedImage)
+                            ? (currentDisplayImage || processedImage) // After: 显示去除背景后的图片
+                            : (selectedDemoImageData?.beforeSrc || currentDisplayImage || processedImage) // Before: 显示原图
                         }
                         alt="AI Background processed result"
                         fill
