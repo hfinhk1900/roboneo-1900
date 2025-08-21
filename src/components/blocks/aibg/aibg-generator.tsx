@@ -31,23 +31,26 @@ const PRESET_COLORS = [
   { name: 'Custom', value: 'custom' },
 ];
 
-// Demo images configuration
+// Demo images configuration with before/after states
 const DEMO_IMAGES = [
   {
     id: 1,
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg01.png',
+    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg01.png',
+    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg01.png',
     alt: 'AI Background Demo - Portrait 1',
     type: 'portrait',
   },
   {
     id: 2,
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg02.png',
+    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg02.png',
+    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg02.png',
     alt: 'AI Background Demo - Portrait 2',
     type: 'portrait',
   },
   {
     id: 3,
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg03.png',
+    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg03.png',
+    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg03.png',
     alt: 'AI Background Demo - Still Life',
     type: 'still-life',
   },
@@ -67,15 +70,19 @@ export function AIBackgroundGeneratorSection() {
     useState<string>('transparent');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [customColor, setCustomColor] = useState<string>('#E25241');
+  
+  // Track the current display image for before/after toggle
+  const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
 
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
     required: number;
     current: number;
   } | null>(null);
-  
+
   // Track the currently selected demo image for loading state
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(null);
+  const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -125,13 +132,17 @@ export function AIBackgroundGeneratorSection() {
     setImagePreview(null);
     setProcessedImage(null);
     setSelectedDemoImage(null); // Clear demo image selection
+    setSelectedDemoImageData(null); // Clear demo image data
+    setCurrentDisplayImage(null); // Clear current display image
   };
 
   // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     setIsProcessing(true);
     setProcessingProgress(0);
-    setSelectedDemoImage(demoImage.src); // Set the selected demo image
+    setSelectedDemoImage(demoImage.afterSrc); // Set the selected demo image (after state)
+    setSelectedDemoImageData(demoImage); // Store the full demo image data
+    setCurrentDisplayImage(demoImage.afterSrc); // Set current display image
 
     // Simulate 3-second loading for demo images
     const interval = setInterval(() => {
@@ -140,7 +151,7 @@ export function AIBackgroundGeneratorSection() {
           clearInterval(interval);
           setIsProcessing(false);
           // Load the processed demo image
-          setProcessedImage(demoImage.src);
+          setProcessedImage(demoImage.afterSrc);
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Demo image loaded successfully!');
@@ -179,6 +190,8 @@ export function AIBackgroundGeneratorSection() {
     setIsProcessing(true);
     setProcessingProgress(0);
     setSelectedDemoImage(null); // Clear demo image selection when processing uploaded image
+    setSelectedDemoImageData(null); // Clear demo image data
+    setCurrentDisplayImage(null); // Clear current display image
 
     // Simulate processing progress
     const interval = setInterval(() => {
@@ -188,6 +201,7 @@ export function AIBackgroundGeneratorSection() {
           setIsProcessing(false);
           // Simulate processing completion
           setProcessedImage(imagePreview);
+          setCurrentDisplayImage(imagePreview); // Set current display image
           // Use setTimeout to avoid React rendering conflicts
           setTimeout(() => {
             toast.success('Background removal completed!');
@@ -435,6 +449,7 @@ export function AIBackgroundGeneratorSection() {
                         onClick={() => {
                           setProcessedImage(null);
                           setSelectedBackgroundColor('transparent');
+                          setCurrentDisplayImage(null);
                         }}
                         className="absolute -top-2 -right-2 z-10 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
                         title="Close preview"
@@ -443,7 +458,11 @@ export function AIBackgroundGeneratorSection() {
                       </button>
 
                       <Image
-                        src={processedImage}
+                        src={
+                          selectedBackgroundColor === 'transparent'
+                            ? (selectedDemoImageData?.beforeSrc || currentDisplayImage || processedImage)
+                            : (currentDisplayImage || processedImage)
+                        }
                         alt="AI Background processed result"
                         fill
                         className="object-contain rounded-lg transition-all duration-200"
@@ -575,7 +594,7 @@ export function AIBackgroundGeneratorSection() {
                           className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
                         >
                           <Image
-                            src={demoImage.src}
+                            src={demoImage.afterSrc}
                             alt={demoImage.alt}
                             fill
                             className="object-cover"
