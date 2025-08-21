@@ -73,6 +73,9 @@ export function AIBackgroundGeneratorSection() {
     required: number;
     current: number;
   } | null>(null);
+  
+  // Track the currently selected demo image for loading state
+  const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(null);
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -121,12 +124,14 @@ export function AIBackgroundGeneratorSection() {
     setUploadedImage(null);
     setImagePreview(null);
     setProcessedImage(null);
+    setSelectedDemoImage(null); // Clear demo image selection
   };
 
   // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     setIsProcessing(true);
     setProcessingProgress(0);
+    setSelectedDemoImage(demoImage.src); // Set the selected demo image
 
     // Simulate 3-second loading for demo images
     const interval = setInterval(() => {
@@ -173,6 +178,7 @@ export function AIBackgroundGeneratorSection() {
 
     setIsProcessing(true);
     setProcessingProgress(0);
+    setSelectedDemoImage(null); // Clear demo image selection when processing uploaded image
 
     // Simulate processing progress
     const interval = setInterval(() => {
@@ -493,12 +499,20 @@ export function AIBackgroundGeneratorSection() {
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
-                        {/* 用户上传的图片带灰色遮罩 */}
+                        {/* 用户选择的图片带灰色遮罩 */}
                         <div className="relative">
                           {imagePreview ? (
                             <img
                               src={imagePreview}
-                              alt="Processing your image"
+                              alt="Processing your uploaded image"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          ) : selectedDemoImage ? (
+                            <img
+                              src={selectedDemoImage}
+                              alt="Processing your selected demo image"
                               width={400}
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
