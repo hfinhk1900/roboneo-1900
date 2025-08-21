@@ -118,13 +118,13 @@ export default function HeroSection() {
   const requestNotificationPermission = async () => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'default') {
-        try {
-          const permission = await Notification.requestPermission();
-          setNotificationPermission(permission);
-          return permission;
-        } catch (error) {
-          console.log('Error requesting notification permission:', error);
-          return 'denied';
+      try {
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        return permission;
+      } catch (error) {
+        console.log('Error requesting notification permission:', error);
+        return 'denied';
         }
       }
     }
@@ -233,27 +233,27 @@ export default function HeroSection() {
       setGenerationProgress(90);
 
       // OpenAI API returns the result synchronously
-      setGenerationStep('🎉 Your sticker is ready!');
-      setGenerationProgress(100);
+                  setGenerationStep('🎉 Your sticker is ready!');
+                  setGenerationProgress(100);
       setGeneratedImageUrl(stickerData.url);
       setIsGenerating(false);
 
-      // Clear credits cache to trigger refresh of credits display
-      creditsCache.clear();
+                  // Clear credits cache to trigger refresh of credits display
+                  creditsCache.clear();
 
-      // Send completion notification
-      sendCompletionNotification();
+                  // Send completion notification
+                  sendCompletionNotification();
 
       console.log('🎉 Sticker generation completed successfully!');
-    } catch (error) {
+          } catch (error) {
       console.error('❌ Sticker generation failed:', error);
 
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred.';
-      setFileError(errorMessage);
-      setIsGenerating(false);
-      setGenerationStep(null);
-      setGenerationProgress(0);
+        setFileError(errorMessage);
+        setIsGenerating(false);
+        setGenerationStep(null);
+        setGenerationProgress(0);
     }
   }, [selectedImage, selectedStyle]);
 
@@ -358,7 +358,7 @@ export default function HeroSection() {
     }
   };
 
-  const handleGenerate = async () => {
+    const handleGenerate = async () => {
     if (!selectedImage || !isMounted) return;
 
     // Check if user is authenticated
@@ -483,8 +483,8 @@ export default function HeroSection() {
                       {previewUrl ? (
                         <>
                           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
-                            <OptimizedImage
-                              src={previewUrl}
+                          <OptimizedImage
+                            src={previewUrl}
                               alt="Sticker preview"
                               fill
                               className="object-cover"
@@ -622,10 +622,10 @@ export default function HeroSection() {
                             <span className="font-medium">
                               {generationProgress}%
                             </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                               </div>
+                             </div>
+                           </div>
+                         )}
                   </div>
                 </div>
               </CardContent>
@@ -669,7 +669,7 @@ export default function HeroSection() {
                               <span className="text-lg font-medium">
                                 {generationStep || 'Generating...'}
                               </span>
-                            </div>
+                    </div>
 
                             {/* 进度条 */}
                             <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -712,7 +712,7 @@ export default function HeroSection() {
                 ) : (
                   /* 默认状态 - 显示用户上传的图片或示例图片 */
                   <div className="flex items-center justify-center min-h-[400px] p-8">
-                    <div className="relative">
+                  <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
                         {previewUrl ? (
@@ -731,36 +731,36 @@ export default function HeroSection() {
                           </div>
                         ) : (
                           <div className="text-center">
-                            <Image
-                              src="/hero-1.webp"
-                              alt="Example transformation - Photo to sticker"
-                              width={400}
-                              height={400}
+                    <Image
+                      src="/hero-1.webp"
+                      alt="Example transformation - Photo to sticker"
+                      width={400}
+                      height={400}
                               style={{ height: 'auto' }}
-                              className="object-contain max-h-full rounded-lg shadow-md"
-                              priority={true}
-                            />
-                            <Image
-                              src="/hero-2.webp"
-                              alt="Decorative camera icon"
-                              width={120}
-                              height={120}
+                      className="object-contain max-h-full rounded-lg shadow-md"
+                      priority={true}
+                    />
+                    <Image
+                      src="/hero-2.webp"
+                      alt="Decorative camera icon"
+                      width={120}
+                      height={120}
                               style={{ height: 'auto' }}
-                              className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
-                            />
-                            <Image
-                              src="/hero-3.webp"
-                              alt="Decorative plant icon"
-                              width={120}
-                              height={120}
+                      className="absolute top-[-1rem] right-[-3rem] transform -rotate-12"
+                    />
+                    <Image
+                      src="/hero-3.webp"
+                      alt="Decorative plant icon"
+                      width={120}
+                      height={120}
                               style={{ height: 'auto' }}
-                              className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
-                            />
-                            <img
-                              src="/hero-video.gif"
-                              alt="Hero animation"
-                              className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
-                            />
+                      className="absolute bottom-[-1rem] left-[-4rem] transform rotate-12"
+                    />
+                    <img
+                      src="/hero-video.gif"
+                      alt="Hero animation"
+                      className="absolute bottom-0 right-[-1rem] w-48 h-auto rounded-lg object-contain bg-transparent opacity-85"
+                    />
                           </div>
                         )}
                       </div>
@@ -788,7 +788,7 @@ export default function HeroSection() {
           <DialogHeader className="hidden">
             <DialogTitle>Login</DialogTitle>
           </DialogHeader>
-          <LoginForm
+                    <LoginForm
             callbackUrl={
               typeof window !== 'undefined' ? window.location.pathname : '/'
             }

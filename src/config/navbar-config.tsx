@@ -98,6 +98,13 @@ export function getNavbarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
+          title: 'AI Background',
+          description: 'Remove and replace image backgrounds',
+          icon: '/text-to-image03.webp',
+          href: Routes.AIBackground,
+          external: false,
+        },
+        {
           title: 'AI Anime Art',
           description: 'Create stunning AI anime art',
           icon: '/text-to-image04.webp',
