@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 // Preset color configuration
@@ -89,10 +89,23 @@ export function AIBackgroundGeneratorSection() {
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(null);
   const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
 
+  // Track active intervals to prevent multiple simultaneous processing
+  const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Debug effect to monitor selectedBackgroundColor changes
   useEffect(() => {
     console.log('selectedBackgroundColor changed to:', selectedBackgroundColor);
   }, [selectedBackgroundColor]);
+
+  // Cleanup interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (processingIntervalRef.current) {
+        clearInterval(processingIntervalRef.current);
+        processingIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -151,6 +164,17 @@ export function AIBackgroundGeneratorSection() {
 
     // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
+    // Prevent multiple simultaneous processing
+    if (isProcessing) {
+      return;
+    }
+
+    // Clear any existing interval
+    if (processingIntervalRef.current) {
+      clearInterval(processingIntervalRef.current);
+      processingIntervalRef.current = null;
+    }
+
     setIsProcessing(true);
     setProcessingProgress(0);
     setSelectedDemoImage(demoImage.afterSrc); // Set the selected demo image (after state)
@@ -162,27 +186,31 @@ export function AIBackgroundGeneratorSection() {
     setAfterImageSrc(demoImage.afterSrc);
 
     // Simulate 3-second loading for demo images
-    const interval = setInterval(() => {
+    processingIntervalRef.current = setInterval(() => {
       setProcessingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          // Load the processed demo image
-          setProcessedImage(demoImage.afterSrc);
+                  if (prev >= 100) {
+            if (processingIntervalRef.current) {
+              clearInterval(processingIntervalRef.current);
+              processingIntervalRef.current = null; // Prevent re-entry
 
-          // Set default background color to transparent (mosaic) for demo images
-          // This will show the "After" state with mosaic background
-          setTimeout(() => {
-            setSelectedBackgroundColor('transparent');
-            console.log('Demo image processing completed, setting background to transparent (After state)');
-          }, 0);
+              setIsProcessing(false);
+              // Load the processed demo image
+              setProcessedImage(demoImage.afterSrc);
 
-          // Use setTimeout to avoid React rendering conflicts
-          setTimeout(() => {
-            toast.success('Demo image loaded successfully!');
-          }, 100);
-          return 100;
-        }
+              // Set default background color to transparent (mosaic) for demo images
+              // This will show the "After" state with mosaic background
+              setTimeout(() => {
+                setSelectedBackgroundColor('transparent');
+                console.log('Demo image processing completed, setting background to transparent (After state)');
+              }, 0);
+
+              // Use setTimeout to avoid React rendering conflicts
+              setTimeout(() => {
+                toast.success('Demo image loaded successfully!');
+              }, 100);
+            }
+            return 100;
+          }
         return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
       });
     }, 100);
@@ -202,7 +230,7 @@ export function AIBackgroundGeneratorSection() {
   const handleCustomColorChange = (color: string) => {
     setSelectedBackgroundColor(color);
     setCustomColor(color);
-    toast.success('Custom color applied');
+    // Don't show toast for real-time updates, only when color picker is closed
   };
 
   // Process image (simulation)
@@ -212,6 +240,17 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
+    // Prevent multiple simultaneous processing
+    if (isProcessing) {
+      return;
+    }
+
+    // Clear any existing interval
+    if (processingIntervalRef.current) {
+      clearInterval(processingIntervalRef.current);
+      processingIntervalRef.current = null;
+    }
+
     setIsProcessing(true);
     setProcessingProgress(0);
     setSelectedDemoImage(null); // Clear demo image selection when processing uploaded image
@@ -219,10 +258,13 @@ export function AIBackgroundGeneratorSection() {
     setCurrentDisplayImage(null); // Clear current display image
 
     // Simulate processing progress
-    const interval = setInterval(() => {
+    processingIntervalRef.current = setInterval(() => {
       setProcessingProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
+          if (processingIntervalRef.current) {
+            clearInterval(processingIntervalRef.current);
+            processingIntervalRef.current = null;
+          }
           setIsProcessing(false);
           // Simulate processing completion
           setProcessedImage(imagePreview);
@@ -510,6 +552,27 @@ export function AIBackgroundGeneratorSection() {
                         <XIcon className="h-4 w-4 text-gray-600" />
                       </button>
 
+                      <div
+                        className="absolute inset-0 rounded-lg"
+                        style={{
+                          backgroundImage:
+                            showAfter && selectedBackgroundColor === 'transparent'
+                              ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)'
+                              : 'none',
+                          backgroundSize:
+                            showAfter && selectedBackgroundColor === 'transparent'
+                              ? '20px 20px'
+                              : 'auto',
+                          backgroundPosition:
+                            showAfter && selectedBackgroundColor === 'transparent'
+                              ? '0 0, 0 10px, 10px -10px, -10px 0px'
+                              : 'auto',
+                          backgroundColor:
+                            showAfter && selectedBackgroundColor !== 'transparent'
+                              ? selectedBackgroundColor
+                              : 'transparent',
+                        }}
+                      />
                       <Image
                         src={
                           showAfter
@@ -518,13 +581,7 @@ export function AIBackgroundGeneratorSection() {
                         }
                         alt="AI Background processed result"
                         fill
-                        className="object-contain rounded-lg transition-all duration-300 ease-out"
-                        style={{
-                          backgroundColor:
-                            showAfter && selectedBackgroundColor !== 'transparent'
-                              ? selectedBackgroundColor
-                              : 'transparent',
-                        }}
+                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
                       />
                     </div>
 
@@ -583,13 +640,28 @@ export function AIBackgroundGeneratorSection() {
                       ))}
                       <button
                         onClick={() => setShowColorPicker(true)}
-                        className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer bg-gradient-to-r from-red-200 via-yellow-200 to-blue-200 flex-shrink-0 border-2 ${
+                        className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
                           selectedBackgroundColor === customColor
                             ? 'border-blue-500 border-opacity-70'
                             : 'border-gray-300'
                         }`}
+                        style={{ backgroundColor: customColor }}
                         title="Custom Color"
-                      />
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="text-white drop-shadow-sm"
+                        >
+                          <path
+                            d="M8 1L9.06 5.94L14 7L9.06 8.06L8 13L6.94 8.06L2 7L6.94 5.94L8 1Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </button>
                     </div>
 
                     {/* Download button */}
@@ -704,7 +776,13 @@ export function AIBackgroundGeneratorSection() {
         {/* Color picker */}
         <ColorPicker
           open={showColorPicker}
-          onOpenChange={setShowColorPicker}
+          onOpenChange={(open) => {
+            setShowColorPicker(open);
+            // Show toast only when color picker is closed (after selection is complete)
+            if (!open && showColorPicker) {
+              toast.success('Custom color applied');
+            }
+          }}
           value={customColor}
           onChange={handleCustomColorChange}
         />
