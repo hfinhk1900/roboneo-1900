@@ -751,7 +751,7 @@ export function AIBackgroundGeneratorSection() {
                           className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
                         >
                           <Image
-                            src={demoImage.afterSrc}
+                            src={demoImage.beforeSrc}
                             alt={demoImage.alt}
                             fill
                             className="object-cover"
