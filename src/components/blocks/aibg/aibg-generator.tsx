@@ -546,7 +546,7 @@ export function AIBackgroundGeneratorSection() {
                           setCurrentDisplayImage(null);
                           setShowAfter(true);
                         }}
-                        className="absolute -top-2 -right-2 z-10 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
+                        className="absolute -top-2 -right-2 z-20 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
                         title="Close preview"
                       >
                         <XIcon className="h-4 w-4 text-gray-600" />
