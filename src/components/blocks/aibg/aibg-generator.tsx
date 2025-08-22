@@ -73,6 +73,7 @@ export function AIBackgroundGeneratorSection() {
 
   // Track the current display image for before/after toggle
   const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
+  const [showAfter, setShowAfter] = useState(true); // State for Before/After toggle
 
   // Optimize toggle performance by pre-calculating image sources
   const [beforeImageSrc, setBeforeImageSrc] = useState<string | null>(null);
@@ -244,13 +245,45 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    const link = document.createElement('a');
-    link.href = processedImage;
-    link.download = 'ai-background-result.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('Image downloaded');
+    const image = new window.Image();
+    image.crossOrigin = 'anonymous'; // This is still good practice
+
+    // Use the API proxy to fetch the image and bypass CORS
+    const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(processedImage)}`;
+    image.src = proxyUrl;
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Fill background color if it's not transparent
+        if (selectedBackgroundColor !== 'transparent') {
+          ctx.fillStyle = selectedBackgroundColor;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Draw the processed image on top
+        ctx.drawImage(image, 0, 0);
+
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'ai-background-result.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Image downloaded');
+      } else {
+        toast.error('Could not process image for download.');
+      }
+    };
+
+    image.onerror = () => {
+      toast.error('Failed to load image for download.');
+    };
   };
 
   return (
@@ -411,7 +444,7 @@ export function AIBackgroundGeneratorSection() {
                   {isProcessing ? (
                     <>
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
-                      Processing... {processingProgress}%
+                      Processing...
                     </>
                   ) : (
                     <>
@@ -431,29 +464,28 @@ export function AIBackgroundGeneratorSection() {
                 {processedImage ? (
                   /* Result state - show processed image with background change interface */
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
-                    {/* Before/After toggle */}
+                    {/* Background Type Toggle */}
                     <div className="flex items-center justify-center mb-4 w-full">
                       <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative w-[160px]">
                         <div
                           className="bg-white h-9 rounded-2xl w-[78px] absolute left-0.5 top-0.5 transition-all duration-200 ease-out"
                           style={{
-                            transform:
-                              selectedBackgroundColor === 'transparent'
-                                ? 'translateX(0)'
-                                : 'translateX(79px)',
+                            transform: showAfter
+                              ? 'translateX(79px)'
+                              : 'translateX(0)',
                           }}
                         />
                         <button
-                          onClick={() => setSelectedBackgroundColor('transparent')}
-                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
-                        >
-                          After
-                        </button>
-                        <button
-                          onClick={() => setSelectedBackgroundColor('#E25241')}
+                          onClick={() => setShowAfter(false)}
                           className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
                         >
                           Before
+                        </button>
+                        <button
+                          onClick={() => setShowAfter(true)}
+                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
+                        >
+                          After
                         </button>
                       </div>
                     </div>
@@ -464,8 +496,8 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         onClick={() => {
                           setProcessedImage(null);
-                          setSelectedBackgroundColor('transparent');
                           setCurrentDisplayImage(null);
+                          setShowAfter(true);
                         }}
                         className="absolute -top-2 -right-2 z-10 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
                         title="Close preview"
@@ -475,18 +507,18 @@ export function AIBackgroundGeneratorSection() {
 
                       <Image
                         src={
-                          selectedBackgroundColor === 'transparent'
-                            ? (afterImageSrc || currentDisplayImage || processedImage) // After: 显示去除背景后的图片
-                            : (beforeImageSrc || currentDisplayImage || processedImage) // Before: 显示原图
+                          showAfter
+                            ? afterImageSrc || processedImage || ''
+                            : beforeImageSrc || imagePreview || ''
                         }
                         alt="AI Background processed result"
                         fill
                         className="object-contain rounded-lg transition-all duration-300 ease-out"
                         style={{
                           backgroundColor:
-                            selectedBackgroundColor === 'transparent'
-                              ? 'transparent'
-                              : selectedBackgroundColor,
+                            showAfter && selectedBackgroundColor !== 'transparent'
+                              ? selectedBackgroundColor
+                              : 'transparent',
                         }}
                       />
                     </div>
@@ -536,9 +568,11 @@ export function AIBackgroundGeneratorSection() {
                               : 'border-gray-300'
                           }`}
                           style={{ backgroundColor: color.value }}
-                          onClick={() =>
-                            setSelectedBackgroundColor(color.value)
-                          }
+                          onClick={() => {
+                            setSelectedBackgroundColor(color.value);
+                            // 立即应用背景颜色效果
+                            console.log(`Applied background color: ${color.value}`);
+                          }}
                           title={color.name}
                         />
                       ))}
@@ -620,9 +654,6 @@ export function AIBackgroundGeneratorSection() {
                             {/* Loading message */}
                             <div className="text-white text-center max-w-sm">
                               <p>Removing background from your image...</p>
-                              <p className="text-sm mt-1">
-                                This usually takes about 3 seconds
-                              </p>
                             </div>
                           </div>
                         </div>
