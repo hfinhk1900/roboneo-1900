@@ -248,9 +248,14 @@ export function AIBackgroundGeneratorSection() {
     const image = new window.Image();
     image.crossOrigin = 'anonymous'; // This is still good practice
 
-    // Use the API proxy to fetch the image and bypass CORS
-    const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(processedImage)}`;
-    image.src = proxyUrl;
+    // Determine the appropriate source:
+    // - For data URLs (uploaded images), use directly (no CORS issue)
+    // - For http(s) URLs (demo images on R2), use the API proxy to bypass CORS
+    const isDataUrl = processedImage.startsWith('data:');
+    const srcUrl = isDataUrl
+      ? processedImage
+      : `/api/image-proxy?url=${encodeURIComponent(processedImage)}`;
+    image.src = srcUrl;
 
     image.onload = () => {
       const canvas = document.createElement('canvas');
