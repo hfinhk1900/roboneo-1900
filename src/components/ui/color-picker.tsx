@@ -393,7 +393,7 @@ export function ColorPicker({ open, onOpenChange, value, onChange }: ColorPicker
           {/* Confirm button */}
           <Button 
             onClick={handleConfirm}
-            className="w-full text-white border-0 bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 hover:from-cyan-500 hover:via-violet-500 hover:to-pink-500 transition-all duration-300"
+            className="w-full"
           >
             Confirm
           </Button>

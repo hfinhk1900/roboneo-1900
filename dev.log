@@ -1,0 +1,183 @@
+
+> roboneo art webapp@0.1.0 dev
+> next dev -p 3000
+
+[MDX] updated map file in 11.854937999999947ms
+[MDX] started dev server
+   ▲ Next.js 15.2.1
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.77:3000
+   - Environments: .env.local, .env.development, .env
+
+ ✓ Starting...
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'turbopack'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ✓ Ready in 1909ms
+ ✓ Compiled /middleware in 402ms (183 modules)
+>> middleware start, pathname /aibackground
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 2.3s (1068 modules)
+ GET /api/auth/get-session 200 in 4022ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/aibackground ...
+ ✓ Compiled /[locale]/aibackground in 5.8s (3562 modules)
+ GET /api/auth/get-session 200 in 525ms
+ GET /aibackground 200 in 8180ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /manifest.webmanifest in 3.6s (3569 modules)
+ GET /manifest.webmanifest 200 in 1594ms
+ GET /api/auth/get-session 200 in 2721ms
+>> middleware start, pathname /aibackground
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 5622ms
+ GET /api/auth/get-session 200 in 345ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 1892ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 276ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 275ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 267ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 402ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 270ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackground 200 in 410ms
+ ✓ Compiled in 2.4s (3583 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 1335ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 111ms
+ GET /manifest.webmanifest 200 in 13ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 280ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 29ms
+ GET /aibackground 200 in 470ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 253ms
+ GET /manifest.webmanifest 200 in 71ms
+ GET /api/auth/get-session 200 in 357ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 279ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 1384ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 278ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 953ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 283ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 405ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 274ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackground 200 in 416ms
+ ✓ Compiled in 1452ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 414ms (2712 modules)
+ GET /api/auth/get-session 200 in 1901ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 122ms
+ ✓ Compiled /manifest.webmanifest in 369ms (2716 modules)
+ GET /manifest.webmanifest 200 in 586ms
+ ✓ Compiled in 1536ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 488ms (2712 modules)
+ GET /api/auth/get-session 200 in 2013ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 153ms
+ ✓ Compiled /manifest.webmanifest in 431ms (2716 modules)
+ GET /manifest.webmanifest 200 in 593ms
+ ✓ Compiled in 1388ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 610ms (2712 modules)
+ GET /api/auth/get-session 200 in 1991ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 119ms
+ ✓ Compiled /manifest.webmanifest in 319ms (2716 modules)
+ GET /manifest.webmanifest 200 in 450ms
+ ✓ Compiled in 2.1s (3580 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 1182ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 127ms
+ GET /manifest.webmanifest 200 in 25ms
+ ✓ Compiled in 1483ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 384ms (2712 modules)
+ GET /api/auth/get-session 200 in 2023ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 137ms
+ ✓ Compiled /manifest.webmanifest in 341ms (2716 modules)
+ GET /manifest.webmanifest 200 in 507ms
+ ✓ Compiled in 1684ms (3580 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 1245ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 208ms
+ GET /manifest.webmanifest 200 in 16ms
+ ✓ Compiled in 1403ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 376ms (2712 modules)
+ GET /api/auth/get-session 200 in 1812ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 109ms
+ ✓ Compiled /manifest.webmanifest in 339ms (2716 modules)
+ GET /manifest.webmanifest 200 in 516ms
+ ✓ Compiled in 962ms (3580 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 975ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 109ms
+ GET /manifest.webmanifest 200 in 14ms
+ ✓ Compiled in 1370ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 392ms (2712 modules)
+ GET /api/auth/get-session 200 in 1748ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 108ms
+ ✓ Compiled /manifest.webmanifest in 296ms (2716 modules)
+ GET /manifest.webmanifest 200 in 434ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 929ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 16ms
+ GET /aibackground 200 in 470ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 993ms (2719 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1366ms
+ GET /manifest.webmanifest 200 in 34ms
+ GET /api/auth/get-session 200 in 1118ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 1858ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 283ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 275ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 270ms
+<< middleware end, applying intlMiddleware
+ POST /aibackground 200 in 402ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 268ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackground 200 in 412ms
+ ✓ Compiled in 1656ms (2948 modules)
+>> middleware start, pathname /aibackground
+ ✓ Compiled /api/auth/get-session in 377ms (2712 modules)
+ GET /api/auth/get-session 200 in 1979ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 122ms
+ ✓ Compiled /manifest.webmanifest in 324ms (2716 modules)
+ GET /manifest.webmanifest 200 in 537ms
+[?25h
+[MDX] closing dev server

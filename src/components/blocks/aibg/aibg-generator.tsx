@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import {
   DownloadIcon,
@@ -30,6 +31,66 @@ const PRESET_COLORS = [
   { name: 'Transparent', value: 'transparent' },
   { name: 'Custom', value: 'custom' },
 ];
+
+// Background styles configuration
+const BACKGROUND_STYLES = [
+  {
+    id: 'gradient-abstract',
+    name: 'Abstract Gradient',
+    icon: '🌈',
+    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic'
+  },
+  {
+    id: 'texture-fabric',
+    name: 'Fabric Texture',
+    icon: '🧵',
+    prompt: 'subtle texture background, fabric or paper texture, neutral tones, soft material feel'
+  },
+  {
+    id: 'nature-blur',
+    name: 'Nature Blur',
+    icon: '🌸',
+    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light'
+  },
+  {
+    id: 'urban-blur',
+    name: 'Urban Blur',
+    icon: '🏙️',
+    prompt: 'blurred urban background, soft city lights, bokeh street scene, modern atmosphere'
+  },
+  {
+    id: 'wood-surface',
+    name: 'Wood Surface',
+    icon: '🪵',
+    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface'
+  },
+  {
+    id: 'marble-stone',
+    name: 'Marble Stone',
+    icon: '🪨',
+    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors'
+  },
+  {
+    id: 'fabric-cloth',
+    name: 'Soft Fabric',
+    icon: '🧶',
+    prompt: 'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material'
+  },
+  {
+    id: 'paper-vintage',
+    name: 'Vintage Paper',
+    icon: '📜',
+    prompt: 'vintage paper background, aged texture, warm cream tones, subtle aging effects'
+  },
+  {
+    id: 'custom',
+    name: 'Custom Background',
+    icon: '🎨',
+    prompt: '' // Will be filled by user input
+  },
+];
+
+type BackgroundType = 'gradient-abstract' | 'texture-fabric' | 'nature-blur' | 'urban-blur' | 'wood-surface' | 'marble-stone' | 'fabric-cloth' | 'paper-vintage' | 'custom';
 
 // Demo images configuration with before/after states
 const DEMO_IMAGES = [
@@ -70,6 +131,12 @@ export function AIBackgroundGeneratorSection() {
     useState<string>('transparent');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [customColor, setCustomColor] = useState<string>('#E25241');
+
+  // New background style state
+  const [backgroundMode, setBackgroundMode] = useState<'color' | 'background'>('background');
+  const [selectedBackground, setSelectedBackground] = useState<BackgroundType | ''>('');
+  const [customBackgroundDescription, setCustomBackgroundDescription] = useState<string>('');
+  const [showBackgroundInput, setShowBackgroundInput] = useState(false);
 
   // Track the current display image for before/after toggle
   const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
@@ -223,7 +290,6 @@ export function AIBackgroundGeneratorSection() {
     } else {
       setSelectedBackgroundColor(color);
       // Background color application logic can be added here
-      toast.success('Background color updated');
     }
   };
 
@@ -347,14 +413,13 @@ export function AIBackgroundGeneratorSection() {
             AI Background
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Upload any photo and Roboneo's AI will instantly remove the
-            background with precision.
+            Upload any photo and generate stunning custom backgrounds with AI - from solid colors to artistic styles.
           </p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {/* Left: Input area */}
-          <Card className="relative overflow-hidden border shadow-md h-[588px] flex flex-col rounded-2xl bg-white">
-            <CardContent className="p-6 space-y-5 flex flex-col h-full">
+          <Card className="relative overflow-hidden border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
+            <CardContent className="pt-6 px-6 pb-4 space-y-5 flex-grow flex flex-col">
               <div className="pb-1 pt-0">
                 <h3 className="text-xl font-semibold mb-0.5 flex items-center gap-2">
                   <svg
@@ -375,12 +440,11 @@ export function AIBackgroundGeneratorSection() {
                   AI Background
                 </h3>
                 <p className="text-muted-foreground">
-                  Upload any photo and Roboneo's AI will instantly remove the
-                  background with precision.
+                  Upload your photo and create custom backgrounds with AI.
                 </p>
               </div>
 
-              <div className="space-y-5 flex flex-col flex-grow">
+              <div className="space-y-5 flex-grow flex flex-col">
                 {/* Image upload area */}
                 <div className="space-y-3 flex-grow flex flex-col">
                   <Label className="text-sm font-medium">
@@ -391,9 +455,8 @@ export function AIBackgroundGeneratorSection() {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     className={cn(
-                      'rounded-lg p-8 flex flex-col items-center justify-center gap-4 hover:bg-muted/50 transition-all duration-200 cursor-pointer flex-grow bg-[#f5f5f5] border border-border min-h-[280px]',
-                      isDragOver && 'bg-muted/50 border-primary',
-                      imagePreview && 'bg-muted/50 border-primary'
+                      'rounded-lg p-4 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-all duration-200 cursor-pointer flex-grow bg-[#f5f5f5] border border-border',
+                      isDragOver && 'bg-muted/50 border-primary'
                     )}
                   >
                     <input
@@ -441,51 +504,261 @@ export function AIBackgroundGeneratorSection() {
                   </div>
                 </div>
 
-                {/* Background color selection */}
-                {uploadedImage && (
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">
-                      Background Color
+                {/* Background selection - Always visible */}
+                <div className="space-y-3">
+                  {/* Background Mode Toggle */}
+                  <div>
+                    <Label className="text-sm font-medium mb-3">
+                      Background Type
                     </Label>
-                    <div className="grid grid-cols-4 gap-3">
-                      {PRESET_COLORS.map((color) => (
-                        <button
-                          key={color.value}
-                          className={cn(
-                            'h-12 rounded-lg border-2 transition-all hover:scale-105',
-                            selectedBackgroundColor === color.value
-                              ? 'border-primary scale-105'
-                              : 'border-muted-foreground/25'
-                          )}
-                          style={{
-                            backgroundColor: color.value,
-                            backgroundImage:
-                              color.value === 'transparent'
-                                ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)'
-                                : 'none',
-                            backgroundSize:
-                              color.value === 'transparent'
-                                ? '20px 20px'
-                                : 'auto',
-                            backgroundPosition:
-                              color.value === 'transparent'
-                                ? '0 0, 0 10px, 10px -10px, -10px 0px'
-                                : 'auto',
-                          }}
-                          onClick={() =>
-                            handleBackgroundColorSelect(color.value)
-                          }
-                          title={color.name}
-                        />
-                      ))}
+                    <div className="flex items-center space-x-1 bg-muted rounded-lg p-1 mb-2">
+                      <button
+                        type="button"
+                        onClick={() => setBackgroundMode('background')}
+                        className={cn(
+                          'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
+                          backgroundMode === 'background'
+                            ? 'bg-white text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        )}
+                      >
+                        Background Style
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBackgroundMode('color')}
+                        className={cn(
+                          'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
+                          backgroundMode === 'color'
+                            ? 'bg-white text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        )}
+                      >
+                        Solid Color
+                      </button>
                     </div>
                   </div>
-                )}
 
-                {/* Process button */}
+                  {/* Solid Color Mode */}
+                  {backgroundMode === 'color' && (
+                    <div className="mb-2 mt-3">
+                      <div className="flex gap-2 items-center justify-between w-full">
+                        {/* Transparent (mosaic) button */}
+                        <button
+                          type="button"
+                          onClick={() => handleBackgroundColorSelect('transparent')}
+                          className={cn(
+                            'relative rounded-2xl size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
+                            selectedBackgroundColor === 'transparent'
+                              ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
+                              : 'border-gray-300 hover:border-gray-400'
+                          )}
+                          title="Transparent Background"
+                        >
+                          <svg
+                            width="48"
+                            height="48"
+                            viewBox="0 0 48 48"
+                            className="w-full h-full"
+                          >
+                            <defs>
+                              <pattern
+                                id="mosaic-left"
+                                patternUnits="userSpaceOnUse"
+                                width="10"
+                                height="10"
+                              >
+                                <rect width="5" height="5" fill="#ffffff" />
+                                <rect x="5" y="0" width="5" height="5" fill="#e5e7eb" />
+                                <rect x="0" y="5" width="5" height="5" fill="#e5e7eb" />
+                                <rect x="5" y="5" width="5" height="5" fill="#ffffff" />
+                              </pattern>
+                            </defs>
+                                <rect width="48" height="48" fill="url(#mosaic-left)" />
+                          </svg>
+                          {/* 选中状态的勾号，保持马赛克背景 */}
+                          {selectedBackgroundColor === 'transparent' && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="text-yellow-600 drop-shadow-sm"
+                              >
+                                <path
+                                  d="M13.5 4.5L6 12L2.5 8.5"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Color buttons (excluding transparent and custom) */}
+                        {PRESET_COLORS.filter(color => color.value !== 'transparent' && color.value !== 'custom').map((color) => (
+                          <button
+                            type="button"
+                            key={color.value}
+                            className={cn(
+                              'relative rounded-2xl size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
+                              selectedBackgroundColor === color.value
+                                ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
+                                : 'border-gray-300 hover:border-gray-400'
+                            )}
+                            style={{ backgroundColor: color.value }}
+                            onClick={() => handleBackgroundColorSelect(color.value)}
+                            title={color.name}
+                          >
+                            {/* 选中状态的勾号 */}
+                            {selectedBackgroundColor === color.value && (
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className={cn(
+                                  'drop-shadow-sm',
+                                  // 根据背景色调整勾号颜色以确保对比度
+                                  color.value === '#FFFFFF' || color.value === '#ffeaa7' ? 'text-gray-700' : 'text-white'
+                                )}
+                              >
+                                <path
+                                  d="M13.5 4.5L6 12L2.5 8.5"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+
+                        {/* Custom color button */}
+                        <button
+                          type="button"
+                          onClick={() => handleBackgroundColorSelect('custom')}
+                          className={cn(
+                            'relative rounded-full size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
+                            selectedBackgroundColor === customColor
+                              ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
+                              : 'border-gray-300 hover:border-gray-400'
+                          )}
+                          style={{
+                            background: selectedBackgroundColor === customColor 
+                              ? customColor 
+                              : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
+                          }}
+                          title="Custom Color"
+                        >
+                          {selectedBackgroundColor === customColor ? (
+                            // 选中状态显示勾号
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="text-white drop-shadow-sm"
+                            >
+                              <path
+                                d="M13.5 4.5L6 12L2.5 8.5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          ) : (
+                            // 未选中状态显示调色板图标
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="text-white drop-shadow-sm"
+                            >
+                              <path
+                                d="M8 1L9.06 5.94L14 7L9.06 8.06L8 13L6.94 8.06L2 7L6.94 5.94L8 1Z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Background Style Mode */}
+                  {backgroundMode === 'background' && (
+                    <div className="mb-2">
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {BACKGROUND_STYLES.map((style) => (
+                          <button
+                            type="button"
+                            key={style.id}
+                            onClick={() => {
+                              setSelectedBackground(style.id as BackgroundType);
+                              if (style.id === 'custom') {
+                                setShowBackgroundInput(true);
+                              } else {
+                                setShowBackgroundInput(false);
+                              }
+                            }}
+                            className={cn(
+                              'flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all hover:scale-105 text-center min-h-[50px]',
+                              selectedBackground === style.id
+                                ? 'border-primary scale-105 bg-primary/5'
+                                : 'border-muted-foreground/25 hover:border-primary/50'
+                            )}
+                            title={style.name}
+                          >
+                            <span className="text-sm mb-0.5">{style.icon}</span>
+                            <span className="text-[10px] font-medium leading-tight">
+                              {style.name}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Custom Background Description Input */}
+                      {selectedBackground === 'custom' && showBackgroundInput && (
+                        <div className="space-y-3 mt-4">
+                          <Label
+                            htmlFor="custom-background"
+                            className="text-sm font-medium"
+                          >
+                            Custom Background Description
+                          </Label>
+                          <Textarea
+                            id="custom-background"
+                            placeholder="Describe your desired background style..."
+                            value={customBackgroundDescription}
+                            onChange={(e) => setCustomBackgroundDescription(e.target.value)}
+                            className="min-h-[100px] resize-none rounded-xl"
+                            maxLength={300}
+                          />
+                          <div className="flex items-center justify-end">
+                            <span className="text-xs text-muted-foreground">
+                              {customBackgroundDescription.length}/300
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <Button
                   onClick={handleProcessImage}
-                  disabled={!uploadedImage || isProcessing}
+                  disabled={!uploadedImage || isProcessing || (backgroundMode === 'background' && !selectedBackground) || (selectedBackground === 'custom' && !customBackgroundDescription.trim())}
                   className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                 >
                   {isProcessing ? (
@@ -496,7 +769,7 @@ export function AIBackgroundGeneratorSection() {
                   ) : (
                     <>
                       <SparklesIcon className="mr-2 h-5 w-5" />
-                      Remove Background (10 credits)
+                      Process Image (10 credits)
                     </>
                   )}
                 </Button>
@@ -505,32 +778,36 @@ export function AIBackgroundGeneratorSection() {
           </Card>
 
           {/* Right: Output area */}
-          <div>
-            <Card className="gap-6 py-6 border shadow-md h-[588px] flex flex-col rounded-2xl bg-white">
+          <div className="flex-1">
+            <Card className="gap-6 py-6 border shadow-md h-full flex flex-col rounded-2xl bg-white min-h-[588px]">
               <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 relative h-full">
                 {processedImage ? (
                   /* Result state - show processed image with background change interface */
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
                     {/* Background Type Toggle */}
                     <div className="flex items-center justify-center mb-4 w-full">
-                      <div className="bg-[#d9d9d9] h-10 rounded-2xl flex items-center relative w-[160px]">
-                        <div
-                          className="bg-white h-9 rounded-2xl w-[78px] absolute left-0.5 top-0.5 transition-all duration-200 ease-out"
-                          style={{
-                            transform: showAfter
-                              ? 'translateX(79px)'
-                              : 'translateX(0)',
-                          }}
-                        />
+                      <div className="flex items-center space-x-1 bg-muted rounded-lg p-1 w-[160px]">
                         <button
+                          type="button"
                           onClick={() => setShowAfter(false)}
-                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
+                          className={cn(
+                            'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
+                            !showAfter
+                              ? 'bg-white text-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground'
+                          )}
                         >
                           Before
                         </button>
                         <button
+                          type="button"
                           onClick={() => setShowAfter(true)}
-                          className="relative z-10 h-10 w-[80px] text-[14px] font-medium text-black transition-colors duration-200"
+                          className={cn(
+                            'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
+                            showAfter
+                              ? 'bg-white text-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground'
+                          )}
                         >
                           After
                         </button>
@@ -541,6 +818,7 @@ export function AIBackgroundGeneratorSection() {
                     <div className="relative w-full max-w-sm aspect-square mb-4">
                       {/* Close button */}
                       <button
+                        type="button"
                         onClick={() => {
                           setProcessedImage(null);
                           setCurrentDisplayImage(null);
@@ -589,6 +867,7 @@ export function AIBackgroundGeneratorSection() {
                     <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
                       {/* Transparent (mosaic) button */}
                       <button
+                        type="button"
                         onClick={() => setSelectedBackgroundColor('transparent')}
                         className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
                           selectedBackgroundColor === 'transparent'
@@ -623,6 +902,7 @@ export function AIBackgroundGeneratorSection() {
 
                       {PRESET_COLORS.slice(0, 4).map((color) => (
                         <button
+                          type="button"
                           key={color.value}
                           className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
                             selectedBackgroundColor === color.value
@@ -639,13 +919,18 @@ export function AIBackgroundGeneratorSection() {
                         />
                       ))}
                       <button
+                        type="button"
                         onClick={() => setShowColorPicker(true)}
                         className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
                           selectedBackgroundColor === customColor
                             ? 'border-blue-500 border-opacity-70'
                             : 'border-gray-300'
                         }`}
-                        style={{ backgroundColor: customColor }}
+                        style={{
+                          background: selectedBackgroundColor === customColor 
+                            ? customColor 
+                            : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
+                        }}
                         title="Custom Color"
                       >
                         <svg
@@ -683,7 +968,7 @@ export function AIBackgroundGeneratorSection() {
                           {imagePreview ? (
                             <img
                               src={imagePreview}
-                              alt="Processing your uploaded image"
+                              alt="Processing your upload"
                               width={400}
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
@@ -691,7 +976,7 @@ export function AIBackgroundGeneratorSection() {
                           ) : selectedDemoImage ? (
                             <img
                               src={selectedDemoImage}
-                              alt="Processing your selected demo image"
+                              alt="Processing your selected demo"
                               width={400}
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
@@ -746,6 +1031,7 @@ export function AIBackgroundGeneratorSection() {
                     <div className="flex gap-4 items-center justify-center">
                       {DEMO_IMAGES.map((demoImage, index) => (
                         <button
+                          type="button"
                           key={demoImage.id}
                           onClick={() => handleDemoImageClick(demoImage)}
                           className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
@@ -776,13 +1062,7 @@ export function AIBackgroundGeneratorSection() {
         {/* Color picker */}
         <ColorPicker
           open={showColorPicker}
-          onOpenChange={(open) => {
-            setShowColorPicker(open);
-            // Show toast only when color picker is closed (after selection is complete)
-            if (!open && showColorPicker) {
-              toast.success('Custom color applied');
-            }
-          }}
+          onOpenChange={setShowColorPicker}
           value={customColor}
           onChange={handleCustomColorChange}
         />

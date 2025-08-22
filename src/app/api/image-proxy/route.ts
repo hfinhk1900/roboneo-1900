@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
     const response = await fetch(imageUrl);
 
     if (!response.ok) {
-      return new NextResponse('Failed to fetch image', { status: response.status });
+      return new NextResponse('Failed to fetch image', {
+        status: response.status,
+      });
     }
 
     const imageBuffer = await response.arrayBuffer();
@@ -29,4 +31,3 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
-
