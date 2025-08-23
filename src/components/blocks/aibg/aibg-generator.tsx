@@ -248,6 +248,10 @@ export function AIBackgroundGeneratorSection() {
     current: number;
   } | null>(null);
 
+  // Mode switch confirmation dialog state
+  const [showModeSwitchDialog, setShowModeSwitchDialog] = useState(false);
+  const [pendingModeSwitch, setPendingModeSwitch] = useState<'color' | 'background' | null>(null);
+
   // Track the currently selected demo image for loading state
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(
     null
@@ -327,6 +331,37 @@ export function AIBackgroundGeneratorSection() {
     setBeforeImageSrc(null); // Clear pre-calculated before image
     setAfterImageSrc(null); // Clear pre-calculated after image
     setSelectedBackgroundColor('transparent'); // Reset to default transparent background
+  };
+
+  // Mode switch function with cleanup
+  const performModeSwitch = (newMode: 'color' | 'background') => {
+    // 清空已处理的图片
+    setProcessedImage(null);
+    setCurrentDisplayImage(null);
+    setAfterImageSrc(null);
+    setBeforeImageSrc(null);
+    setShowAfter(true);
+
+    // 根据切换方向重置相应选择
+    if (newMode === 'background') {
+      // 切换到 Background Style 模式
+      if (backgroundMode === 'color') {
+        setSelectedBackgroundColor('transparent');
+      }
+    } else {
+      // 切换到 Solid Color 模式
+      if (backgroundMode === 'background') {
+        setSelectedBackground('');
+        setCustomBackgroundDescription('');
+      }
+    }
+
+    // 执行模式切换
+    setBackgroundMode(newMode);
+
+    // 关闭确认对话框
+    setShowModeSwitchDialog(false);
+    setPendingModeSwitch(null);
   };
 
   // Demo image click handling
@@ -1129,7 +1164,19 @@ export function AIBackgroundGeneratorSection() {
                     <div className="flex items-center space-x-1 bg-muted rounded-lg p-1 mb-2">
                       <button
                         type="button"
-                        onClick={() => setBackgroundMode('background')}
+                        onClick={() => {
+                          // 如果当前不是 Background Style 模式，检查是否需要确认
+                          if (backgroundMode !== 'background') {
+                            if (processedImage) {
+                              // 有已生成的图片，显示确认对话框
+                              setPendingModeSwitch('background');
+                              setShowModeSwitchDialog(true);
+                            } else {
+                              // 没有图片，直接切换
+                              performModeSwitch('background');
+                            }
+                          }
+                        }}
                         className={cn(
                           'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
                           backgroundMode === 'background'
@@ -1141,7 +1188,19 @@ export function AIBackgroundGeneratorSection() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setBackgroundMode('color')}
+                        onClick={() => {
+                          // 如果当前不是 Solid Color 模式，检查是否需要确认
+                          if (backgroundMode !== 'color') {
+                            if (processedImage) {
+                              // 有已生成的图片，显示确认对话框
+                              setPendingModeSwitch('color');
+                              setShowModeSwitchDialog(true);
+                            } else {
+                              // 没有图片，直接切换
+                              performModeSwitch('color');
+                            }
+                          }
+                        }}
                         className={cn(
                           'flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all',
                           backgroundMode === 'color'
@@ -1949,6 +2008,60 @@ export function AIBackgroundGeneratorSection() {
             </Card>
           </div>
         </div>
+
+                {/* Mode switch confirmation dialog */}
+        <Dialog open={showModeSwitchDialog} onOpenChange={setShowModeSwitchDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Save Generated Image?</DialogTitle>
+              <DialogDescription>
+                You have an unsaved image. Switching modes will lose your current result. Would you like to save before switching?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModeSwitchDialog(false);
+                  setPendingModeSwitch(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // 直接切换模式，不保存
+                  if (pendingModeSwitch) {
+                    performModeSwitch(pendingModeSwitch);
+                  }
+                }}
+              >
+                Switch Directly
+              </Button>
+              <Button
+                onClick={() => {
+                  // 保存图片并切换模式
+                  if (pendingModeSwitch && processedImage) {
+                    // 触发图片下载
+                    const link = document.createElement('a');
+                    link.href = processedImage;
+                    link.download = 'ai-background-result.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast.success('Image saved successfully');
+
+                    // 然后切换模式
+                    performModeSwitch(pendingModeSwitch);
+                  }
+                }}
+              >
+                Save & Switch
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Insufficient credits dialog */}
         <InsufficientCreditsDialog
