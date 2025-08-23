@@ -14,12 +14,16 @@ async function testSimple() {
   // 1. 测试 GET 端点
   try {
     console.log('\n1️⃣ 测试 GET /api/aibackground/generate');
-    const getResponse = await fetch('http://localhost:3000/api/aibackground/generate');
+    const getResponse = await fetch(
+      'http://localhost:3000/api/aibackground/generate'
+    );
     console.log(`   HTTP 状态: ${getResponse.status}`);
 
     if (getResponse.ok) {
       const data = await getResponse.json();
-      console.log(`   ✅ 成功 - 背景样式: ${data.backgroundStyles?.length || 0}, 颜色: ${data.presetColors?.length || 0}`);
+      console.log(
+        `   ✅ 成功 - 背景样式: ${data.backgroundStyles?.length || 0}, 颜色: ${data.presetColors?.length || 0}`
+      );
     } else {
       console.log(`   ❌ 失败 - ${getResponse.statusText}`);
     }
@@ -30,11 +34,14 @@ async function testSimple() {
   // 2. 测试 POST 端点（无认证）
   try {
     console.log('\n2️⃣ 测试 POST /api/aibackground/generate (无认证)');
-    const postResponse = await fetch('http://localhost:3000/api/aibackground/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ test: 'data' })
-    });
+    const postResponse = await fetch(
+      'http://localhost:3000/api/aibackground/generate',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test: 'data' }),
+      }
+    );
 
     console.log(`   HTTP 状态: ${postResponse.status}`);
 
@@ -60,9 +67,10 @@ async function testSimple() {
     if (fs.existsSync('.env.local')) {
       const envContent = fs.readFileSync('.env.local', 'utf8');
       const hasApiKey = envContent.includes('SILICONFLOW_API_KEY=');
-      const hasValue = envContent.includes('SILICONFLOW_API_KEY=') &&
-                      !envContent.includes('SILICONFLOW_API_KEY=your_key_here') &&
-                      !envContent.includes('SILICONFLOW_API_KEY=""');
+      const hasValue =
+        envContent.includes('SILICONFLOW_API_KEY=') &&
+        !envContent.includes('SILICONFLOW_API_KEY=your_key_here') &&
+        !envContent.includes('SILICONFLOW_API_KEY=""');
 
       if (hasApiKey && hasValue) {
         console.log('   ✅ SILICONFLOW_API_KEY 已配置且有值');
@@ -82,7 +90,9 @@ async function testSimple() {
   console.log('\n4️⃣ 检查服务器状态');
   try {
     const serverResponse = await fetch('http://localhost:3000');
-    console.log(`   服务器状态: ${serverResponse.status} ${serverResponse.statusText}`);
+    console.log(
+      `   服务器状态: ${serverResponse.status} ${serverResponse.statusText}`
+    );
 
     if (serverResponse.ok) {
       console.log('   ✅ 服务器正常运行');
@@ -98,4 +108,3 @@ async function testSimple() {
 
 // 运行测试
 testSimple().catch(console.error);
-

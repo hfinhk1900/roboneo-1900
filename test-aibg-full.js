@@ -12,7 +12,7 @@ const CONFIG = {
   baseUrl: 'http://localhost:3000',
   testImagePath: 'public/aibg/aibg-test2.png',
   // 请提供有效的 session token
-  sessionToken: 'YOUR_SESSION_TOKEN_HERE'
+  sessionToken: 'YOUR_SESSION_TOKEN_HERE',
 };
 
 // 将图片转换为 base64
@@ -67,7 +67,7 @@ async function testFullFlow() {
     quality: 'standard',
     steps: 25,
     size: '1024x1024',
-    output_format: 'png'
+    output_format: 'png',
   };
 
   console.log('请求参数:');
@@ -77,19 +77,25 @@ async function testFullFlow() {
   console.log('- steps:', requestPayload.steps);
   console.log('- size:', requestPayload.size);
   console.log('- output_format:', requestPayload.output_format);
-  console.log('- image_input:', `${requestPayload.image_input.substring(0, 50)}...`);
+  console.log(
+    '- image_input:',
+    `${requestPayload.image_input.substring(0, 50)}...`
+  );
 
   // 5. 发送 API 请求
   console.log('\n5️⃣ 发送 API 请求');
   try {
-    const response = await fetch(`${CONFIG.baseUrl}/api/aibackground/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': `better-auth.session_token=${CONFIG.sessionToken}`
-      },
-      body: JSON.stringify(requestPayload)
-    });
+    const response = await fetch(
+      `${CONFIG.baseUrl}/api/aibackground/generate`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: `better-auth.session_token=${CONFIG.sessionToken}`,
+        },
+        body: JSON.stringify(requestPayload),
+      }
+    );
 
     console.log(`HTTP 状态: ${response.status} ${response.statusText}`);
 
@@ -135,4 +141,3 @@ async function testFullFlow() {
 
 // 运行测试
 testFullFlow().catch(console.error);
-

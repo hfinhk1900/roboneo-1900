@@ -87,13 +87,17 @@ export class SiliconFlowProvider {
       const requestBody: any = {
         model: model,
         prompt: params.prompt,
-        image: params.image_input.startsWith('data:') ? params.image_input : `data:image/png;base64,${params.image_input}`, // 确保有正确的数据前缀
+        image: params.image_input.startsWith('data:')
+          ? params.image_input
+          : `data:image/png;base64,${params.image_input}`, // 确保有正确的数据前缀
         prompt_enhancement: false, // 禁用提示词增强以保持原始输入
       };
 
       // 双图支持：回退到reference_image参数
       if (params.reference_image) {
-        requestBody.reference_image = params.reference_image.startsWith('data:') ? params.reference_image : `data:image/png;base64,${params.reference_image}`;
+        requestBody.reference_image = params.reference_image.startsWith('data:')
+          ? params.reference_image
+          : `data:image/png;base64,${params.reference_image}`;
         console.log('🖼️ Dual-image mode: Added reference_image to request');
       }
 

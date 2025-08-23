@@ -9,8 +9,10 @@ const fs = require('fs');
 const CONFIG = {
   baseUrl: 'http://localhost:3000',
   apiEndpoint: '/api/aibackground/generate',
-  testImagePath: '/Users/hf/Desktop/Web Template/Products/roboneo art/public/aibg/aibg-test.jpg',
-  sessionToken: 'RL3eLVpyVPXvZhccaXo9nf7jxWdqcseV.BgGYhzR%2BGn6n5X1hioWuQ0pan5KFYlhbL9CqzwxlQeg%3D'
+  testImagePath:
+    '/Users/hf/Desktop/Web Template/Products/roboneo art/public/aibg/aibg-test.jpg',
+  sessionToken:
+    'RL3eLVpyVPXvZhccaXo9nf7jxWdqcseV.BgGYhzR%2BGn6n5X1hioWuQ0pan5KFYlhbL9CqzwxlQeg%3D',
 };
 
 function imageToBase64(imagePath) {
@@ -29,10 +31,10 @@ async function sendRequest(url, options = {}) {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': `better-auth.session_token=${CONFIG.sessionToken}`,
-        ...options.headers
+        Cookie: `better-auth.session_token=${CONFIG.sessionToken}`,
+        ...options.headers,
       },
-      ...options
+      ...options,
     });
 
     const data = await response.json();
@@ -45,10 +47,10 @@ async function sendRequest(url, options = {}) {
 
 async function testColorBackground() {
   console.log('🎨 测试纯色背景模式');
-  
+
   const imageBase64 = imageToBase64(CONFIG.testImagePath);
   console.log('✅ 图片转换完成');
-  
+
   // 测试红色背景
   console.log('\n🔴 测试 1: 红色背景');
   const redResult = await sendRequest(CONFIG.baseUrl + CONFIG.apiEndpoint, {
@@ -60,10 +62,10 @@ async function testColorBackground() {
       quality: 'standard',
       steps: 20,
       size: '1024x1024',
-      output_format: 'png'
-    })
+      output_format: 'png',
+    }),
   });
-  
+
   console.log('📊 状态码:', redResult.status);
   if (redResult.status === 200) {
     console.log('✅ 红色背景生成成功!');
@@ -71,22 +73,25 @@ async function testColorBackground() {
   } else {
     console.error('❌ 红色背景生成失败:', redResult.data);
   }
-  
+
   // 测试透明背景
   console.log('\n⚪ 测试 2: 透明背景');
-  const transparentResult = await sendRequest(CONFIG.baseUrl + CONFIG.apiEndpoint, {
-    method: 'POST',
-    body: JSON.stringify({
-      image_input: imageBase64,
-      backgroundMode: 'color',
-      backgroundColor: 'transparent',
-      quality: 'standard',
-      steps: 20,
-      size: '1024x1024',
-      output_format: 'png'
-    })
-  });
-  
+  const transparentResult = await sendRequest(
+    CONFIG.baseUrl + CONFIG.apiEndpoint,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        image_input: imageBase64,
+        backgroundMode: 'color',
+        backgroundColor: 'transparent',
+        quality: 'standard',
+        steps: 20,
+        size: '1024x1024',
+        output_format: 'png',
+      }),
+    }
+  );
+
   console.log('📊 状态码:', transparentResult.status);
   if (transparentResult.status === 200) {
     console.log('✅ 透明背景生成成功!');
@@ -94,7 +99,7 @@ async function testColorBackground() {
   } else {
     console.error('❌ 透明背景生成失败:', transparentResult.data);
   }
-  
+
   console.log('\n🏁 测试完成');
 }
 

@@ -13,7 +13,7 @@ const CONFIG = {
   apiEndpoint: '/api/aibackground/generate',
   testImagePath: 'public/aibg/aibg-test2.png',
   // 请提供有效的 session token
-  sessionToken: 'YOUR_SESSION_TOKEN_HERE'
+  sessionToken: 'YOUR_SESSION_TOKEN_HERE',
 };
 
 // 检查文件是否存在
@@ -42,8 +42,9 @@ function checkEnvironment() {
   try {
     const envContent = fs.readFileSync('.env.local', 'utf8');
     const hasApiKey = envContent.includes('SILICONFLOW_API_KEY');
-    const hasValue = envContent.includes('SILICONFLOW_API_KEY=') &&
-                    !envContent.includes('SILICONFLOW_API_KEY=your_key_here');
+    const hasValue =
+      envContent.includes('SILICONFLOW_API_KEY=') &&
+      !envContent.includes('SILICONFLOW_API_KEY=your_key_here');
 
     if (hasApiKey && hasValue) {
       console.log('✅ SILICONFLOW_API_KEY 已配置且有值');
@@ -62,9 +63,12 @@ async function testServerConnection() {
   console.log('\n🌐 测试服务器连接...');
 
   try {
-    const response = await fetch(`${CONFIG.baseUrl}/api/aibackground/generate`, {
-      method: 'GET'
-    });
+    const response = await fetch(
+      `${CONFIG.baseUrl}/api/aibackground/generate`,
+      {
+        method: 'GET',
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -91,8 +95,8 @@ async function testAuthentication() {
   try {
     const response = await fetch(`${CONFIG.baseUrl}/api/auth/get-session`, {
       headers: {
-        'Cookie': `better-auth.session_token=${CONFIG.sessionToken}`
-      }
+        Cookie: `better-auth.session_token=${CONFIG.sessionToken}`,
+      },
     });
 
     if (response.ok) {
@@ -137,4 +141,3 @@ async function main() {
 
 // 运行主函数
 main().catch(console.error);
-

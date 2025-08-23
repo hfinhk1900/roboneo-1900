@@ -4,6 +4,13 @@ import { InsufficientCreditsDialog } from '@/components/shared/insufficient-cred
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ColorPicker } from '@/components/ui/color-picker';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -14,15 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import {
   DownloadIcon,
   ImagePlusIcon,
@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import type React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 // Preset color configuration
@@ -51,68 +51,86 @@ const PRESET_COLORS = [
 // Background styles configuration - 与后端 API 保持一致
 const BACKGROUND_STYLES = [
   {
-    id: 'remove-background',
-    name: 'Remove Background',
-    icon: '✂️',
-    prompt: 'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements'
-  },
-  {
     id: 'gradient-abstract',
     name: 'Abstract Gradient',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gradient-aura.png',
-    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gradient-aura.png',
+    prompt:
+      'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending',
   },
   {
     id: 'texture-fabric',
     name: 'Fabric Texture',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
-    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
+    prompt:
+      'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface',
   },
   {
     id: 'nature-blur',
     name: 'Nature Blur',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gardenbokeh.png',
-    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gardenbokeh.png',
+    prompt:
+      'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere',
   },
   {
     id: 'urban-blur',
     name: 'Urban Blur',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/studio-spotlight.png',
-    prompt: 'blurred urban background, soft city lights, bokeh street scene, modern atmosphere'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/studio-spotlight.png',
+    prompt:
+      'blurred urban background, soft city lights, bokeh street scene, modern atmosphere',
   },
   {
     id: 'wood-surface',
     name: 'Wood Surface',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/naturalwood.png',
-    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/naturalwood.png',
+    prompt:
+      'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table',
   },
   {
     id: 'marble-stone',
     name: 'Marble Stone',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/luxurymarble.png',
-    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/luxurymarble.png',
+    prompt:
+      'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface',
   },
   {
     id: 'fabric-cloth',
     name: 'Soft Fabric',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
-    prompt: 'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material'
+    image:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
+    prompt:
+      'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material',
   },
   {
     id: 'paper-vintage',
     name: 'Vintage Paper',
     icon: '📜',
-    prompt: 'vintage paper background, aged texture, warm cream tones, subtle aging effects'
+    prompt:
+      'vintage paper background, aged texture, warm cream tones, subtle aging effects',
   },
   {
     id: 'custom',
     name: 'Custom Background',
     icon: '🎨',
-    prompt: '' // Will be filled by user input
+    prompt: '', // Will be filled by user input
   },
 ];
 
-type BackgroundType = 'remove-background' | 'gradient-abstract' | 'texture-fabric' | 'nature-blur' | 'urban-blur' | 'wood-surface' | 'marble-stone' | 'fabric-cloth' | 'paper-vintage' | 'custom';
+type BackgroundType =
+  | 'gradient-abstract'
+  | 'texture-fabric'
+  | 'nature-blur'
+  | 'urban-blur'
+  | 'wood-surface'
+  | 'marble-stone'
+  | 'fabric-cloth'
+  | 'paper-vintage'
+  | 'custom';
 
 // Aspect ratio options configuration
 const ASPECT_OPTIONS: Array<{
@@ -151,22 +169,28 @@ const ASPECT_OPTIONS: Array<{
 const DEMO_IMAGES = [
   {
     id: 1,
-    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg01.png',
-    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg01.png',
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg01.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg01.png',
     alt: 'AI Background Demo - Portrait 1',
     type: 'portrait',
   },
   {
     id: 2,
-    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg02.png',
-    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg02.png',
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg02.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg02.png',
     alt: 'AI Background Demo - Portrait 2',
     type: 'portrait',
   },
   {
     id: 3,
-    beforeSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg03.png',
-    afterSrc: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg03.png',
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/noremovebg03.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-aibg/removebg03.png',
     alt: 'AI Background Demo - Still Life',
     type: 'still-life',
   },
@@ -194,13 +218,20 @@ export function AIBackgroundGeneratorSection() {
   const [customColor, setCustomColor] = useState<string>('#E25241');
 
   // New background style state
-  const [backgroundMode, setBackgroundMode] = useState<'color' | 'background'>('background');
-  const [selectedBackground, setSelectedBackground] = useState<BackgroundType | ''>('');
-  const [customBackgroundDescription, setCustomBackgroundDescription] = useState<string>('');
+  const [backgroundMode, setBackgroundMode] = useState<'color' | 'background'>(
+    'background'
+  );
+  const [selectedBackground, setSelectedBackground] = useState<
+    BackgroundType | ''
+  >('');
+  const [customBackgroundDescription, setCustomBackgroundDescription] =
+    useState<string>('');
   const [showBackgroundInput, setShowBackgroundInput] = useState(false);
 
   // Track the current display image for before/after toggle
-  const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(null);
+  const [currentDisplayImage, setCurrentDisplayImage] = useState<string | null>(
+    null
+  );
   const [showAfter, setShowAfter] = useState(true); // State for Before/After toggle
 
   // Optimize toggle performance by pre-calculating image sources
@@ -214,8 +245,12 @@ export function AIBackgroundGeneratorSection() {
   } | null>(null);
 
   // Track the currently selected demo image for loading state
-  const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(null);
-  const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
+  const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(
+    null
+  );
+  const [selectedDemoImageData, setSelectedDemoImageData] = useState<
+    (typeof DEMO_IMAGES)[0] | null
+  >(null);
 
   // Track active intervals to prevent multiple simultaneous processing
   const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -290,7 +325,7 @@ export function AIBackgroundGeneratorSection() {
     setSelectedBackgroundColor('transparent'); // Reset to default transparent background
   };
 
-    // Demo image click handling
+  // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     // Prevent multiple simultaneous processing
     if (isProcessing) {
@@ -316,29 +351,31 @@ export function AIBackgroundGeneratorSection() {
     // Simulate 3-second loading for demo images
     processingIntervalRef.current = setInterval(() => {
       setProcessingProgress((prev) => {
-                  if (prev >= 100) {
-            if (processingIntervalRef.current) {
-              clearInterval(processingIntervalRef.current);
-              processingIntervalRef.current = null; // Prevent re-entry
+        if (prev >= 100) {
+          if (processingIntervalRef.current) {
+            clearInterval(processingIntervalRef.current);
+            processingIntervalRef.current = null; // Prevent re-entry
 
-              setIsProcessing(false);
-              // Load the processed demo image
-              setProcessedImage(demoImage.afterSrc);
+            setIsProcessing(false);
+            // Load the processed demo image
+            setProcessedImage(demoImage.afterSrc);
 
-              // Set default background color to transparent (mosaic) for demo images
-              // This will show the "After" state with mosaic background
-              setTimeout(() => {
-                setSelectedBackgroundColor('transparent');
-                console.log('Demo image processing completed, setting background to transparent (After state)');
-              }, 0);
+            // Set default background color to transparent (mosaic) for demo images
+            // This will show the "After" state with mosaic background
+            setTimeout(() => {
+              setSelectedBackgroundColor('transparent');
+              console.log(
+                'Demo image processing completed, setting background to transparent (After state)'
+              );
+            }, 0);
 
-              // Use setTimeout to avoid React rendering conflicts
-              setTimeout(() => {
-                toast.success('Demo image loaded successfully!');
-              }, 100);
-            }
-            return 100;
+            // Use setTimeout to avoid React rendering conflicts
+            setTimeout(() => {
+              toast.success('Demo image loaded successfully!');
+            }, 100);
           }
+          return 100;
+        }
         return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
       });
     }, 100);
@@ -373,7 +410,9 @@ export function AIBackgroundGeneratorSection() {
   };
 
   // Parse aspect ratio string to width/height object
-  function parseAspectRatio(aspect?: string): { w: number; h: number } | undefined {
+  function parseAspectRatio(
+    aspect?: string
+  ): { w: number; h: number } | undefined {
     if (!aspect || aspect === 'original') return undefined;
     const parts = aspect.split(':');
     if (parts.length !== 2) return undefined;
@@ -507,7 +546,9 @@ export function AIBackgroundGeneratorSection() {
 
           // Keep the full data URL format for AIBG API
           if (!compressedDataUrl) {
-            reject(new Error('Failed to generate base64 data from processed image'));
+            reject(
+              new Error('Failed to generate base64 data from processed image')
+            );
             return;
           }
 
@@ -547,11 +588,16 @@ export function AIBackgroundGeneratorSection() {
   // Convert aspect ratio format for API (kept for compatibility)
   const convertAspectRatioToSize = (aspectRatio: string): string => {
     switch (aspectRatio) {
-      case 'original': return '1024x1024'; // Default size, will maintain original proportions
-      case '1:1': return '1024x1024';
-      case '2:3': return '768x1152'; // Tall
-      case '3:2': return '1152x768'; // Wide
-      default: return '1024x1024';
+      case 'original':
+        return '1024x1024'; // Default size, will maintain original proportions
+      case '1:1':
+        return '1024x1024';
+      case '2:3':
+        return '768x1152'; // Tall
+      case '3:2':
+        return '1152x768'; // Wide
+      default:
+        return '1024x1024';
     }
   };
 
@@ -589,24 +635,31 @@ export function AIBackgroundGeneratorSection() {
         quality: 'standard',
         steps: 25,
         size: convertAspectRatioToSize(selectedAspect),
-        output_format: 'png'
+        output_format: 'png',
       };
 
       // Add background-specific parameters
       if (backgroundMode === 'color') {
         // For Solid Color mode, use remove-background to get transparent background
         apiPayload.backgroundType = 'remove-background';
-        apiPayload.backgroundColor = selectedBackgroundColor === customColor ? customColor : selectedBackgroundColor;
+        apiPayload.backgroundColor =
+          selectedBackgroundColor === customColor
+            ? customColor
+            : selectedBackgroundColor;
       } else if (backgroundMode === 'background') {
         apiPayload.backgroundType = selectedBackground;
-        if (selectedBackground === 'custom' && customBackgroundDescription.trim()) {
-          apiPayload.customBackgroundDescription = customBackgroundDescription.trim();
+        if (
+          selectedBackground === 'custom' &&
+          customBackgroundDescription.trim()
+        ) {
+          apiPayload.customBackgroundDescription =
+            customBackgroundDescription.trim();
         }
       }
 
       console.log('🚀 Calling AI Background API with payload:', {
         ...apiPayload,
-        image_input: '[base64 image data]' // Don't log the full base64 string
+        image_input: '[base64 image data]', // Don't log the full base64 string
       });
 
       // Start progress simulation while waiting for API response
@@ -631,7 +684,9 @@ export function AIBackgroundGeneratorSection() {
       clearInterval(progressInterval);
 
       if (!response.ok) {
-        console.error(`AI Background API error: HTTP ${response.status} ${response.statusText}`);
+        console.error(
+          `AI Background API error: HTTP ${response.status} ${response.statusText}`
+        );
 
         let errorData;
         try {
@@ -646,7 +701,7 @@ export function AIBackgroundGeneratorSection() {
           // Insufficient credits
           setCreditsError({
             required: errorData.required || CREDITS_PER_IMAGE,
-            current: errorData.current || 0
+            current: errorData.current || 0,
           });
           setShowCreditsDialog(true);
           return;
@@ -656,7 +711,11 @@ export function AIBackgroundGeneratorSection() {
         }
 
         // 提供更详细的错误信息
-        const errorMessage = errorData.error || errorData.details || errorData.message || `HTTP ${response.status} error`;
+        const errorMessage =
+          errorData.error ||
+          errorData.details ||
+          errorData.message ||
+          `HTTP ${response.status} error`;
         throw new Error(errorMessage);
       }
 
@@ -675,9 +734,10 @@ export function AIBackgroundGeneratorSection() {
       // Show success message
       setTimeout(() => {
         setProcessingProgress(0);
-        toast.success(`AI Background generated successfully! Used ${result.credits_used} credits.`);
+        toast.success(
+          `AI Background generated successfully! Used ${result.credits_used} credits.`
+        );
       }, 1000);
-
     } catch (error) {
       console.error('AI Background generation failed:', error);
 
@@ -704,7 +764,10 @@ export function AIBackgroundGeneratorSection() {
   };
 
   // Apply background color to processed image
-  const applyBackgroundColor = (imageUrl: string, backgroundColor: string): Promise<string> => {
+  const applyBackgroundColor = (
+    imageUrl: string,
+    backgroundColor: string
+  ): Promise<string> => {
     return new Promise((resolve, reject) => {
       const image = new window.Image();
       image.crossOrigin = 'anonymous';
@@ -822,7 +885,8 @@ export function AIBackgroundGeneratorSection() {
             AI Background
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Upload any photo and generate stunning custom backgrounds with AI - from solid colors to artistic styles.
+            Upload any photo and generate stunning custom backgrounds with AI -
+            from solid colors to artistic styles.
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -955,7 +1019,9 @@ export function AIBackgroundGeneratorSection() {
                         {/* Transparent (mosaic) button */}
                         <button
                           type="button"
-                          onClick={() => handleBackgroundColorSelect('transparent')}
+                          onClick={() =>
+                            handleBackgroundColorSelect('transparent')
+                          }
                           className={cn(
                             'relative rounded-2xl size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
                             selectedBackgroundColor === 'transparent'
@@ -978,12 +1044,34 @@ export function AIBackgroundGeneratorSection() {
                                 height="10"
                               >
                                 <rect width="5" height="5" fill="#ffffff" />
-                                <rect x="5" y="0" width="5" height="5" fill="#e5e7eb" />
-                                <rect x="0" y="5" width="5" height="5" fill="#e5e7eb" />
-                                <rect x="5" y="5" width="5" height="5" fill="#ffffff" />
+                                <rect
+                                  x="5"
+                                  y="0"
+                                  width="5"
+                                  height="5"
+                                  fill="#e5e7eb"
+                                />
+                                <rect
+                                  x="0"
+                                  y="5"
+                                  width="5"
+                                  height="5"
+                                  fill="#e5e7eb"
+                                />
+                                <rect
+                                  x="5"
+                                  y="5"
+                                  width="5"
+                                  height="5"
+                                  fill="#ffffff"
+                                />
                               </pattern>
                             </defs>
-                                <rect width="48" height="48" fill="url(#mosaic-left)" />
+                            <rect
+                              width="48"
+                              height="48"
+                              fill="url(#mosaic-left)"
+                            />
                           </svg>
                           {/* 选中状态的勾号，保持马赛克背景 */}
                           {selectedBackgroundColor === 'transparent' && (
@@ -1009,7 +1097,11 @@ export function AIBackgroundGeneratorSection() {
                         </button>
 
                         {/* Color buttons (excluding transparent and custom) */}
-                        {PRESET_COLORS.filter(color => color.value !== 'transparent' && color.value !== 'custom').map((color) => (
+                        {PRESET_COLORS.filter(
+                          (color) =>
+                            color.value !== 'transparent' &&
+                            color.value !== 'custom'
+                        ).map((color) => (
                           <button
                             type="button"
                             key={color.value}
@@ -1020,7 +1112,9 @@ export function AIBackgroundGeneratorSection() {
                                 : 'border-gray-300 hover:border-gray-400'
                             )}
                             style={{ backgroundColor: color.value }}
-                            onClick={() => handleBackgroundColorSelect(color.value)}
+                            onClick={() =>
+                              handleBackgroundColorSelect(color.value)
+                            }
                             title={color.name}
                           >
                             {/* 选中状态的勾号 */}
@@ -1034,7 +1128,10 @@ export function AIBackgroundGeneratorSection() {
                                 className={cn(
                                   'drop-shadow-sm',
                                   // 根据背景色调整勾号颜色以确保对比度
-                                  color.value === '#FFFFFF' || color.value === '#ffeaa7' ? 'text-gray-700' : 'text-white'
+                                  color.value === '#FFFFFF' ||
+                                    color.value === '#ffeaa7'
+                                    ? 'text-gray-700'
+                                    : 'text-white'
                                 )}
                               >
                                 <path
@@ -1060,9 +1157,10 @@ export function AIBackgroundGeneratorSection() {
                               : 'border-gray-300 hover:border-gray-400'
                           )}
                           style={{
-                            background: selectedBackgroundColor === customColor
-                              ? customColor
-                              : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
+                            background:
+                              selectedBackgroundColor === customColor
+                                ? customColor
+                                : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
                           }}
                           title="Custom Color"
                         >
@@ -1208,35 +1306,40 @@ export function AIBackgroundGeneratorSection() {
                           {/* Custom icon and gradient background */}
                           <div className="relative w-full h-full rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 flex flex-col items-center justify-center gap-1">
                             <span className="text-xl">🎨</span>
-                            <span className="text-xs font-medium text-gray-700 leading-tight">Custom Style</span>
+                            <span className="text-xs font-medium text-gray-700 leading-tight">
+                              Custom Style
+                            </span>
                           </div>
                         </button>
                       </div>
 
                       {/* Custom Background Description Input */}
-                      {selectedBackground === 'custom' && showBackgroundInput && (
-                        <div className="space-y-3 mt-4">
-                          <Label
-                            htmlFor="custom-background"
-                            className="text-sm font-medium"
-                          >
-                            Custom Background Description
-                          </Label>
-                          <Textarea
-                            id="custom-background"
-                            placeholder="Describe your desired background style..."
-                            value={customBackgroundDescription}
-                            onChange={(e) => setCustomBackgroundDescription(e.target.value)}
-                            className="min-h-[100px] resize-none rounded-xl"
-                            maxLength={300}
-                          />
-                          <div className="flex items-center justify-end">
-                            <span className="text-xs text-muted-foreground">
-                              {customBackgroundDescription.length}/300
-                            </span>
+                      {selectedBackground === 'custom' &&
+                        showBackgroundInput && (
+                          <div className="space-y-3 mt-4">
+                            <Label
+                              htmlFor="custom-background"
+                              className="text-sm font-medium"
+                            >
+                              Custom Background Description
+                            </Label>
+                            <Textarea
+                              id="custom-background"
+                              placeholder="Describe your desired background style..."
+                              value={customBackgroundDescription}
+                              onChange={(e) =>
+                                setCustomBackgroundDescription(e.target.value)
+                              }
+                              className="min-h-[100px] resize-none rounded-xl"
+                              maxLength={300}
+                            />
+                            <div className="flex items-center justify-end">
+                              <span className="text-xs text-muted-foreground">
+                                {customBackgroundDescription.length}/300
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   )}
                 </div>
@@ -1255,9 +1358,7 @@ export function AIBackgroundGeneratorSection() {
                       style={{ height: '50px', padding: '0px 12px' }}
                     >
                       <SelectValue placeholder="Aspect Ratio (Default Original)">
-                        {ASPECT_OPTIONS.find(
-                          (o) => o.id === selectedAspect
-                        ) ? (
+                        {ASPECT_OPTIONS.find((o) => o.id === selectedAspect) ? (
                           <div className="flex items-center gap-3">
                             <img
                               src={
@@ -1305,9 +1406,7 @@ export function AIBackgroundGeneratorSection() {
                                 className="w-6 h-6"
                               />
                               <div className="text-left">
-                                <div className="font-medium">
-                                  {opt.label}
-                                </div>
+                                <div className="font-medium">{opt.label}</div>
                               </div>
                             </div>
                           </SelectItem>
@@ -1319,7 +1418,13 @@ export function AIBackgroundGeneratorSection() {
 
                 <Button
                   onClick={handleProcessImage}
-                  disabled={!uploadedImage || isProcessing || (backgroundMode === 'background' && !selectedBackground) || (selectedBackground === 'custom' && !customBackgroundDescription.trim())}
+                  disabled={
+                    !uploadedImage ||
+                    isProcessing ||
+                    (backgroundMode === 'background' && !selectedBackground) ||
+                    (selectedBackground === 'custom' &&
+                      !customBackgroundDescription.trim())
+                  }
                   className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
                 >
                   {isProcessing ? (
@@ -1395,19 +1500,23 @@ export function AIBackgroundGeneratorSection() {
                         className="absolute inset-0 rounded-lg"
                         style={{
                           backgroundImage:
-                            showAfter && selectedBackgroundColor === 'transparent'
+                            showAfter &&
+                            selectedBackgroundColor === 'transparent'
                               ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)'
                               : 'none',
                           backgroundSize:
-                            showAfter && selectedBackgroundColor === 'transparent'
+                            showAfter &&
+                            selectedBackgroundColor === 'transparent'
                               ? '20px 20px'
                               : 'auto',
                           backgroundPosition:
-                            showAfter && selectedBackgroundColor === 'transparent'
+                            showAfter &&
+                            selectedBackgroundColor === 'transparent'
                               ? '0 0, 0 10px, 10px -10px, -10px 0px'
                               : 'auto',
                           backgroundColor:
-                            showAfter && selectedBackgroundColor !== 'transparent'
+                            showAfter &&
+                            selectedBackgroundColor !== 'transparent'
                               ? selectedBackgroundColor
                               : 'transparent',
                         }}
@@ -1435,13 +1544,22 @@ export function AIBackgroundGeneratorSection() {
                             // 应用透明背景效果
                             if (processedImage) {
                               try {
-                                const transparentImage = await applyBackgroundColor(processedImage, 'transparent');
+                                const transparentImage =
+                                  await applyBackgroundColor(
+                                    processedImage,
+                                    'transparent'
+                                  );
                                 setCurrentDisplayImage(transparentImage);
                                 setAfterImageSrc(transparentImage);
                                 console.log('Applied transparent background');
                               } catch (error) {
-                                console.error('Failed to apply transparent background:', error);
-                                toast.error('Failed to apply transparent background');
+                                console.error(
+                                  'Failed to apply transparent background:',
+                                  error
+                                );
+                                toast.error(
+                                  'Failed to apply transparent background'
+                                );
                               }
                             }
                           }}
@@ -1466,9 +1584,27 @@ export function AIBackgroundGeneratorSection() {
                                 height="8"
                               >
                                 <rect width="4" height="4" fill="#ffffff" />
-                                <rect x="4" y="0" width="4" height="4" fill="#e5e7eb" />
-                                <rect x="0" y="4" width="4" height="4" fill="#e5e7eb" />
-                                <rect x="4" y="4" width="4" height="4" fill="#ffffff" />
+                                <rect
+                                  x="4"
+                                  y="0"
+                                  width="4"
+                                  height="4"
+                                  fill="#e5e7eb"
+                                />
+                                <rect
+                                  x="0"
+                                  y="4"
+                                  width="4"
+                                  height="4"
+                                  fill="#e5e7eb"
+                                />
+                                <rect
+                                  x="4"
+                                  y="4"
+                                  width="4"
+                                  height="4"
+                                  fill="#ffffff"
+                                />
                               </pattern>
                             </defs>
                             <rect width="32" height="32" fill="url(#mosaic)" />
@@ -1490,13 +1626,24 @@ export function AIBackgroundGeneratorSection() {
                               // 应用背景颜色效果
                               if (processedImage) {
                                 try {
-                                  const coloredImage = await applyBackgroundColor(processedImage, color.value);
+                                  const coloredImage =
+                                    await applyBackgroundColor(
+                                      processedImage,
+                                      color.value
+                                    );
                                   setCurrentDisplayImage(coloredImage);
                                   setAfterImageSrc(coloredImage);
-                                  console.log(`Applied background color: ${color.value}`);
+                                  console.log(
+                                    `Applied background color: ${color.value}`
+                                  );
                                 } catch (error) {
-                                  console.error('Failed to apply background color:', error);
-                                  toast.error('Failed to apply background color');
+                                  console.error(
+                                    'Failed to apply background color:',
+                                    error
+                                  );
+                                  toast.error(
+                                    'Failed to apply background color'
+                                  );
                                 }
                               }
                             }}
@@ -1512,9 +1659,10 @@ export function AIBackgroundGeneratorSection() {
                               : 'border-gray-300'
                           }`}
                           style={{
-                            background: selectedBackgroundColor === customColor
-                              ? customColor
-                              : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
+                            background:
+                              selectedBackgroundColor === customColor
+                                ? customColor
+                                : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
                           }}
                           title="Custom Color"
                         >

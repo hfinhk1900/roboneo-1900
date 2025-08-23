@@ -15,45 +15,49 @@ const PRESET_COLORS = [
 
 // AI Background 风格预设
 const BACKGROUND_STYLES = {
-  'remove-background': {
-    name: 'Remove Background',
-    prompt: 'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements'
-  },
   'gradient-abstract': {
     name: 'Abstract Gradient',
-    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending'
+    prompt:
+      'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending',
   },
   'texture-fabric': {
     name: 'Fabric Texture',
-    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface'
+    prompt:
+      'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface',
   },
   'nature-blur': {
     name: 'Nature Blur',
-    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere'
+    prompt:
+      'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere',
   },
   'urban-blur': {
     name: 'Urban Blur',
-    prompt: 'blurred urban background, soft city lights, bokeh street scene, modern atmosphere'
+    prompt:
+      'blurred urban background, soft city lights, bokeh street scene, modern atmosphere',
   },
   'wood-surface': {
     name: 'Wood Surface',
-    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table'
+    prompt:
+      'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table',
   },
   'marble-stone': {
     name: 'Marble Stone',
-    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface'
+    prompt:
+      'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface',
   },
   'fabric-cloth': {
     name: 'Soft Fabric',
-    prompt: 'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material'
+    prompt:
+      'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material',
   },
   'paper-vintage': {
     name: 'Vintage Paper',
-    prompt: 'vintage paper background, aged texture, warm cream tones, subtle aging effects'
+    prompt:
+      'vintage paper background, aged texture, warm cream tones, subtle aging effects',
   },
-  'custom': {
+  custom: {
     name: 'Custom Background',
-    prompt: '' // Will be filled by user input
+    prompt: '', // Will be filled by user input
   },
 } as const;
 
@@ -118,7 +122,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!backgroundMode || (backgroundMode !== 'color' && backgroundMode !== 'background')) {
+    if (
+      !backgroundMode ||
+      (backgroundMode !== 'color' && backgroundMode !== 'background')
+    ) {
       return NextResponse.json(
         { error: 'Invalid background mode. Must be "color" or "background"' },
         { status: 400 }
@@ -151,7 +158,8 @@ export async function POST(request: NextRequest) {
       if (backgroundType === 'custom' && !customBackgroundDescription?.trim()) {
         return NextResponse.json(
           {
-            error: 'Custom background description is required when using custom background type',
+            error:
+              'Custom background description is required when using custom background type',
           },
           { status: 400 }
         );
@@ -159,7 +167,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. 检查用户 Credits
-    const { canGenerateStickerAction } = await import('@/actions/credits-actions');
+    const { canGenerateStickerAction } = await import(
+      '@/actions/credits-actions'
+    );
     const creditsCheck = await canGenerateStickerAction({
       requiredCredits: CREDITS_PER_IMAGE,
     });
@@ -196,14 +206,15 @@ export async function POST(request: NextRequest) {
 
     if (backgroundMode === 'color') {
       // Solid Color 模式：先去除背景，然后用户可以添加纯色背景
-      // 使用 remove-background 预设来去除背景
-      const removeBackgroundConfig = BACKGROUND_STYLES['remove-background'];
-      finalPrompt = removeBackgroundConfig.prompt;
-      console.log(`🎯 Solid Color mode: Using remove-background (${removeBackgroundConfig.name})`);
+      finalPrompt =
+        'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements';
+      console.log(`🎯 Solid Color mode: Using background removal prompt`);
     } else {
       // AI 生成背景模式
       const styleConfig = BACKGROUND_STYLES[backgroundType!];
-      console.log(`🎯 Using background style: ${backgroundType} (${styleConfig.name})`);
+      console.log(
+        `🎯 Using background style: ${backgroundType} (${styleConfig.name})`
+      );
 
       let backgroundPrompt: string;
       if (backgroundType === 'custom' && customBackgroundDescription) {
@@ -290,11 +301,11 @@ export async function POST(request: NextRequest) {
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
     });
-
   } catch (error) {
     console.error('AI Background generation error:', error);
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
 
     // 根据错误类型返回不同的HTTP状态码和用户友好的消息
     let statusCode = 500;
