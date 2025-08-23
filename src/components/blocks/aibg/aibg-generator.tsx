@@ -48,43 +48,55 @@ const PRESET_COLORS = [
   { name: 'Custom', value: 'custom' },
 ];
 
-// Background styles configuration
+// Background styles configuration - 与后端 API 保持一致
 const BACKGROUND_STYLES = [
   {
-    id: 'gradient-aura',
-    name: 'Gradient Aura',
+    id: 'gradient-abstract',
+    name: 'Abstract Gradient',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gradient-aura.png',
-    prompt: 'smooth gradient background with colorful aura effect, modern abstract colors, soft transitions, clean aesthetic'
+    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending'
   },
   {
-    id: 'silk-fabric',
-    name: 'Silk Fabric',
+    id: 'texture-fabric',
+    name: 'Fabric Texture',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
-    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping'
+    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface'
   },
   {
-    id: 'studio-spotlight',
-    name: 'Studio Spotlight',
-    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/studio-spotlight.png',
-    prompt: 'professional studio background with dramatic spotlight lighting, dark background with focused lighting'
-  },
-  {
-    id: 'garden-bokeh',
-    name: 'Garden Bokeh',
+    id: 'nature-blur',
+    name: 'Nature Blur',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gardenbokeh.png',
-    prompt: 'natural garden background with beautiful bokeh effect, soft focus nature scene, warm ambient light'
+    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere'
   },
   {
-    id: 'natural-wood',
-    name: 'Natural Wood',
+    id: 'urban-blur',
+    name: 'Urban Blur',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/studio-spotlight.png',
+    prompt: 'blurred urban background, soft city lights, bokeh street scene, modern atmosphere'
+  },
+  {
+    id: 'wood-surface',
+    name: 'Wood Surface',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/naturalwood.png',
-    prompt: 'natural wooden surface background, warm wood grain texture, rustic table surface'
+    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table'
   },
   {
-    id: 'luxury-marble',
-    name: 'Luxury Marble',
+    id: 'marble-stone',
+    name: 'Marble Stone',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/luxurymarble.png',
-    prompt: 'luxury marble background, elegant natural stone patterns, premium surface texture, neutral colors'
+    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface'
+  },
+  {
+    id: 'fabric-cloth',
+    name: 'Soft Fabric',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
+    prompt: 'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material'
+  },
+  {
+    id: 'paper-vintage',
+    name: 'Vintage Paper',
+    icon: '📜',
+    prompt: 'vintage paper background, aged texture, warm cream tones, subtle aging effects'
   },
   {
     id: 'custom',
@@ -370,7 +382,7 @@ export function AIBackgroundGeneratorSection() {
       // Validate supported image formats
       const supportedFormats = [
         'image/jpeg',
-        'image/jpg', 
+        'image/jpg',
         'image/png',
         'image/webp',
       ];
@@ -599,9 +611,17 @@ export function AIBackgroundGeneratorSection() {
       clearInterval(progressInterval);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('AI Background API error:', errorData);
-        
+        console.error(`AI Background API error: HTTP ${response.status} ${response.statusText}`);
+
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('Error response data:', errorData);
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          errorData = {};
+        }
+
         if (response.status === 402) {
           // Insufficient credits
           setCreditsError({
@@ -614,7 +634,10 @@ export function AIBackgroundGeneratorSection() {
         if (response.status === 401) {
           throw new Error('Please log in to use AI Background');
         }
-        throw new Error(errorData.error || `API error: ${response.status}`);
+
+        // 提供更详细的错误信息
+        const errorMessage = errorData.error || errorData.details || errorData.message || `HTTP ${response.status} error`;
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -637,11 +660,22 @@ export function AIBackgroundGeneratorSection() {
 
     } catch (error) {
       console.error('AI Background generation failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
+      // 提供更详细的错误信息
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // 记录完整的错误堆栈
+        console.error('Error stack:', error.stack);
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else {
+        console.error('Unexpected error type:', typeof error, error);
+      }
+
       // Show error toast
       toast.error(errorMessage);
-      
+
       // Reset processing state
       setProcessingProgress(0);
     } finally {
@@ -954,8 +988,8 @@ export function AIBackgroundGeneratorSection() {
                               : 'border-gray-300 hover:border-gray-400'
                           )}
                           style={{
-                            background: selectedBackgroundColor === customColor 
-                              ? customColor 
+                            background: selectedBackgroundColor === customColor
+                              ? customColor
                               : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
                           }}
                           title="Custom Color"
@@ -1100,8 +1134,9 @@ export function AIBackgroundGeneratorSection() {
                           title="Custom Background"
                         >
                           {/* Custom icon and gradient background */}
-                          <div className="relative w-full h-full rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
-                            <span className="text-2xl">🎨</span>
+                          <div className="relative w-full h-full rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 flex flex-col items-center justify-center gap-1">
+                            <span className="text-xl">🎨</span>
+                            <span className="text-xs font-medium text-gray-700 leading-tight">Custom Style</span>
                           </div>
                         </button>
                       </div>
@@ -1317,91 +1352,92 @@ export function AIBackgroundGeneratorSection() {
                       />
                     </div>
 
-                    {/* Background color selection */}
-                    <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
-                      {/* Transparent (mosaic) button */}
-                      <button
-                        type="button"
-                        onClick={() => setSelectedBackgroundColor('transparent')}
-                        className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
-                          selectedBackgroundColor === 'transparent'
-                            ? 'border-blue-500 border-opacity-70'
-                            : 'border-gray-300'
-                        }`}
-                        title="Transparent Background"
-                      >
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          className="w-full h-full"
-                        >
-                          <defs>
-                            <pattern
-                              id="mosaic"
-                              patternUnits="userSpaceOnUse"
-                              width="8"
-                              height="8"
-                            >
-                              <rect width="4" height="4" fill="#ffffff" />
-                              <rect x="4" y="0" width="4" height="4" fill="#e5e7eb" />
-                              <rect x="0" y="4" width="4" height="4" fill="#e5e7eb" />
-                              <rect x="4" y="4" width="4" height="4" fill="#ffffff" />
-                            </pattern>
-                          </defs>
-                          <rect width="32" height="32" fill="url(#mosaic)" />
-                        </svg>
-                      </button>
-
-
-                      {PRESET_COLORS.slice(0, 4).map((color) => (
+                    {/* Background color selection - 只在 solid color 模式下显示 */}
+                    {backgroundMode === 'color' && (
+                      <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
+                        {/* Transparent (mosaic) button */}
                         <button
                           type="button"
-                          key={color.value}
-                          className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
-                            selectedBackgroundColor === color.value
+                          onClick={() => setSelectedBackgroundColor('transparent')}
+                          className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
+                            selectedBackgroundColor === 'transparent'
                               ? 'border-blue-500 border-opacity-70'
                               : 'border-gray-300'
                           }`}
-                          style={{ backgroundColor: color.value }}
-                          onClick={() => {
-                            setSelectedBackgroundColor(color.value);
-                            // 立即应用背景颜色效果
-                            console.log(`Applied background color: ${color.value}`);
-                          }}
-                          title={color.name}
-                        />
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => setShowColorPicker(true)}
-                        className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
-                          selectedBackgroundColor === customColor
-                            ? 'border-blue-500 border-opacity-70'
-                            : 'border-gray-300'
-                        }`}
-                        style={{
-                          background: selectedBackgroundColor === customColor 
-                            ? customColor 
-                            : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
-                        }}
-                        title="Custom Color"
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="text-white drop-shadow-sm"
+                          title="Transparent Background"
                         >
-                          <path
-                            d="M8 1L9.06 5.94L14 7L9.06 8.06L8 13L6.94 8.06L2 7L6.94 5.94L8 1Z"
-                            fill="currentColor"
+                          <svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 32 32"
+                            className="w-full h-full"
+                          >
+                            <defs>
+                              <pattern
+                                id="mosaic"
+                                patternUnits="userSpaceOnUse"
+                                width="8"
+                                height="8"
+                              >
+                                <rect width="4" height="4" fill="#ffffff" />
+                                <rect x="4" y="0" width="4" height="4" fill="#e5e7eb" />
+                                <rect x="0" y="4" width="4" height="4" fill="#e5e7eb" />
+                                <rect x="4" y="4" width="4" height="4" fill="#ffffff" />
+                              </pattern>
+                            </defs>
+                            <rect width="32" height="32" fill="url(#mosaic)" />
+                          </svg>
+                        </button>
+
+                        {PRESET_COLORS.slice(0, 4).map((color) => (
+                          <button
+                            type="button"
+                            key={color.value}
+                            className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
+                              selectedBackgroundColor === color.value
+                                ? 'border-blue-500 border-opacity-70'
+                                : 'border-gray-300'
+                            }`}
+                            style={{ backgroundColor: color.value }}
+                            onClick={() => {
+                              setSelectedBackgroundColor(color.value);
+                              // 立即应用背景颜色效果
+                              console.log(`Applied background color: ${color.value}`);
+                            }}
+                            title={color.name}
                           />
-                        </svg>
-                      </button>
-                    </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setShowColorPicker(true)}
+                          className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
+                            selectedBackgroundColor === customColor
+                              ? 'border-blue-500 border-opacity-70'
+                              : 'border-gray-300'
+                          }`}
+                          style={{
+                            background: selectedBackgroundColor === customColor
+                              ? customColor
+                              : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)'
+                          }}
+                          title="Custom Color"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="text-white drop-shadow-sm"
+                          >
+                            <path
+                              d="M8 1L9.06 5.94L14 7L9.06 8.06L8 13L6.94 8.06L2 7L6.94 5.94L8 1Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Download button */}
                     <Button

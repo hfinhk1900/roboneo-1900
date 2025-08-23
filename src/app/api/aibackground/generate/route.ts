@@ -17,15 +17,15 @@ const PRESET_COLORS = [
 const BACKGROUND_STYLES = {
   'gradient-abstract': {
     name: 'Abstract Gradient',
-    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic'
+    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending'
   },
   'texture-fabric': {
     name: 'Fabric Texture',
-    prompt: 'subtle texture background, fabric or paper texture, neutral tones, soft material feel'
+    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping, soft fabric folds, premium textile surface'
   },
   'nature-blur': {
     name: 'Nature Blur',
-    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light'
+    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light, garden atmosphere'
   },
   'urban-blur': {
     name: 'Urban Blur',
@@ -33,11 +33,11 @@ const BACKGROUND_STYLES = {
   },
   'wood-surface': {
     name: 'Wood Surface',
-    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface'
+    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface, rustic wooden table'
   },
   'marble-stone': {
     name: 'Marble Stone',
-    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors'
+    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors, premium marble surface'
   },
   'fabric-cloth': {
     name: 'Soft Fabric',
@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
         console.log(`🎨 Style: ${styleConfig.name}`);
       }
 
-      finalPrompt = `replace background with ${backgroundPrompt}, maintain original object proportions and details, seamless background replacement, professional compositing, natural integration`;
+      finalPrompt = `replace the background with ${backgroundPrompt}, keep the main subject exactly as it is, create a seamless and natural background integration`;
     }
 
     // 添加通用质量提升词
