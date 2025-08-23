@@ -15,6 +15,10 @@ const PRESET_COLORS = [
 
 // AI Background 风格预设
 const BACKGROUND_STYLES = {
+  'remove-background': {
+    name: 'Remove Background',
+    prompt: 'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements'
+  },
   'gradient-abstract': {
     name: 'Abstract Gradient',
     prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic, vibrant color blending'
@@ -191,12 +195,11 @@ export async function POST(request: NextRequest) {
     let finalPrompt: string;
 
     if (backgroundMode === 'color') {
-      // 纯色背景模式
-      if (backgroundColor === 'transparent') {
-        finalPrompt = 'remove background completely, transparent background, isolated object on transparent background, clean cutout, no background elements, perfect edge detection, professional background removal';
-      } else {
-        finalPrompt = `replace background with solid ${backgroundColor} color background, smooth even color background, no texture or pattern, clean solid color backdrop, professional studio lighting, object isolated on solid color background`;
-      }
+      // Solid Color 模式：先去除背景，然后用户可以添加纯色背景
+      // 使用 remove-background 预设来去除背景
+      const removeBackgroundConfig = BACKGROUND_STYLES['remove-background'];
+      finalPrompt = removeBackgroundConfig.prompt;
+      console.log(`🎯 Solid Color mode: Using remove-background (${removeBackgroundConfig.name})`);
     } else {
       // AI 生成背景模式
       const styleConfig = BACKGROUND_STYLES[backgroundType!];

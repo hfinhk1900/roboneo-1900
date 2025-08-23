@@ -51,6 +51,12 @@ const PRESET_COLORS = [
 // Background styles configuration - 与后端 API 保持一致
 const BACKGROUND_STYLES = [
   {
+    id: 'remove-background',
+    name: 'Remove Background',
+    icon: '✂️',
+    prompt: 'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements'
+  },
+  {
     id: 'gradient-abstract',
     name: 'Abstract Gradient',
     image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gradient-aura.png',
@@ -106,7 +112,7 @@ const BACKGROUND_STYLES = [
   },
 ];
 
-type BackgroundType = 'gradient-abstract' | 'texture-fabric' | 'nature-blur' | 'urban-blur' | 'wood-surface' | 'marble-stone' | 'fabric-cloth' | 'paper-vintage' | 'custom';
+type BackgroundType = 'remove-background' | 'gradient-abstract' | 'texture-fabric' | 'nature-blur' | 'urban-blur' | 'wood-surface' | 'marble-stone' | 'fabric-cloth' | 'paper-vintage' | 'custom';
 
 // Aspect ratio options configuration
 const ASPECT_OPTIONS: Array<{
@@ -348,10 +354,22 @@ export function AIBackgroundGeneratorSection() {
     }
   };
 
-  const handleCustomColorChange = (color: string) => {
+  const handleCustomColorChange = async (color: string) => {
     setSelectedBackgroundColor(color);
     setCustomColor(color);
-    // Don't show toast for real-time updates, only when color picker is closed
+
+    // 应用自定义背景颜色效果
+    if (processedImage) {
+      try {
+        const coloredImage = await applyBackgroundColor(processedImage, color);
+        setCurrentDisplayImage(coloredImage);
+        setAfterImageSrc(coloredImage);
+        console.log(`Applied custom background color: ${color}`);
+      } catch (error) {
+        console.error('Failed to apply custom background color:', error);
+        toast.error('Failed to apply custom background color');
+      }
+    }
   };
 
   // Parse aspect ratio string to width/height object
@@ -576,6 +594,8 @@ export function AIBackgroundGeneratorSection() {
 
       // Add background-specific parameters
       if (backgroundMode === 'color') {
+        // For Solid Color mode, use remove-background to get transparent background
+        apiPayload.backgroundType = 'remove-background';
         apiPayload.backgroundColor = selectedBackgroundColor === customColor ? customColor : selectedBackgroundColor;
       } else if (backgroundMode === 'background') {
         apiPayload.backgroundType = selectedBackground;
@@ -683,6 +703,48 @@ export function AIBackgroundGeneratorSection() {
     }
   };
 
+  // Apply background color to processed image
+  const applyBackgroundColor = (imageUrl: string, backgroundColor: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const image = new window.Image();
+      image.crossOrigin = 'anonymous';
+
+      const isDataUrl = imageUrl.startsWith('data:');
+      const srcUrl = isDataUrl
+        ? imageUrl
+        : `/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
+      image.src = srcUrl;
+
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const ctx = canvas.getContext('2d');
+
+        if (ctx) {
+          // Fill background color if it's not transparent
+          if (backgroundColor !== 'transparent') {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+          // Draw the processed image on top
+          ctx.drawImage(image, 0, 0);
+
+          // Convert to data URL
+          const dataUrl = canvas.toDataURL('image/png');
+          resolve(dataUrl);
+        } else {
+          reject(new Error('Could not get canvas context'));
+        }
+      };
+
+      image.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+    });
+  };
+
   // Download processed result
   const handleDownload = () => {
     if (!processedImage) {
@@ -690,12 +752,22 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    const image = new window.Image();
-    image.crossOrigin = 'anonymous'; // This is still good practice
+    // 如果当前显示的是应用了背景颜色的图片，直接下载
+    if (currentDisplayImage && currentDisplayImage !== processedImage) {
+      const link = document.createElement('a');
+      link.href = currentDisplayImage;
+      link.download = 'ai-background-result.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Image downloaded');
+      return;
+    }
 
-    // Determine the appropriate source:
-    // - For data URLs (uploaded images), use directly (no CORS issue)
-    // - For http(s) URLs (demo images on R2), use the API proxy to bypass CORS
+    // 否则下载原始处理后的图片
+    const image = new window.Image();
+    image.crossOrigin = 'anonymous';
+
     const isDataUrl = processedImage.startsWith('data:');
     const srcUrl = isDataUrl
       ? processedImage
@@ -1358,7 +1430,21 @@ export function AIBackgroundGeneratorSection() {
                         {/* Transparent (mosaic) button */}
                         <button
                           type="button"
-                          onClick={() => setSelectedBackgroundColor('transparent')}
+                          onClick={async () => {
+                            setSelectedBackgroundColor('transparent');
+                            // 应用透明背景效果
+                            if (processedImage) {
+                              try {
+                                const transparentImage = await applyBackgroundColor(processedImage, 'transparent');
+                                setCurrentDisplayImage(transparentImage);
+                                setAfterImageSrc(transparentImage);
+                                console.log('Applied transparent background');
+                              } catch (error) {
+                                console.error('Failed to apply transparent background:', error);
+                                toast.error('Failed to apply transparent background');
+                              }
+                            }
+                          }}
                           className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
                             selectedBackgroundColor === 'transparent'
                               ? 'border-blue-500 border-opacity-70'
@@ -1399,10 +1485,20 @@ export function AIBackgroundGeneratorSection() {
                                 : 'border-gray-300'
                             }`}
                             style={{ backgroundColor: color.value }}
-                            onClick={() => {
+                            onClick={async () => {
                               setSelectedBackgroundColor(color.value);
-                              // 立即应用背景颜色效果
-                              console.log(`Applied background color: ${color.value}`);
+                              // 应用背景颜色效果
+                              if (processedImage) {
+                                try {
+                                  const coloredImage = await applyBackgroundColor(processedImage, color.value);
+                                  setCurrentDisplayImage(coloredImage);
+                                  setAfterImageSrc(coloredImage);
+                                  console.log(`Applied background color: ${color.value}`);
+                                } catch (error) {
+                                  console.error('Failed to apply background color:', error);
+                                  toast.error('Failed to apply background color');
+                                }
+                              }
                             }}
                             title={color.name}
                           />
