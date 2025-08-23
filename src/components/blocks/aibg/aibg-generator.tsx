@@ -23,6 +23,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
+import { imglyBackgroundRemovalService, ImglyBackgroundRemovalOptions } from '@/lib/imgly-background-removal';
 import {
   DownloadIcon,
   ImagePlusIcon,
@@ -30,6 +31,8 @@ import {
   SparklesIcon,
   UploadIcon,
   XIcon,
+  CpuIcon,
+  ZapIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import type React from 'react';
@@ -211,6 +214,7 @@ export function AIBackgroundGeneratorSection() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
+  const [isLoadingAnimation, setIsLoadingAnimation] = useState(false);
 
   const [selectedBackgroundColor, setSelectedBackgroundColor] =
     useState<string>('transparent');
@@ -601,7 +605,7 @@ export function AIBackgroundGeneratorSection() {
     }
   };
 
-  // Process image with real AI Background API
+  // Process image with AI Background API or remove-background service
   const handleProcessImage = async () => {
     if (!uploadedImage) {
       toast.error('Please upload an image first');
@@ -628,7 +632,147 @@ export function AIBackgroundGeneratorSection() {
       );
       console.log(`✅ Image processed: ${imageBase64.length} characters`);
 
-      // Prepare API request payload
+            // For Solid Color mode, use local background removal service
+      if (backgroundMode === 'color') {
+        console.log('🎯 Solid Color mode: Using local background removal service');
+
+        let progressInterval: NodeJS.Timeout | null = null;
+        let timeoutId: NodeJS.Timeout | null = null;
+        let loadingAnimationInterval: NodeJS.Timeout | null = null;
+
+        try {
+          // Check browser compatibility
+          const compatibility = imglyBackgroundRemovalService.checkCompatibility();
+          if (!compatibility.supported) {
+            throw new Error('Your browser does not support local background removal. Please use a modern browser.');
+          }
+
+          // Start progress simulation for background removal with better UX
+          progressInterval = setInterval(() => {
+            setProcessingProgress((prev) => {
+              if (prev >= 60) {
+                // Keep at 60% but don't go backwards
+                return 60;
+              }
+              return prev + 2; // Slower, more realistic progress
+            });
+          }, 300);
+
+          // Add a continuous loading animation interval for visual feedback
+          const loadingAnimationInterval = setInterval(() => {
+            // Toggle loading animation state for visual feedback
+            setIsLoadingAnimation(prev => !prev);
+          }, 500);
+
+          // Add timeout protection to prevent progress bar from getting stuck
+          timeoutId = setTimeout(() => {
+            if (progressInterval) {
+              clearInterval(progressInterval);
+              progressInterval = null;
+            }
+            console.warn('⚠️ Background removal timeout, forcing progress to 100%');
+            setProcessingProgress(100);
+          }, 30000); // 30 second timeout
+
+          // Get recommended settings
+          const recommendedSettings = imglyBackgroundRemovalService.getRecommendedSettings();
+          console.log(`🎯 Using recommended settings:`, recommendedSettings);
+
+          // Process image locally with progress updates
+          setProcessingProgress(65); // Set to 65% when starting background removal
+
+          const result = await imglyBackgroundRemovalService.removeBackground(imageBase64, {
+            model: recommendedSettings.model,
+            output: {
+              format: recommendedSettings.output.format,
+              quality: recommendedSettings.output.quality
+            }
+          });
+
+          if (progressInterval) {
+            clearInterval(progressInterval);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          if (loadingAnimationInterval) {
+            clearInterval(loadingAnimationInterval);
+          }
+          setIsLoadingAnimation(false); // Reset loading animation
+
+          if (result.success && result.image) {
+              setProcessedImage(result.image);
+              setCurrentDisplayImage(result.image);
+              setProcessingProgress(75); // Set to 75% after background removal
+
+              // 上传到 R2
+              try {
+                console.log('📤 开始上传去背景图片到 R2...');
+
+                // 显示上传进度
+                setProcessingProgress(80);
+
+                // 将 base64 转换为 Blob
+                const base64Response = await fetch(result.image);
+                const blob = await base64Response.blob();
+
+                setProcessingProgress(85);
+
+                // 创建 FormData
+                const formData = new FormData();
+                formData.append('image', blob, 'background-removed.png');
+                formData.append('originalFileName', uploadedImage?.name || 'unknown');
+
+                // 上传到 R2
+                const uploadResponse = await fetch('/api/upload-aibg-solidcolor', {
+                  method: 'POST',
+                  body: formData
+                });
+
+                if (uploadResponse.ok) {
+                  const uploadResult = await uploadResponse.json();
+                  console.log('✅ 图片已上传到 R2:', uploadResult.url);
+                  setProcessingProgress(100);
+                  toast.success('Background removed and saved!');
+                } else {
+                  console.warn('⚠️ 上传到 R2 失败，但去背景成功');
+                  setProcessingProgress(100);
+                  toast.success('Background removed successfully!');
+                }
+              } catch (uploadError) {
+                console.warn('⚠️ 上传到 R2 时出错，但去背景成功:', uploadError);
+                setProcessingProgress(100);
+                toast.success('Background removed successfully!');
+              }
+
+              console.log('✅ Local background removal completed successfully');
+              return;
+            } else {
+              throw new Error(result.error || 'Local background removal failed');
+            }
+        } catch (error) {
+          if (progressInterval) {
+            clearInterval(progressInterval);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          if (loadingAnimationInterval) {
+            clearInterval(loadingAnimationInterval);
+          }
+          setIsLoadingAnimation(false); // Reset loading animation
+          console.error('Local background removal failed:', error);
+
+          // Fallback to user-friendly error
+          if (error instanceof Error && error.message.includes('browser does not support')) {
+            throw new Error('Browser compatibility issue. Please use the latest version of Chrome, Firefox, or Safari.');
+          } else {
+            throw new Error('Local processing failed. Please check image format or try again later.');
+          }
+        }
+      }
+
+      // For AI Background mode, use original AI service
       const apiPayload: any = {
         image_input: imageBase64,
         backgroundMode: backgroundMode,
@@ -638,15 +782,8 @@ export function AIBackgroundGeneratorSection() {
         output_format: 'png',
       };
 
-      // Add background-specific parameters
-      if (backgroundMode === 'color') {
-        // For Solid Color mode, use remove-background to get transparent background
-        apiPayload.backgroundType = 'remove-background';
-        apiPayload.backgroundColor =
-          selectedBackgroundColor === customColor
-            ? customColor
-            : selectedBackgroundColor;
-      } else if (backgroundMode === 'background') {
+      // Add background-specific parameters for AI mode
+      if (backgroundMode === 'background') {
         apiPayload.backgroundType = selectedBackground;
         if (
           selectedBackground === 'custom' &&
@@ -947,6 +1084,7 @@ export function AIBackgroundGeneratorSection() {
                             src={imagePreview}
                             alt="Product preview"
                             fill
+                            sizes="(max-width: 640px) 20vw, 16vw"
                             className="object-cover"
                           />
                         </div>
@@ -1152,19 +1290,19 @@ export function AIBackgroundGeneratorSection() {
                           onClick={() => handleBackgroundColorSelect('custom')}
                           className={cn(
                             'relative rounded-full size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
-                            selectedBackgroundColor === customColor
+                            selectedBackgroundColor === 'custom'
                               ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
                               : 'border-gray-300 hover:border-gray-400'
                           )}
                           style={{
                             background:
-                              selectedBackgroundColor === customColor
+                              selectedBackgroundColor === 'custom'
                                 ? customColor
                                 : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
                           }}
                           title="Custom Color"
                         >
-                          {selectedBackgroundColor === customColor ? (
+                          {selectedBackgroundColor === 'custom' ? (
                             // 选中状态显示勾号
                             <svg
                               width="20"
@@ -1235,6 +1373,7 @@ export function AIBackgroundGeneratorSection() {
                                   src={style.image}
                                   alt={style.name}
                                   fill
+                                  sizes="(max-width: 768px) 25vw, 15vw"
                                   className="object-cover"
                                 />
                               ) : (
@@ -1277,6 +1416,7 @@ export function AIBackgroundGeneratorSection() {
                                   src={style.image}
                                   alt={style.name}
                                   fill
+                                  sizes="(max-width: 768px) 25vw, 15vw"
                                   className="object-cover"
                                 />
                               ) : (
@@ -1422,7 +1562,7 @@ export function AIBackgroundGeneratorSection() {
                     !uploadedImage ||
                     isProcessing ||
                     (backgroundMode === 'background' && !selectedBackground) ||
-                    (selectedBackground === 'custom' &&
+                    (backgroundMode === 'background' && selectedBackground === 'custom' &&
                       !customBackgroundDescription.trim())
                   }
                   className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
@@ -1529,6 +1669,7 @@ export function AIBackgroundGeneratorSection() {
                         }
                         alt="AI Background processed result"
                         fill
+                        sizes="(max-width: 768px) 80vw, 400px"
                         className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
                       />
                     </div>
@@ -1654,13 +1795,13 @@ export function AIBackgroundGeneratorSection() {
                           type="button"
                           onClick={() => setShowColorPicker(true)}
                           className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
-                            selectedBackgroundColor === customColor
+                            selectedBackgroundColor === 'custom'
                               ? 'border-blue-500 border-opacity-70'
                               : 'border-gray-300'
                           }`}
                           style={{
                             background:
-                              selectedBackgroundColor === customColor
+                              selectedBackgroundColor === 'custom'
                                 ? customColor
                                 : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
                           }}
@@ -1734,11 +1875,23 @@ export function AIBackgroundGeneratorSection() {
                               </span>
                             </div>
 
-                            {/* 进度条 */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                                                        {/* 进度条 */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden relative">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out ${
+                                  isLoadingAnimation ? 'animate-pulse' : ''
+                                }`}
                                 style={{ width: `${processingProgress}%` }}
+                              />
+                              {/* 持续的光效动画 */}
+                              <div
+                                className={`absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 ${
+                                  isLoadingAnimation ? 'animate-pulse' : ''
+                                }`}
+                                style={{
+                                  left: `${Math.min(processingProgress, 90)}%`,
+                                  transform: 'translateX(-100%)'
+                                }}
                               />
                             </div>
 
@@ -1749,7 +1902,7 @@ export function AIBackgroundGeneratorSection() {
 
                             {/* Loading message */}
                             <div className="text-white text-center max-w-sm">
-                              <p>Removing background from your image...</p>
+                              <p>Your image is processing...</p>
                             </div>
                           </div>
                         </div>
@@ -1774,6 +1927,7 @@ export function AIBackgroundGeneratorSection() {
                             src={demoImage.beforeSrc}
                             alt={demoImage.alt}
                             fill
+                            sizes="82px"
                             className="object-cover"
                           />
                         </button>
