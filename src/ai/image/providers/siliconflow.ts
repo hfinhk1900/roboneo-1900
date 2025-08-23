@@ -41,6 +41,7 @@ export class SiliconFlowProvider {
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input?: string; // base64 encoded image for image-to-image
     reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
+    storageFolder?: string; // NEW: custom storage folder (default: 'productshots')
   }): Promise<ProductShotResult> {
     console.log('🎯 SiliconFlow ProductShot generation starting...');
 
@@ -50,6 +51,7 @@ export class SiliconFlowProvider {
       return this.generateImageToImage({
         ...params,
         image_input: params.image_input,
+        storageFolder: params.storageFolder,
       });
     }
 
@@ -71,6 +73,7 @@ export class SiliconFlowProvider {
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input: string; // base64 encoded image
     reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
+    storageFolder?: string; // NEW: custom storage folder
   }): Promise<ProductShotResult> {
     console.log(
       '🎨 Using SiliconFlow image-to-image generation with FLUX.1-Kontext-dev'
@@ -84,13 +87,13 @@ export class SiliconFlowProvider {
       const requestBody: any = {
         model: model,
         prompt: params.prompt,
-        image: `data:image/png;base64,${params.image_input}`, // 添加数据前缀
+        image: params.image_input.startsWith('data:') ? params.image_input : `data:image/png;base64,${params.image_input}`, // 确保有正确的数据前缀
         prompt_enhancement: false, // 禁用提示词增强以保持原始输入
       };
 
       // 双图支持：回退到reference_image参数
       if (params.reference_image) {
-        requestBody.reference_image = `data:image/png;base64,${params.reference_image}`;
+        requestBody.reference_image = params.reference_image.startsWith('data:') ? params.reference_image : `data:image/png;base64,${params.reference_image}`;
         console.log('🖼️ Dual-image mode: Added reference_image to request');
       }
 
@@ -249,7 +252,8 @@ export class SiliconFlowProvider {
       }
 
       // 上传到 R2
-      console.log('☁️ Uploading to R2 productshots folder...');
+      const storageFolder = params.storageFolder || 'productshots';
+      console.log(`☁️ Uploading to R2 ${storageFolder} folder...`);
       let publicUrl: string;
       try {
         const { uploadFile } = await import('@/storage');
@@ -258,7 +262,7 @@ export class SiliconFlowProvider {
           Buffer.from(imageBuffer),
           filename,
           'image/png',
-          'productshots'
+          storageFolder
         );
         publicUrl = uploadResult.url;
         console.log(`✅ Image saved to R2: ${publicUrl}`);

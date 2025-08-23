@@ -5,8 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DownloadIcon,
   ImagePlusIcon,
@@ -35,52 +51,40 @@ const PRESET_COLORS = [
 // Background styles configuration
 const BACKGROUND_STYLES = [
   {
-    id: 'gradient-abstract',
-    name: 'Abstract Gradient',
-    icon: '🌈',
-    prompt: 'smooth gradient background, modern abstract colors, soft transitions, clean aesthetic'
+    id: 'gradient-aura',
+    name: 'Gradient Aura',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gradient-aura.png',
+    prompt: 'smooth gradient background with colorful aura effect, modern abstract colors, soft transitions, clean aesthetic'
   },
   {
-    id: 'texture-fabric',
-    name: 'Fabric Texture',
-    icon: '🧵',
-    prompt: 'subtle texture background, fabric or paper texture, neutral tones, soft material feel'
+    id: 'silk-fabric',
+    name: 'Silk Fabric',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/silk-fabric.png',
+    prompt: 'luxurious silk fabric background, smooth golden fabric texture, elegant material draping'
   },
   {
-    id: 'nature-blur',
-    name: 'Nature Blur',
-    icon: '🌸',
-    prompt: 'natural blurred background, bokeh effect, soft focus nature scene, warm ambient light'
+    id: 'studio-spotlight',
+    name: 'Studio Spotlight',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/studio-spotlight.png',
+    prompt: 'professional studio background with dramatic spotlight lighting, dark background with focused lighting'
   },
   {
-    id: 'urban-blur',
-    name: 'Urban Blur',
-    icon: '🏙️',
-    prompt: 'blurred urban background, soft city lights, bokeh street scene, modern atmosphere'
+    id: 'garden-bokeh',
+    name: 'Garden Bokeh',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/gardenbokeh.png',
+    prompt: 'natural garden background with beautiful bokeh effect, soft focus nature scene, warm ambient light'
   },
   {
-    id: 'wood-surface',
-    name: 'Wood Surface',
-    icon: '🪵',
-    prompt: 'wooden surface background, natural wood grain texture, warm brown tones, table surface'
+    id: 'natural-wood',
+    name: 'Natural Wood',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/naturalwood.png',
+    prompt: 'natural wooden surface background, warm wood grain texture, rustic table surface'
   },
   {
-    id: 'marble-stone',
-    name: 'Marble Stone',
-    icon: '🪨',
-    prompt: 'marble stone background, elegant natural patterns, luxury surface texture, neutral colors'
-  },
-  {
-    id: 'fabric-cloth',
-    name: 'Soft Fabric',
-    icon: '🧶',
-    prompt: 'soft fabric background, silk or cotton texture, gentle folds and draping, elegant material'
-  },
-  {
-    id: 'paper-vintage',
-    name: 'Vintage Paper',
-    icon: '📜',
-    prompt: 'vintage paper background, aged texture, warm cream tones, subtle aging effects'
+    id: 'luxury-marble',
+    name: 'Luxury Marble',
+    image: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibg-preset/luxurymarble.png',
+    prompt: 'luxury marble background, elegant natural stone patterns, premium surface texture, neutral colors'
   },
   {
     id: 'custom',
@@ -91,6 +95,39 @@ const BACKGROUND_STYLES = [
 ];
 
 type BackgroundType = 'gradient-abstract' | 'texture-fabric' | 'nature-blur' | 'urban-blur' | 'wood-surface' | 'marble-stone' | 'fabric-cloth' | 'paper-vintage' | 'custom';
+
+// Aspect ratio options configuration
+const ASPECT_OPTIONS: Array<{
+  id: string; // ratio id, e.g. '2:3'
+  label: string; // display label, e.g. 'Tall'
+  icon: string; // icon path
+  ratioClass: string; // kept for potential future use
+}> = [
+  {
+    id: 'original',
+    label: 'Original',
+    icon: '/icons/original.svg',
+    ratioClass: 'aspect-auto',
+  },
+  {
+    id: '2:3',
+    label: 'Tall',
+    icon: '/icons/tall.svg',
+    ratioClass: 'aspect-[2/3]',
+  },
+  {
+    id: '1:1',
+    label: 'Square',
+    icon: '/icons/square.svg',
+    ratioClass: 'aspect-[1/1]',
+  },
+  {
+    id: '3:2',
+    label: 'Wide',
+    icon: '/icons/wide.svg',
+    ratioClass: 'aspect-[3/2]',
+  },
+];
 
 // Demo images configuration with before/after states
 const DEMO_IMAGES = [
@@ -122,6 +159,12 @@ export function AIBackgroundGeneratorSection() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Aspect ratio selection (default original)
+  const [selectedAspect, setSelectedAspect] = useState<string>('original');
+
+  // Image preview modal state
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -299,7 +342,190 @@ export function AIBackgroundGeneratorSection() {
     // Don't show toast for real-time updates, only when color picker is closed
   };
 
-  // Process image (simulation)
+  // Parse aspect ratio string to width/height object
+  function parseAspectRatio(aspect?: string): { w: number; h: number } | undefined {
+    if (!aspect || aspect === 'original') return undefined;
+    const parts = aspect.split(':');
+    if (parts.length !== 2) return undefined;
+    const w = Number(parts[0]);
+    const h = Number(parts[1]);
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+      return undefined;
+    }
+    return { w, h };
+  }
+
+  // Convert File to base64 with aspect ratio processing (similar to ProductShot)
+  const fileToBase64 = (
+    file: File,
+    targetAspect?: { w: number; h: number }
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // Validate input
+      if (!file) {
+        reject(new Error('File is null or undefined'));
+        return;
+      }
+
+      // Validate supported image formats
+      const supportedFormats = [
+        'image/jpeg',
+        'image/jpg', 
+        'image/png',
+        'image/webp',
+      ];
+      if (!supportedFormats.includes(file.type)) {
+        reject(
+          new Error(
+            `Unsupported file type: ${file.type}. Please use ${supportedFormats.join(', ')}.`
+          )
+        );
+        return;
+      }
+
+      // Create canvas for processing
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new window.Image();
+
+      img.onload = () => {
+        try {
+          // Target max side limit
+          const maxSide = 1024;
+          const sourceWidth = img.width;
+          const sourceHeight = img.height;
+
+          if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
+            // Use contain mode: preserve complete image content, no cropping
+            const targetRatio = targetAspect.w / targetAspect.h;
+            const sourceRatio = sourceWidth / sourceHeight;
+
+            // Determine output canvas size (scale longest side to maxSide)
+            let canvasW = 0;
+            let canvasH = 0;
+            if (targetRatio >= 1) {
+              canvasW = maxSide;
+              canvasH = Math.round(maxSide / targetRatio);
+            } else {
+              canvasH = maxSide;
+              canvasW = Math.round(maxSide * targetRatio);
+            }
+
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+
+            // Set white background (can be changed to transparent or other colors)
+            if (ctx) {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, canvasW, canvasH);
+            }
+
+            // Calculate image position and size in canvas (contain mode)
+            let drawWidth = 0;
+            let drawHeight = 0;
+            let drawX = 0;
+            let drawY = 0;
+
+            if (sourceRatio > targetRatio) {
+              // Source is wider, fit to canvas width
+              drawWidth = canvasW;
+              drawHeight = Math.round(canvasW / sourceRatio);
+              drawX = 0;
+              drawY = Math.round((canvasH - drawHeight) / 2);
+            } else {
+              // Source is taller or same ratio, fit to canvas height
+              drawHeight = canvasH;
+              drawWidth = Math.round(canvasH * sourceRatio);
+              drawX = Math.round((canvasW - drawWidth) / 2);
+              drawY = 0;
+            }
+
+            // Draw complete image to canvas center
+            ctx?.drawImage(
+              img,
+              0,
+              0,
+              sourceWidth,
+              sourceHeight,
+              drawX,
+              drawY,
+              drawWidth,
+              drawHeight
+            );
+          } else {
+            // Original logic: maintain aspect ratio, compress to maxSide
+            let width = sourceWidth;
+            let height = sourceHeight;
+            if (width > height) {
+              if (width > maxSide) {
+                height = Math.round((height * maxSide) / width);
+                width = maxSide;
+              }
+            } else {
+              if (height > maxSide) {
+                width = Math.round((width * maxSide) / height);
+                height = maxSide;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            ctx?.drawImage(img, 0, 0, width, height);
+          }
+
+          // Convert to base64, use JPEG format to reduce file size
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+          // Keep the full data URL format for AIBG API
+          if (!compressedDataUrl) {
+            reject(new Error('Failed to generate base64 data from processed image'));
+            return;
+          }
+
+          console.log(
+            `📸 Image processed for AIBG: ${file.name} (${Math.round(file.size / 1024)}KB → ${Math.round((compressedDataUrl.length * 0.75) / 1024)}KB)`
+          );
+          resolve(compressedDataUrl);
+        } catch (error) {
+          reject(
+            new Error(
+              `Error processing image: ${error instanceof Error ? error.message : 'Unknown error'}`
+            )
+          );
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error('Failed to load image for processing'));
+      };
+
+      // Read file and set image source
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          img.src = e.target.result as string;
+        } else {
+          reject(new Error('Failed to read file'));
+        }
+      };
+      reader.onerror = () => {
+        reject(new Error('FileReader error'));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Convert aspect ratio format for API (kept for compatibility)
+  const convertAspectRatioToSize = (aspectRatio: string): string => {
+    switch (aspectRatio) {
+      case 'original': return '1024x1024'; // Default size, will maintain original proportions
+      case '1:1': return '1024x1024';
+      case '2:3': return '768x1152'; // Tall
+      case '3:2': return '1152x768'; // Wide
+      default: return '1024x1024';
+    }
+  };
+
+  // Process image with real AI Background API
   const handleProcessImage = async () => {
     if (!uploadedImage) {
       toast.error('Please upload an image first');
@@ -311,39 +537,116 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    // Clear any existing interval
-    if (processingIntervalRef.current) {
-      clearInterval(processingIntervalRef.current);
-      processingIntervalRef.current = null;
-    }
-
     setIsProcessing(true);
     setProcessingProgress(0);
     setSelectedDemoImage(null); // Clear demo image selection when processing uploaded image
     setSelectedDemoImageData(null); // Clear demo image data
     setCurrentDisplayImage(null); // Clear current display image
 
-    // Simulate processing progress
-    processingIntervalRef.current = setInterval(() => {
-      setProcessingProgress((prev) => {
-        if (prev >= 100) {
-          if (processingIntervalRef.current) {
-            clearInterval(processingIntervalRef.current);
-            processingIntervalRef.current = null;
-          }
-          setIsProcessing(false);
-          // Simulate processing completion
-          setProcessedImage(imagePreview);
-          setCurrentDisplayImage(imagePreview); // Set current display image
-          // Use setTimeout to avoid React rendering conflicts
-          setTimeout(() => {
-            toast.success('Background removal completed!');
-          }, 0);
-          return 100;
+    try {
+      // Process uploaded image with aspect ratio handling (similar to ProductShot)
+      console.log('📸 Processing image with aspect ratio handling...');
+      const imageBase64 = await fileToBase64(
+        uploadedImage,
+        parseAspectRatio(selectedAspect)
+      );
+      console.log(`✅ Image processed: ${imageBase64.length} characters`);
+
+      // Prepare API request payload
+      const apiPayload: any = {
+        image_input: imageBase64,
+        backgroundMode: backgroundMode,
+        quality: 'standard',
+        steps: 25,
+        size: convertAspectRatioToSize(selectedAspect),
+        output_format: 'png'
+      };
+
+      // Add background-specific parameters
+      if (backgroundMode === 'color') {
+        apiPayload.backgroundColor = selectedBackgroundColor === customColor ? customColor : selectedBackgroundColor;
+      } else if (backgroundMode === 'background') {
+        apiPayload.backgroundType = selectedBackground;
+        if (selectedBackground === 'custom' && customBackgroundDescription.trim()) {
+          apiPayload.customBackgroundDescription = customBackgroundDescription.trim();
         }
-        return prev + 10;
+      }
+
+      console.log('🚀 Calling AI Background API with payload:', {
+        ...apiPayload,
+        image_input: '[base64 image data]' // Don't log the full base64 string
       });
-    }, 200);
+
+      // Start progress simulation while waiting for API response
+      const progressInterval = setInterval(() => {
+        setProcessingProgress((prev) => {
+          if (prev >= 90) {
+            return 90; // Stop at 90% until API responds
+          }
+          return prev + 5;
+        });
+      }, 300);
+
+      // Call AI Background API
+      const response = await fetch('/api/aibackground/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiPayload),
+      });
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('AI Background API error:', errorData);
+        
+        if (response.status === 402) {
+          // Insufficient credits
+          setCreditsError({
+            required: errorData.required || CREDITS_PER_IMAGE,
+            current: errorData.current || 0
+          });
+          setShowCreditsDialog(true);
+          return;
+        }
+        if (response.status === 401) {
+          throw new Error('Please log in to use AI Background');
+        }
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ AI Background API success:', result);
+
+      // Complete progress
+      setProcessingProgress(100);
+
+      // Set the processed image
+      setProcessedImage(result.resultUrl);
+      setAfterImageSrc(result.resultUrl);
+      setBeforeImageSrc(imagePreview);
+      setCurrentDisplayImage(result.resultUrl);
+
+      // Show success message
+      setTimeout(() => {
+        setProcessingProgress(0);
+        toast.success(`AI Background generated successfully! Used ${result.credits_used} credits.`);
+      }, 1000);
+
+    } catch (error) {
+      console.error('AI Background generation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Show error toast
+      toast.error(errorMessage);
+      
+      // Reset processing state
+      setProcessingProgress(0);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Download processed result
@@ -699,8 +1002,9 @@ export function AIBackgroundGeneratorSection() {
                   {/* Background Style Mode */}
                   {backgroundMode === 'background' && (
                     <div className="mb-2">
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {BACKGROUND_STYLES.map((style) => (
+                      {/* First row - 4 items */}
+                      <div className="grid grid-cols-4 gap-1.5 mb-1.5">
+                        {BACKGROUND_STYLES.slice(0, 4).map((style) => (
                           <button
                             type="button"
                             key={style.id}
@@ -713,19 +1017,93 @@ export function AIBackgroundGeneratorSection() {
                               }
                             }}
                             className={cn(
-                              'flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all hover:scale-105 text-center min-h-[50px]',
+                              'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
                               selectedBackground === style.id
-                                ? 'border-primary scale-105 bg-primary/5'
-                                : 'border-muted-foreground/25 hover:border-primary/50'
+                                ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                                : 'hover:ring-1 hover:ring-primary/50'
                             )}
                             title={style.name}
                           >
-                            <span className="text-sm mb-0.5">{style.icon}</span>
-                            <span className="text-[10px] font-medium leading-tight">
-                              {style.name}
-                            </span>
+                            {/* Background image */}
+                            <div className="relative w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                              {style.image ? (
+                                <Image
+                                  src={style.image}
+                                  alt={style.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center w-full h-full text-2xl">
+                                  {style.icon}
+                                </div>
+                              )}
+                            </div>
                           </button>
                         ))}
+                      </div>
+
+                      {/* Second row - 2 regular items + 1 wide custom item */}
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {/* Natural Wood */}
+                        {BACKGROUND_STYLES.slice(4, 6).map((style) => (
+                          <button
+                            type="button"
+                            key={style.id}
+                            onClick={() => {
+                              setSelectedBackground(style.id as BackgroundType);
+                              if (style.id === 'custom') {
+                                setShowBackgroundInput(true);
+                              } else {
+                                setShowBackgroundInput(false);
+                              }
+                            }}
+                            className={cn(
+                              'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
+                              selectedBackground === style.id
+                                ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                                : 'hover:ring-1 hover:ring-primary/50'
+                            )}
+                            title={style.name}
+                          >
+                            {/* Background image */}
+                            <div className="relative w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                              {style.image ? (
+                                <Image
+                                  src={style.image}
+                                  alt={style.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center w-full h-full text-2xl">
+                                  {style.icon}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+
+                        {/* Custom Background - spans 2 columns */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBackground('custom' as BackgroundType);
+                            setShowBackgroundInput(true);
+                          }}
+                          className={cn(
+                            'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-[2/1] overflow-hidden col-span-2',
+                            selectedBackground === 'custom'
+                              ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                              : 'hover:ring-1 hover:ring-primary/50'
+                          )}
+                          title="Custom Background"
+                        >
+                          {/* Custom icon and gradient background */}
+                          <div className="relative w-full h-full rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
+                            <span className="text-2xl">🎨</span>
+                          </div>
+                        </button>
                       </div>
 
                       {/* Custom Background Description Input */}
@@ -754,6 +1132,82 @@ export function AIBackgroundGeneratorSection() {
                       )}
                     </div>
                   )}
+                </div>
+
+                {/* Output Aspect Ratio - independent component */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">
+                    Output Aspect Ratio
+                  </Label>
+                  <Select
+                    value={selectedAspect}
+                    onValueChange={(value) => setSelectedAspect(value)}
+                  >
+                    <SelectTrigger
+                      className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                      style={{ height: '50px', padding: '0px 12px' }}
+                    >
+                      <SelectValue placeholder="Aspect Ratio (Default Original)">
+                        {ASPECT_OPTIONS.find(
+                          (o) => o.id === selectedAspect
+                        ) ? (
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={
+                                ASPECT_OPTIONS.find(
+                                  (o) => o.id === selectedAspect
+                                )?.icon
+                              }
+                              alt="aspect"
+                              className="w-6 h-6"
+                            />
+                            <div className="text-left">
+                              <div className="font-medium">
+                                {
+                                  ASPECT_OPTIONS.find(
+                                    (o) => o.id === selectedAspect
+                                  )?.label
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Aspect Ratio (Default Original)
+                          </span>
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                      <SelectGroup>
+                        {ASPECT_OPTIONS.map((opt) => (
+                          <SelectItem
+                            key={opt.id}
+                            value={opt.id}
+                            className={cn(
+                              'cursor-pointer py-3 px-3 transition-colors',
+                              'hover:bg-muted/50 hover:text-foreground',
+                              'focus:bg-muted/50 focus:text-foreground',
+                              'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={opt.icon}
+                                alt="aspect"
+                                className="w-6 h-6"
+                              />
+                              <div className="text-left">
+                                <div className="font-medium">
+                                  {opt.label}
+                                </div>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button
