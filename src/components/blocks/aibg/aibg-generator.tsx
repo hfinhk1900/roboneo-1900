@@ -473,15 +473,17 @@ export function AIBackgroundGeneratorSection() {
             const targetRatio = targetAspect.w / targetAspect.h;
             const sourceRatio = sourceWidth / sourceHeight;
 
-            // Determine output canvas size (scale longest side to maxSide)
+            // Determine output canvas size - 与 API 期望的尺寸保持一致
             let canvasW = 0;
             let canvasH = 0;
             if (targetRatio >= 1) {
-              canvasW = maxSide;
-              canvasH = Math.round(maxSide / targetRatio);
+              // Wide aspect ratio (3:2, 1:1)
+              canvasW = 1024;
+              canvasH = Math.round(1024 / targetRatio);
             } else {
-              canvasH = maxSide;
-              canvasW = Math.round(maxSide * targetRatio);
+              // Tall aspect ratio (2:3)
+              canvasH = 1024;
+              canvasW = Math.round(1024 * targetRatio);
             }
 
             canvas.width = canvasW;
@@ -525,6 +527,8 @@ export function AIBackgroundGeneratorSection() {
               drawWidth,
               drawHeight
             );
+
+            console.log(`📐 Canvas size: ${canvasW}x${canvasH} for aspect ratio ${targetAspect.w}:${targetAspect.h}`);
           } else {
             // Original logic: maintain aspect ratio, compress to maxSide
             let width = sourceWidth;
@@ -589,7 +593,7 @@ export function AIBackgroundGeneratorSection() {
     });
   };
 
-  // Convert aspect ratio format for API (kept for compatibility)
+  // Convert aspect ratio format for API - 与前端处理逻辑保持一致
   const convertAspectRatioToSize = (aspectRatio: string): string => {
     switch (aspectRatio) {
       case 'original':
@@ -597,9 +601,9 @@ export function AIBackgroundGeneratorSection() {
       case '1:1':
         return '1024x1024';
       case '2:3':
-        return '768x1152'; // Tall
+        return '1024x1536'; // Tall: 1024 * (3/2) = 1536
       case '3:2':
-        return '1152x768'; // Wide
+        return '1536x1024'; // Wide: 1024 * (3/2) = 1536
       default:
         return '1024x1024';
     }
@@ -1085,7 +1089,7 @@ export function AIBackgroundGeneratorSection() {
                             alt="Product preview"
                             fill
                             sizes="(max-width: 640px) 20vw, 16vw"
-                            className="object-cover"
+                            className="object-cover rounded-lg"
                           />
                         </div>
                         <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
@@ -1622,40 +1626,46 @@ export function AIBackgroundGeneratorSection() {
 
                     {/* Main image display */}
                     <div className="relative w-full max-w-sm aspect-square mb-4">
-                      {/* Close button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setProcessedImage(null);
-                          setCurrentDisplayImage(null);
-                          setShowAfter(true);
-                        }}
-                        className="absolute -top-2 -right-2 z-20 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
-                        title="Close preview"
-                      >
-                        <XIcon className="h-4 w-4 text-gray-600" />
-                      </button>
+                      {/* Close button - 只在 Solid Color 模式下显示 */}
+                      {backgroundMode === 'color' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProcessedImage(null);
+                            setCurrentDisplayImage(null);
+                            setShowAfter(true);
+                          }}
+                          className="absolute -top-2 -right-2 z-20 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
+                          title="Close preview"
+                        >
+                          <XIcon className="h-4 w-4 text-gray-600" />
+                        </button>
+                      )}
 
                       <div
                         className="absolute inset-0 rounded-lg"
                         style={{
                           backgroundImage:
                             showAfter &&
+                            backgroundMode === 'color' &&
                             selectedBackgroundColor === 'transparent'
                               ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)'
                               : 'none',
                           backgroundSize:
                             showAfter &&
+                            backgroundMode === 'color' &&
                             selectedBackgroundColor === 'transparent'
                               ? '20px 20px'
                               : 'auto',
                           backgroundPosition:
                             showAfter &&
+                            backgroundMode === 'color' &&
                             selectedBackgroundColor === 'transparent'
                               ? '0 0, 0 10px, 10px -10px, -10px 0px'
                               : 'auto',
                           backgroundColor:
                             showAfter &&
+                            backgroundMode === 'color' &&
                             selectedBackgroundColor !== 'transparent'
                               ? selectedBackgroundColor
                               : 'transparent',
