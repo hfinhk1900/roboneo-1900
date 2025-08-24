@@ -23,7 +23,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
-
+import { imglyBackgroundRemovalService, ImglyBackgroundRemovalOptions } from '@/lib/imgly-background-removal';
 import { rembgApiService } from '@/lib/rembg-api';
 import {
   DownloadIcon,
@@ -216,6 +216,7 @@ export function AIBackgroundGeneratorSection() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [isLoadingAnimation, setIsLoadingAnimation] = useState(false);
+  const loadingAnimationInterval = useRef<NodeJS.Timeout | null>(null);
 
   const [selectedBackgroundColor, setSelectedBackgroundColor] =
     useState<string>('transparent');
@@ -261,14 +262,23 @@ export function AIBackgroundGeneratorSection() {
     (typeof DEMO_IMAGES)[0] | null
   >(null);
 
-
+  // Track active intervals to prevent multiple simultaneous processing
+  const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Debug effect to monitor selectedBackgroundColor changes
   useEffect(() => {
     console.log('selectedBackgroundColor changed to:', selectedBackgroundColor);
   }, [selectedBackgroundColor]);
 
-
+  // Cleanup interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (processingIntervalRef.current) {
+        clearInterval(processingIntervalRef.current);
+        processingIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -379,36 +389,51 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
+    // Clear any existing interval
+    if (processingIntervalRef.current) {
+      clearInterval(processingIntervalRef.current);
+      processingIntervalRef.current = null;
+    }
+
     setIsProcessing(true);
     setProcessingProgress(0);
-    setSelectedDemoImage(demoImage.afterSrc);
-    setSelectedDemoImageData(demoImage);
-    setCurrentDisplayImage(demoImage.afterSrc);
+    setSelectedDemoImage(demoImage.afterSrc); // Set the selected demo image (after state)
+    setSelectedDemoImageData(demoImage); // Store the full demo image data
+    setCurrentDisplayImage(demoImage.afterSrc); // Set current display image
 
     // Pre-calculate image sources for better performance
     setBeforeImageSrc(demoImage.beforeSrc);
     setAfterImageSrc(demoImage.afterSrc);
 
-    // Simulate loading for demo images
-    const interval = setInterval(() => {
+    // Simulate 3-second loading for demo images
+    processingIntervalRef.current = setInterval(() => {
       setProcessingProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          setProcessedImage(demoImage.afterSrc);
+          if (processingIntervalRef.current) {
+            clearInterval(processingIntervalRef.current);
+            processingIntervalRef.current = null; // Prevent re-entry
 
-          // Set default background color to transparent
-          setTimeout(() => {
-            setSelectedBackgroundColor('transparent');
-            console.log('Demo image processing completed');
-          }, 0);
+            setIsProcessing(false);
+            // Load the processed demo image
+            setProcessedImage(demoImage.afterSrc);
 
-          setTimeout(() => {
-            toast.success('Demo image loaded successfully!');
-          }, 100);
+            // Set default background color to transparent (mosaic) for demo images
+            // This will show the "After" state with mosaic background
+            setTimeout(() => {
+              setSelectedBackgroundColor('transparent');
+              console.log(
+                'Demo image processing completed, setting background to transparent (After state)'
+              );
+            }, 0);
+
+            // Use setTimeout to avoid React rendering conflicts
+            setTimeout(() => {
+              toast.success('Demo image loaded successfully!');
+            }, 100);
+          }
           return 100;
         }
-        return prev + 100 / 30;
+        return prev + 100 / 30; // 30 steps over 3 seconds (100ms each)
       });
     }, 100);
   };
@@ -686,11 +711,141 @@ export function AIBackgroundGeneratorSection() {
           throw new Error(result.error || 'Rembg API failed');
 
         } catch (error) {
-          console.error('❌ Rembg API failed:', error);
-          toast.error('Background removal service is temporarily unavailable. Please try again later.');
-          setProcessingProgress(0);
-          setIsProcessing(false);
-          return;
+          console.warn('⚠️ Rembg API failed, falling back to local processing:', error);
+          
+          // 回退到原有的 @imgly 方案
+          let progressInterval: NodeJS.Timeout | null = null;
+          let timeoutId: NodeJS.Timeout | null = null;
+
+          try {
+            // Check browser compatibility
+            const compatibility = imglyBackgroundRemovalService.checkCompatibility();
+            if (!compatibility.supported) {
+              throw new Error('Your browser does not support local background removal. Please use a modern browser.');
+            }
+
+          // Start progress simulation for background removal with better UX
+          progressInterval = setInterval(() => {
+            setProcessingProgress((prev) => {
+              if (prev >= 60) {
+                // Keep at 60% but don't go backwards
+                return 60;
+              }
+              return prev + 2; // Slower, more realistic progress
+            });
+          }, 300);
+
+          // Add a continuous loading animation interval for visual feedback
+          const loadingAnimationInterval = setInterval(() => {
+            // Toggle loading animation state for visual feedback
+            setIsLoadingAnimation(prev => !prev);
+          }, 500);
+
+          // Add timeout protection to prevent progress bar from getting stuck
+          timeoutId = setTimeout(() => {
+            if (progressInterval) {
+              clearInterval(progressInterval);
+              progressInterval = null;
+            }
+            console.warn('⚠️ Background removal timeout, forcing progress to 100%');
+            setProcessingProgress(100);
+          }, 30000); // 30 second timeout
+
+          // Get recommended settings
+          const recommendedSettings = imglyBackgroundRemovalService.getRecommendedSettings();
+          console.log(`🎯 Using recommended settings:`, recommendedSettings);
+
+          // Process image locally with progress updates
+          setProcessingProgress(65); // Set to 65% when starting background removal
+
+          const result = await imglyBackgroundRemovalService.removeBackground(imageBase64, {
+            model: recommendedSettings.model,
+            output: {
+              format: recommendedSettings.output.format,
+              quality: recommendedSettings.output.quality
+            }
+          });
+
+          if (progressInterval) {
+            clearInterval(progressInterval);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          if (loadingAnimationInterval) {
+            clearInterval(loadingAnimationInterval);
+          }
+          setIsLoadingAnimation(false); // Reset loading animation
+
+          if (result.success && result.image) {
+              setProcessedImage(result.image);
+              setCurrentDisplayImage(result.image);
+              setProcessingProgress(75); // Set to 75% after background removal
+
+              // 上传到 R2
+              try {
+                console.log('📤 开始上传去背景图片到 R2...');
+
+                // 显示上传进度
+                setProcessingProgress(80);
+
+                // 将 base64 转换为 Blob
+                const base64Response = await fetch(result.image);
+                const blob = await base64Response.blob();
+
+                setProcessingProgress(85);
+
+                // 创建 FormData
+                const formData = new FormData();
+                formData.append('image', blob, 'background-removed.png');
+                formData.append('originalFileName', uploadedImage?.name || 'unknown');
+
+                // 上传到 R2
+                const uploadResponse = await fetch('/api/upload-aibg-solidcolor', {
+                  method: 'POST',
+                  body: formData
+                });
+
+                if (uploadResponse.ok) {
+                  const uploadResult = await uploadResponse.json();
+                  console.log('✅ 图片已上传到 R2:', uploadResult.url);
+                  setProcessingProgress(100);
+                  toast.success('Background removed and saved!');
+                } else {
+                  console.warn('⚠️ 上传到 R2 失败，但去背景成功');
+                  setProcessingProgress(100);
+                  toast.success('Background removed successfully!');
+                }
+              } catch (uploadError) {
+                console.warn('⚠️ 上传到 R2 时出错，但去背景成功:', uploadError);
+                setProcessingProgress(100);
+                toast.success('Background removed successfully!');
+              }
+
+              console.log('✅ Local background removal completed successfully');
+              return;
+            } else {
+              throw new Error(result.error || 'Local background removal failed');
+            }
+        } catch (error) {
+          if (progressInterval) {
+            clearInterval(progressInterval);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          if (loadingAnimationInterval) {
+            clearInterval(loadingAnimationInterval);
+          }
+          setIsLoadingAnimation(false); // Reset loading animation
+          console.error('Local background removal failed:', error);
+
+          // Fallback to user-friendly error
+          if (error instanceof Error && error.message.includes('browser does not support')) {
+            throw new Error('Browser compatibility issue. Please use the latest version of Chrome, Firefox, or Safari.');
+          } else {
+            throw new Error('Local processing failed. Please check image format or try again later.');
+          }
         }
       }
 
@@ -716,7 +871,8 @@ export function AIBackgroundGeneratorSection() {
         }
       }
 
-      console.log('🚀 Calling AI Background API with payload:', {
+      try {
+        console.log('🚀 Calling AI Background API with payload:', {
         ...apiPayload,
         image_input: '[base64 image data]', // Don't log the full base64 string
       });
@@ -747,13 +903,7 @@ export function AIBackgroundGeneratorSection() {
           `AI Background API error: HTTP ${response.status} ${response.statusText}`
         );
 
-        let errorData: {
-          required?: number;
-          current?: number;
-          error?: string;
-          details?: string;
-          message?: string;
-        } | Record<string, any>;
+        let errorData;
         try {
           errorData = await response.json();
           console.error('Error response data:', errorData);
@@ -2053,3 +2203,6 @@ export function AIBackgroundGeneratorSection() {
     </section>
   );
 }
+
+export default AIBackgroundGeneratorSection;
+

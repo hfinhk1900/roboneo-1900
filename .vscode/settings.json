@@ -27,5 +27,6 @@
     ".open-next": true
   },
   "search.useGlobalIgnoreFiles": true,
-  "search.useParentIgnoreFiles": true
+  "search.useParentIgnoreFiles": true,
+  "git.ignoreLimitWarning": true
 }
