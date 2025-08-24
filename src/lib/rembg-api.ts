@@ -7,6 +7,7 @@ export interface RembgApiOptions {
   backgroundColor?: string;
   timeout?: number;
   maxSide?: number;
+  aspectRatio?: { w: number; h: number }; // 新增：支持宽高比
 }
 
 export interface RembgApiResult {
@@ -15,6 +16,7 @@ export interface RembgApiResult {
   error?: string;
   processingTime?: number;
   method?: string;
+  image_size?: string; // 新增：图片尺寸信息
 }
 
 export class RembgApiService {
@@ -48,6 +50,12 @@ export class RembgApiService {
       const formData = new FormData();
       formData.append('image_data', imageBase64);
       formData.append('max_side', String(options.maxSide || 1600));
+
+      // 新增：传递尺寸信息
+      if (options.aspectRatio) {
+        formData.append('aspect_ratio', `${options.aspectRatio.w}:${options.aspectRatio.h}`);
+        console.log(`📐 Sending aspect ratio: ${options.aspectRatio.w}:${options.aspectRatio.h}`);
+      }
 
       console.log('📤 Sending request to private HF Space...');
 
@@ -94,6 +102,7 @@ export class RembgApiService {
           image: finalImage,
           processingTime,
           method: result.method || 'private-hf-space',
+          image_size: result.image_size, // 新增：返回图片尺寸信息
         };
       } else {
         throw new Error(result.error || 'Background removal failed');

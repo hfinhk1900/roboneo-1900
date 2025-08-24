@@ -710,15 +710,19 @@ export function AIBackgroundGeneratorSection() {
       // For Solid Color mode, use rembg API service with fallback
       if (backgroundMode === 'color') {
         console.log('🎯 Solid Color mode: Using rembg API service');
+        console.log(`📐 Selected aspect ratio: ${selectedAspect}`);
+        console.log(`📐 Parsed aspect ratio:`, parseAspectRatio(selectedAspect));
+        console.log(`📐 Processed image size: ${imageBase64.length} characters`);
 
         try {
-          // 优先使用rembg API
-          const result = await rembgApiService.removeBackground(uploadedImage, {
+          // 优先使用rembg API - 传递处理后的base64图片，确保尺寸正确
+          const result = await rembgApiService.removeBackground(imageBase64, {
             backgroundColor:
               selectedBackgroundColor === 'transparent'
                 ? 'transparent'
                 : selectedBackgroundColor,
             timeout: 30000,
+            aspectRatio: parseAspectRatio(selectedAspect), // 传递尺寸信息
           });
 
           // Clear progress interval
@@ -731,6 +735,12 @@ export function AIBackgroundGeneratorSection() {
             setProcessedImage(result.image);
             setCurrentDisplayImage(result.image);
 
+            // 添加详细的尺寸信息日志
+            console.log(`✅ Rembg API processing completed in ${result.processingTime}ms`);
+            console.log(`📐 Result image size from API: ${result.image_size || 'unknown'}`);
+            console.log(`📐 Expected aspect ratio: ${selectedAspect}`);
+            console.log(`📐 Parsed aspect ratio:`, parseAspectRatio(selectedAspect));
+
             // Show success message and reset progress after a delay
             setTimeout(() => {
               setProcessingProgress(0);
@@ -738,9 +748,6 @@ export function AIBackgroundGeneratorSection() {
               toast.success('Background removed successfully!');
             }, 1000);
 
-            console.log(
-              `✅ Rembg API processing completed in ${result.processingTime}ms`
-            );
             return;
           }
           throw new Error(result.error || 'Rembg API failed');
@@ -1697,7 +1704,15 @@ export function AIBackgroundGeneratorSection() {
                     {/* Main image display */}
                     <div
                       className={cn(
-                        'relative w-full max-w-sm mb-4 aspect-square'
+                        'relative w-full max-w-sm mb-4',
+                        // 根据选择的宽高比动态调整容器样式
+                        selectedAspect === '1:1' || selectedAspect === 'original'
+                          ? 'aspect-square' // 1:1 或原始比例保持正方形
+                          : selectedAspect === '3:2'
+                          ? 'aspect-[3/2]' // 3:2 宽图
+                          : selectedAspect === '2:3'
+                          ? 'aspect-[2/3]' // 2:3 高图
+                          : 'aspect-square' // 默认正方形
                       )}
                     >
                       {/* Close button - 只在 Solid Color 模式下显示 */}
@@ -1758,155 +1773,8 @@ export function AIBackgroundGeneratorSection() {
                       />
                     </div>
 
-                    {/* Background color selection - 只在 solid color 模式下显示 */}
-                    {backgroundMode === 'color' && (
-                      <div className="flex flex-wrap gap-2 items-center justify-center mb-4 w-full max-w-xs">
-                        {/* Transparent (mosaic) button */}
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            setSelectedBackgroundColor('transparent');
-                            // 应用透明背景效果
-                            if (processedImage) {
-                              try {
-                                const transparentImage =
-                                  await applyBackgroundColor(
-                                    processedImage,
-                                    'transparent'
-                                  );
-                                setCurrentDisplayImage(transparentImage);
-                                setAfterImageSrc(transparentImage);
-                                console.log('Applied transparent background');
-                              } catch (error) {
-                                console.error(
-                                  'Failed to apply transparent background:',
-                                  error
-                                );
-                                toast.error(
-                                  'Failed to apply transparent background'
-                                );
-                              }
-                            }
-                          }}
-                          className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 overflow-hidden border-2 ${
-                            selectedBackgroundColor === 'transparent'
-                              ? 'border-blue-500 border-opacity-70'
-                              : 'border-gray-300'
-                          }`}
-                          title="Transparent Background"
-                        >
-                          <svg
-                            width="32"
-                            height="32"
-                            viewBox="0 0 32 32"
-                            className="w-full h-full"
-                          >
-                            <defs>
-                              <pattern
-                                id="mosaic"
-                                patternUnits="userSpaceOnUse"
-                                width="8"
-                                height="8"
-                              >
-                                <rect width="4" height="4" fill="#ffffff" />
-                                <rect
-                                  x="4"
-                                  y="0"
-                                  width="4"
-                                  height="4"
-                                  fill="#e5e7eb"
-                                />
-                                <rect
-                                  x="0"
-                                  y="4"
-                                  width="4"
-                                  height="4"
-                                  fill="#e5e7eb"
-                                />
-                                <rect
-                                  x="4"
-                                  y="4"
-                                  width="4"
-                                  height="4"
-                                  fill="#ffffff"
-                                />
-                              </pattern>
-                            </defs>
-                            <rect width="32" height="32" fill="url(#mosaic)" />
-                          </svg>
-                        </button>
-
-                        {PRESET_COLORS.slice(0, 4).map((color) => (
-                          <button
-                            type="button"
-                            key={color.value}
-                            className={`rounded-2xl size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 ${
-                              selectedBackgroundColor === color.value
-                                ? 'border-blue-500 border-opacity-70'
-                                : 'border-gray-300'
-                            }`}
-                            style={{ backgroundColor: color.value }}
-                            onClick={async () => {
-                              setSelectedBackgroundColor(color.value);
-                              // 应用背景颜色效果
-                              if (processedImage) {
-                                try {
-                                  const coloredImage =
-                                    await applyBackgroundColor(
-                                      processedImage,
-                                      color.value
-                                    );
-                                  setCurrentDisplayImage(coloredImage);
-                                  setAfterImageSrc(coloredImage);
-                                  console.log(
-                                    `Applied background color: ${color.value}`
-                                  );
-                                } catch (error) {
-                                  console.error(
-                                    'Failed to apply background color:',
-                                    error
-                                  );
-                                  toast.error(
-                                    'Failed to apply background color'
-                                  );
-                                }
-                              }
-                            }}
-                            title={color.name}
-                          />
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => setShowColorPicker(true)}
-                          className={`rounded-full size-8 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 border-2 flex items-center justify-center ${
-                            selectedBackgroundColor === 'custom'
-                              ? 'border-blue-500 border-opacity-70'
-                              : 'border-gray-300'
-                          }`}
-                          style={{
-                            background:
-                              selectedBackgroundColor === 'custom'
-                                ? customColor
-                                : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
-                          }}
-                          title="Custom Color"
-                        >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="text-white drop-shadow-sm"
-                          >
-                            <path
-                              d="M8 1L9.06 5.94L14 7L9.06 8.06L8 13L6.94 8.06L2 7L6.94 5.94L8 1Z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
+                    {/* 移除第二个颜色选择器，避免与第一个选择器冲突 */}
+                    {/* 用户应该在处理前选择颜色，而不是处理后 */}
 
                     {/* Download button */}
                     <Button
@@ -2002,7 +1870,15 @@ export function AIBackgroundGeneratorSection() {
                     {/* Main image display */}
                     <div
                       className={cn(
-                        'relative w-full max-w-sm mb-4 aspect-square'
+                        'relative w-full max-w-sm mb-4',
+                        // 根据选择的宽高比动态调整容器样式
+                        selectedAspect === '1:1' || selectedAspect === 'original'
+                          ? 'aspect-square' // 1:1 或原始比例保持正方形
+                          : selectedAspect === '3:2'
+                          ? 'aspect-[3/2]' // 3:2 宽图
+                          : selectedAspect === '2:3'
+                          ? 'aspect-[2/3]' // 2:3 高图
+                          : 'aspect-square' // 默认正方形
                       )}
                     >
                       <Image

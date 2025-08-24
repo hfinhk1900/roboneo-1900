@@ -78,8 +78,9 @@ export async function POST(req: NextRequest) {
     // 记录请求信息（不记录敏感数据）
     const imageData = formData.get('image_data') as string;
     const maxSide = formData.get('max_side') as string;
+    const aspectRatio = formData.get('aspect_ratio') as string; // 新增：获取宽高比
 
-    console.log(`📤 Processing image, max_side: ${maxSide}`);
+    console.log(`📤 Processing image, max_side: ${maxSide}, aspect_ratio: ${aspectRatio}`);
     console.log(
       `📊 Image data size: ${imageData ? imageData.length : 0} characters`
     );
