@@ -956,8 +956,30 @@ export function AIBackgroundGeneratorSection() {
 
       image.onload = () => {
         const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+
+        // 保持用户选择的尺寸，而不是图片的原始尺寸
+        const targetAspect = parseAspectRatio(selectedAspect);
+        let canvasW = image.naturalWidth;
+        let canvasH = image.naturalHeight;
+
+        if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
+          // 根据用户选择的尺寸调整画布大小
+          const targetRatio = targetAspect.w / targetAspect.h;
+          const sourceRatio = image.naturalWidth / image.naturalHeight;
+
+          if (targetRatio >= 1) {
+            // Wide aspect ratio (3:2, 1:1)
+            canvasW = 1024;
+            canvasH = Math.round(1024 / targetRatio);
+          } else {
+            // Tall aspect ratio (2:3)
+            canvasH = 1024;
+            canvasW = Math.round(1024 * targetRatio);
+          }
+        }
+
+        canvas.width = canvasW;
+        canvas.height = canvasH;
         const ctx = canvas.getContext('2d');
 
         if (ctx) {
@@ -967,8 +989,36 @@ export function AIBackgroundGeneratorSection() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
           }
 
-          // Draw the processed image on top
-          ctx.drawImage(image, 0, 0);
+          // Draw the processed image on top, maintaining aspect ratio
+          if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
+            // 使用 contain 模式，保持图片完整内容
+            const targetRatio = targetAspect.w / targetAspect.h;
+            const sourceRatio = image.naturalWidth / image.naturalHeight;
+
+            let drawWidth = 0;
+            let drawHeight = 0;
+            let drawX = 0;
+            let drawY = 0;
+
+            if (sourceRatio > targetRatio) {
+              // Source is wider, fit to canvas width
+              drawWidth = canvasW;
+              drawHeight = Math.round(canvasW / sourceRatio);
+              drawX = 0;
+              drawY = Math.round((canvasH - drawHeight) / 2);
+            } else {
+              // Source is taller or same ratio, fit to canvas height
+              drawHeight = canvasH;
+              drawWidth = Math.round(canvasH * sourceRatio);
+              drawX = Math.round((canvasW - drawWidth) / 2);
+              drawY = 0;
+            }
+
+            ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, drawX, drawY, drawWidth, drawHeight);
+          } else {
+            // 原始逻辑：直接绘制，保持原始尺寸
+            ctx.drawImage(image, 0, 0);
+          }
 
           // Convert to data URL
           const dataUrl = canvas.toDataURL('image/png');
@@ -1165,6 +1215,7 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         type="button"
                         onClick={() => {
+
                           // 如果当前不是 Background Style 模式，检查是否需要确认
                           if (backgroundMode !== 'background') {
                             if (processedImage) {
@@ -1684,7 +1735,16 @@ export function AIBackgroundGeneratorSection() {
                     </div>
 
                     {/* Main image display */}
-                    <div className="relative w-full max-w-sm aspect-square mb-4">
+                    <div
+                      className={cn(
+                        "relative w-full max-w-sm mb-4",
+                        // 根据选择的尺寸动态调整宽高比
+                        selectedAspect === '2:3' ? 'aspect-[2/3]' :
+                        selectedAspect === '3:2' ? 'aspect-[3/2]' :
+                        selectedAspect === '1:1' ? 'aspect-square' :
+                        'aspect-square' // 默认正方形，包括 'original'
+                      )}
+                    >
                       {/* Close button - 只在 Solid Color 模式下显示 */}
                       {backgroundMode === 'color' && (
                         <button
