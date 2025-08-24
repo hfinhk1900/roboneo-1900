@@ -18,17 +18,17 @@ console.log('3. 使用正确的存储桶和端点配置');
 
 console.log('\n🔍 检查环境变量文件:');
 const envFiles = ['.env.local', '.env'];
-envFiles.forEach(file => {
+envFiles.forEach((file) => {
   const envPath = path.join(__dirname, file);
   if (fs.existsSync(envPath)) {
     console.log(`✅ ${file} 存在`);
     const content = fs.readFileSync(envPath, 'utf8');
-    const storageVars = content.split('\n').filter(line =>
-      line.includes('STORAGE_') && !line.startsWith('#')
-    );
+    const storageVars = content
+      .split('\n')
+      .filter((line) => line.includes('STORAGE_') && !line.startsWith('#'));
     if (storageVars.length > 0) {
       console.log(`   存储相关变量: ${storageVars.length} 个`);
-      storageVars.forEach(line => {
+      storageVars.forEach((line) => {
         const [key] = line.split('=');
         console.log(`   - ${key}`);
       });
@@ -47,10 +47,10 @@ const storageVars = [
   'STORAGE_ACCESS_KEY_ID',
   'STORAGE_SECRET_ACCESS_KEY',
   'STORAGE_BUCKET_NAME',
-  'STORAGE_PUBLIC_URL'
+  'STORAGE_PUBLIC_URL',
 ];
 
-storageVars.forEach(varName => {
+storageVars.forEach((varName) => {
   const value = process.env[varName];
   if (value) {
     console.log(`✅ ${varName}: ${value.substring(0, 30)}...`);

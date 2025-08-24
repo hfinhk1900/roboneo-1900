@@ -71,9 +71,15 @@ console.log('   - ✅ 智能文案提示（根据模式显示不同内容）');
 
 console.log('\n📝 文案改进:');
 console.log('1. 参考 ProductShot 的引导文案:');
-console.log('   - ProductShot: "Your product is ready! Select a scene and click generate."');
-console.log('   - AIBG Solid Color: "Your image is ready! Click \'Process Image\' to remove background."');
-console.log('   - AIBG AI Background: "Your image is ready! Click \'Process Image\' to generate AI background."');
+console.log(
+  '   - ProductShot: "Your product is ready! Select a scene and click generate."'
+);
+console.log(
+  '   - AIBG Solid Color: "Your image is ready! Click \'Process Image\' to remove background."'
+);
+console.log(
+  '   - AIBG AI Background: "Your image is ready! Click \'Process Image\' to generate AI background."'
+);
 
 console.log('2. 智能文案提示:');
 console.log('   - 根据 backgroundMode 显示不同内容');

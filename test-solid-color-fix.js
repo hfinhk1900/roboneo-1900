@@ -30,7 +30,9 @@ console.log('5. 点击按钮测试本地推理功能');
 console.log('\n🔍 预期结果:');
 console.log('✅ 上传图片后，Solid Color 模式下的按钮应该可用');
 console.log('✅ 点击按钮后应该开始本地推理');
-console.log('✅ 不应该出现 "Invalid base URL" 或 "Resource metadata not found" 错误');
+console.log(
+  '✅ 不应该出现 "Invalid base URL" 或 "Resource metadata not found" 错误'
+);
 
 console.log('\n🚨 如果按钮仍然被禁用:');
 console.log('- 检查浏览器控制台是否有错误');

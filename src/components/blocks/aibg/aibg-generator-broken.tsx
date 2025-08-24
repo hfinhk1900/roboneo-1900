@@ -22,17 +22,20 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import { cn } from '@/lib/utils';
-import { imglyBackgroundRemovalService, ImglyBackgroundRemovalOptions } from '@/lib/imgly-background-removal';
-import { rembgApiService } from '@/lib/rembg-api';
 import {
+  ImglyBackgroundRemovalOptions,
+  imglyBackgroundRemovalService,
+} from '@/lib/imgly-background-removal';
+import { rembgApiService } from '@/lib/rembg-api';
+import { cn } from '@/lib/utils';
+import {
+  CpuIcon,
   DownloadIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
   UploadIcon,
   XIcon,
-  CpuIcon,
   ZapIcon,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -2205,4 +2208,3 @@ export function AIBackgroundGeneratorSection() {
 }
 
 export default AIBackgroundGeneratorSection;
-

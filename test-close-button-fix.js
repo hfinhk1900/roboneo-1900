@@ -8,7 +8,9 @@ console.log('🧪 测试关闭按钮修复');
 console.log('====================');
 
 console.log('\n🔧 已修复的问题:');
-console.log('Background Style 模式下生成的图片展示时，不再显示右上角的关闭按钮');
+console.log(
+  'Background Style 模式下生成的图片展示时，不再显示右上角的关闭按钮'
+);
 
 console.log('\n🚨 原始问题:');
 console.log('- Background Style 模式下也会显示关闭按钮');

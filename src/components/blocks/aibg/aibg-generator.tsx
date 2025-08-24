@@ -23,7 +23,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { rembgApiService } from '@/lib/rembg-api';
 import {
@@ -201,7 +202,7 @@ const DEMO_IMAGES = [
 
 export function AIBackgroundGeneratorSection() {
   // Add custom CSS for shimmer animation
-  React.useEffect(() => {
+  useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @keyframes shimmer {
@@ -280,6 +281,9 @@ export function AIBackgroundGeneratorSection() {
   const [selectedDemoImageData, setSelectedDemoImageData] = useState<
     (typeof DEMO_IMAGES)[0] | null
   >(null);
+
+  // 新增：生成进度状态 - 与Productshot保持一致
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   // Debug effect to monitor selectedBackgroundColor changes
   useEffect(() => {
@@ -388,6 +392,21 @@ export function AIBackgroundGeneratorSection() {
     setPendingModeSwitch(null);
   };
 
+  // 模拟生成进度 - 与Productshot保持一致
+  const simulateProgress = () => {
+    setGenerationProgress(0);
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15 + 5; // 每次增加5-20%
+      if (progress >= 95) {
+        progress = 95; // 停在95%，等待实际完成
+      }
+      setGenerationProgress(Math.min(progress, 95));
+    }, 800); // 每800ms更新一次
+
+    return interval;
+  };
+
   // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     // Prevent multiple simultaneous processing
@@ -397,6 +416,7 @@ export function AIBackgroundGeneratorSection() {
 
     setIsProcessing(true);
     setProcessingProgress(0);
+    setGenerationProgress(0);
     setSelectedDemoImage(demoImage.afterSrc);
     setSelectedDemoImageData(demoImage);
     setCurrentDisplayImage(demoImage.afterSrc);
@@ -405,30 +425,29 @@ export function AIBackgroundGeneratorSection() {
     setBeforeImageSrc(demoImage.beforeSrc);
     setAfterImageSrc(demoImage.afterSrc);
 
+    // 开始进度模拟
+    const progressInterval = simulateProgress();
+
     // Simulate loading for demo images with smooth progress
-    const interval = setInterval(() => {
-      setProcessingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          setProcessedImage(demoImage.afterSrc);
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+      setIsProcessing(false);
+      setProcessedImage(demoImage.afterSrc);
 
-          // Set default background color to transparent
-          setTimeout(() => {
-            setSelectedBackgroundColor('transparent');
-            console.log('Demo image processing completed');
-          }, 0);
+      // Set default background color to transparent
+      setTimeout(() => {
+        setSelectedBackgroundColor('transparent');
+        console.log('Demo image processing completed');
+      }, 0);
 
-          // Show success message and reset progress after a delay
-          setTimeout(() => {
-            setProcessingProgress(0);
-            toast.success('Demo image loaded successfully!');
-          }, 500);
-          return 100;
-        }
-        return prev + Math.random() * 8 + 4; // Increase by 4-12% each time for smoother animation
-      });
-    }, 150); // Update every 150ms for smoother progress
+      // Show success message and reset progress after a delay
+      setTimeout(() => {
+        setProcessingProgress(0);
+        setGenerationProgress(0);
+        toast.success('Demo image loaded successfully!');
+      }, 1000);
+    }, 3000); // 3秒后完成
   };
 
   // Background color handling
@@ -671,9 +690,13 @@ export function AIBackgroundGeneratorSection() {
 
     setIsProcessing(true);
     setProcessingProgress(0);
+    setGenerationProgress(0);
     setSelectedDemoImage(null); // Clear demo image selection when processing uploaded image
     setSelectedDemoImageData(null); // Clear demo image data
     setCurrentDisplayImage(null); // Clear current display image
+
+    // 开始进度模拟
+    const progressInterval = simulateProgress();
 
     try {
       // Process uploaded image with aspect ratio handling (similar to ProductShot)
@@ -687,16 +710,6 @@ export function AIBackgroundGeneratorSection() {
       // For Solid Color mode, use rembg API service with fallback
       if (backgroundMode === 'color') {
         console.log('🎯 Solid Color mode: Using rembg API service');
-
-        // Start progress simulation for Solid Color mode
-        const progressInterval = setInterval(() => {
-          setProcessingProgress((prev) => {
-            if (prev >= 85) {
-              return 85; // Stop at 85% until API responds
-            }
-            return prev + Math.random() * 10 + 5; // Increase by 5-15% each time
-          });
-        }, 400); // Update every 400ms
 
         try {
           // 优先使用rembg API
@@ -714,14 +727,16 @@ export function AIBackgroundGeneratorSection() {
           if (result.success && result.image) {
             // Complete progress
             setProcessingProgress(100);
+            setGenerationProgress(100);
             setProcessedImage(result.image);
             setCurrentDisplayImage(result.image);
 
             // Show success message and reset progress after a delay
             setTimeout(() => {
               setProcessingProgress(0);
+              setGenerationProgress(0);
               toast.success('Background removed successfully!');
-            }, 500);
+            }, 1000);
 
             console.log(
               `✅ Rembg API processing completed in ${result.processingTime}ms`
@@ -737,6 +752,7 @@ export function AIBackgroundGeneratorSection() {
             'Background removal service is temporarily unavailable. Please try again later.'
           );
           setProcessingProgress(0);
+          setGenerationProgress(0);
           setIsProcessing(false);
           return;
         }
@@ -768,16 +784,6 @@ export function AIBackgroundGeneratorSection() {
         ...apiPayload,
         image_input: '[base64 image data]', // Don't log the full base64 string
       });
-
-      // Start progress simulation while waiting for API response
-      const progressInterval = setInterval(() => {
-        setProcessingProgress((prev) => {
-          if (prev >= 85) {
-            return 85; // Stop at 85% until API responds
-          }
-          return prev + Math.random() * 6 + 3; // Increase by 3-9% each time for more natural progression
-        });
-      }, 600); // Update every 600ms for AI generation (slower than background removal)
 
       // Call AI Background API
       const response = await fetch('/api/aibackground/generate', {
@@ -839,6 +845,7 @@ export function AIBackgroundGeneratorSection() {
 
       // Complete progress
       setProcessingProgress(100);
+      setGenerationProgress(100);
 
       // Set the processed image
       setProcessedImage(result.resultUrl);
@@ -849,10 +856,11 @@ export function AIBackgroundGeneratorSection() {
       // Show success message and reset progress after a delay
       setTimeout(() => {
         setProcessingProgress(0);
+        setGenerationProgress(0);
         toast.success(
           `AI Background generated successfully! Used ${result.credits_used} credits.`
         );
-      }, 800); // Slightly shorter delay for better UX
+      }, 1000); // 与Productshot保持一致的延迟时间
     } catch (error) {
       console.error('AI Background generation failed:', error);
 
@@ -873,7 +881,10 @@ export function AIBackgroundGeneratorSection() {
 
       // Reset processing state
       setProcessingProgress(0);
+      setGenerationProgress(0);
     } finally {
+      // Clear progress interval in finally block
+      clearInterval(progressInterval);
       setIsProcessing(false);
     }
   };
@@ -1905,33 +1916,6 @@ export function AIBackgroundGeneratorSection() {
                       Download
                     </Button>
                   </div>
-                ) : imagePreview ? (
-                  /* Uploaded image preview state - show uploaded image before processing */
-                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
-                    {/* Main image display */}
-                    <div
-                      className={cn(
-                        'relative w-full max-w-sm mb-4 aspect-square'
-                      )}
-                    >
-                      <Image
-                        src={imagePreview}
-                        alt="Uploaded image preview"
-                        fill
-                        sizes="(max-width: 768px) 80vw, 400px"
-                        className="object-contain rounded-lg transition-all duration-300 ease-out"
-                      />
-                    </div>
-
-                    {/* Upload info */}
-                    <div className="text-center space-y-2">
-                      <p className="text-sm text-gray-600">
-                        {backgroundMode === 'color'
-                          ? 'Your image is ready! Click "Process Image" to remove background.'
-                          : 'Your image is ready! Click "Process Image" to generate AI background.'}
-                      </p>
-                    </div>
-                  </div>
                 ) : isProcessing ? (
                   /* Loading state - show progress bar and loading animation */
                   <div className="flex items-center justify-center p-8 relative">
@@ -1977,28 +1961,17 @@ export function AIBackgroundGeneratorSection() {
                               </span>
                             </div>
 
-                            {/* 进度条 */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden relative">
+                            {/* 进度条 - 与Productshot保持一致 */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
                                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
-                                style={{ width: `${processingProgress}%` }}
+                                style={{ width: `${generationProgress}%` }}
                               />
-                              {/* 光效动画 - 持续移动的光带 */}
-                              {processingProgress > 0 &&
-                                processingProgress < 100 && (
-                                  <div
-                                    className="absolute top-0 h-full w-12 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 shimmer-animation"
-                                    style={{
-                                      left: '0%',
-                                      width: '30%',
-                                    }}
-                                  />
-                                )}
                             </div>
 
                             {/* 进度百分比 */}
-                            <div className="text-white text-sm font-medium bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
-                              {Math.round(processingProgress)}%
+                            <div className="text-white text-sm font-medium">
+                              {Math.round(generationProgress)}%
                             </div>
 
                             {/* Loading message with stage indicator */}
@@ -2021,6 +1994,33 @@ export function AIBackgroundGeneratorSection() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ) : imagePreview ? (
+                  /* Uploaded image preview state - show uploaded image before processing */
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
+                    {/* Main image display */}
+                    <div
+                      className={cn(
+                        'relative w-full max-w-sm mb-4 aspect-square'
+                      )}
+                    >
+                      <Image
+                        src={imagePreview}
+                        alt="Uploaded image preview"
+                        fill
+                        sizes="(max-width: 768px) 80vw, 400px"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out"
+                      />
+                    </div>
+
+                    {/* Upload info */}
+                    <div className="text-center space-y-2">
+                      <p className="text-sm text-gray-600">
+                        {backgroundMode === 'color'
+                          ? 'Your image is ready! Click "Process Image" to remove background.'
+                          : 'Your image is ready! Click "Process Image" to generate AI background.'}
+                      </p>
                     </div>
                   </div>
                 ) : (

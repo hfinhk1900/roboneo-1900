@@ -14,7 +14,9 @@ console.log('3. 使用正确的 auth() 函数');
 
 console.log('\n🚨 原始问题:');
 console.log('- 控制台显示中文: "模型加载进度: fetch:/onnxruntime-web/..."');
-console.log('- getSession 导入错误: "getSession is not exported from better-auth"');
+console.log(
+  '- getSession 导入错误: "getSession is not exported from better-auth"'
+);
 console.log('- R2 上传失败: "TypeError: getSession is not a function"');
 
 console.log('\n✅ 修复内容:');

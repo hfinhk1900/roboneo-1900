@@ -8,7 +8,9 @@ console.log('🧪 测试模式切换确认对话框功能');
 console.log('==================================');
 
 console.log('\n🔧 新增功能:');
-console.log('用户切换 Background Style 和 Solid Color 模式时，如果有已生成的图片，会显示确认对话框');
+console.log(
+  '用户切换 Background Style 和 Solid Color 模式时，如果有已生成的图片，会显示确认对话框'
+);
 
 console.log('\n🎯 功能特性:');
 console.log('1. 智能检测: 只在有已生成图片时显示确认对话框');
@@ -18,7 +20,9 @@ console.log('4. 自动保存: 提供一键保存并切换的便利');
 
 console.log('\n📋 对话框内容:');
 console.log('- 标题: "保存已生成的图片？"');
-console.log('- 描述: "您有未保存的图片，切换模式将丢失当前结果。是否要保存后再切换？"');
+console.log(
+  '- 描述: "您有未保存的图片，切换模式将丢失当前结果。是否要保存后再切换？"'
+);
 console.log('- 按钮1: "取消" - 关闭对话框，不执行任何操作');
 console.log('- 按钮2: "直接切换" - 不保存图片，直接切换模式');
 console.log('- 按钮3: "保存并切换" - 保存图片后切换模式');

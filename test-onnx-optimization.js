@@ -14,8 +14,12 @@ console.log('3. 控制台警告: 减少不必要的警告信息');
 console.log('4. 性能优化: 保持功能的同时优化配置');
 
 console.log('\n🚨 原始警告:');
-console.log('- "env.wasm.numThreads is set to 8, but this will not work unless you enable crossOriginIsolated mode"');
-console.log('- "WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading"');
+console.log(
+  '- "env.wasm.numThreads is set to 8, but this will not work unless you enable crossOriginIsolated mode"'
+);
+console.log(
+  '- "WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading"'
+);
 console.log('- 这些警告不影响功能，但会污染控制台');
 
 console.log('\n✅ 优化内容:');

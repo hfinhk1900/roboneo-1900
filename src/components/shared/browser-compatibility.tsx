@@ -1,11 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CpuIcon, ZapIcon, AlertTriangleIcon, CheckCircleIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { backgroundRemovalService } from '@/lib/background-removal';
+import {
+  AlertTriangleIcon,
+  CheckCircleIcon,
+  CpuIcon,
+  ZapIcon,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function BrowserCompatibility() {
   const [compatibility, setCompatibility] = useState<{
@@ -58,8 +63,16 @@ export function BrowserCompatibility() {
   };
 
   const getPerformanceLevel = () => {
-    if (compatibility.webGPU) return { level: 'High Performance', color: 'bg-green-100 text-green-800' };
-    if (compatibility.webGL) return { level: 'Medium Performance', color: 'bg-yellow-100 text-yellow-800' };
+    if (compatibility.webGPU)
+      return {
+        level: 'High Performance',
+        color: 'bg-green-100 text-green-800',
+      };
+    if (compatibility.webGL)
+      return {
+        level: 'Medium Performance',
+        color: 'bg-yellow-100 text-yellow-800',
+      };
     return { level: 'Basic Performance', color: 'bg-blue-100 text-blue-800' };
   };
 
@@ -82,7 +95,9 @@ export function BrowserCompatibility() {
             <AlertTriangleIcon className="h-5 w-5 text-red-600" />
           )}
           <span className="font-medium">
-            {compatibility.supported ? 'Local Background Removal Supported' : 'Local Background Removal Not Supported'}
+            {compatibility.supported
+              ? 'Local Background Removal Supported'
+              : 'Local Background Removal Not Supported'}
           </span>
         </div>
 
@@ -116,9 +131,7 @@ export function BrowserCompatibility() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge className={performance.color}>
-              {performance.level}
-            </Badge>
+            <Badge className={performance.color}>{performance.level}</Badge>
           </div>
         </div>
 
@@ -137,8 +150,9 @@ export function BrowserCompatibility() {
           <Alert>
             <AlertTriangleIcon className="h-4 w-4" />
             <AlertDescription>
-              Your browser does not support local background removal. Please use the latest version of Chrome, Firefox, or Safari.
-              It is recommended to enable WebGL and WebAssembly support.
+              Your browser does not support local background removal. Please use
+              the latest version of Chrome, Firefox, or Safari. It is
+              recommended to enable WebGL and WebAssembly support.
             </AlertDescription>
           </Alert>
         )}

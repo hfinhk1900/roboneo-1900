@@ -12,7 +12,9 @@ console.log('🧪 测试修复后的 R2 上传功能');
 console.log('================================');
 
 console.log('\n🔧 修复内容:');
-console.log('1. 导入 getSession 函数: import { getSession } from "better-auth"');
+console.log(
+  '1. 导入 getSession 函数: import { getSession } from "better-auth"'
+);
 console.log('2. 修改 auth 调用: getSession(request, auth) 替代 auth()');
 
 console.log('\n📋 测试步骤:');

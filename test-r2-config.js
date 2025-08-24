@@ -13,17 +13,19 @@ console.log('============================');
 
 console.log('\n🔍 检查环境变量文件:');
 const envFiles = ['.env.local', '.env', '.env.example'];
-envFiles.forEach(file => {
+envFiles.forEach((file) => {
   const envPath = path.join(__dirname, file);
   if (fs.existsSync(envPath)) {
     console.log(`✅ ${file} 存在`);
     const content = fs.readFileSync(envPath, 'utf8');
-    const r2Vars = content.split('\n').filter(line =>
-      line.includes('CLOUDFLARE_R2_') || line.includes('R2_')
-    );
+    const r2Vars = content
+      .split('\n')
+      .filter(
+        (line) => line.includes('CLOUDFLARE_R2_') || line.includes('R2_')
+      );
     if (r2Vars.length > 0) {
       console.log(`   R2 相关变量: ${r2Vars.length} 个`);
-      r2Vars.forEach(line => {
+      r2Vars.forEach((line) => {
         const [key] = line.split('=');
         console.log(`   - ${key}`);
       });
@@ -42,10 +44,10 @@ const requiredVars = [
   'CLOUDFLARE_R2_ACCESS_KEY_ID',
   'CLOUDFLARE_R2_SECRET_ACCESS_KEY',
   'CLOUDFLARE_R2_BUCKET_NAME',
-  'CLOUDFLARE_R2_PUBLIC_URL'
+  'CLOUDFLARE_R2_PUBLIC_URL',
 ];
 
-requiredVars.forEach(varName => {
+requiredVars.forEach((varName) => {
   const value = process.env[varName];
   if (value) {
     console.log(`✅ ${varName}: ${value.substring(0, 20)}...`);

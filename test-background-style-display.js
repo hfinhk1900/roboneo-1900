@@ -8,7 +8,9 @@ console.log('🧪 测试 Background Style 显示修复');
 console.log('================================');
 
 console.log('\n🔧 已修复的问题:');
-console.log('右边卡片针对 Background Style 生成的图片，展示时不再显示马赛克背景');
+console.log(
+  '右边卡片针对 Background Style 生成的图片，展示时不再显示马赛克背景'
+);
 
 console.log('\n🚨 原始问题:');
 console.log('- Background Style 模式下生成的图片也会显示马赛克背景');

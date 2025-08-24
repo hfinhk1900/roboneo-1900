@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
 import Image from 'next/image';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function TestBackgroundRemoval() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -63,7 +63,9 @@ export default function TestBackgroundRemoval() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: 'Unknown error' }));
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
@@ -77,7 +79,6 @@ export default function TestBackgroundRemoval() {
       } else {
         throw new Error(result.error || '背景移除失败');
       }
-
     } catch (error) {
       console.error('❌ 背景移除失败:', error);
       toast.error(error instanceof Error ? error.message : '背景移除失败');
@@ -120,10 +121,7 @@ export default function TestBackgroundRemoval() {
                   className="hidden"
                   id="file-input"
                 />
-                <label
-                  htmlFor="file-input"
-                  className="cursor-pointer block"
-                >
+                <label htmlFor="file-input" className="cursor-pointer block">
                   <div className="text-gray-500 mb-2">
                     点击选择图片或拖拽到此处
                   </div>

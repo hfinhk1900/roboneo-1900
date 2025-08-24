@@ -3,21 +3,70 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 
+// 简单的内存速率限制（生产环境建议使用 Redis）
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1分钟窗口
+  const maxRequests = 10; // 每分钟最多10次请求
+
+  const record = rateLimitMap.get(ip);
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+
+  if (record.count >= maxRequests) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    // 速率限制检查
+    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip)) {
+      console.warn(`🚫 Rate limit exceeded for IP: ${ip}`);
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     console.log('🔄 Proxying request to private HF Space...');
+
+    // 可选：检查用户认证（取消注释以启用）
+    /*
+    const { auth } = await import('@/lib/auth');
+    const session = await auth.api.getSession({
+      headers: req.headers as any,
+    });
+
+    if (!session?.user) {
+      console.warn('🚫 Unauthorized access attempt');
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    */
 
     // 检查环境变量配置
     const HF_SPACE_URL = process.env.HF_SPACE_URL;
     const HF_SPACE_TOKEN = process.env.HF_SPACE_TOKEN;
 
-    if (!HF_SPACE_URL || !HF_SPACE_TOKEN) {
-      console.error('❌ HF Space configuration missing');
+    if (!HF_SPACE_URL) {
+      console.error('❌ HF Space URL configuration missing');
       return NextResponse.json(
         {
           error: 'HF Space configuration missing',
           details:
-            'Please configure HF_SPACE_URL and HF_SPACE_TOKEN in Vercel environment variables',
+            'Please configure HF_SPACE_URL in Vercel environment variables',
         },
         { status: 500 }
       );
@@ -35,13 +84,22 @@ export async function POST(req: NextRequest) {
       `📊 Image data size: ${imageData ? imageData.length : 0} characters`
     );
 
-    // 转发到私有 HF Space
+    // 转发到 HF Space (支持公有和私有)
+    const headers: Record<string, string> = {
+      // 不设置 Content-Type，让浏览器自动设置 multipart/form-data
+    };
+
+    // 如果配置了 token，则添加 Authorization header (私有空间)
+    if (HF_SPACE_TOKEN) {
+      headers.Authorization = `Bearer ${HF_SPACE_TOKEN}`;
+      console.log('🔐 Using private HF Space with authentication');
+    } else {
+      console.log('🌐 Using public HF Space without authentication');
+    }
+
     const response = await fetch(`${HF_SPACE_URL}/remove-bg-direct`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${HF_SPACE_TOKEN}`,
-        // 不设置 Content-Type，让浏览器自动设置 multipart/form-data
-      },
+      headers,
       body: formData,
       // 设置超时时间
       signal: AbortSignal.timeout(60000), // 60秒超时
@@ -118,8 +176,7 @@ export async function GET() {
     status: 'healthy',
     service: 'Background Removal Proxy',
     timestamp: new Date().toISOString(),
-    hf_space_configured: !!(
-      process.env.HF_SPACE_URL && process.env.HF_SPACE_TOKEN
-    ),
+    hf_space_configured: !!process.env.HF_SPACE_URL,
+    hf_space_private: !!process.env.HF_SPACE_TOKEN,
   });
 }

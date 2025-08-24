@@ -15,8 +15,12 @@ console.log('1. 对话框标题:');
 console.log('   - 中文: "保存已生成的图片？"');
 console.log('   - 英文: "Save Generated Image?"');
 console.log('2. 对话框描述:');
-console.log('   - 中文: "您有未保存的图片，切换模式将丢失当前结果。是否要保存后再切换？"');
-console.log('   - 英文: "You have an unsaved image. Switching modes will lose your current result. Would you like to save before switching?"');
+console.log(
+  '   - 中文: "您有未保存的图片，切换模式将丢失当前结果。是否要保存后再切换？"'
+);
+console.log(
+  '   - 英文: "You have an unsaved image. Switching modes will lose your current result. Would you like to save before switching?"'
+);
 console.log('3. 按钮文本:');
 console.log('   - 取消 → Cancel');
 console.log('   - 直接切换 → Switch Directly');

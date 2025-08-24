@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { auth } from '@/lib/auth';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { type NextRequest, NextResponse } from 'next/server';
 
 const s3Client = new S3Client({
   region: process.env.STORAGE_REGION!,
@@ -19,10 +19,7 @@ export async function POST(request: NextRequest) {
       headers: request.headers as any,
     });
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -39,7 +36,9 @@ export async function POST(request: NextRequest) {
     // 生成唯一文件名
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 15);
-    const fileExtension = originalFileName ? originalFileName.split('.').pop() || 'png' : 'png';
+    const fileExtension = originalFileName
+      ? originalFileName.split('.').pop() || 'png'
+      : 'png';
     const fileName = `aibackgrounsolidcolor/${session.user.id}/${timestamp}-${randomId}.${fileExtension}`;
 
     // 将 base64 转换为 Buffer
@@ -56,8 +55,8 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         originalFileName: originalFileName || 'unknown',
         processedAt: new Date().toISOString(),
-        processingType: 'background-removal-solid-color'
-      }
+        processingType: 'background-removal-solid-color',
+      },
     });
 
     await s3Client.send(uploadCommand);
@@ -71,9 +70,8 @@ export async function POST(request: NextRequest) {
       success: true,
       url: url,
       fileName: fileName,
-      message: 'Image uploaded successfully to R2'
+      message: 'Image uploaded successfully to R2',
     });
-
   } catch (error) {
     console.error('❌ AIBG Solid Color 上传到 R2 失败:', error);
     return NextResponse.json(

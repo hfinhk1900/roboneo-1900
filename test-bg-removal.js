@@ -25,15 +25,18 @@ async function testBackgroundRemoval() {
     // 调用去背景API
     console.log('🚀 调用去背景API...');
 
-    const response = await fetch('http://localhost:3000/api/remove-background', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image_input: imageBase64,
-      }),
-    });
+    const response = await fetch(
+      'http://localhost:3000/api/remove-background',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image_input: imageBase64,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -49,7 +52,10 @@ async function testBackgroundRemoval() {
       console.log('📋 返回消息:', result.message);
 
       // 保存结果图片
-      const outputPath = path.join(__dirname, 'public/aibg/bg-removed-result.png');
+      const outputPath = path.join(
+        __dirname,
+        'public/aibg/bg-removed-result.png'
+      );
       const base64Data = result.image.replace(/^data:image\/png;base64,/, '');
       fs.writeFileSync(outputPath, base64Data, 'base64');
 
@@ -58,7 +64,6 @@ async function testBackgroundRemoval() {
     } else {
       console.error('❌ 去背景失败:', result.error);
     }
-
   } catch (error) {
     console.error('❌ 测试过程中出现错误:', error.message);
 

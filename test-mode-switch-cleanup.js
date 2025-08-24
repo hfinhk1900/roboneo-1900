@@ -8,7 +8,9 @@ console.log('🧪 测试模式切换时的图片清理功能');
 console.log('====================================');
 
 console.log('\n🔧 已修复的问题:');
-console.log('用户切换 Background Style 和 Solid Color 模式时，右边已处理的图片会被清空');
+console.log(
+  '用户切换 Background Style 和 Solid Color 模式时，右边已处理的图片会被清空'
+);
 
 console.log('\n🚨 原始问题:');
 console.log('- 用户生成图片后切换模式，右边仍显示之前模式的图片');
@@ -26,8 +28,12 @@ console.log('   - afterImageSrc: 清空 After 图片源');
 console.log('   - beforeImageSrc: 清空 Before 图片源');
 console.log('   - showAfter: 重置为 true（显示 Before 状态）');
 console.log('3. 模式特定的重置:');
-console.log('   - 从 Solid Color 切换: 重置 selectedBackgroundColor 为 transparent');
-console.log('   - 从 Background Style 切换: 重置 selectedBackground 为空字符串');
+console.log(
+  '   - 从 Solid Color 切换: 重置 selectedBackgroundColor 为 transparent'
+);
+console.log(
+  '   - 从 Background Style 切换: 重置 selectedBackground 为空字符串'
+);
 
 console.log('\n📋 修复的组件:');
 console.log('- Background Style 切换按钮: 添加清理逻辑');
