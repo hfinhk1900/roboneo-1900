@@ -285,11 +285,27 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
+    console.log('📁 Uploading file:', file.name, file.type, file.size);
+
+    // 立即设置文件状态，提供即时反馈
+    setUploadedImage(file);
+    setProcessedImage(null); // Clear previous results
+    setCurrentDisplayImage(null); // Clear current display
+    setBeforeImageSrc(null);
+    setAfterImageSrc(null);
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-      setUploadedImage(file);
-      setProcessedImage(null); // Clear previous results
+      const result = e.target?.result as string;
+      console.log('✅ File read successfully, preview length:', result?.length);
+      setImagePreview(result);
+    };
+    reader.onerror = (error) => {
+      console.error('❌ FileReader error:', error);
+      toast.error('Failed to read image file');
+      // 重置状态
+      setUploadedImage(null);
+      setImagePreview(null);
     };
     reader.readAsDataURL(file);
   };
@@ -1737,12 +1753,7 @@ export function AIBackgroundGeneratorSection() {
                     {/* Main image display */}
                     <div
                       className={cn(
-                        "relative w-full max-w-sm mb-4",
-                        // 根据选择的尺寸动态调整宽高比
-                        selectedAspect === '2:3' ? 'aspect-[2/3]' :
-                        selectedAspect === '3:2' ? 'aspect-[3/2]' :
-                        selectedAspect === '1:1' ? 'aspect-square' :
-                        'aspect-square' // 默认正方形，包括 'original'
+                        "relative w-full max-w-sm mb-4 aspect-square"
                       )}
                     >
                       {/* Close button - 只在 Solid Color 模式下显示 */}
@@ -1960,6 +1971,34 @@ export function AIBackgroundGeneratorSection() {
                     >
                       Download
                     </Button>
+                  </div>
+                ) : imagePreview ? (
+                  /* Uploaded image preview state - show uploaded image before processing */
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
+                    {/* Main image display */}
+                    <div
+                      className={cn(
+                        "relative w-full max-w-sm mb-4 aspect-square"
+                      )}
+                    >
+                      <Image
+                        src={imagePreview}
+                        alt="Uploaded image preview"
+                        fill
+                        sizes="(max-width: 768px) 80vw, 400px"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out"
+                      />
+                    </div>
+
+                    {/* Upload info */}
+                    <div className="text-center space-y-2">
+                      <p className="text-sm text-gray-600">
+                        {backgroundMode === 'color'
+                          ? 'Your image is ready! Click "Process Image" to remove background.'
+                          : 'Your image is ready! Click "Process Image" to generate AI background.'
+                        }
+                      </p>
+                    </div>
                   </div>
                 ) : isProcessing ? (
                   /* Loading state - show progress bar and loading animation */
