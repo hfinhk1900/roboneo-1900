@@ -23,21 +23,20 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { rembgApiService } from '@/lib/rembg-api';
 import {
+  CpuIcon,
   DownloadIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
   UploadIcon,
   XIcon,
-  CpuIcon,
   ZapIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 // Preset color configuration
@@ -201,6 +200,25 @@ const DEMO_IMAGES = [
 ];
 
 export function AIBackgroundGeneratorSection() {
+  // Add custom CSS for shimmer animation
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); opacity: 0; }
+        50% { opacity: 0.6; }
+        100% { transform: translateX(200%); opacity: 0; }
+      }
+      .shimmer-animation {
+        animation: shimmer 2s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
   // State management
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -251,7 +269,9 @@ export function AIBackgroundGeneratorSection() {
 
   // Mode switch confirmation dialog state
   const [showModeSwitchDialog, setShowModeSwitchDialog] = useState(false);
-  const [pendingModeSwitch, setPendingModeSwitch] = useState<'color' | 'background' | null>(null);
+  const [pendingModeSwitch, setPendingModeSwitch] = useState<
+    'color' | 'background' | null
+  >(null);
 
   // Track the currently selected demo image for loading state
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(
@@ -261,14 +281,10 @@ export function AIBackgroundGeneratorSection() {
     (typeof DEMO_IMAGES)[0] | null
   >(null);
 
-
-
   // Debug effect to monitor selectedBackgroundColor changes
   useEffect(() => {
     console.log('selectedBackgroundColor changed to:', selectedBackgroundColor);
   }, [selectedBackgroundColor]);
-
-
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
@@ -389,7 +405,7 @@ export function AIBackgroundGeneratorSection() {
     setBeforeImageSrc(demoImage.beforeSrc);
     setAfterImageSrc(demoImage.afterSrc);
 
-    // Simulate loading for demo images
+    // Simulate loading for demo images with smooth progress
     const interval = setInterval(() => {
       setProcessingProgress((prev) => {
         if (prev >= 100) {
@@ -403,14 +419,16 @@ export function AIBackgroundGeneratorSection() {
             console.log('Demo image processing completed');
           }, 0);
 
+          // Show success message and reset progress after a delay
           setTimeout(() => {
+            setProcessingProgress(0);
             toast.success('Demo image loaded successfully!');
-          }, 100);
+          }, 500);
           return 100;
         }
-        return prev + 100 / 30;
+        return prev + Math.random() * 8 + 4; // Increase by 4-12% each time for smoother animation
       });
-    }, 100);
+    }, 150); // Update every 150ms for smoother progress
   };
 
   // Background color handling
@@ -556,7 +574,9 @@ export function AIBackgroundGeneratorSection() {
               drawHeight
             );
 
-            console.log(`📐 Canvas size: ${canvasW}x${canvasH} for aspect ratio ${targetAspect.w}:${targetAspect.h}`);
+            console.log(
+              `📐 Canvas size: ${canvasW}x${canvasH} for aspect ratio ${targetAspect.w}:${targetAspect.h}`
+            );
           } else {
             // Original logic: maintain aspect ratio, compress to maxSide
             let width = sourceWidth;
@@ -668,26 +688,54 @@ export function AIBackgroundGeneratorSection() {
       if (backgroundMode === 'color') {
         console.log('🎯 Solid Color mode: Using rembg API service');
 
+        // Start progress simulation for Solid Color mode
+        const progressInterval = setInterval(() => {
+          setProcessingProgress((prev) => {
+            if (prev >= 85) {
+              return 85; // Stop at 85% until API responds
+            }
+            return prev + Math.random() * 10 + 5; // Increase by 5-15% each time
+          });
+        }, 400); // Update every 400ms
+
         try {
           // 优先使用rembg API
           const result = await rembgApiService.removeBackground(uploadedImage, {
-            backgroundColor: selectedBackgroundColor === 'transparent' ? 'transparent' : selectedBackgroundColor,
-            timeout: 30000
+            backgroundColor:
+              selectedBackgroundColor === 'transparent'
+                ? 'transparent'
+                : selectedBackgroundColor,
+            timeout: 30000,
           });
 
+          // Clear progress interval
+          clearInterval(progressInterval);
+
           if (result.success && result.image) {
+            // Complete progress
+            setProcessingProgress(100);
             setProcessedImage(result.image);
             setCurrentDisplayImage(result.image);
-            setProcessingProgress(100);
-            toast.success('Background removed successfully!');
-            console.log(`✅ Rembg API processing completed in ${result.processingTime}ms`);
+
+            // Show success message and reset progress after a delay
+            setTimeout(() => {
+              setProcessingProgress(0);
+              toast.success('Background removed successfully!');
+            }, 500);
+
+            console.log(
+              `✅ Rembg API processing completed in ${result.processingTime}ms`
+            );
             return;
           }
           throw new Error(result.error || 'Rembg API failed');
-
         } catch (error) {
+          // Clear progress interval on error
+          clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
-          toast.error('Background removal service is temporarily unavailable. Please try again later.');
+          toast.error(
+            'Background removal service is temporarily unavailable. Please try again later.'
+          );
           setProcessingProgress(0);
           setIsProcessing(false);
           return;
@@ -724,12 +772,12 @@ export function AIBackgroundGeneratorSection() {
       // Start progress simulation while waiting for API response
       const progressInterval = setInterval(() => {
         setProcessingProgress((prev) => {
-          if (prev >= 90) {
-            return 90; // Stop at 90% until API responds
+          if (prev >= 85) {
+            return 85; // Stop at 85% until API responds
           }
-          return prev + 5;
+          return prev + Math.random() * 6 + 3; // Increase by 3-9% each time for more natural progression
         });
-      }, 300);
+      }, 600); // Update every 600ms for AI generation (slower than background removal)
 
       // Call AI Background API
       const response = await fetch('/api/aibackground/generate', {
@@ -747,13 +795,15 @@ export function AIBackgroundGeneratorSection() {
           `AI Background API error: HTTP ${response.status} ${response.statusText}`
         );
 
-        let errorData: {
-          required?: number;
-          current?: number;
-          error?: string;
-          details?: string;
-          message?: string;
-        } | Record<string, any>;
+        let errorData:
+          | {
+              required?: number;
+              current?: number;
+              error?: string;
+              details?: string;
+              message?: string;
+            }
+          | Record<string, any>;
         try {
           errorData = await response.json();
           console.error('Error response data:', errorData);
@@ -796,13 +846,13 @@ export function AIBackgroundGeneratorSection() {
       setBeforeImageSrc(imagePreview);
       setCurrentDisplayImage(result.resultUrl);
 
-      // Show success message
+      // Show success message and reset progress after a delay
       setTimeout(() => {
         setProcessingProgress(0);
         toast.success(
           `AI Background generated successfully! Used ${result.credits_used} credits.`
         );
-      }, 1000);
+      }, 800); // Slightly shorter delay for better UX
     } catch (error) {
       console.error('AI Background generation failed:', error);
 
@@ -903,7 +953,17 @@ export function AIBackgroundGeneratorSection() {
               drawY = 0;
             }
 
-            ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, drawX, drawY, drawWidth, drawHeight);
+            ctx.drawImage(
+              image,
+              0,
+              0,
+              image.naturalWidth,
+              image.naturalHeight,
+              drawX,
+              drawY,
+              drawWidth,
+              drawHeight
+            );
           } else {
             // 原始逻辑：直接绘制，保持原始尺寸
             ctx.drawImage(image, 0, 0);
@@ -1104,7 +1164,6 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         type="button"
                         onClick={() => {
-
                           // 如果当前不是 Background Style 模式，检查是否需要确认
                           if (backgroundMode !== 'background') {
                             if (processedImage) {
@@ -1565,7 +1624,8 @@ export function AIBackgroundGeneratorSection() {
                     !uploadedImage ||
                     isProcessing ||
                     (backgroundMode === 'background' && !selectedBackground) ||
-                    (backgroundMode === 'background' && selectedBackground === 'custom' &&
+                    (backgroundMode === 'background' &&
+                      selectedBackground === 'custom' &&
                       !customBackgroundDescription.trim())
                   }
                   className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
@@ -1626,7 +1686,7 @@ export function AIBackgroundGeneratorSection() {
                     {/* Main image display */}
                     <div
                       className={cn(
-                        "relative w-full max-w-sm mb-4 aspect-square"
+                        'relative w-full max-w-sm mb-4 aspect-square'
                       )}
                     >
                       {/* Close button - 只在 Solid Color 模式下显示 */}
@@ -1851,7 +1911,7 @@ export function AIBackgroundGeneratorSection() {
                     {/* Main image display */}
                     <div
                       className={cn(
-                        "relative w-full max-w-sm mb-4 aspect-square"
+                        'relative w-full max-w-sm mb-4 aspect-square'
                       )}
                     >
                       <Image
@@ -1868,8 +1928,7 @@ export function AIBackgroundGeneratorSection() {
                       <p className="text-sm text-gray-600">
                         {backgroundMode === 'color'
                           ? 'Your image is ready! Click "Process Image" to remove background.'
-                          : 'Your image is ready! Click "Process Image" to generate AI background.'
-                        }
+                          : 'Your image is ready! Click "Process Image" to generate AI background.'}
                       </p>
                     </div>
                   </div>
@@ -1912,38 +1971,52 @@ export function AIBackgroundGeneratorSection() {
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
                               <span className="text-lg font-medium">
-                                Processing...
+                                {backgroundMode === 'color'
+                                  ? 'Removing Background...'
+                                  : 'Generating AI Background...'}
                               </span>
                             </div>
 
-                                                        {/* 进度条 */}
+                            {/* 进度条 */}
                             <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden relative">
                               <div
-                                className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out ${
-                                  isLoadingAnimation ? 'animate-pulse' : ''
-                                }`}
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
                                 style={{ width: `${processingProgress}%` }}
                               />
-                              {/* 持续的光效动画 */}
-                              <div
-                                className={`absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 ${
-                                  isLoadingAnimation ? 'animate-pulse' : ''
-                                }`}
-                                style={{
-                                  left: `${Math.min(processingProgress, 90)}%`,
-                                  transform: 'translateX(-100%)'
-                                }}
-                              />
+                              {/* 光效动画 - 持续移动的光带 */}
+                              {processingProgress > 0 &&
+                                processingProgress < 100 && (
+                                  <div
+                                    className="absolute top-0 h-full w-12 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 shimmer-animation"
+                                    style={{
+                                      left: '0%',
+                                      width: '30%',
+                                    }}
+                                  />
+                                )}
                             </div>
 
                             {/* 进度百分比 */}
-                            <div className="text-white text-sm font-medium">
+                            <div className="text-white text-sm font-medium bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
                               {Math.round(processingProgress)}%
                             </div>
 
-                            {/* Loading message */}
-                            <div className="text-white text-center max-w-sm">
-                              <p>Your image is processing...</p>
+                            {/* Loading message with stage indicator */}
+                            <div className="text-white text-center max-w-sm space-y-1">
+                              <p>
+                                {backgroundMode === 'color'
+                                  ? 'Removing background with AI precision...'
+                                  : 'Creating your AI-generated background...'}
+                              </p>
+                              <p className="text-xs text-gray-300">
+                                {processingProgress < 30
+                                  ? 'Analyzing image...'
+                                  : processingProgress < 60
+                                    ? 'Processing with AI...'
+                                    : processingProgress < 85
+                                      ? 'Applying effects...'
+                                      : 'Finalizing result...'}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -1981,13 +2054,17 @@ export function AIBackgroundGeneratorSection() {
           </div>
         </div>
 
-                {/* Mode switch confirmation dialog */}
-        <Dialog open={showModeSwitchDialog} onOpenChange={setShowModeSwitchDialog}>
+        {/* Mode switch confirmation dialog */}
+        <Dialog
+          open={showModeSwitchDialog}
+          onOpenChange={setShowModeSwitchDialog}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Save Generated Image?</DialogTitle>
               <DialogDescription>
-                You have an unsaved image. Switching modes will lose your current result. Would you like to save before switching?
+                You have an unsaved image. Switching modes will lose your
+                current result. Would you like to save before switching?
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
