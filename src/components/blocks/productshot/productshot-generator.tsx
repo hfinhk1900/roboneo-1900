@@ -383,14 +383,14 @@ export default function ProductShotGeneratorSection() {
   };
 
   const handleDownload = async () => {
-    if (!result?.resultUrl) return;
+    if (!result?.download_url) return;
 
     const filename = `productshot-${selectedSceneConfig?.name}-${Date.now()}.png`;
-    await downloadImage(result.resultUrl, filename);
+    await downloadImage(result.download_url, filename);
   };
 
   const handleImageClick = () => {
-    if (result?.resultUrl) {
+    if (result?.download_url) {
       setShowImagePreview(true);
     }
   };
@@ -773,7 +773,7 @@ export default function ProductShotGeneratorSection() {
           <div>
             <Card className="border shadow-md h-full min-h-[400px] flex flex-col rounded-2xl bg-white">
               <CardContent className="p-6 flex-grow flex flex-col items-center justify-center space-y-4 relative">
-                {result?.resultUrl ? (
+                {result?.download_url ? (
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     <button
                       type="button"
@@ -782,7 +782,7 @@ export default function ProductShotGeneratorSection() {
                       title="Click to view full size"
                     >
                       <Image
-                        src={result.resultUrl}
+                        src={result.download_url}
                         alt={`Generated product shot - ${selectedSceneConfig?.name || 'Unknown scene'}`}
                         fill
                         className="object-contain rounded-lg transition-all duration-200 group-hover:brightness-110"
@@ -966,10 +966,10 @@ export default function ProductShotGeneratorSection() {
             className="relative w-full h-full flex items-center justify-center cursor-pointer group"
             onClick={() => setShowImagePreview(false)}
           >
-            {result?.resultUrl && (
+            {result?.download_url && (
               <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image
-                  src={result.resultUrl}
+                  src={result.download_url}
                   alt={`Generated product shot - ${selectedSceneConfig?.name || 'Unknown scene'}`}
                   width={1200}
                   height={1200}

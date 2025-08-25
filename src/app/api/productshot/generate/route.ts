@@ -1,7 +1,11 @@
 // 不使用付费 API，改为基于启发式规则的免费分析
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import { generateSignedUrl } from '@/lib/signed-url';
+import {
+  generateAssetId,
+  storeAssetMetadata,
+  generateSignedDownloadUrl
+} from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // 产品尺寸映射 - 基于常见产品类型的合理尺寸
@@ -651,30 +655,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. 生成签名URL（1小时过期）
+    // 9. 创建资产记录
     if (!result.resultUrl) {
       throw new Error('Failed to generate image URL');
     }
 
-    const signedUrlResult = generateSignedUrl(result.resultUrl, {
-      expiresIn: 3600, // 1小时过期
-      userId: session.user.id,
-      imageKey: result.resultUrl.split('/').pop() || ''
+    const assetId = generateAssetId();
+    const fileName = result.resultUrl.split('/').pop() || 'productshot.png';
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    // 存储资产元数据
+    await storeAssetMetadata({
+      asset_id: assetId,
+      original_url: result.resultUrl,
+      file_name: fileName,
+      content_type: 'image/png',
+      size: 0, // 暂时设为0，实际可以从R2获取
+      created_at: currentTime,
+      user_id: session.user.id
     });
 
-    // 10. 返回结果（脱敏信息）
+    // 10. 生成签名下载URL
+    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+
+    console.log('✅ ProductShot asset created:', {
+      asset_id: assetId,
+      user_id: session.user.id,
+      file_name: fileName,
+      expires_at: downloadUrl.expires_at
+    });
+
+    // 11. 返回结果（完全脱敏）
     return NextResponse.json({
       success: true,
-      resultUrl: signedUrlResult.url, // 使用签名URL
-      expiresAt: signedUrlResult.expiresAt, // 过期时间
+      asset_id: assetId,
+      download_url: downloadUrl.url,
+      expires_at: downloadUrl.expires_at,
       scene: sceneType
         ? SCENE_PRESETS[sceneType].name
         : 'Reference Image Guided',
       credits_used: CREDITS_PER_IMAGE,
-      // 不返回具体积分余额，只返回是否足够
       credits_sufficient: true,
-      // 添加安全提示
-      security_note: 'This URL will expire in 1 hour for security reasons'
+      from_cache: false
     });
   } catch (error) {
     console.error('ProductShot generation error:', error);

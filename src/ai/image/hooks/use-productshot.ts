@@ -383,7 +383,7 @@ export function useProductShot(): UseProductShotReturn {
         throw new Error(data.error || 'Failed to generate product shot');
       }
 
-      if (!data.success || !data.resultUrl) {
+      if (!data.success || !data.download_url) {
         throw new Error('Generation completed but no result received');
       }
 

@@ -236,7 +236,7 @@ export default function HeroSection() {
       // OpenAI API returns the result synchronously
       setGenerationStep('🎉 Your sticker is ready!');
       setGenerationProgress(100);
-      setGeneratedImageUrl(stickerData.url);
+      setGeneratedImageUrl(stickerData.url); // 新系统中 url 字段是 download_url 的别名
       setIsGenerating(false);
 
       // Clear credits cache to trigger refresh of credits display

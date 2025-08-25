@@ -11,7 +11,11 @@
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { uploadFile } from '@/storage';
-import { generateSignedUrl } from '@/lib/signed-url';
+import {
+  generateAssetId,
+  storeAssetMetadata,
+  generateSignedDownloadUrl
+} from '@/lib/asset-management';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -364,34 +368,51 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 6. 生成签名URL（1小时过期）
+        // 6. 创建资产记录
     if (!r2Url) {
       throw new Error('Failed to generate image URL');
     }
 
-    const signedUrlResult = generateSignedUrl(r2Url, {
-      expiresIn: 3600, // 1小时过期
-      userId: session.user.id,
-      imageKey: r2Url.split('/').pop() || ''
+    const assetId = generateAssetId();
+    const fileName = r2Url.split('/').pop() || 'sticker.png';
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    // 存储资产元数据
+    await storeAssetMetadata({
+      asset_id: assetId,
+      original_url: r2Url,
+      file_name: fileName,
+      content_type: 'image/png',
+      size: 0, // 暂时设为0，实际可以从R2获取
+      created_at: currentTime,
+      user_id: session.user.id
     });
 
-    // 7. 返回结果（脱敏信息）
+    // 7. 生成签名下载URL
+    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+
     const elapsed = Date.now() - startTime;
     console.log(
       `🎉 Sticker generation complete! Total time: ${Math.round(elapsed / 1000)}s`
     );
 
+    console.log('✅ Image to Sticker asset created:', {
+      asset_id: assetId,
+      user_id: session.user.id,
+      file_name: fileName,
+      expires_at: downloadUrl.expires_at
+    });
+
+    // 8. 返回结果（完全脱敏）
     return NextResponse.json({
-      url: signedUrlResult.url, // 使用签名URL
-      expiresAt: signedUrlResult.expiresAt, // 过期时间
+      url: downloadUrl.url,
+      expires_at: downloadUrl.expires_at,
       style: style,
       size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
       source: 'image-to-sticker-api',
       credits_used: CREDITS_PER_IMAGE,
-      // 不返回具体积分余额，只返回是否足够
       credits_sufficient: true,
-      // 添加安全提示
-      security_note: 'This URL will expire in 1 hour for security reasons'
+      from_cache: false
     });
   } catch (error) {
     console.error('❌ Sticker generation failed:', error);
