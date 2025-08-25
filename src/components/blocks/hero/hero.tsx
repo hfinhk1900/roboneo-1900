@@ -134,35 +134,29 @@ export default function HeroSection() {
 
   // Send notification when generation completes
   const sendCompletionNotification = () => {
-    if (
-      typeof window !== 'undefined' &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
-    ) {
-      try {
-        const notification = new Notification('🎉 Your sticker is ready!', {
-          body: 'Your high-res artwork has been generated successfully.',
-          icon: '/favicon-96x96.png',
-          tag: 'sticker-generation-complete',
-        });
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('Your sticker is ready!', {
+        body: 'Click to view your generated sticker',
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'sticker-generation',
+        requireInteraction: false,
+        silent: false,
+      });
 
-        // Auto-close notification after 5 seconds
-        setTimeout(() => {
-          notification.close();
-        }, 5000);
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
 
-        // Focus window when notification is clicked
-        notification.onclick = () => {
-          window.focus();
-          notification.close();
-        };
-      } catch (error) {
-        console.log('Error sending notification:', error);
-      }
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        notification.close();
+      }, 5000);
     }
   };
 
-  // Function to perform the actual generation (without auth check) - Using OpenAI API
+  // Function to perform the actual generation (without auth check) - Using AI service
   const performGeneration = useCallback(async () => {
     if (!selectedImage) return;
 
@@ -176,18 +170,18 @@ export default function HeroSection() {
     setGeneratedImageUrl(null);
     setIsGenerating(true);
     setFileError(null);
-    setGenerationStep('🎨 Generating your sticker...');
+    setGenerationStep('Generating your sticker...');
     setGenerationProgress(10);
 
     // Request notification permission for completion notification
     requestNotificationPermission();
 
     try {
-      // Step 1: Generate sticker using OpenAI API (synchronous)
-      setGenerationStep('🚀 Generating sticker with OpenAI...');
+      // Step 1: Generate sticker using AI service (synchronous)
+      setGenerationStep('Generating your sticker...');
       setGenerationProgress(50);
 
-      console.log('🔧 DEBUG: Calling /api/image-to-sticker with OpenAI');
+      console.log('🔧 DEBUG: Calling /api/image-to-sticker with AI service');
 
       const formData = new FormData();
       formData.append('imageFile', selectedImage);
@@ -229,12 +223,12 @@ export default function HeroSection() {
       const stickerData = await stickerResponse.json();
       console.log('🔧 DEBUG: Sticker generated successfully!', stickerData);
 
-      // Step 3: Process the completed result (OpenAI returns result immediately)
-      setGenerationStep('✨ Processing final result...');
+      // Step 3: Process the completed result (AI service returns result immediately)
+      setGenerationStep('Processing final result...');
       setGenerationProgress(90);
 
-      // OpenAI API returns the result synchronously
-      setGenerationStep('🎉 Your sticker is ready!');
+      // AI service returns the result synchronously
+      setGenerationStep('Your sticker is ready!');
       setGenerationProgress(100);
       setGeneratedImageUrl(stickerData.url); // 新系统中 url 字段是 download_url 的别名
       setIsGenerating(false);
