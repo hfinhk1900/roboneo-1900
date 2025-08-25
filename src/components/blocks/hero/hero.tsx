@@ -142,14 +142,64 @@ export default function HeroSection() {
           if (res.ok) {
             const data = await res.json();
             console.log('📦 Server history response:', data);
-            const items = (data.items || []).map((it: any) => ({
-              id: it.id,
-              url: it.url,
-              style: it.style,
-              createdAt: it.createdAt ? new Date(it.createdAt).getTime() : Date.now(),
-            })) as StickerHistoryItem[];
-            setStickerHistory(items);
-            console.log('✅ Server history loaded:', items.length, 'items');
+
+            // 处理每个历史记录项，检查并刷新过期的URL
+            const processedItems = await Promise.all(
+              (data.items || []).map(async (it: any) => {
+                let finalUrl = it.url;
+
+                // 如果是资产下载URL，检查是否过期
+                if (it.url.startsWith('/api/assets/download')) {
+                  try {
+                    const urlObj = new URL(it.url, window.location.origin);
+                    const exp = urlObj.searchParams.get('exp');
+                    const assetId = urlObj.searchParams.get('asset_id');
+
+                    if (exp && assetId) {
+                      const expiryTime = parseInt(exp) * 1000;
+                      const currentTime = Date.now();
+
+                      // 如果URL即将过期或已过期，刷新它
+                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                        console.log('🔄 Refreshing expired asset URL:', assetId);
+                        try {
+                          const refreshRes = await fetch(`/api/storage/sign-download`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                              asset_id: assetId,
+                              display_mode: 'inline',
+                              expires_in: 3600
+                            })
+                          });
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            finalUrl = refreshData.url;
+                          }
+                        } catch (error) {
+                          console.error('Failed to refresh asset URL:', error);
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking URL expiry:', error);
+                  }
+                }
+
+                return {
+                  id: it.id,
+                  url: finalUrl,
+                  style: it.style,
+                  createdAt: it.createdAt ? new Date(it.createdAt).getTime() : Date.now(),
+                } as StickerHistoryItem;
+              })
+            );
+
+            setStickerHistory(processedItems);
+            console.log('✅ Server history loaded:', processedItems.length, 'items');
             return;
           } else {
             console.warn('⚠️ Server history request failed:', res.status);
@@ -160,8 +210,62 @@ export default function HeroSection() {
           const raw = localStorage.getItem(HISTORY_KEY);
           if (raw) {
             const parsed = JSON.parse(raw) as StickerHistoryItem[];
-            setStickerHistory(parsed);
-            console.log('📱 Local history loaded:', parsed.length, 'items');
+
+            // 处理本地历史记录，检查并刷新过期的URL
+            const processedItems = await Promise.all(
+              parsed.map(async (item) => {
+                let finalUrl = item.url;
+
+                // 如果是资产下载URL，检查是否过期
+                if (item.url.startsWith('/api/assets/download')) {
+                  try {
+                    const urlObj = new URL(item.url, window.location.origin);
+                    const exp = urlObj.searchParams.get('exp');
+                    const assetId = urlObj.searchParams.get('asset_id');
+
+                    if (exp && assetId) {
+                      const expiryTime = parseInt(exp) * 1000;
+                      const currentTime = Date.now();
+
+                      // 如果URL即将过期或已过期，刷新它
+                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                        console.log('🔄 Refreshing expired asset URL:', assetId);
+                        try {
+                          const refreshRes = await fetch(`/api/storage/sign-download`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                              asset_id: assetId,
+                              display_mode: 'inline',
+                              expires_in: 3600
+                            })
+                          });
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            finalUrl = refreshData.url;
+                          }
+                        } catch (error) {
+                          console.error('Failed to refresh asset URL:', error);
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking URL expiry:', error);
+                  }
+                }
+
+                return {
+                  ...item,
+                  url: finalUrl,
+                };
+              })
+            );
+
+            setStickerHistory(processedItems);
+            console.log('📱 Local history loaded:', processedItems.length, 'items');
           }
         }
       } catch (error) {
@@ -319,13 +423,55 @@ export default function HeroSection() {
   }, [stickerHistory, currentUser]);
 
   // 从URL下载图片
-  const downloadFromUrl = useCallback((url: string, style: string) => {
+  const downloadFromUrl = useCallback(async (url: string, style: string) => {
     const filename = `sticker-${style}-${Date.now()}.png`;
 
+    // 检查并刷新过期的URL
+    let finalUrl = url;
     if (url.startsWith('/api/assets/download')) {
+      try {
+        const urlObj = new URL(url, window.location.origin);
+        const exp = urlObj.searchParams.get('exp');
+        const assetId = urlObj.searchParams.get('asset_id');
+
+        if (exp && assetId) {
+          const expiryTime = parseInt(exp) * 1000;
+          const currentTime = Date.now();
+
+          // 如果URL即将过期或已过期，刷新它
+          if (expiryTime - currentTime <= 5 * 60 * 1000) {
+            console.log('🔄 Refreshing expired asset URL for download:', assetId);
+            try {
+              const refreshRes = await fetch(`/api/storage/sign-download`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  asset_id: assetId,
+                  display_mode: 'inline',
+                  expires_in: 3600
+                })
+              });
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                finalUrl = refreshData.url;
+              }
+            } catch (error) {
+              console.error('Failed to refresh asset URL for download:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking URL expiry for download:', error);
+      }
+    }
+
+    if (finalUrl.startsWith('/api/assets/download')) {
       // 新资产管理系统
       const link = document.createElement('a');
-      link.href = url;
+      link.href = finalUrl;
       link.download = filename;
       link.style.display = 'none';
       document.body.appendChild(link);
@@ -334,10 +480,10 @@ export default function HeroSection() {
       return;
     }
 
-    if (url.startsWith('data:')) {
+    if (finalUrl.startsWith('data:')) {
       // base64 数据
       const link = document.createElement('a');
-      link.href = url;
+      link.href = finalUrl;
       link.download = filename;
       link.style.display = 'none';
       document.body.appendChild(link);
@@ -346,9 +492,9 @@ export default function HeroSection() {
       return;
     }
 
-    if (url.startsWith('http')) {
+    if (finalUrl.startsWith('http')) {
       // HTTP URL，使用代理
-      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url, filename })}`;
+      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url: finalUrl, filename })}`;
       const link = document.createElement('a');
       link.href = downloadUrl;
       link.download = filename;
@@ -948,12 +1094,16 @@ export default function HeroSection() {
                   /* 生成完成状态 */
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     <div className="relative flex items-center justify-center">
-                      <Image
+                      <img
                         src={generatedImageUrl}
                         alt="Generated sticker"
-                        width={400}
-                        height={400}
-                        className="object-contain max-h-full"
+                        className="object-contain max-h-full max-w-full"
+                        style={{
+                          border: 'none',
+                          outline: 'none',
+                          boxShadow: 'none',
+                          borderRadius: '0'
+                        }}
                       />
                     </div>
                     <Button
@@ -1134,11 +1284,10 @@ export default function HeroSection() {
             {stickerHistory.map((item, idx) => (
               <div key={`${item.createdAt}-${idx}`} className="group relative">
                 <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
-                  <Image
+                  <img
                     src={item.url}
                     alt={`Sticker ${idx + 1}`}
-                    fill
-                    className="object-contain"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
