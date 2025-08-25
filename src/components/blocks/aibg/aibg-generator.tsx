@@ -920,10 +920,10 @@ export function AIBackgroundGeneratorSection() {
       setGenerationProgress(100);
 
       // Set the processed image
-      setProcessedImage(result.resultUrl);
-      setAfterImageSrc(result.resultUrl);
+      setProcessedImage(result.download_url);
+      setAfterImageSrc(result.download_url);
       setBeforeImageSrc(imagePreview);
-      setCurrentDisplayImage(result.resultUrl);
+      setCurrentDisplayImage(result.download_url);
 
       // 更新积分缓存 - 使用API返回的积分信息
       try {
@@ -1108,7 +1108,27 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-        // 如果是URL（如R2存储的图片），下载图片
+        // 如果是资产下载URL（新的格式），直接使用
+    if (imageToDownload.startsWith('/api/assets/download')) {
+      // 显示下载中提示
+      toast.info('Downloading image...');
+
+      // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
+      const link = document.createElement('a');
+      link.href = imageToDownload;
+      link.download = 'ai-background-result.png';
+      link.target = '_blank';
+
+      // 触发下载
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('Image downloaded successfully');
+      return;
+    }
+
+    // 如果是URL（如R2存储的图片），下载图片
     if (imageToDownload.startsWith('http')) {
       // 显示下载中提示
       toast.info('Downloading image...');
@@ -2127,7 +2147,17 @@ export function AIBackgroundGeneratorSection() {
                         link.click();
                         document.body.removeChild(link);
                         toast.success('Image saved successfully');
-                                            } else if (imageToDownload.startsWith('http')) {
+                      } else if (imageToDownload.startsWith('/api/assets/download')) {
+                        // 如果是资产下载URL（新的格式），直接使用
+                        const link = document.createElement('a');
+                        link.href = imageToDownload;
+                        link.download = 'ai-background-result.png';
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        toast.success('Image downloaded successfully');
+                      } else if (imageToDownload.startsWith('http')) {
                         // 如果是URL，下载图片
                         toast.info('Downloading image...');
 
