@@ -300,6 +300,7 @@ export function AIBackgroundGeneratorSection() {
     console.log('📁 Uploading file:', file.name, file.type, file.size);
 
     // 立即设置文件状态，提供即时反馈
+
     setUploadedImage(file);
     setProcessedImage(null); // Clear previous results
     setCurrentDisplayImage(null); // Clear current display
@@ -451,12 +452,24 @@ export function AIBackgroundGeneratorSection() {
   };
 
   // Background color handling
-  const handleBackgroundColorSelect = (color: string) => {
+  const handleBackgroundColorSelect = async (color: string) => {
     if (color === 'custom') {
       setShowColorPicker(true);
     } else {
       setSelectedBackgroundColor(color);
-      // Background color application logic can be added here
+
+      // 实时应用背景颜色效果
+      if (processedImage) {
+        try {
+          const coloredImage = await applyBackgroundColor(processedImage, color);
+          setCurrentDisplayImage(coloredImage);
+          setAfterImageSrc(coloredImage);
+          console.log(`Applied background color: ${color}`);
+        } catch (error) {
+          console.error('Failed to apply background color:', error);
+          toast.error('Failed to apply background color');
+        }
+      }
     }
   };
 
@@ -715,12 +728,9 @@ export function AIBackgroundGeneratorSection() {
         console.log(`📐 Processed image size: ${imageBase64.length} characters`);
 
         try {
-          // 优先使用rembg API - 传递处理后的base64图片，确保尺寸正确
+          // 优先使用rembg API - 不传递背景颜色，让API生成透明背景
           const result = await rembgApiService.removeBackground(imageBase64, {
-            backgroundColor:
-              selectedBackgroundColor === 'transparent'
-                ? 'transparent'
-                : selectedBackgroundColor,
+            backgroundColor: 'transparent', // 固定为透明，让API生成透明背景
             timeout: 30000,
             aspectRatio: parseAspectRatio(selectedAspect), // 传递尺寸信息
           });
@@ -733,7 +743,19 @@ export function AIBackgroundGeneratorSection() {
             setProcessingProgress(100);
             setGenerationProgress(100);
             setProcessedImage(result.image);
-            setCurrentDisplayImage(result.image);
+
+            // 立即应用用户选择的背景颜色（不是透明）
+            try {
+              const coloredImage = await applyBackgroundColor(result.image, selectedBackgroundColor);
+              setCurrentDisplayImage(coloredImage);
+              setAfterImageSrc(coloredImage);
+              console.log(`Applied user-selected background color: ${selectedBackgroundColor}`);
+            } catch (error) {
+              console.error('Failed to apply background color:', error);
+              // 如果应用颜色失败，使用原始透明图片
+              setCurrentDisplayImage(result.image);
+              setAfterImageSrc(result.image);
+            }
 
             // 添加详细的尺寸信息日志
             console.log(`✅ Rembg API processing completed in ${result.processingTime}ms`);
@@ -944,6 +966,19 @@ export function AIBackgroundGeneratorSection() {
           if (backgroundColor !== 'transparent') {
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+          } else {
+            // 创建mosaic图案背景（透明效果）
+            const patternSize = 20;
+            for (let x = 0; x < canvas.width; x += patternSize) {
+              for (let y = 0; y < canvas.height; y += patternSize) {
+                const isEvenX = Math.floor(x / patternSize) % 2 === 0;
+                const isEvenY = Math.floor(y / patternSize) % 2 === 0;
+                const shouldFill = (isEvenX && isEvenY) || (!isEvenX && !isEvenY);
+
+                ctx.fillStyle = shouldFill ? '#ffffff' : '#e5e7eb';
+                ctx.fillRect(x, y, patternSize, patternSize);
+              }
+            }
           }
 
           // Draw the processed image on top, maintaining aspect ratio
@@ -1715,21 +1750,7 @@ export function AIBackgroundGeneratorSection() {
                           : 'aspect-square' // 默认正方形
                       )}
                     >
-                      {/* Close button - 只在 Solid Color 模式下显示 */}
-                      {backgroundMode === 'color' && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setProcessedImage(null);
-                            setCurrentDisplayImage(null);
-                            setShowAfter(true);
-                          }}
-                          className="absolute -top-2 -right-2 z-20 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
-                          title="Close preview"
-                        >
-                          <XIcon className="h-4 w-4 text-gray-600" />
-                        </button>
-                      )}
+                      {/* 移除关闭按钮，简化用户体验 */}
 
                       <div
                         className="absolute inset-0 rounded-lg"
