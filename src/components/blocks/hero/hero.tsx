@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -75,6 +76,22 @@ export default function HeroSection() {
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>('default');
 
+  // 新增：历史记录相关状态
+  const [stickerHistory, setStickerHistory] = useState<StickerHistoryItem[]>([]);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<{ idx: number; item: StickerHistoryItem } | null>(null);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] = useState(false);
+
+  // 历史记录接口定义
+  interface StickerHistoryItem {
+    id?: string;
+    url: string;
+    style: string;
+    createdAt: number;
+  }
+
+  const HISTORY_KEY = 'roboneo_sticker_history_v1'; // 未登录时回退
+
   // Ref for scrolling to this section
   const heroRef = useRef<HTMLElement>(null);
 
@@ -114,6 +131,58 @@ export default function HeroSection() {
       setNotificationPermission(Notification.permission);
     }
   }, []);
+
+  // 新增：监听 currentUser 变化，重新加载历史记录
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        if (currentUser) {
+          console.log('🔄 Loading server history for user:', currentUser.id);
+          const res = await fetch('/api/history/sticker?limit=24', { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            console.log('📦 Server history response:', data);
+            const items = (data.items || []).map((it: any) => ({
+              id: it.id,
+              url: it.url,
+              style: it.style,
+              createdAt: it.createdAt ? new Date(it.createdAt).getTime() : Date.now(),
+            })) as StickerHistoryItem[];
+            setStickerHistory(items);
+            console.log('✅ Server history loaded:', items.length, 'items');
+            return;
+          } else {
+            console.warn('⚠️ Server history request failed:', res.status);
+          }
+        } else {
+          console.log('👤 No user logged in, loading local history');
+          // fallback 本地
+          const raw = localStorage.getItem(HISTORY_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw) as StickerHistoryItem[];
+            setStickerHistory(parsed);
+            console.log('📱 Local history loaded:', parsed.length, 'items');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error loading history:', error);
+        // 忽略错误，尽量展示本地
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw) as StickerHistoryItem[];
+            setStickerHistory(parsed);
+            console.log('🔄 Fallback to local history:', parsed.length, 'items');
+          }
+        } catch {}
+      }
+    };
+
+    // 只有在 mounted 后才加载历史
+    if (isMounted) {
+      loadHistory();
+    }
+  }, [currentUser, isMounted]);
 
   // Request notification permission when generation starts
   const requestNotificationPermission = async () => {
@@ -155,6 +224,141 @@ export default function HeroSection() {
       }, 5000);
     }
   };
+
+  // 新增：历史记录操作函数
+  // 写入历史（最多保留 24 条，最新在前）
+  const pushHistory = useCallback(
+    async (item: StickerHistoryItem) => {
+      // 已登录：写入服务端
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/sticker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ url: item.url, style: item.style }),
+          });
+          if (res.ok) {
+            const created = await res.json();
+            const createdItem: StickerHistoryItem = {
+              id: created.id,
+              url: created.url,
+              style: created.style,
+              createdAt: created.createdAt ? new Date(created.createdAt).getTime() : Date.now(),
+            };
+            setStickerHistory((prev) => [createdItem, ...prev].slice(0, 24));
+            return;
+          }
+        } catch {}
+      }
+      // 未登录：写入本地回退
+      try {
+        const next = [item, ...stickerHistory].slice(0, 24);
+        setStickerHistory(next);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+      } catch {}
+    },
+    [stickerHistory, currentUser]
+  );
+
+  // 删除单条历史记录
+  const removeHistoryItem = useCallback((idx: number) => {
+    const target = stickerHistory[idx];
+    if (!target) return;
+
+    // 显示确认弹窗
+    setPendingDeleteItem({ idx, item: target });
+    setShowDeleteConfirmDialog(true);
+  }, [stickerHistory]);
+
+  // 确认删除历史记录
+  const confirmDeleteHistoryItem = useCallback(async () => {
+    if (!pendingDeleteItem) return;
+
+    const { idx, item } = pendingDeleteItem;
+
+    // 已登录：调用删除
+    if (currentUser && item.id) {
+      try {
+        await fetch(`/api/history/sticker/${item.id}`, { method: 'DELETE', credentials: 'include' });
+      } catch {}
+    }
+
+    const next = stickerHistory.filter((_, i) => i !== idx);
+    setStickerHistory(next);
+    // 同步本地回退
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch {}
+
+    // 关闭弹窗并清理状态
+    setShowDeleteConfirmDialog(false);
+    setPendingDeleteItem(null);
+  }, [pendingDeleteItem, currentUser, stickerHistory]);
+
+  // 清空所有历史记录（显示确认弹窗）
+  const clearHistory = useCallback(() => {
+    setShowClearAllConfirmDialog(true);
+  }, []);
+
+  // 确认清空所有历史记录
+  const confirmClearAllHistory = useCallback(async () => {
+    // 简化：前端逐条删除（避免新增批量删除API）
+    const snapshot = [...stickerHistory];
+    if (currentUser) {
+      await Promise.all(
+        snapshot.map(async (it) => {
+          if (!it.id) return;
+          try { await fetch(`/api/history/sticker/${it.id}`, { method: 'DELETE', credentials: 'include' }); } catch {}
+        })
+      );
+    }
+    setStickerHistory([]);
+    try { localStorage.removeItem(HISTORY_KEY); } catch {}
+
+    // 关闭弹窗
+    setShowClearAllConfirmDialog(false);
+  }, [stickerHistory, currentUser]);
+
+  // 从URL下载图片
+  const downloadFromUrl = useCallback((url: string, style: string) => {
+    const filename = `sticker-${style}-${Date.now()}.png`;
+
+    if (url.startsWith('/api/assets/download')) {
+      // 新资产管理系统
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    if (url.startsWith('data:')) {
+      // base64 数据
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    if (url.startsWith('http')) {
+      // HTTP URL，使用代理
+      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url, filename })}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+  }, []);
 
   // Function to perform the actual generation (without auth check) - Using AI service
   const performGeneration = useCallback(async () => {
@@ -239,6 +443,9 @@ export default function HeroSection() {
       // Send completion notification
       sendCompletionNotification();
 
+      // 添加到历史记录
+      pushHistory({ url: stickerData.url, style: selectedStyle, createdAt: Date.now() });
+
       console.log('🎉 Sticker generation completed successfully!');
     } catch (error) {
       console.error('❌ Sticker generation failed:', error);
@@ -250,7 +457,7 @@ export default function HeroSection() {
       setGenerationStep(null);
       setGenerationProgress(0);
     }
-  }, [selectedImage, selectedStyle]);
+  }, [selectedImage, selectedStyle, pushHistory]);
 
   // Effect to handle automatic generation after login
   useEffect(() => {
@@ -845,6 +1052,122 @@ export default function HeroSection() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* 确认删除弹窗 */}
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onOpenChange={setShowDeleteConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Sticker History?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this sticker from your history? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteConfirmDialog(false);
+                setPendingDeleteItem(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteHistoryItem}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 确认清空所有历史弹窗 */}
+      <Dialog
+        open={showClearAllConfirmDialog}
+        onOpenChange={setShowClearAllConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clear All History?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete all sticker history? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearAllConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmClearAllHistory}
+            >
+              Clear All
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 历史记录区块 */}
+      {stickerHistory.length > 0 && (
+        <div className="mx-auto max-w-7xl px-6 mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Your Sticker History</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={clearHistory}
+              >
+                Clear All
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {stickerHistory.map((item, idx) => (
+              <div key={`${item.createdAt}-${idx}`} className="group relative">
+                <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+                  <Image
+                    src={item.url}
+                    alt={`Sticker ${idx + 1}`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="truncate max-w-[60%]">{item.style}</span>
+                  <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => downloadFromUrl(item.url, item.style)}
+                  >
+                    Download
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => removeHistoryItem(idx)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

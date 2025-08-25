@@ -70,3 +70,12 @@ export const payment = pgTable("payment", {
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Sticker generation history (account-scoped, for cross-device sync)
+export const stickerHistory = pgTable("sticker_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	style: text('style').notNull(),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+});
