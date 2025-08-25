@@ -30,13 +30,13 @@ export const STYLE_CONFIGS = {
   pixel: {
     name: 'Pixel Art',
     userPrompt:
-      'A die-cut sticker in a retro pixel art style. The design should be blocky and nostalgic, with a limited color palette and a visible grid structure. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.',
+      'Learn the Pixel Art style and transform objects in the photo into sticker avatars in this style. Mimic the body shape, face shape, skin tone, facial features and expressions. Keep the facial decorations, hairstyle and hair accessories, clothing, accessories, expressions, and poses consistent with the original image. Remove background and include only the complete figure, ensuring the final image looks like a character in Pixel Art style.',
     imageUrl: '/styles/pixel.png',
   },
   lego: {
     name: 'LEGO',
     userPrompt:
-      'A die-cut sticker of a LEGO minifigure. The design should be glossy, plastic-like, and three-dimensional, with the iconic blocky shapes and features of a classic LEGO character. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a professional die-cut sticker appearance.',
+      'Learn the LEGO Minifigure style and turn the people in the photo into sticker avatars in this style. Mimic the body shape, face shape, skin tone, facial features and expressions. Keep the facial decorations, hairstyle and hair accessories, clothing, accessories, expressions, and poses consistent with the original image. Remove background and include only the complete figure, ensuring the final image looks like a character in LEGO Minifigure style.',
     imageUrl: '/styles/lego.png',
   },
   snoopy: {

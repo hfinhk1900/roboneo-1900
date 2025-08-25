@@ -50,10 +50,13 @@ export interface ProductShotRequest {
 
 export interface ProductShotResult {
   success: boolean;
-  resultUrl: string;
+  download_url: string; // 更新为新系统的 download_url
+  asset_id: string; // 新增：资产ID
+  expires_at: number; // 新增：过期时间
   scene: string;
   credits_used: number;
-  remaining_credits: number;
+  credits_sufficient: boolean; // 更新：是否积分充足
+  from_cache: boolean; // 新增：是否来自缓存
 }
 
 export interface UseProductShotReturn {
@@ -463,55 +466,86 @@ export function useProductShot(): UseProductShotReturn {
         filename: downloadFilename,
       });
 
-      // 使用后端代理API进行下载
-      const downloadUrl = `/api/download-image?${new URLSearchParams({
-        url: url,
-        filename: downloadFilename,
-      })}`;
+      // 检查是否是新的资产下载URL
+      if (url.startsWith('/api/assets/download')) {
+        console.log('📦 Using new asset management system');
 
-      console.log('📡 Using download proxy:', downloadUrl);
+        // 直接使用新的资产下载URL，它已经包含了正确的Content-Disposition
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = downloadFilename;
+        link.style.display = 'none';
 
-      // 创建临时链接并触发下载
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Image download started!');
+        return;
+      }
+
+      // 检查是否是base64数据
+      if (url.startsWith('data:')) {
+        console.log('📊 Using base64 data download');
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = downloadFilename;
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Image downloaded successfully!');
+        return;
+      }
+
+      // 检查是否是HTTP URL（旧格式）
+      if (url.startsWith('http')) {
+        console.log('🌐 Using HTTP URL download');
+
+        // 使用后端代理API进行下载
+        const downloadUrl = `/api/download-image?${new URLSearchParams({
+          url: url,
+          filename: downloadFilename,
+        })}`;
+
+        console.log('📡 Using download proxy:', downloadUrl);
+
+        // 创建临时链接并触发下载
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = downloadFilename;
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Image download started!');
+        return;
+      }
+
+      // 其他情况：在新标签页打开
+      console.log('🔄 Opening in new tab as fallback');
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = downloadFilename;
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       link.style.display = 'none';
 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success('Image download started!');
+      toast.success(
+        'Opening image in new tab - you can right-click to save it'
+      );
     } catch (err) {
       console.error('Download error:', err);
 
-      // 备用方案1：尝试直接下载
-      try {
-        console.warn('Proxy download failed, trying direct download...');
-
-        const response = await fetch(url, { mode: 'cors' });
-        if (response.ok) {
-          const blob = await response.blob();
-          const downloadUrl = window.URL.createObjectURL(blob);
-
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.download = filename || `productshot-${Date.now()}.png`;
-          link.style.display = 'none';
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          window.URL.revokeObjectURL(downloadUrl);
-          toast.success('Image downloaded successfully!');
-          return;
-        }
-      } catch (directError) {
-        console.warn('Direct download also failed:', directError);
-      }
-
-      // 备用方案2：在新标签页打开
+      // 备用方案：在新标签页打开
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
