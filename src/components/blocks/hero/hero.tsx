@@ -746,7 +746,7 @@ export default function HeroSection() {
                         alt="Generated sticker"
                         width={400}
                         height={400}
-                        className="object-contain max-h-full rounded-lg shadow-md"
+                        className="object-contain max-h-full"
                       />
                     </div>
                     <Button

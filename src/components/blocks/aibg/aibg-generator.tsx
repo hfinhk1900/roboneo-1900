@@ -1393,12 +1393,12 @@ export function AIBackgroundGeneratorSection() {
                           onClick={() =>
                             handleBackgroundColorSelect('transparent')
                           }
-                                                      className={cn(
+                          className={cn(
                               'relative rounded-2xl size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
-                              selectedBackgroundColor === 'transparent'
-                                ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
-                                : 'border-gray-300 hover:border-gray-400'
-                            )}
+                            selectedBackgroundColor === 'transparent'
+                              ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
+                              : 'border-gray-300 hover:border-gray-400'
+                          )}
                           title="Transparent Background"
                         >
                           <svg
@@ -2131,22 +2131,22 @@ export function AIBackgroundGeneratorSection() {
               >
                 Switch Directly
               </Button>
-                              <Button
-                  onClick={() => {
-                    // 保存图片并切换模式
-                    if (pendingModeSwitch && processedImage) {
+              <Button
+                onClick={() => {
+                  // 保存图片并切换模式
+                  if (pendingModeSwitch && processedImage) {
                       // 根据当前模式选择正确的图片源进行下载
                       const imageToDownload = currentDisplayImage || processedImage;
 
                       if (imageToDownload.startsWith('data:')) {
                         // 如果是base64数据，直接下载
-                        const link = document.createElement('a');
+                    const link = document.createElement('a');
                         link.href = imageToDownload;
-                        link.download = 'ai-background-result.png';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        toast.success('Image saved successfully');
+                    link.download = 'ai-background-result.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast.success('Image saved successfully');
                       } else if (imageToDownload.startsWith('/api/assets/download')) {
                         // 如果是资产下载URL（新的格式），直接使用
                         const link = document.createElement('a');
@@ -2197,13 +2197,13 @@ export function AIBackgroundGeneratorSection() {
                         toast.success('Image opened in new tab');
                       }
 
-                      // 然后切换模式
-                      performModeSwitch(pendingModeSwitch);
-                    }
-                  }}
-                >
-                  Save & Switch
-                </Button>
+                    // 然后切换模式
+                    performModeSwitch(pendingModeSwitch);
+                  }
+                }}
+              >
+                Save & Switch
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
