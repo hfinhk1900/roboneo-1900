@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { verifySignedUrl } from '@/lib/signed-url';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,19 +14,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 验证 URL 是否来自可信的源（R2 存储）
-    const allowedDomains = [
-      'pub-cfc94129019546e1887e6add7f39ef74.r2.dev',
-      'api.siliconflow.com',
-      'img.recraft.ai',
-    ];
+    // 验证签名URL（如果包含签名参数）
+    if (imageUrl.includes('signature=')) {
+      const isValid = verifySignedUrl(imageUrl);
+      if (!isValid) {
+        console.warn('Download access denied: Invalid or expired signature URL');
+        return NextResponse.json(
+          { error: 'Access denied - Invalid or expired URL' },
+          { status: 403 }
+        );
+      }
+      console.log('✅ Signed URL verified for download');
+    } else {
+      // 对于非签名URL，验证是否来自可信的源（R2 存储）
+      const allowedDomains = [
+        'pub-cfc94129019546e1887e6add7f39ef74.r2.dev',
+        'api.siliconflow.com',
+        'img.recraft.ai',
+      ];
 
-    const urlDomain = new URL(imageUrl).hostname;
-    if (!allowedDomains.some((domain) => urlDomain.includes(domain))) {
-      return NextResponse.json(
-        { error: 'Unauthorized image source' },
-        { status: 403 }
-      );
+      const urlDomain = new URL(imageUrl).hostname;
+      if (!allowedDomains.some((domain) => urlDomain.includes(domain))) {
+        return NextResponse.json(
+          { error: 'Unauthorized image source' },
+          { status: 403 }
+        );
+      }
     }
 
     console.log(`📥 Proxying image download: ${imageUrl}`);
