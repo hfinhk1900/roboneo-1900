@@ -42,7 +42,7 @@ export const STYLE_CONFIGS = {
   snoopy: {
     name: 'Snoopy',
     userPrompt:
-      "A die-cut sticker in the charming, hand-drawn art style of Charles M. Schulz's Peanuts comics, featuring Snoopy. The design should have simple, bold, and expressive black outlines with a classic, cartoonish feel. Remove all background completely, making it fully transparent. The sticker should have clean edges with no background elements, giving it a die-cut appearance.",
+      "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
     imageUrl: '/styles/snoopy.png',
   },
 };

@@ -378,27 +378,73 @@ export default function HeroSection() {
     if (!generatedImageUrl) return;
 
     try {
-      // Use proxy API to avoid CORS issues
-      const proxyUrl = `/api/proxy-image/${encodeURIComponent(generatedImageUrl)}`;
-      const response = await fetch(proxyUrl);
+      // 如果是资产下载URL（新的格式），直接使用
+      if (generatedImageUrl.startsWith('/api/assets/download')) {
+        // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
+        const link = document.createElement('a');
+        link.href = generatedImageUrl;
+        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
+        link.target = '_blank';
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch image through proxy');
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        return;
       }
 
-      const blob = await response.blob();
+      // 如果是base64数据，直接下载
+      if (generatedImageUrl.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = generatedImageUrl;
+        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
 
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
+      // 如果是URL（如R2存储的图片），下载图片
+      if (generatedImageUrl.startsWith('http')) {
+        // 显示下载中提示
+        console.log('Downloading image from URL...');
 
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+        // 检查是否是签名URL，如果是，使用图片代理API
+        const downloadUrl = generatedImageUrl.includes('signature=')
+          ? `/api/image-proxy?url=${encodeURIComponent(generatedImageUrl)}`
+          : generatedImageUrl;
+
+        // 通过fetch下载图片并转换为blob
+        const response = await fetch(downloadUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+
+        // 创建blob URL并下载
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
+
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // 清理blob URL
+        window.URL.revokeObjectURL(blobUrl);
+
+        return;
+      }
+
+      // 其他情况，在新标签页中打开
+      window.open(generatedImageUrl, '_blank');
+      console.log('Opened image in new tab');
+
     } catch (error) {
       console.error('Error downloading image:', error);
       alert('Failed to download image. Please try again.');
