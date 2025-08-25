@@ -1,5 +1,6 @@
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { generateSignedUrl } from '@/lib/signed-url';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // AI Background 预设颜色配置
@@ -291,15 +292,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 10. 返回结果
+    // 10. 生成签名URL（1小时过期）
+    if (!result.resultUrl) {
+      throw new Error('Failed to generate image URL');
+    }
+
+    const signedUrlResult = generateSignedUrl(result.resultUrl, {
+      expiresIn: 3600, // 1小时过期
+      userId: session.user.id,
+      imageKey: result.resultUrl.split('/').pop() || ''
+    });
+
+    // 11. 返回结果（脱敏信息）
     return NextResponse.json({
       success: true,
-      resultUrl: result.resultUrl,
+      resultUrl: signedUrlResult.url, // 使用签名URL
+      expiresAt: signedUrlResult.expiresAt, // 过期时间
       backgroundMode,
       backgroundType: backgroundType || null,
       backgroundColor: backgroundColor || null,
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
+      // 不返回具体积分余额，只返回是否足够
+      credits_sufficient: true,
+      // 添加安全提示
+      security_note: 'This URL will expire in 1 hour for security reasons'
     });
   } catch (error) {
     console.error('AI Background generation error:', error);

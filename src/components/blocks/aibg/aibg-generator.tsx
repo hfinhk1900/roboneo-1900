@@ -454,6 +454,18 @@ export function AIBackgroundGeneratorSection() {
     }, 3000); // 3秒后完成
   };
 
+  // Clear demo image result and return to demo selection
+  const clearDemoImageResult = () => {
+    setProcessedImage(null);
+    setCurrentDisplayImage(null);
+    setAfterImageSrc(null);
+    setBeforeImageSrc(null);
+    setSelectedDemoImage(null);
+    setSelectedDemoImageData(null);
+    setShowAfter(true);
+    toast.success('Demo image cleared, you can select another demo image');
+  };
+
   // Background color handling
   const handleBackgroundColorSelect = async (color: string) => {
     if (color === 'custom') {
@@ -1096,10 +1108,48 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    // 如果是URL（如R2存储的图片），在新标签页中打开
+        // 如果是URL（如R2存储的图片），下载图片
     if (imageToDownload.startsWith('http')) {
-      window.open(imageToDownload, '_blank');
-      toast.success('Image opened in new tab for download');
+      // 显示下载中提示
+      toast.info('Downloading image...');
+
+      // 检查是否是签名URL，如果是，使用图片代理API
+      const downloadUrl = imageToDownload.includes('signature=')
+        ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
+        : imageToDownload;
+
+      // 通过fetch下载图片并转换为blob
+      fetch(downloadUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // 创建blob URL并下载
+          const blobUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = 'ai-background-result.png';
+
+          // 触发下载
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // 清理blob URL
+          window.URL.revokeObjectURL(blobUrl);
+
+          toast.success('Image downloaded successfully');
+        })
+        .catch(error => {
+          console.error('Download failed:', error);
+          // 如果下载失败，回退到在新标签页中打开
+          window.open(imageToDownload, '_blank');
+          toast.error('Download failed, opened in new tab instead');
+        });
+
       return;
     }
 
@@ -1810,7 +1860,32 @@ export function AIBackgroundGeneratorSection() {
                           : 'aspect-square' // 默认正方形
                       )}
                     >
-                      {/* 移除关闭按钮，简化用户体验 */}
+                      {/* 测试图片删除按钮 - 仅在测试图片模式下显示 */}
+                      {selectedDemoImageData && (
+                        <button
+                          type="button"
+                          onClick={clearDemoImageResult}
+                          className="absolute -top-2 -right-2 z-20 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1.5 shadow-md transition-all duration-200 hover:scale-110"
+                          title="Clear demo image and return to demo selection"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-gray-600"
+                          >
+                            <path
+                              d="M18 6L6 18M6 6L18 18"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      )}
 
                       <div
                         className="absolute inset-0 rounded-lg"
@@ -2052,10 +2127,44 @@ export function AIBackgroundGeneratorSection() {
                         link.click();
                         document.body.removeChild(link);
                         toast.success('Image saved successfully');
+                                            } else if (imageToDownload.startsWith('http')) {
+                        // 如果是URL，下载图片
+                        toast.info('Downloading image...');
+
+                        // 检查是否是签名URL，如果是，使用图片代理API
+                        const downloadUrl = imageToDownload.includes('signature=')
+                          ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
+                          : imageToDownload;
+
+                        fetch(downloadUrl)
+                          .then(response => {
+                            if (!response.ok) {
+                              throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.blob();
+                          })
+                          .then(blob => {
+                            const blobUrl = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = blobUrl;
+                            link.download = 'ai-background-result.png';
+
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            window.URL.revokeObjectURL(blobUrl);
+                            toast.success('Image downloaded successfully');
+                          })
+                          .catch(error => {
+                            console.error('Download failed:', error);
+                            window.open(imageToDownload, '_blank');
+                            toast.error('Download failed, opened in new tab instead');
+                          });
                       } else {
-                        // 如果是URL，在新标签页中打开并下载
+                        // 其他情况，在新标签页中打开
                         window.open(imageToDownload, '_blank');
-                        toast.success('Image opened in new tab for download');
+                        toast.success('Image opened in new tab');
                       }
 
                       // 然后切换模式
