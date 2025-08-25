@@ -1316,24 +1316,24 @@ export function AIBackgroundGeneratorSection() {
                   {/* Solid Color Mode */}
                   {backgroundMode === 'color' && (
                     <div className="mb-2 mt-3">
-                      <div className="flex gap-2 items-center justify-between w-full">
+                      <div className="flex flex-wrap gap-1 sm:gap-2 items-center justify-center w-full">
                         {/* Transparent (mosaic) button */}
                         <button
                           type="button"
                           onClick={() =>
                             handleBackgroundColorSelect('transparent')
                           }
-                          className={cn(
-                            'relative rounded-2xl size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
-                            selectedBackgroundColor === 'transparent'
-                              ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
-                              : 'border-gray-300 hover:border-gray-400'
-                          )}
+                                                      className={cn(
+                              'relative rounded-2xl size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
+                              selectedBackgroundColor === 'transparent'
+                                ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
+                                : 'border-gray-300 hover:border-gray-400'
+                            )}
                           title="Transparent Background"
                         >
                           <svg
-                            width="48"
-                            height="48"
+                            width="40"
+                            height="40"
                             viewBox="0 0 48 48"
                             className="w-full h-full"
                           >
@@ -1407,7 +1407,7 @@ export function AIBackgroundGeneratorSection() {
                             type="button"
                             key={color.value}
                             className={cn(
-                              'relative rounded-2xl size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
+                              'relative rounded-2xl size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
                               selectedBackgroundColor === color.value
                                 ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
                                 : 'border-gray-300 hover:border-gray-400'
@@ -1452,7 +1452,7 @@ export function AIBackgroundGeneratorSection() {
                           type="button"
                           onClick={() => handleBackgroundColorSelect('custom')}
                           className={cn(
-                            'relative rounded-full size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
+                            'relative rounded-full size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 border-2 flex items-center justify-center',
                             selectedBackgroundColor === 'custom'
                               ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
                               : 'border-gray-300 hover:border-gray-400'
@@ -1727,14 +1727,26 @@ export function AIBackgroundGeneratorSection() {
                     (backgroundMode === 'background' && !selectedBackground) ||
                     (backgroundMode === 'background' &&
                       selectedBackground === 'custom' &&
-                      !customBackgroundDescription.trim())
+                      !customBackgroundDescription.trim()) ||
+                    // Solid Color模式：如果已有处理结果，禁用按钮（避免重复处理）
+                    (backgroundMode === 'color' && !!processedImage)
                   }
-                  className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
+                  className={cn(
+                    "w-full font-semibold h-[50px] rounded-2xl text-base",
+                    backgroundMode === 'color' && processedImage
+                      ? "cursor-not-allowed opacity-60" // 禁用状态样式
+                      : "cursor-pointer" // 正常状态样式
+                  )}
                 >
                   {isProcessing ? (
                     <>
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                       Processing...
+                    </>
+                  ) : backgroundMode === 'color' && processedImage ? (
+                    <>
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      Image Processed - Upload New Image to Process
                     </>
                   ) : (
                     <>
