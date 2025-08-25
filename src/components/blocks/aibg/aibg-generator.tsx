@@ -1842,21 +1842,12 @@ export function AIBackgroundGeneratorSection() {
                               {Math.round(generationProgress)}%
                             </div>
 
-                            {/* Loading message with stage indicator */}
-                            <div className="text-white text-center max-w-sm space-y-1">
+                            {/* Main loading message */}
+                            <div className="text-white text-center max-w-sm">
                               <p>
                                 {backgroundMode === 'color'
                                   ? 'Removing background with AI precision...'
                                   : 'Creating your AI-generated background...'}
-                              </p>
-                              <p className="text-xs text-gray-300">
-                                {processingProgress < 30
-                                  ? 'Analyzing image...'
-                                  : processingProgress < 60
-                                    ? 'Processing with AI...'
-                                    : processingProgress < 85
-                                      ? 'Applying effects...'
-                                      : 'Finalizing result...'}
                               </p>
                             </div>
                           </div>
