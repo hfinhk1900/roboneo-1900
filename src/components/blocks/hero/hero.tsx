@@ -1106,14 +1106,26 @@ export default function HeroSection() {
                         }}
                       />
                     </div>
-                    <Button
-                      onClick={handleDownload}
-                      className="font-semibold h-[50px] rounded-2xl text-base px-6 cursor-pointer"
-                      variant="outline"
-                    >
-                      <DownloadIcon className="mr-2 h-5 w-5" />
-                      Download Sticker
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handleDownload}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Download sticker"
+                      >
+                        <DownloadIcon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                      <Button
+                        onClick={() => setGeneratedImageUrl(null)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Remove sticker"
+                      >
+                        <Trash2Icon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   /* 默认状态 - 显示用户上传的图片或示例图片 */
@@ -1296,20 +1308,22 @@ export default function HeroSection() {
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="cursor-pointer"
+                    className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    title="Download sticker"
                     onClick={() => downloadFromUrl(item.url, item.style)}
                   >
-                    Download
+                    <DownloadIcon className="h-4 w-4 text-gray-600" />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="cursor-pointer"
+                    className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    title="Remove sticker"
                     onClick={() => removeHistoryItem(idx)}
                   >
-                    Remove
+                    <Trash2Icon className="h-4 w-4 text-gray-600" />
                   </Button>
                 </div>
               </div>
