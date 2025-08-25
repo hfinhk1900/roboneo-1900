@@ -1081,10 +1081,13 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    // 如果当前显示的是应用了背景颜色的图片，直接下载
-    if (currentDisplayImage && currentDisplayImage !== processedImage) {
+    // 优先使用当前显示的图片（可能应用了背景颜色）
+    const imageToDownload = currentDisplayImage || processedImage;
+
+    // 如果是base64数据，直接下载
+    if (imageToDownload.startsWith('data:')) {
       const link = document.createElement('a');
-      link.href = currentDisplayImage;
+      link.href = imageToDownload;
       link.download = 'ai-background-result.png';
       document.body.appendChild(link);
       link.click();
@@ -1093,7 +1096,14 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    // 否则下载原始处理后的图片
+    // 如果是URL（如R2存储的图片），在新标签页中打开
+    if (imageToDownload.startsWith('http')) {
+      window.open(imageToDownload, '_blank');
+      toast.success('Image opened in new tab for download');
+      return;
+    }
+
+    // 其他情况，使用原始逻辑处理
     const image = new window.Image();
     image.crossOrigin = 'anonymous';
 
@@ -2014,26 +2024,35 @@ export function AIBackgroundGeneratorSection() {
               >
                 Switch Directly
               </Button>
-              <Button
-                onClick={() => {
-                  // 保存图片并切换模式
-                  if (pendingModeSwitch && processedImage) {
-                    // 触发图片下载
-                    const link = document.createElement('a');
-                    link.href = processedImage;
-                    link.download = 'ai-background-result.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast.success('Image saved successfully');
+                              <Button
+                  onClick={() => {
+                    // 保存图片并切换模式
+                    if (pendingModeSwitch && processedImage) {
+                      // 根据当前模式选择正确的图片源进行下载
+                      const imageToDownload = currentDisplayImage || processedImage;
 
-                    // 然后切换模式
-                    performModeSwitch(pendingModeSwitch);
-                  }
-                }}
-              >
-                Save & Switch
-              </Button>
+                      if (imageToDownload.startsWith('data:')) {
+                        // 如果是base64数据，直接下载
+                        const link = document.createElement('a');
+                        link.href = imageToDownload;
+                        link.download = 'ai-background-result.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        toast.success('Image saved successfully');
+                      } else {
+                        // 如果是URL，在新标签页中打开并下载
+                        window.open(imageToDownload, '_blank');
+                        toast.success('Image opened in new tab for download');
+                      }
+
+                      // 然后切换模式
+                      performModeSwitch(pendingModeSwitch);
+                    }
+                  }}
+                >
+                  Save & Switch
+                </Button>
             </div>
           </DialogContent>
         </Dialog>
