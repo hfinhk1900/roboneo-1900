@@ -29,6 +29,15 @@ export function UserButton({ user }: UserButtonProps) {
   const [open, setOpen] = useState(false);
   const { resetState } = usePaymentStore();
 
+  // 安全的调试信息（仅显示非敏感字段）
+  if (process.env.NODE_ENV === 'development') {
+    console.log('UserButton - User logged in:', {
+      hasImage: !!user.image,
+      hasName: !!user.name,
+      hasEmail: !!user.email,
+    });
+  }
+
   const handleSignOut = async () => {
     await authClient.signOut({
       fetchOptions: {

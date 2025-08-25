@@ -40,7 +40,7 @@ export const auth = betterAuth({
     // https://www.better-auth.com/docs/concepts/session-management#session-expiration
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
-    // https://www.better-auth.com/docs/concepts/session-management#session-freshness
+    // https://www.better-auth.com/docs/concepts/session-freshness
     // https://www.better-auth.com/docs/concepts/users-accounts#authentication-requirements
     // disable freshness check for user deletion
     freshAge: 0 /* 60 * 60 * 24 */,
@@ -94,6 +94,15 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      scope: ['openid', 'profile', 'email'],
+      profile: (profile) => {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
     },
   },
   account: {
