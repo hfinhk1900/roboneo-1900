@@ -23,6 +23,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { cn } from '@/lib/utils';
+import { creditsCache } from '@/lib/credits-cache';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -301,8 +302,10 @@ export function AIBackgroundGeneratorSection() {
 
     // 立即设置文件状态，提供即时反馈
 
-    setUploadedImage(file);
-    setProcessedImage(null); // Clear previous results
+      setUploadedImage(file);
+
+
+      setProcessedImage(null); // Clear previous results
     setCurrentDisplayImage(null); // Clear current display
     setBeforeImageSrc(null);
     setAfterImageSrc(null);
@@ -433,20 +436,20 @@ export function AIBackgroundGeneratorSection() {
     setTimeout(() => {
       clearInterval(progressInterval);
       setGenerationProgress(100);
-      setIsProcessing(false);
-      setProcessedImage(demoImage.afterSrc);
+            setIsProcessing(false);
+            setProcessedImage(demoImage.afterSrc);
 
       // Set default background color to transparent
-      setTimeout(() => {
-        setSelectedBackgroundColor('transparent');
+            setTimeout(() => {
+              setSelectedBackgroundColor('transparent');
         console.log('Demo image processing completed');
-      }, 0);
+            }, 0);
 
       // Show success message and reset progress after a delay
-      setTimeout(() => {
+            setTimeout(() => {
         setProcessingProgress(0);
         setGenerationProgress(0);
-        toast.success('Demo image loaded successfully!');
+              toast.success('Demo image loaded successfully!');
       }, 1000);
     }, 3000); // 3秒后完成
   };
@@ -460,14 +463,22 @@ export function AIBackgroundGeneratorSection() {
 
       // 实时应用背景颜色效果
       if (processedImage) {
-        try {
-          const coloredImage = await applyBackgroundColor(processedImage, color);
-          setCurrentDisplayImage(coloredImage);
-          setAfterImageSrc(coloredImage);
-          console.log(`Applied background color: ${color}`);
-        } catch (error) {
-          console.error('Failed to apply background color:', error);
-          toast.error('Failed to apply background color');
+        if (color === 'transparent') {
+          // 如果选择透明，直接使用原始透明图片
+          setCurrentDisplayImage(processedImage);
+          setAfterImageSrc(processedImage);
+          console.log('Switched to transparent background');
+        } else {
+          // 如果选择具体颜色，应用背景颜色
+          try {
+            const coloredImage = await applyBackgroundColor(processedImage, color);
+            setCurrentDisplayImage(coloredImage);
+            setAfterImageSrc(coloredImage);
+            console.log(`Applied background color: ${color}`);
+          } catch (error) {
+            console.error('Failed to apply background color:', error);
+            toast.error('Failed to apply background color');
+          }
         }
       }
     }
@@ -736,25 +747,33 @@ export function AIBackgroundGeneratorSection() {
           });
 
           // Clear progress interval
-          clearInterval(progressInterval);
+              clearInterval(progressInterval);
 
           if (result.success && result.image) {
             // Complete progress
             setProcessingProgress(100);
             setGenerationProgress(100);
-            setProcessedImage(result.image);
+              setProcessedImage(result.image);
 
-            // 立即应用用户选择的背景颜色（不是透明）
-            try {
-              const coloredImage = await applyBackgroundColor(result.image, selectedBackgroundColor);
-              setCurrentDisplayImage(coloredImage);
-              setAfterImageSrc(coloredImage);
-              console.log(`Applied user-selected background color: ${selectedBackgroundColor}`);
-            } catch (error) {
-              console.error('Failed to apply background color:', error);
-              // 如果应用颜色失败，使用原始透明图片
+            // 根据用户选择的背景颜色处理图片
+            if (selectedBackgroundColor === 'transparent') {
+              // 如果选择透明背景，直接使用原始透明图片
               setCurrentDisplayImage(result.image);
               setAfterImageSrc(result.image);
+              console.log('Using transparent background - no color applied');
+            } else {
+              // 如果选择具体颜色，应用背景颜色
+              try {
+                const coloredImage = await applyBackgroundColor(result.image, selectedBackgroundColor);
+                setCurrentDisplayImage(coloredImage);
+                setAfterImageSrc(coloredImage);
+                console.log(`Applied user-selected background color: ${selectedBackgroundColor}`);
+              } catch (error) {
+                console.error('Failed to apply background color:', error);
+                // 如果应用颜色失败，使用原始透明图片
+                setCurrentDisplayImage(result.image);
+                setAfterImageSrc(result.image);
+              }
             }
 
             // 添加详细的尺寸信息日志
@@ -763,6 +782,18 @@ export function AIBackgroundGeneratorSection() {
             console.log(`📐 Expected aspect ratio: ${selectedAspect}`);
             console.log(`📐 Parsed aspect ratio:`, parseAspectRatio(selectedAspect));
 
+            // 更新积分缓存 - 扣除10积分
+            try {
+              const currentCredits = creditsCache.get();
+              if (currentCredits !== null) {
+                const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
+                creditsCache.set(newCredits);
+                console.log(`💰 Updated credits cache: ${currentCredits} → ${newCredits}`);
+              }
+            } catch (error) {
+              console.warn('Failed to update credits cache:', error);
+            }
+
             // Show success message and reset progress after a delay
             setTimeout(() => {
               setProcessingProgress(0);
@@ -770,12 +801,12 @@ export function AIBackgroundGeneratorSection() {
               toast.success('Background removed successfully!');
             }, 1000);
 
-            return;
-          }
+              return;
+            }
           throw new Error(result.error || 'Rembg API failed');
         } catch (error) {
           // Clear progress interval on error
-          clearInterval(progressInterval);
+            clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
           toast.error(
             'Background removal service is temporarily unavailable. Please try again later.'
@@ -882,6 +913,24 @@ export function AIBackgroundGeneratorSection() {
       setBeforeImageSrc(imagePreview);
       setCurrentDisplayImage(result.resultUrl);
 
+      // 更新积分缓存 - 使用API返回的积分信息
+      try {
+        if (result.remaining_credits !== undefined) {
+          creditsCache.set(result.remaining_credits);
+          console.log(`💰 Updated credits cache from API: ${result.remaining_credits} credits`);
+        } else {
+          // 如果API没有返回积分信息，手动扣除
+          const currentCredits = creditsCache.get();
+          if (currentCredits !== null) {
+            const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
+            creditsCache.set(newCredits);
+            console.log(`💰 Updated credits cache manually: ${currentCredits} → ${newCredits}`);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to update credits cache:', error);
+      }
+
       // Show success message and reset progress after a delay
       setTimeout(() => {
         setProcessingProgress(0);
@@ -966,20 +1015,9 @@ export function AIBackgroundGeneratorSection() {
           if (backgroundColor !== 'transparent') {
             ctx.fillStyle = backgroundColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-          } else {
-            // 创建mosaic图案背景（透明效果）
-            const patternSize = 20;
-            for (let x = 0; x < canvas.width; x += patternSize) {
-              for (let y = 0; y < canvas.height; y += patternSize) {
-                const isEvenX = Math.floor(x / patternSize) % 2 === 0;
-                const isEvenY = Math.floor(y / patternSize) % 2 === 0;
-                const shouldFill = (isEvenX && isEvenY) || (!isEvenX && !isEvenY);
-
-                ctx.fillStyle = shouldFill ? '#ffffff' : '#e5e7eb';
-                ctx.fillRect(x, y, patternSize, patternSize);
-              }
-            }
           }
+          // 注意：当 backgroundColor === 'transparent' 时，不绘制任何背景
+          // 这样生成的图片将保持真正的透明背景
 
           // Draw the processed image on top, maintaining aspect ratio
           if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
@@ -1942,7 +1980,7 @@ export function AIBackgroundGeneratorSection() {
           </div>
         </div>
 
-        {/* Mode switch confirmation dialog */}
+                {/* Mode switch confirmation dialog */}
         <Dialog
           open={showModeSwitchDialog}
           onOpenChange={setShowModeSwitchDialog}

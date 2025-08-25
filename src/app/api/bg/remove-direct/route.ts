@@ -2,6 +2,7 @@
 // Vercel API 路由 - 代理到私有 HF Space
 
 import { type NextRequest, NextResponse } from 'next/server';
+import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 
 // 简单的内存速率限制（生产环境建议使用 Redis）
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -29,7 +30,7 @@ function checkRateLimit(ip: string): boolean {
 export async function POST(req: NextRequest) {
   try {
     // 速率限制检查
-    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     if (!checkRateLimit(ip)) {
       console.warn(`🚫 Rate limit exceeded for IP: ${ip}`);
       return NextResponse.json(
@@ -38,10 +39,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('🔄 Proxying request to private HF Space...');
-
-    // 可选：检查用户认证（取消注释以启用）
-    /*
+    // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
     const session = await auth.api.getSession({
       headers: req.headers as any,
@@ -54,7 +52,8 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-    */
+
+    console.log('🔄 Proxying request to private HF Space...');
 
     // 检查环境变量配置
     const HF_SPACE_URL = process.env.HF_SPACE_URL;
@@ -128,9 +127,29 @@ export async function POST(req: NextRequest) {
     console.log(`⏱️ Processing time: ${result.processing_time}s`);
     console.log(`📐 Image size: ${result.image_size}`);
 
+    // 7. 扣减 Credits - 成功生成后
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deductResult = await deductCreditsAction({
+      userId: session.user.id,
+      amount: CREDITS_PER_IMAGE,
+    });
+
+    if (deductResult?.data?.success) {
+      console.log(
+        `💰 Deducted ${CREDITS_PER_IMAGE} credits for Solid Color background removal. Remaining: ${deductResult.data.data?.remainingCredits}`
+      );
+    } else {
+      console.warn(
+        '⚠️ Failed to deduct credits, but background removal was successful'
+      );
+    }
+
     // 返回结果
     return NextResponse.json({
       ...result,
+      // 添加积分信息
+      credits_used: CREDITS_PER_IMAGE,
+      remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
       // 添加一些元数据
       proxy_timestamp: new Date().toISOString(),
       proxy_version: '1.0.0',
