@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { readFile } from 'fs/promises';
 import { type NextRequest, NextResponse } from 'next/server';
+import { verifySignedUrl } from '@/lib/signed-url';
 
 export async function GET(
   request: NextRequest,
@@ -49,6 +50,17 @@ export async function GET(
     // Handle external URLs by proxying the image
     if (decodedKey.includes('http')) {
       console.log('Proxying external URL:', decodedKey);
+
+      // 验证签名URL（如果包含签名参数）
+      if (decodedKey.includes('signature=')) {
+        const isValid = verifySignedUrl(decodedKey);
+        if (!isValid) {
+          console.warn('Proxy access denied: Invalid or expired signature URL');
+          return new NextResponse('Access denied - Invalid or expired URL', { status: 403 });
+        }
+        console.log('✅ Signed URL verified for proxy');
+      }
+
       const response = await fetch(decodedKey);
 
       if (!response.ok) {
