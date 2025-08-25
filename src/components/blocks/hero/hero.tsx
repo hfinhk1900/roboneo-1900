@@ -1110,8 +1110,8 @@ export default function HeroSection() {
                       <Button
                         onClick={handleDownload}
                         variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                         title="Download sticker"
                       >
                         <DownloadIcon className="h-4 w-4 text-gray-600" />
@@ -1119,8 +1119,8 @@ export default function HeroSection() {
                       <Button
                         onClick={() => setGeneratedImageUrl(null)}
                         variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                         title="Remove sticker"
                       >
                         <Trash2Icon className="h-4 w-4 text-gray-600" />
@@ -1309,8 +1309,8 @@ export default function HeroSection() {
                 <div className="mt-2 flex items-center gap-2">
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    size="icon"
+                    className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                     title="Download sticker"
                     onClick={() => downloadFromUrl(item.url, item.style)}
                   >
@@ -1318,8 +1318,8 @@ export default function HeroSection() {
                   </Button>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    size="icon"
+                    className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                     title="Remove sticker"
                     onClick={() => removeHistoryItem(idx)}
                   >
