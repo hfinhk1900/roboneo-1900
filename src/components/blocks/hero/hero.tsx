@@ -88,6 +88,10 @@ export default function HeroSection() {
   const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
     useState(false);
 
+  // 新增：图片预览弹窗状态
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+
   // 历史记录接口定义
   interface StickerHistoryItem {
     id?: string;
@@ -1353,7 +1357,11 @@ export default function HeroSection() {
                   <img
                     src={item.url}
                     alt={`Sticker ${idx + 1}`}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                    onClick={() => {
+                      setPreviewImageUrl(item.url);
+                      setShowImagePreview(true);
+                    }}
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -1385,6 +1393,114 @@ export default function HeroSection() {
           </div>
         </div>
       )}
+
+      {/* 图片预览弹窗 */}
+      <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
+        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+          {/* Header */}
+          <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-yellow-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Sticker Preview
+                </DialogTitle>
+                <DialogDescription className="text-gray-300 text-sm mt-1">
+                  Style: {(() => {
+                    // 从历史记录中找到对应的样式信息
+                    const historyItem = stickerHistory.find(item => item.url === previewImageUrl);
+                    return historyItem?.style || 'Unknown';
+                  })()} • Created: {(() => {
+                    const historyItem = stickerHistory.find(item => item.url === previewImageUrl);
+                    return historyItem ? new Date(historyItem.createdAt).toLocaleDateString() : 'Unknown';
+                  })()}
+                </DialogDescription>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setShowImagePreview(false)}
+                className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </DialogHeader>
+
+          {/* Main image area */}
+          <div
+            className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+            onClick={() => setShowImagePreview(false)}
+          >
+            {previewImageUrl && (
+              <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
+                <img
+                  src={previewImageUrl}
+                  alt="Sticker preview"
+                  className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                  draggable={false}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Bottom controls */}
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // 从历史记录中找到对应的项目进行下载
+                  const historyItem = stickerHistory.find(item => item.url === previewImageUrl);
+                  if (historyItem) {
+                    downloadFromUrl(historyItem.url, historyItem.style);
+                  }
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                size="lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Full Size
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowImagePreview(false);
+                }}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                size="lg"
+              >
+                Close Preview
+              </Button>
+            </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="text-center mt-3 text-gray-400 text-xs">
+              Press{' '}
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-white font-mono">
+                ESC
+              </kbd>{' '}
+              to close
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
