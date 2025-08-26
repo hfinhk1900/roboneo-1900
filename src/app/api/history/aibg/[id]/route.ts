@@ -1,8 +1,8 @@
-import { auth } from '@/lib/auth';
 import { getDb } from '@/db';
 import { aibgHistory } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { and, eq } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,

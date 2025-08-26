@@ -11,6 +11,8 @@ export interface ProductShotResult {
   provider: string;
   model: string;
   error?: string;
+  storageKey?: string; // R2 storage key for DB assets table
+  sizeBytes?: number; // file size in bytes
 }
 
 export class SiliconFlowProvider {
@@ -259,6 +261,7 @@ export class SiliconFlowProvider {
       const storageFolder = params.storageFolder || 'productshots';
       console.log(`☁️ Uploading to R2 ${storageFolder} folder...`);
       let publicUrl: string;
+      let storageKey: string | undefined;
       try {
         const { uploadFile } = await import('@/storage');
         const filename = `${crypto.randomUUID()}.png`;
@@ -269,6 +272,7 @@ export class SiliconFlowProvider {
           storageFolder
         );
         publicUrl = uploadResult.url;
+        storageKey = uploadResult.key;
         console.log(`✅ Image saved to R2: ${publicUrl}`);
       } catch (uploadError) {
         console.error('❌ Error uploading to R2:', uploadError);
@@ -285,6 +289,8 @@ export class SiliconFlowProvider {
         processingTime: Date.now(),
         provider: 'SiliconFlow',
         model: model,
+        storageKey,
+        sizeBytes: imageBuffer?.byteLength,
       };
     } catch (error) {
       console.error('SiliconFlow image-to-image error:', error);
@@ -534,6 +540,17 @@ export class SiliconFlowProvider {
 
             console.log('✅ Image saved to R2:', uploadResult.url);
             finalResultUrl = uploadResult.url; // 使用R2的URL
+            return {
+              taskId: `sf_${Date.now()}`,
+              status: 'completed',
+              resultUrl: finalResultUrl,
+              seed: data.seed,
+              processingTime: data.timings?.inference,
+              provider: 'siliconflow',
+              model: requestBody.model,
+              storageKey: uploadResult.key,
+              sizeBytes: imageBuffer.byteLength,
+            };
           }
         } catch (uploadError) {
           console.error('⚠️ Failed to save to R2:', uploadError);

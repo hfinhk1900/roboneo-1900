@@ -1,7 +1,7 @@
 // 完整的 AI Background 重复记录清理脚本
 // 在浏览器控制台中运行此代码
 
-(function() {
+(() => {
   console.log('🧹 开始清理 AI Background 重复记录...\n');
 
   try {
@@ -19,7 +19,7 @@
 
     // 按模式和样式分组
     const modeStyleGroups = {};
-    history.forEach(record => {
+    history.forEach((record) => {
       const key = `${record.mode}-${record.style}`;
       if (!modeStyleGroups[key]) {
         modeStyleGroups[key] = [];
@@ -36,7 +36,9 @@
       const [mode, style] = key.split('-');
 
       if (records.length > 1) {
-        console.log(`\n🎨 模式 "${mode}" 样式 "${style}": ${records.length} 条记录`);
+        console.log(
+          `\n🎨 模式 "${mode}" 样式 "${style}": ${records.length} 条记录`
+        );
 
         // 按时间排序
         records.sort((a, b) => b.createdAt - a.createdAt);
@@ -50,7 +52,9 @@
 
         totalDuplicates += records.length - 1;
       } else {
-        console.log(`\n🎨 模式 "${mode}" 样式 "${style}": ${records.length} 条记录 (无重复)`);
+        console.log(
+          `\n🎨 模式 "${mode}" 样式 "${style}": ${records.length} 条记录 (无重复)`
+        );
       }
     });
 
@@ -66,7 +70,9 @@
           records.sort((a, b) => b.createdAt - a.createdAt);
           cleanedHistory.push(records[0]);
           const [mode, style] = key.split('-');
-          console.log(`  ✅ 模式 "${mode}" 样式 "${style}": 保留最新记录，删除 ${records.length - 1} 条重复`);
+          console.log(
+            `  ✅ 模式 "${mode}" 样式 "${style}": 保留最新记录，删除 ${records.length - 1} 条重复`
+          );
         } else {
           cleanedHistory.push(records[0]);
         }
@@ -79,7 +85,9 @@
       console.log(`📊 清理前: ${totalRecords} 条记录`);
       console.log(`📊 清理后: ${cleanedHistory.length} 条记录`);
       console.log(`🗑️  删除了: ${totalDuplicates} 条重复记录`);
-      console.log(`💾 节省了: ${Math.round(totalDuplicates * 0.1 * 100) / 100} KB 存储空间`);
+      console.log(
+        `💾 节省了: ${Math.round(totalDuplicates * 0.1 * 100) / 100} KB 存储空间`
+      );
 
       console.log('\n🔄 页面将在 3 秒后自动刷新...');
 
@@ -89,7 +97,6 @@
     } else {
       console.log('\n✅ 没有发现重复记录，无需清理');
     }
-
   } catch (error) {
     console.error('❌ 清理过程中发生错误:', error);
     console.log('💡 如果遇到错误，可以尝试手动清除：');

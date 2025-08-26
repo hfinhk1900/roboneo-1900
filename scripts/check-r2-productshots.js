@@ -24,14 +24,16 @@ async function checkR2Productshots() {
     const response = await s3Client.send(command);
 
     if (response.Contents) {
-      console.log(`📊 R2 中总共有 ${response.Contents.length} 个 ProductShot 文件`);
+      console.log(
+        `📊 R2 中总共有 ${response.Contents.length} 个 ProductShot 文件`
+      );
 
       // 按文件大小分组
       const sizeGroups = {};
       let totalSize = 0;
 
-      response.Contents.forEach(obj => {
-        const sizeInMB = Math.round(obj.Size / (1024 * 1024) * 100) / 100;
+      response.Contents.forEach((obj) => {
+        const sizeInMB = Math.round((obj.Size / (1024 * 1024)) * 100) / 100;
         totalSize += obj.Size;
 
         if (!sizeGroups[sizeInMB]) {
@@ -40,7 +42,9 @@ async function checkR2Productshots() {
         sizeGroups[sizeInMB].push(obj.Key);
       });
 
-      console.log(`💾 总存储大小: ${Math.round(totalSize / (1024 * 1024) * 100) / 100} MB`);
+      console.log(
+        `💾 总存储大小: ${Math.round((totalSize / (1024 * 1024)) * 100) / 100} MB`
+      );
 
       console.log('\n📁 文件大小分布:');
       Object.entries(sizeGroups).forEach(([size, files]) => {
@@ -48,21 +52,19 @@ async function checkR2Productshots() {
       });
 
       // 显示最近的文件
-      const recentFiles = response.Contents
-        .sort((a, b) => b.LastModified - a.LastModified)
-        .slice(0, 10);
+      const recentFiles = response.Contents.sort(
+        (a, b) => b.LastModified - a.LastModified
+      ).slice(0, 10);
 
       console.log('\n🕒 最近 10 个文件:');
       recentFiles.forEach((file, index) => {
         const date = new Date(file.LastModified).toLocaleString();
-        const sizeInMB = Math.round(file.Size / (1024 * 1024) * 100) / 100;
+        const sizeInMB = Math.round((file.Size / (1024 * 1024)) * 100) / 100;
         console.log(`  ${index + 1}. ${file.Key} (${sizeInMB} MB) - ${date}`);
       });
-
     } else {
       console.log('📭 R2 中没有找到 ProductShot 文件');
     }
-
   } catch (error) {
     console.error('❌ 检查 R2 时发生错误:', error);
   }

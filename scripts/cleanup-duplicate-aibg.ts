@@ -15,7 +15,7 @@ async function cleanupDuplicateAibg() {
 
     // 按用户分组
     const userGroups = {};
-    allHistory.forEach(record => {
+    allHistory.forEach((record) => {
       if (!userGroups[record.userId]) {
         userGroups[record.userId] = [];
       }
@@ -30,7 +30,7 @@ async function cleanupDuplicateAibg() {
 
       // 按模式和样式分组
       const modeStyleGroups = {};
-      records.forEach(record => {
+      records.forEach((record) => {
         const key = `${record.mode}-${record.style}`;
         if (!modeStyleGroups[key]) {
           modeStyleGroups[key] = [];
@@ -42,18 +42,21 @@ async function cleanupDuplicateAibg() {
       for (const [key, styleRecords] of Object.entries(modeStyleGroups)) {
         if (styleRecords.length > 1) {
           const [mode, style] = key.split('-');
-          console.log(`  🎨 模式 "${mode}" 样式 "${style}": ${styleRecords.length} 条记录`);
+          console.log(
+            `  🎨 模式 "${mode}" 样式 "${style}": ${styleRecords.length} 条记录`
+          );
 
           // 按创建时间排序，保留最新的
-          styleRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          styleRecords.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
 
           // 删除除最新一条外的所有记录
           const toDelete = styleRecords.slice(1);
           console.log(`    🗑️  删除 ${toDelete.length} 条重复记录`);
 
           for (const record of toDelete) {
-            await db.delete(aibgHistory)
-              .where(eq(aibgHistory.id, record.id));
+            await db.delete(aibgHistory).where(eq(aibgHistory.id, record.id));
             totalDeleted++;
           }
         }
@@ -65,16 +68,17 @@ async function cleanupDuplicateAibg() {
     // 显示清理后的统计
     const remainingHistory = await db.select().from(aibgHistory);
     console.log(`📊 清理后剩余 ${remainingHistory.length} 条记录`);
-
   } catch (error) {
     console.error('❌ 清理过程中发生错误:', error);
   }
 }
 
 // 运行清理
-cleanupDuplicateAibg().then(() => {
-  process.exit(0);
-}).catch((error) => {
-  console.error('清理失败:', error);
-  process.exit(1);
-});
+cleanupDuplicateAibg()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('清理失败:', error);
+    process.exit(1);
+  });

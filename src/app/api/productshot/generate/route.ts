@@ -1,10 +1,11 @@
 // 不使用付费 API，改为基于启发式规则的免费分析
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { getDb } from '@/db';
+import { assets } from '@/db/schema';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
-  storeAssetMetadata,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -662,17 +663,22 @@ export async function POST(request: NextRequest) {
 
     const assetId = generateAssetId();
     const fileName = result.resultUrl.split('/').pop() || 'productshot.png';
-    const currentTime = Math.floor(Date.now() / 1000);
 
-    // 存储资产元数据
-    await storeAssetMetadata({
-      asset_id: assetId,
-      original_url: result.resultUrl,
-      file_name: fileName,
+    // 写入 assets 表
+    const db = await getDb();
+    await db.insert(assets).values({
+      id: assetId,
+      key: result.storageKey || fileName, // 优先使用storageKey
+      filename: fileName,
       content_type: 'image/png',
-      size: 0, // 暂时设为0，实际可以从R2获取
-      created_at: currentTime,
+      size: result.sizeBytes || 0,
       user_id: session.user.id,
+      metadata: JSON.stringify({
+        source: 'productshot',
+        scene: sceneType || null,
+        provider: result.provider,
+        model: result.model,
+      }),
     });
 
     // 10. 生成签名下载URL

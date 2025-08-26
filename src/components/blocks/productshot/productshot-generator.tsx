@@ -93,6 +93,7 @@ export default function ProductShotGeneratorSection() {
 
   // Image preview modal state
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
 
   // 新增：历史记录相关状态
   const [productshotHistory, setProductshotHistory] = useState<
@@ -109,7 +110,8 @@ export default function ProductShotGeneratorSection() {
   // 历史记录接口定义
   interface ProductshotHistoryItem {
     id?: string;
-    url: string;
+    asset_id?: string; // 新增：仅存资产ID更稳
+    url: string; // 仍保留以兼容旧数据
     scene: string;
     createdAt: number;
   }
@@ -165,7 +167,8 @@ export default function ProductShotGeneratorSection() {
       try {
         if (currentUser) {
           console.log('🔄 Loading server history for user:', currentUser.id);
-          const res = await fetch('/api/history/productshot', { // 移除limit=24，获取所有历史记录
+          const res = await fetch('/api/history/productshot', {
+            // 移除limit=24，获取所有历史记录
             credentials: 'include',
           });
           if (res.ok) {
@@ -366,7 +369,11 @@ export default function ProductShotGeneratorSection() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ url: item.url, scene: item.scene }),
+            body: JSON.stringify({
+              scene: item.scene,
+              asset_id: item.asset_id,
+              url: item.url, // 兼容：若无asset_id时仍可保存
+            }),
           });
           if (res.ok) {
             const created = await res.json();
@@ -378,8 +385,8 @@ export default function ProductShotGeneratorSection() {
                 ? new Date(created.createdAt).getTime()
                 : Date.now(),
             };
-            setProductshotHistory((prev) =>
-              [createdItem, ...prev] // 永久保存所有历史记录
+            setProductshotHistory(
+              (prev) => [createdItem, ...prev] // 永久保存所有历史记录
             );
             return;
           }
@@ -398,20 +405,17 @@ export default function ProductShotGeneratorSection() {
   );
 
   // 删除单条历史记录
-  const removeHistoryItem = useCallback(
-    (idx: number) => {
-      setProductshotHistory((prev) => {
-        const target = prev[idx];
-        if (!target) return prev;
+  const removeHistoryItem = useCallback((idx: number) => {
+    setProductshotHistory((prev) => {
+      const target = prev[idx];
+      if (!target) return prev;
 
-        // 显示确认弹窗
-        setPendingDeleteItem({ idx, item: target });
-        setShowDeleteConfirmDialog(true);
-        return prev;
-      });
-    },
-    []
-  );
+      // 显示确认弹窗
+      setPendingDeleteItem({ idx, item: target });
+      setShowDeleteConfirmDialog(true);
+      return prev;
+    });
+  }, []);
 
   // 确认删除历史记录
   const confirmDeleteHistoryItem = useCallback(async () => {
@@ -821,6 +825,7 @@ export default function ProductShotGeneratorSection() {
 
   const handleImageClick = () => {
     if (result?.download_url) {
+      setPreviewImageUrl(result.download_url);
       setShowImagePreview(true);
     }
   };
@@ -830,6 +835,7 @@ export default function ProductShotGeneratorSection() {
     if (result?.download_url && isMounted) {
       console.log('🎉 ProductShot generated, adding to history:', result);
       const historyItem: ProductshotHistoryItem = {
+        asset_id: result.asset_id, // 保存资产ID
         url: result.download_url,
         scene: selectedScene || 'custom',
         createdAt: Date.now(),
@@ -1384,11 +1390,17 @@ export default function ProductShotGeneratorSection() {
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  Generated Product Shot
+                  Product Shot Preview
                 </DialogTitle>
                 <DialogDescription className="text-gray-300 text-sm mt-1">
-                  Scene: {selectedSceneConfig?.name || 'Custom'} • Aspect Ratio:{' '}
-                  {selectedAspect === 'original' ? 'Original' : selectedAspect}
+                  Scene: {(() => {
+                    // 从历史记录中找到对应的场景信息
+                    const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
+                    return historyItem?.scene || 'Unknown';
+                  })()} • Created: {(() => {
+                    const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
+                    return historyItem ? new Date(historyItem.createdAt).toLocaleDateString() : 'Unknown';
+                  })()}
                 </DialogDescription>
               </div>
 
@@ -1409,11 +1421,11 @@ export default function ProductShotGeneratorSection() {
             className="relative w-full h-full flex items-center justify-center cursor-pointer group"
             onClick={() => setShowImagePreview(false)}
           >
-            {result?.download_url && (
+            {previewImageUrl && (
               <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image
-                  src={result.download_url}
-                  alt={`Generated product shot - ${selectedSceneConfig?.name || 'Unknown scene'}`}
+                  src={previewImageUrl}
+                  alt="Product shot preview"
                   width={1200}
                   height={1200}
                   className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
@@ -1431,7 +1443,13 @@ export default function ProductShotGeneratorSection() {
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDownload();
+                  // 从历史记录中找到对应的项目进行下载
+                  const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
+                  if (historyItem) {
+                    downloadFromUrl(historyItem.url, historyItem.scene);
+                  } else {
+                    handleDownload();
+                  }
                 }}
                 className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
                 size="lg"
@@ -1545,7 +1563,11 @@ export default function ProductShotGeneratorSection() {
                   <img
                     src={item.url}
                     alt={`ProductShot ${idx + 1}`}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                    onClick={() => {
+                      setPreviewImageUrl(item.url);
+                      setShowImagePreview(true);
+                    }}
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">

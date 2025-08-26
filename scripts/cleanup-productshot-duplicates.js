@@ -1,7 +1,7 @@
 // 完整的 ProductShot 重复记录清理脚本
 // 在浏览器控制台中运行此代码
 
-(function() {
+(() => {
   console.log('🧹 开始清理 ProductShot 重复记录...\n');
 
   try {
@@ -19,7 +19,7 @@
 
     // 按场景分组
     const sceneGroups = {};
-    history.forEach(record => {
+    history.forEach((record) => {
       if (!sceneGroups[record.scene]) {
         sceneGroups[record.scene] = [];
       }
@@ -63,20 +63,27 @@
           // 保留最新的记录
           records.sort((a, b) => b.createdAt - a.createdAt);
           cleanedHistory.push(records[0]);
-          console.log(`  ✅ 场景 "${scene}": 保留最新记录，删除 ${records.length - 1} 条重复`);
+          console.log(
+            `  ✅ 场景 "${scene}": 保留最新记录，删除 ${records.length - 1} 条重复`
+          );
         } else {
           cleanedHistory.push(records[0]);
         }
       });
 
       // 保存清理后的记录
-      localStorage.setItem(productshotHistoryKey, JSON.stringify(cleanedHistory));
+      localStorage.setItem(
+        productshotHistoryKey,
+        JSON.stringify(cleanedHistory)
+      );
 
       console.log(`\n🎉 清理完成！`);
       console.log(`📊 清理前: ${totalRecords} 条记录`);
       console.log(`📊 清理后: ${cleanedHistory.length} 条记录`);
       console.log(`🗑️  删除了: ${totalDuplicates} 条重复记录`);
-      console.log(`💾 节省了: ${Math.round(totalDuplicates * 0.1 * 100) / 100} KB 存储空间`);
+      console.log(
+        `💾 节省了: ${Math.round(totalDuplicates * 0.1 * 100) / 100} KB 存储空间`
+      );
 
       console.log('\n🔄 页面将在 3 秒后自动刷新...');
 
@@ -86,11 +93,12 @@
     } else {
       console.log('\n✅ 没有发现重复记录，无需清理');
     }
-
   } catch (error) {
     console.error('❌ 清理过程中发生错误:', error);
     console.log('💡 如果遇到错误，可以尝试手动清除：');
-    console.log('   localStorage.removeItem("roboneo_productshot_history_v1");');
+    console.log(
+      '   localStorage.removeItem("roboneo_productshot_history_v1");'
+    );
     console.log('   location.reload();');
   }
 })();

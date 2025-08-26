@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
+import { getAssetMetadata as getLocalAssetMetadata } from '@/lib/asset-management';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -41,7 +42,9 @@ export async function GET(request: NextRequest) {
     // 验证签名
     const secret = process.env.URL_SIGNING_SECRET || 'default-secret-key';
     const dataToSign = `${asset_id}|${expiresAt}|${disp}`;
-    const expectedSignature = createHmac('sha256', secret).update(dataToSign).digest('base64url');
+    const expectedSignature = createHmac('sha256', secret)
+      .update(dataToSign)
+      .digest('base64url');
 
     if (sig !== expectedSignature) {
       console.warn('Asset download: Invalid signature', { asset_id });
@@ -56,12 +59,32 @@ export async function GET(request: NextRequest) {
       .where(eq(assets.id, asset_id))
       .limit(1);
 
-    if (assetRecord.length === 0) {
-      console.warn('Asset download: Asset not found in database', { asset_id });
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
-    }
+    // 如果数据库没有，尝试从本地元数据（临时方案）读取
+    let assetMetadata: any | null = assetRecord[0] || null;
+    let r2Url: string | null = null;
 
-    const assetMetadata = assetRecord[0];
+    if (!assetMetadata) {
+      const local = await getLocalAssetMetadata(asset_id);
+      if (!local) {
+        console.warn('Asset download: Asset not found (db and local)', {
+          asset_id,
+        });
+        return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+      }
+
+      // 兼容使用本地元数据文件的旧流程：直接用 original_url 代理返回
+      console.log('⚠️ Using local asset metadata fallback for download', {
+        asset_id,
+      });
+      r2Url = local.original_url;
+
+      // 构造最小化的元数据对象以便后续头信息设置
+      assetMetadata = {
+        filename: local.file_name || 'asset.png',
+        content_type: local.content_type || 'application/octet-stream',
+        created_at: new Date(local.created_at * 1000).toISOString(),
+      };
+    }
 
     console.log('✅ Asset download verified:', {
       asset_id,
@@ -70,8 +93,10 @@ export async function GET(request: NextRequest) {
       display_mode: disp,
     });
 
-    // 从 R2 获取文件
-    const r2Url = `${process.env.R2_PUBLIC_URL}/${assetMetadata.key}`;
+    // 从 R2 获取文件（若为本地回退模式则直接使用 original_url）
+    if (!r2Url) {
+      r2Url = `${process.env.R2_PUBLIC_URL}/${assetMetadata.key}`;
+    }
     const response = await fetch(r2Url);
     if (!response.ok) {
       console.error('Asset download: Failed to fetch file from R2', {
@@ -87,7 +112,8 @@ export async function GET(request: NextRequest) {
     }
 
     const fileBuffer = await response.arrayBuffer();
-    const contentType = assetMetadata.content_type || 'application/octet-stream';
+    const contentType =
+      assetMetadata.content_type || 'application/octet-stream';
 
     // 创建响应
     const downloadResponse = new NextResponse(fileBuffer);

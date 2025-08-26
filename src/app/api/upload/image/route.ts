@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
+import { createHmac, randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import { randomUUID, createHmac } from 'crypto';
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { uploadFile } from '@/storage';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,13 +76,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-            // 使用上传结果中的信息
+    // 使用上传结果中的信息
     const r2PublicUrl = uploadResult.url; // 使用上传后的公共 URL
     const storageKey = uploadResult.key; // 使用上传后的存储键
 
     // 生成签名下载 URL 用于下载功能
-    const expiresAt = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24小时有效期
-    const signature = createHmac('sha256', process.env.URL_SIGNING_SECRET || 'default-secret-key')
+    const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60; // 24小时有效期
+    const signature = createHmac(
+      'sha256',
+      process.env.URL_SIGNING_SECRET || 'default-secret-key'
+    )
       .update(`${assetId}|${expiresAt}|inline`)
       .digest('base64url');
 
@@ -96,7 +99,6 @@ export async function POST(request: NextRequest) {
       key: storageKey, // 使用上传后的存储键
       size: imageBuffer.length,
     });
-
   } catch (error) {
     console.error('Image upload error:', error);
     return NextResponse.json(

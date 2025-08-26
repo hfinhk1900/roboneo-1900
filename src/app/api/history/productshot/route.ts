@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
-import { productshotHistory } from '@/db/schema';
+import { assets, productshotHistory } from '@/db/schema';
+import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -54,11 +55,38 @@ export async function POST(request: NextRequest) {
 
     const db = await getDb();
     const body = await request.json();
-    const { url, scene } = body;
+    const { url, scene, asset_id } = body as {
+      url?: string;
+      scene?: string;
+      asset_id?: string;
+    };
 
-    if (!url || !scene) {
+    if (!scene) {
+      return NextResponse.json({ error: 'scene is required' }, { status: 400 });
+    }
+
+    // 如果客户端传来 asset_id，则根据资产生成签名URL并落库
+    let finalUrl = url;
+    if (asset_id) {
+      // 校验资产归属
+      const assetRows = await db
+        .select()
+        .from(assets)
+        .where(eq(assets.id, asset_id))
+        .limit(1);
+      if (assetRows.length === 0) {
+        return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+      }
+      if (assetRows[0].user_id !== session.user.id) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+      const signed = generateSignedDownloadUrl(asset_id, 'inline', 3600);
+      finalUrl = signed.url;
+    }
+
+    if (!finalUrl) {
       return NextResponse.json(
-        { error: 'URL and scene are required' },
+        { error: 'Either asset_id or url is required' },
         { status: 400 }
       );
     }
@@ -66,17 +94,14 @@ export async function POST(request: NextRequest) {
     const id = randomUUID();
     const createdAt = new Date();
 
-    await db
-      .insert(productshotHistory)
-      .values({
-        id,
-        userId: session.user.id,
-        url,
-        scene,
-        createdAt,
-      });
-
-    return NextResponse.json({ id, url, scene, createdAt });
+    await db.insert(productshotHistory).values({
+      id,
+      userId: session.user.id,
+      url: finalUrl,
+      scene,
+      createdAt,
+    });
+    return NextResponse.json({ id, url: finalUrl, scene, createdAt });
   } catch (error) {
     console.error('Error creating productshot history:', error);
     return NextResponse.json(

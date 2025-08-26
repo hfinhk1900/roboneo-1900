@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
-import { useCurrentUser } from '@/hooks/use-current-user';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -206,7 +206,8 @@ const DEMO_IMAGES = [
 // AI Background 历史记录接口
 interface AibgHistoryItem {
   id?: string;
-  url: string;
+  asset_id?: string; // 新增：仅存资产ID更稳
+  url: string; // 仍保留以兼容旧数据
   mode: 'background' | 'color';
   style: string;
   createdAt: number;
@@ -219,7 +220,8 @@ export function AIBackgroundGeneratorSection() {
   // 历史记录相关状态
   const [aibgHistory, setAibgHistory] = useState<AibgHistoryItem[]>([]);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
-  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] = useState(false);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
+    useState(false);
   const [pendingDeleteItem, setPendingDeleteItem] = useState<{
     idx: number;
     item: AibgHistoryItem;
@@ -272,13 +274,14 @@ export function AIBackgroundGeneratorSection() {
             const data = await res.json();
             const processedItems = data.items.map((item: any) => ({
               id: item.id,
+              asset_id: item.asset_id,
               url: item.url,
               mode: item.mode,
               style: item.style,
               createdAt: item.createdAt
-                ? (typeof item.createdAt === 'string'
-                    ? new Date(item.createdAt).getTime()
-                    : item.createdAt)
+                ? typeof item.createdAt === 'string'
+                  ? new Date(item.createdAt).getTime()
+                  : item.createdAt
                 : Date.now(),
             }));
             setAibgHistory(processedItems);
@@ -311,22 +314,24 @@ export function AIBackgroundGeneratorSection() {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({
-              url: item.url,
+              asset_id: item.asset_id, // 优先传asset_id
+              url: item.url, // 兼容旧数据
               mode: item.mode,
-              style: item.style
+              style: item.style,
             }),
           });
           if (res.ok) {
             const created = await res.json();
             const createdItem: AibgHistoryItem = {
               id: created.id,
+              asset_id: created.asset_id,
               url: created.url,
               mode: created.mode,
               style: created.style,
               createdAt: created.createdAt
-                ? (typeof created.createdAt === 'string'
-                    ? new Date(created.createdAt).getTime()
-                    : created.createdAt)
+                ? typeof created.createdAt === 'string'
+                  ? new Date(created.createdAt).getTime()
+                  : created.createdAt
                 : Date.now(),
             };
             setAibgHistory((prev) => [createdItem, ...prev]);
@@ -347,20 +352,17 @@ export function AIBackgroundGeneratorSection() {
   );
 
   // 删除单条历史记录
-  const removeHistoryItem = useCallback(
-    (idx: number) => {
-      setAibgHistory((prev) => {
-        const target = prev[idx];
-        if (!target) return prev;
+  const removeHistoryItem = useCallback((idx: number) => {
+    setAibgHistory((prev) => {
+      const target = prev[idx];
+      if (!target) return prev;
 
-        // 显示确认弹窗
-        setPendingDeleteItem({ idx, item: target });
-        setShowDeleteConfirmDialog(true);
-        return prev;
-      });
-    },
-    []
-  );
+      // 显示确认弹窗
+      setPendingDeleteItem({ idx, item: target });
+      setShowDeleteConfirmDialog(true);
+      return prev;
+    });
+  }, []);
 
   // 确认删除历史记录
   const confirmDeleteHistoryItem = useCallback(async () => {
@@ -426,96 +428,102 @@ export function AIBackgroundGeneratorSection() {
   }, [currentUser]);
 
   // 从URL下载图片
-  const downloadFromUrl = useCallback(async (url: string, mode: string, style: string) => {
-    const filename = `aibg-${mode}-${style}-${Date.now()}.png`;
+  const downloadFromUrl = useCallback(
+    async (url: string, mode: string, style: string) => {
+      const filename = `aibg-${mode}-${style}-${Date.now()}.png`;
 
-    // 检查并刷新过期的URL
-    let finalUrl = url;
-    if (url.startsWith('/api/assets/download')) {
-      try {
-        const urlObj = new URL(url, window.location.origin);
-        const exp = urlObj.searchParams.get('exp');
-        const assetId = urlObj.searchParams.get('asset_id');
+      // 检查并刷新过期的URL
+      let finalUrl = url;
+      if (url.startsWith('/api/assets/download')) {
+        try {
+          const urlObj = new URL(url, window.location.origin);
+          const exp = urlObj.searchParams.get('exp');
+          const assetId = urlObj.searchParams.get('asset_id');
 
-        if (exp && assetId) {
-          const expiryTime = Number.parseInt(exp) * 1000;
-          const currentTime = Date.now();
+          if (exp && assetId) {
+            const expiryTime = Number.parseInt(exp) * 1000;
+            const currentTime = Date.now();
 
-          // 如果URL即将过期或已过期，刷新它
-          if (expiryTime - currentTime <= 5 * 60 * 1000) {
-            console.log(
-              '🔄 Refreshing expired asset URL for download:',
-              assetId
-            );
-            try {
-              const refreshRes = await fetch(`/api/storage/sign-download`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                  asset_id: assetId,
-                  display_mode: 'inline',
-                  expires_in: 3600,
-                }),
-              });
-              if (refreshRes.ok) {
-                const refreshData = await refreshRes.json();
-                finalUrl = refreshData.url;
+            // 如果URL即将过期或已过期，刷新它
+            if (expiryTime - currentTime <= 5 * 60 * 1000) {
+              console.log(
+                '🔄 Refreshing expired asset URL for download:',
+                assetId
+              );
+              try {
+                const refreshRes = await fetch(`/api/storage/sign-download`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    asset_id: assetId,
+                    display_mode: 'inline',
+                    expires_in: 3600,
+                  }),
+                });
+                if (refreshRes.ok) {
+                  const refreshData = await refreshRes.json();
+                  finalUrl = refreshData.url;
+                }
+              } catch (error) {
+                console.error(
+                  'Failed to refresh asset URL for download:',
+                  error
+                );
               }
-            } catch (error) {
-              console.error('Failed to refresh asset URL for download:', error);
             }
           }
+        } catch (error) {
+          console.error('Error checking URL expiry for download:', error);
         }
-      } catch (error) {
-        console.error('Error checking URL expiry for download:', error);
       }
-    }
 
-    if (finalUrl.startsWith('/api/assets/download')) {
-      // 新资产管理系统
-      const link = document.createElement('a');
-      link.href = finalUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
+      if (finalUrl.startsWith('/api/assets/download')) {
+        // 新资产管理系统
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
 
-    if (finalUrl.startsWith('data:')) {
-      // base64 数据
-      const link = document.createElement('a');
-      link.href = finalUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
+      if (finalUrl.startsWith('data:')) {
+        // base64 数据
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
 
-    // 外部URL
-    try {
-      const response = await fetch(finalUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Failed to download image:', error);
-      toast.error('Failed to download image');
-    }
-  }, []);
+      // 外部URL
+      try {
+        const response = await fetch(finalUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Failed to download image:', error);
+        toast.error('Failed to download image');
+      }
+    },
+    []
+  );
 
   // State management
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -598,9 +606,9 @@ export function AIBackgroundGeneratorSection() {
 
     // 立即设置文件状态，提供即时反馈
 
-      setUploadedImage(file);
+    setUploadedImage(file);
 
-      setProcessedImage(null); // Clear previous results
+    setProcessedImage(null); // Clear previous results
     setCurrentDisplayImage(null); // Clear current display
     setBeforeImageSrc(null);
     setAfterImageSrc(null);
@@ -731,20 +739,20 @@ export function AIBackgroundGeneratorSection() {
     setTimeout(() => {
       clearInterval(progressInterval);
       setGenerationProgress(100);
-            setIsProcessing(false);
-            setProcessedImage(demoImage.afterSrc);
+      setIsProcessing(false);
+      setProcessedImage(demoImage.afterSrc);
 
       // Set default background color to transparent
-            setTimeout(() => {
-              setSelectedBackgroundColor('transparent');
+      setTimeout(() => {
+        setSelectedBackgroundColor('transparent');
         console.log('Demo image processing completed');
-            }, 0);
+      }, 0);
 
       // Show success message and reset progress after a delay
-            setTimeout(() => {
+      setTimeout(() => {
         setProcessingProgress(0);
         setGenerationProgress(0);
-              toast.success('Demo image loaded successfully!');
+        toast.success('Demo image loaded successfully!');
       }, 1000);
     }, 3000); // 3秒后完成
   };
@@ -824,8 +832,12 @@ export function AIBackgroundGeneratorSection() {
             if (uploadResponse.ok) {
               const uploadResult = await uploadResponse.json();
               // 使用公共 URL 用于显示，下载 URL 用于下载
-              finalImageUrl = uploadResult.publicUrl || uploadResult.downloadUrl;
-              console.log('✅ Custom color image uploaded to R2:', uploadResult.publicUrl);
+              finalImageUrl =
+                uploadResult.publicUrl || uploadResult.downloadUrl;
+              console.log(
+                '✅ Custom color image uploaded to R2:',
+                uploadResult.publicUrl
+              );
             } else {
               console.warn('⚠️ Failed to upload to R2, using base64 fallback');
             }
@@ -1096,13 +1108,13 @@ export function AIBackgroundGeneratorSection() {
           });
 
           // Clear progress interval
-              clearInterval(progressInterval);
+          clearInterval(progressInterval);
 
           if (result.success && result.image) {
             // Complete progress
             setProcessingProgress(100);
             setGenerationProgress(100);
-              setProcessedImage(result.image);
+            setProcessedImage(result.image);
 
             // 根据用户选择的背景颜色处理图片
             if (selectedBackgroundColor === 'transparent') {
@@ -1164,10 +1176,16 @@ export function AIBackgroundGeneratorSection() {
                 if (uploadResponse.ok) {
                   const uploadResult = await uploadResponse.json();
                   // 使用公共 URL 用于显示，下载 URL 用于下载
-                  finalImageUrl = uploadResult.publicUrl || uploadResult.downloadUrl;
-                  console.log('✅ Solid Color image uploaded to R2:', uploadResult.publicUrl);
+                  finalImageUrl =
+                    uploadResult.publicUrl || uploadResult.downloadUrl;
+                  console.log(
+                    '✅ Solid Color image uploaded to R2:',
+                    uploadResult.publicUrl
+                  );
                 } else {
-                  console.warn('⚠️ Failed to upload to R2, using base64 fallback');
+                  console.warn(
+                    '⚠️ Failed to upload to R2, using base64 fallback'
+                  );
                 }
               } catch (error) {
                 console.error('❌ Error uploading to R2:', error);
@@ -1175,7 +1193,7 @@ export function AIBackgroundGeneratorSection() {
               }
             }
 
-            // 保存到历史记录
+            // 保存到历史记录 - Solid Color模式暂时仍使用URL，因为它是直接上传到R2的
             const historyItem: AibgHistoryItem = {
               url: finalImageUrl,
               mode: 'color',
@@ -1208,12 +1226,12 @@ export function AIBackgroundGeneratorSection() {
               toast.success('Background removed successfully!');
             }, 1000);
 
-              return;
-            }
+            return;
+          }
           throw new Error(result.error || 'Rembg API failed');
         } catch (error) {
           // Clear progress interval on error
-            clearInterval(progressInterval);
+          clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
           toast.error(
             'Background removal service is temporarily unavailable. Please try again later.'
@@ -1321,15 +1339,17 @@ export function AIBackgroundGeneratorSection() {
       setBeforeImageSrc(imagePreview);
       setCurrentDisplayImage(displayUrl);
 
-      // 保存到历史记录 - 使用公共 URL
+      // 保存到历史记录 - 使用asset_id
       const historyItem: AibgHistoryItem = {
-        url: displayUrl, // 使用之前设置的 displayUrl
+        asset_id: result.asset_id, // 使用API返回的asset_id
+        url: displayUrl, // 兼容旧数据
         mode: backgroundMode,
-        style: backgroundMode === 'background'
-          ? (selectedBackground === 'custom'
+        style:
+          backgroundMode === 'background'
+            ? selectedBackground === 'custom'
               ? customBackgroundDescription.trim()
-              : selectedBackground)
-          : selectedBackgroundColor,
+              : selectedBackground
+            : selectedBackgroundColor,
         createdAt: Date.now(),
       };
       await pushHistory(historyItem);
@@ -2370,13 +2390,24 @@ export function AIBackgroundGeneratorSection() {
                           }
 
                           // 如果是签名下载 URL 且已过期，尝试刷新
-                          if (previewUrl.includes('/api/assets/download') && previewUrl.includes('exp=')) {
+                          if (
+                            previewUrl.includes('/api/assets/download') &&
+                            previewUrl.includes('exp=')
+                          ) {
                             // 检查 URL 是否过期
-                            const urlParams = new URLSearchParams(previewUrl.split('?')[1]);
+                            const urlParams = new URLSearchParams(
+                              previewUrl.split('?')[1]
+                            );
                             const exp = urlParams.get('exp');
-                            if (exp && parseInt(exp) < Math.floor(Date.now() / 1000)) {
+                            if (
+                              exp &&
+                              Number.parseInt(exp) <
+                                Math.floor(Date.now() / 1000)
+                            ) {
                               // URL 已过期，使用原始图片 URL
-                              console.log('Preview URL expired, using original image');
+                              console.log(
+                                'Preview URL expired, using original image'
+                              );
                               previewUrl = processedImage || '';
                             }
                           }
@@ -2385,7 +2416,7 @@ export function AIBackgroundGeneratorSection() {
                           setShowImagePreview(true);
                         }}
                       />
-                      </div>
+                    </div>
 
                     {/* 移除第二个颜色选择器，避免与第一个选择器冲突 */}
                     {/* 用户应该在处理前选择颜色，而不是处理后 */}
@@ -2540,7 +2571,9 @@ export function AIBackgroundGeneratorSection() {
         {aibgHistory.length > 0 && (
           <div className="mt-10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Your AI Background History</h3>
+              <h3 className="text-lg font-semibold">
+                Your AI Background History
+              </h3>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -2554,7 +2587,10 @@ export function AIBackgroundGeneratorSection() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {aibgHistory.map((item, idx) => (
-                <div key={`${item.createdAt}-${idx}`} className="group relative">
+                <div
+                  key={`${item.createdAt}-${idx}`}
+                  className="group relative"
+                >
                   <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
                     <img
                       src={item.url}
@@ -2568,7 +2604,9 @@ export function AIBackgroundGeneratorSection() {
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="truncate max-w-[60%]">
-                      {item.mode === 'background' ? 'Background Style' : 'Solid Color'}
+                      {item.mode === 'background'
+                        ? 'Background Style'
+                        : 'Solid Color'}
                     </span>
                     <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -2578,7 +2616,9 @@ export function AIBackgroundGeneratorSection() {
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download AI background"
-                      onClick={() => downloadFromUrl(item.url, item.mode, item.style)}
+                      onClick={() =>
+                        downloadFromUrl(item.url, item.mode, item.style)
+                      }
                     >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -2598,7 +2638,7 @@ export function AIBackgroundGeneratorSection() {
           </div>
         )}
 
-                {/* Mode switch confirmation dialog */}
+        {/* Mode switch confirmation dialog */}
         <Dialog
           open={showModeSwitchDialog}
           onOpenChange={setShowModeSwitchDialog}
@@ -2642,13 +2682,13 @@ export function AIBackgroundGeneratorSection() {
 
                     if (imageToDownload.startsWith('data:')) {
                       // 如果是base64数据，直接下载
-                    const link = document.createElement('a');
+                      const link = document.createElement('a');
                       link.href = imageToDownload;
-                    link.download = 'ai-background-result.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast.success('Image saved successfully');
+                      link.download = 'ai-background-result.png';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      toast.success('Image saved successfully');
                     } else if (
                       imageToDownload.startsWith('/api/assets/download')
                     ) {
@@ -2739,10 +2779,7 @@ export function AIBackgroundGeneratorSection() {
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={confirmDeleteHistoryItem}
-              >
+              <Button variant="destructive" onClick={confirmDeleteHistoryItem}>
                 Delete
               </Button>
             </div>
@@ -2769,10 +2806,7 @@ export function AIBackgroundGeneratorSection() {
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={confirmClearAllHistory}
-              >
+              <Button variant="destructive" onClick={confirmClearAllHistory}>
                 Clear All
               </Button>
             </div>
@@ -2780,20 +2814,40 @@ export function AIBackgroundGeneratorSection() {
         </Dialog>
 
         {/* Image preview dialog */}
-        <Dialog
-          open={showImagePreview}
-          onOpenChange={setShowImagePreview}
-        >
+        <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
           <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
             {/* Header */}
             <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                                    <DialogTitle className="text-white text-xl font-semibold">
+                  <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-yellow-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
                     AI Background Preview
                   </DialogTitle>
                   <DialogDescription className="text-gray-300 text-sm mt-1">
-                    Mode: {previewImageUrl && aibgHistory.find(item => item.url === previewImageUrl)?.mode === 'background' ? 'Background Style' : 'Solid Color'} • Style: {previewImageUrl && aibgHistory.find(item => item.url === previewImageUrl)?.style || 'Unknown'}
+                    Mode:{' '}
+                    {previewImageUrl &&
+                    aibgHistory.find((item) => item.url === previewImageUrl)
+                      ?.mode === 'background'
+                      ? 'Background Style'
+                      : 'Solid Color'}{' '}
+                    • Style:{' '}
+                    {(previewImageUrl &&
+                      aibgHistory.find((item) => item.url === previewImageUrl)
+                        ?.style) ||
+                      'Unknown'}
                   </DialogDescription>
                 </div>
 

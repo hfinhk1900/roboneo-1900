@@ -1,9 +1,10 @@
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { getDb } from '@/db';
+import { assets } from '@/db/schema';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
-  storeAssetMetadata,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -303,17 +304,23 @@ export async function POST(request: NextRequest) {
 
     const assetId = generateAssetId();
     const fileName = result.resultUrl.split('/').pop() || 'aibackground.png';
-    const currentTime = Math.floor(Date.now() / 1000);
 
-    // 存储资产元数据
-    await storeAssetMetadata({
-      asset_id: assetId,
-      original_url: result.resultUrl,
-      file_name: fileName,
+    // 写入 assets 表
+    const db = await getDb();
+    await db.insert(assets).values({
+      id: assetId,
+      key: result.storageKey || fileName,
+      filename: fileName,
       content_type: 'image/png',
-      size: 0, // 暂时设为0，实际可以从R2获取
-      created_at: currentTime,
+      size: result.sizeBytes || 0,
       user_id: session.user.id,
+      metadata: JSON.stringify({
+        source: 'aibg',
+        mode: backgroundMode,
+        backgroundType: backgroundType || null,
+        provider: result.provider,
+        model: result.model,
+      }),
     });
 
     // 11. 生成签名下载URL
@@ -331,6 +338,7 @@ export async function POST(request: NextRequest) {
       success: true,
       asset_id: assetId,
       download_url: downloadUrl.url,
+      public_url: downloadUrl.url, // 兼容前端显示
       expires_at: downloadUrl.expires_at,
       backgroundMode,
       backgroundType: backgroundType || null,

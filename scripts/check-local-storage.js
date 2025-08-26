@@ -19,7 +19,7 @@ function checkLocalStorageDuplicates() {
 
     // 按场景分组
     const sceneGroups = {};
-    history.forEach(record => {
+    history.forEach((record) => {
       if (!sceneGroups[record.scene]) {
         sceneGroups[record.scene] = [];
       }
@@ -39,7 +39,9 @@ function checkLocalStorageDuplicates() {
         // 显示重复记录
         records.forEach((record, index) => {
           const date = new Date(record.createdAt).toLocaleString();
-          console.log(`  ${index + 1}. ${record.url.substring(0, 50)}... - ${date}`);
+          console.log(
+            `  ${index + 1}. ${record.url.substring(0, 50)}... - ${date}`
+          );
         });
 
         totalDuplicates += records.length - 1;
@@ -51,7 +53,7 @@ function checkLocalStorageDuplicates() {
       console.log('💡 建议清理重复记录以节省存储空间');
 
       // 提供清理函数
-      window.cleanupProductshotHistory = function() {
+      window.cleanupProductshotHistory = () => {
         const cleanedHistory = [];
         Object.entries(sceneGroups).forEach(([scene, records]) => {
           if (records.length > 1) {
@@ -63,7 +65,10 @@ function checkLocalStorageDuplicates() {
           }
         });
 
-        localStorage.setItem(productshotHistoryKey, JSON.stringify(cleanedHistory));
+        localStorage.setItem(
+          productshotHistoryKey,
+          JSON.stringify(cleanedHistory)
+        );
         console.log(`✅ 清理完成！保留 ${cleanedHistory.length} 条记录`);
         location.reload(); // 刷新页面以更新显示
       };
@@ -72,7 +77,6 @@ function checkLocalStorageDuplicates() {
     } else {
       console.log('\n✅ 没有发现重复记录');
     }
-
   } catch (error) {
     console.error('❌ 检查过程中发生错误:', error);
   }

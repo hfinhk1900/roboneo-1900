@@ -55,7 +55,9 @@ function testLocalStorageTime() {
 
       history.forEach((item, index) => {
         const dateString = new Date(item.createdAt).toLocaleDateString();
-        console.log(`  ${index + 1}. ${item.mode} - ${item.style}: ${dateString} (${item.createdAt})`);
+        console.log(
+          `  ${index + 1}. ${item.mode} - ${item.style}: ${dateString} (${item.createdAt})`
+        );
       });
     } else {
       console.log('📭 本地存储中没有历史记录');
@@ -85,9 +87,10 @@ async function testServerTime() {
           console.log(`     值: ${item.createdAt}`);
 
           try {
-            const timestamp = typeof item.createdAt === 'string'
-              ? new Date(item.createdAt).getTime()
-              : item.createdAt;
+            const timestamp =
+              typeof item.createdAt === 'string'
+                ? new Date(item.createdAt).getTime()
+                : item.createdAt;
             const dateString = new Date(timestamp).toLocaleDateString();
             console.log(`     格式化后: ${dateString}`);
           } catch (error) {
