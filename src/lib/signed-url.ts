@@ -1,4 +1,4 @@
-import { randomBytes, createHmac } from 'crypto';
+import { createHmac, randomBytes } from 'crypto';
 
 /**
  * 生成带签名的临时URL，用于安全访问图片
@@ -41,20 +41,17 @@ export function generateSignedUrl(
   return {
     url: signedUrl,
     expiresAt,
-    signature
+    signature,
   };
 }
 
 /**
  * 验证签名URL
  */
-export function verifySignedUrl(
-  url: string,
-  userId?: string
-): boolean {
+export function verifySignedUrl(url: string, userId?: string): boolean {
   try {
     const urlObj = new URL(url);
-    const expires = parseInt(urlObj.searchParams.get('expires') || '0');
+    const expires = Number.parseInt(urlObj.searchParams.get('expires') || '0');
     const signature = urlObj.searchParams.get('signature') || '';
     const uid = urlObj.searchParams.get('uid') || '';
 

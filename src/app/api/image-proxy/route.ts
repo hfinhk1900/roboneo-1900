@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { verifySignedUrl } from '@/lib/signed-url';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,7 +50,6 @@ export async function GET(request: NextRequest) {
         'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
-
   } catch (error) {
     console.error('Image proxy error:', error);
     return NextResponse.json(

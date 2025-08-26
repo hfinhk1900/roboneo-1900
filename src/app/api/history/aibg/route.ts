@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
-import { productshotHistory } from '@/db/schema';
+import { aibgHistory } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
 
     let query = db
       .select()
-      .from(productshotHistory)
-      .where(eq(productshotHistory.userId, session.user.id))
-      .orderBy(productshotHistory.createdAt);
+      .from(aibgHistory)
+      .where(eq(aibgHistory.userId, session.user.id))
+      .orderBy(aibgHistory.createdAt);
 
     // 如果没有指定limit，则不限制数量，返回所有历史记录
     if (limit) {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ items });
   } catch (error) {
-    console.error('Error fetching productshot history:', error);
+    console.error('Error fetching aibg history:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -54,11 +54,11 @@ export async function POST(request: NextRequest) {
 
     const db = await getDb();
     const body = await request.json();
-    const { url, scene } = body;
+    const { url, mode, style } = body;
 
-    if (!url || !scene) {
+    if (!url || !mode || !style) {
       return NextResponse.json(
-        { error: 'URL and scene are required' },
+        { error: 'URL, mode, and style are required' },
         { status: 400 }
       );
     }
@@ -67,18 +67,19 @@ export async function POST(request: NextRequest) {
     const createdAt = new Date();
 
     await db
-      .insert(productshotHistory)
+      .insert(aibgHistory)
       .values({
         id,
         userId: session.user.id,
         url,
-        scene,
+        mode,
+        style,
         createdAt,
       });
 
-    return NextResponse.json({ id, url, scene, createdAt });
+    return NextResponse.json({ id, url, mode, style, createdAt });
   } catch (error) {
-    console.error('Error creating productshot history:', error);
+    console.error('Error creating aibg history:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

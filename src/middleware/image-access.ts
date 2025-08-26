@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { verifySignedUrl } from '@/lib/signed-url';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * 图片访问控制中间件
@@ -17,7 +17,9 @@ export async function imageAccessMiddleware(
 
     // 如果没有签名参数，拒绝访问
     if (!signature || !expires) {
-      console.warn('Image access denied: Missing signature or expires parameter');
+      console.warn(
+        'Image access denied: Missing signature or expires parameter'
+      );
       return NextResponse.json(
         { error: 'Access denied - Invalid URL' },
         { status: 403 }
@@ -35,9 +37,10 @@ export async function imageAccessMiddleware(
     }
 
     // 验证通过，允许访问
-    console.log(`Image access granted for key: ${imageKey}, user: ${uid || 'anonymous'}`);
+    console.log(
+      `Image access granted for key: ${imageKey}, user: ${uid || 'anonymous'}`
+    );
     return null;
-
   } catch (error) {
     console.error('Image access middleware error:', error);
     return NextResponse.json(
@@ -50,9 +53,6 @@ export async function imageAccessMiddleware(
 /**
  * 检查图片访问权限
  */
-export function checkImageAccess(
-  url: string,
-  userId?: string
-): boolean {
+export function checkImageAccess(url: string, userId?: string): boolean {
   return verifySignedUrl(url, userId);
 }

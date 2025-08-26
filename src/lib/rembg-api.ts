@@ -53,8 +53,13 @@ export class RembgApiService {
 
       // 新增：传递尺寸信息
       if (options.aspectRatio) {
-        formData.append('aspect_ratio', `${options.aspectRatio.w}:${options.aspectRatio.h}`);
-        console.log(`📐 Sending aspect ratio: ${options.aspectRatio.w}:${options.aspectRatio.h}`);
+        formData.append(
+          'aspect_ratio',
+          `${options.aspectRatio.w}:${options.aspectRatio.h}`
+        );
+        console.log(
+          `📐 Sending aspect ratio: ${options.aspectRatio.w}:${options.aspectRatio.h}`
+        );
       }
 
       console.log('📤 Sending request to private HF Space...');

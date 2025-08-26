@@ -2,8 +2,8 @@ import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import {
   generateAssetId,
+  generateSignedDownloadUrl,
   storeAssetMetadata,
-  generateSignedDownloadUrl
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
       content_type: 'image/png',
       size: 0, // 暂时设为0，实际可以从R2获取
       created_at: currentTime,
-      user_id: session.user.id
+      user_id: session.user.id,
     });
 
     // 11. 生成签名下载URL
@@ -323,7 +323,7 @@ export async function POST(request: NextRequest) {
       asset_id: assetId,
       user_id: session.user.id,
       file_name: fileName,
-      expires_at: downloadUrl.expires_at
+      expires_at: downloadUrl.expires_at,
     });
 
     // 12. 返回结果（完全脱敏）
@@ -337,7 +337,7 @@ export async function POST(request: NextRequest) {
       backgroundColor: backgroundColor || null,
       credits_used: CREDITS_PER_IMAGE,
       credits_sufficient: true,
-      from_cache: false
+      from_cache: false,
     });
   } catch (error) {
     console.error('AI Background generation error:', error);

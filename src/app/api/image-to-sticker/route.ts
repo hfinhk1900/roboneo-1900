@@ -9,13 +9,13 @@
  */
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
-import { uploadFile } from '@/storage';
 import {
   generateAssetId,
+  generateSignedDownloadUrl,
   storeAssetMetadata,
-  generateSignedDownloadUrl
 } from '@/lib/asset-management';
+import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -368,7 +368,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-        // 6. 创建资产记录
+    // 6. 创建资产记录
     if (!r2Url) {
       throw new Error('Failed to generate image URL');
     }
@@ -385,7 +385,7 @@ export async function POST(req: NextRequest) {
       content_type: 'image/png',
       size: 0, // 暂时设为0，实际可以从R2获取
       created_at: currentTime,
-      user_id: session.user.id
+      user_id: session.user.id,
     });
 
     // 7. 生成签名下载URL
@@ -400,7 +400,7 @@ export async function POST(req: NextRequest) {
       asset_id: assetId,
       user_id: session.user.id,
       file_name: fileName,
-      expires_at: downloadUrl.expires_at
+      expires_at: downloadUrl.expires_at,
     });
 
     // 8. 返回结果（完全脱敏）
@@ -412,7 +412,7 @@ export async function POST(req: NextRequest) {
       source: 'image-to-sticker-api',
       credits_used: CREDITS_PER_IMAGE,
       credits_sufficient: true,
-      from_cache: false
+      from_cache: false,
     });
   } catch (error) {
     console.error('❌ Sticker generation failed:', error);

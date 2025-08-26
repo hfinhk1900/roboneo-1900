@@ -1,8 +1,8 @@
 // src/app/api/bg/remove-direct/route.ts
 // Vercel API 路由 - 代理到私有 HF Space
 
-import { type NextRequest, NextResponse } from 'next/server';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // 简单的内存速率限制（生产环境建议使用 Redis）
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -30,7 +30,10 @@ function checkRateLimit(ip: string): boolean {
 export async function POST(req: NextRequest) {
   try {
     // 速率限制检查
-    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const ip =
+      req.headers.get('x-forwarded-for') ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
     if (!checkRateLimit(ip)) {
       console.warn(`🚫 Rate limit exceeded for IP: ${ip}`);
       return NextResponse.json(
@@ -79,7 +82,9 @@ export async function POST(req: NextRequest) {
     const maxSide = formData.get('max_side') as string;
     const aspectRatio = formData.get('aspect_ratio') as string; // 新增：获取宽高比
 
-    console.log(`📤 Processing image, max_side: ${maxSide}, aspect_ratio: ${aspectRatio}`);
+    console.log(
+      `📤 Processing image, max_side: ${maxSide}, aspect_ratio: ${aspectRatio}`
+    );
     console.log(
       `📊 Image data size: ${imageData ? imageData.length : 0} characters`
     );

@@ -1,6 +1,6 @@
 import {
+  generateSignedDownloadUrl,
   getAssetMetadata,
-  generateSignedDownloadUrl
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -29,10 +29,7 @@ export async function POST(request: NextRequest) {
     // 获取资产元数据
     const assetMetadata = await getAssetMetadata(asset_id);
     if (!assetMetadata) {
-      return NextResponse.json(
-        { error: 'Asset not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
     }
 
     // 验证用户权限（只能访问自己的资产）
@@ -40,12 +37,9 @@ export async function POST(request: NextRequest) {
       console.warn('Unauthorized asset access attempt:', {
         user_id: session.user.id,
         asset_user_id: assetMetadata.user_id,
-        asset_id
+        asset_id,
       });
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // 生成新的签名下载URL
@@ -59,14 +53,13 @@ export async function POST(request: NextRequest) {
       asset_id,
       user_id: session.user.id,
       display_mode,
-      expires_in
+      expires_in,
     });
 
     return NextResponse.json({
       url: signedUrl.url,
-      expires_at: signedUrl.expires_at
+      expires_at: signedUrl.expires_at,
     });
-
   } catch (error) {
     console.error('Sign download URL error:', error);
     return NextResponse.json(

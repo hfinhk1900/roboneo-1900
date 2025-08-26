@@ -88,3 +88,13 @@ export const productshotHistory = pgTable("productshot_history", {
 	scene: text('scene').notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// AI Background generation history (account-scoped, for cross-device sync)
+export const aibgHistory = pgTable("aibg_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	mode: text('mode').notNull(), // 'background' or 'color'
+	style: text('style').notNull(), // background style or color value
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});

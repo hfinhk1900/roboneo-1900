@@ -22,10 +22,11 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import { cn } from '@/lib/utils';
 import { creditsCache } from '@/lib/credits-cache';
+import { cn } from '@/lib/utils';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { rembgApiService } from '@/lib/rembg-api';
 import {
@@ -34,6 +35,7 @@ import {
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
+  Trash2Icon,
   UploadIcon,
   XIcon,
   ZapIcon,
@@ -201,7 +203,32 @@ const DEMO_IMAGES = [
   },
 ];
 
+// AI Background 历史记录接口
+interface AibgHistoryItem {
+  id?: string;
+  url: string;
+  mode: 'background' | 'color';
+  style: string;
+  createdAt: number;
+}
+
 export function AIBackgroundGeneratorSection() {
+  // 获取当前用户
+  const currentUser = useCurrentUser();
+
+  // 历史记录相关状态
+  const [aibgHistory, setAibgHistory] = useState<AibgHistoryItem[]>([]);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<{
+    idx: number;
+    item: AibgHistoryItem;
+  } | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // 历史记录本地存储键名
+  const HISTORY_KEY = 'roboneo_aibg_history_v1';
+
   // Add custom CSS for shimmer animation
   useEffect(() => {
     const style = document.createElement('style');
@@ -221,6 +248,272 @@ export function AIBackgroundGeneratorSection() {
       document.head.removeChild(style);
     };
   }, []);
+
+  // 组件挂载状态
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // 加载历史记录
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const loadHistory = async () => {
+      if (currentUser) {
+        // 已登录：从服务器加载
+        try {
+          const res = await fetch('/api/history/aibg', {
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const processedItems = data.items.map((item: any) => ({
+              id: item.id,
+              url: item.url,
+              mode: item.mode,
+              style: item.style,
+              createdAt: item.createdAt
+                ? (typeof item.createdAt === 'string'
+                    ? new Date(item.createdAt).getTime()
+                    : item.createdAt)
+                : Date.now(),
+            }));
+            setAibgHistory(processedItems);
+            return;
+          }
+        } catch {}
+      }
+
+      // 未登录或加载失败：从本地存储加载
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as AibgHistoryItem[];
+          setAibgHistory(parsed);
+        }
+      } catch {}
+    };
+
+    loadHistory();
+  }, [currentUser, isMounted]);
+
+  // 历史记录操作函数
+  const pushHistory = useCallback(
+    async (item: AibgHistoryItem) => {
+      // 已登录：写入服务端
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/aibg', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              url: item.url,
+              mode: item.mode,
+              style: item.style
+            }),
+          });
+          if (res.ok) {
+            const created = await res.json();
+            const createdItem: AibgHistoryItem = {
+              id: created.id,
+              url: created.url,
+              mode: created.mode,
+              style: created.style,
+              createdAt: created.createdAt
+                ? (typeof created.createdAt === 'string'
+                    ? new Date(created.createdAt).getTime()
+                    : created.createdAt)
+                : Date.now(),
+            };
+            setAibgHistory((prev) => [createdItem, ...prev]);
+            return;
+          }
+        } catch {}
+      }
+      // 未登录：写入本地回退
+      try {
+        setAibgHistory((prev) => {
+          const next = [item, ...prev];
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+          return next;
+        });
+      } catch {}
+    },
+    [currentUser]
+  );
+
+  // 删除单条历史记录
+  const removeHistoryItem = useCallback(
+    (idx: number) => {
+      setAibgHistory((prev) => {
+        const target = prev[idx];
+        if (!target) return prev;
+
+        // 显示确认弹窗
+        setPendingDeleteItem({ idx, item: target });
+        setShowDeleteConfirmDialog(true);
+        return prev;
+      });
+    },
+    []
+  );
+
+  // 确认删除历史记录
+  const confirmDeleteHistoryItem = useCallback(async () => {
+    if (!pendingDeleteItem) return;
+
+    const { idx, item } = pendingDeleteItem;
+
+    // 已登录：调用删除
+    if (currentUser && item.id) {
+      try {
+        await fetch(`/api/history/aibg/${item.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      } catch {}
+    }
+
+    setAibgHistory((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      // 同步本地回退
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    // 关闭弹窗并清理状态
+    setShowDeleteConfirmDialog(false);
+    setPendingDeleteItem(null);
+  }, [pendingDeleteItem, currentUser]);
+
+  // 清空所有历史记录（显示确认弹窗）
+  const clearHistory = useCallback(() => {
+    setShowClearAllConfirmDialog(true);
+  }, []);
+
+  // 确认清空所有历史记录
+  const confirmClearAllHistory = useCallback(async () => {
+    setAibgHistory((prev) => {
+      const snapshot = [...prev];
+      if (currentUser) {
+        // 异步删除，不等待结果
+        Promise.all(
+          snapshot.map(async (it) => {
+            if (!it.id) return;
+            try {
+              await fetch(`/api/history/aibg/${it.id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+              });
+            } catch {}
+          })
+        );
+      }
+      try {
+        localStorage.removeItem(HISTORY_KEY);
+      } catch {}
+      return [];
+    });
+
+    // 关闭弹窗
+    setShowClearAllConfirmDialog(false);
+  }, [currentUser]);
+
+  // 从URL下载图片
+  const downloadFromUrl = useCallback(async (url: string, mode: string, style: string) => {
+    const filename = `aibg-${mode}-${style}-${Date.now()}.png`;
+
+    // 检查并刷新过期的URL
+    let finalUrl = url;
+    if (url.startsWith('/api/assets/download')) {
+      try {
+        const urlObj = new URL(url, window.location.origin);
+        const exp = urlObj.searchParams.get('exp');
+        const assetId = urlObj.searchParams.get('asset_id');
+
+        if (exp && assetId) {
+          const expiryTime = Number.parseInt(exp) * 1000;
+          const currentTime = Date.now();
+
+          // 如果URL即将过期或已过期，刷新它
+          if (expiryTime - currentTime <= 5 * 60 * 1000) {
+            console.log(
+              '🔄 Refreshing expired asset URL for download:',
+              assetId
+            );
+            try {
+              const refreshRes = await fetch(`/api/storage/sign-download`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  asset_id: assetId,
+                  display_mode: 'inline',
+                  expires_in: 3600,
+                }),
+              });
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                finalUrl = refreshData.url;
+              }
+            } catch (error) {
+              console.error('Failed to refresh asset URL for download:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking URL expiry for download:', error);
+      }
+    }
+
+    if (finalUrl.startsWith('/api/assets/download')) {
+      // 新资产管理系统
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    if (finalUrl.startsWith('data:')) {
+      // base64 数据
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    // 外部URL
+    try {
+      const response = await fetch(finalUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download image:', error);
+      toast.error('Failed to download image');
+    }
+  }, []);
+
   // State management
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -302,10 +595,9 @@ export function AIBackgroundGeneratorSection() {
 
     // 立即设置文件状态，提供即时反馈
 
-      setUploadedImage(file);
+    setUploadedImage(file);
 
-
-      setProcessedImage(null); // Clear previous results
+    setProcessedImage(null); // Clear previous results
     setCurrentDisplayImage(null); // Clear current display
     setBeforeImageSrc(null);
     setAfterImageSrc(null);
@@ -436,20 +728,20 @@ export function AIBackgroundGeneratorSection() {
     setTimeout(() => {
       clearInterval(progressInterval);
       setGenerationProgress(100);
-            setIsProcessing(false);
-            setProcessedImage(demoImage.afterSrc);
+      setIsProcessing(false);
+      setProcessedImage(demoImage.afterSrc);
 
       // Set default background color to transparent
-            setTimeout(() => {
-              setSelectedBackgroundColor('transparent');
+      setTimeout(() => {
+        setSelectedBackgroundColor('transparent');
         console.log('Demo image processing completed');
-            }, 0);
+      }, 0);
 
       // Show success message and reset progress after a delay
-            setTimeout(() => {
+      setTimeout(() => {
         setProcessingProgress(0);
         setGenerationProgress(0);
-              toast.success('Demo image loaded successfully!');
+        toast.success('Demo image loaded successfully!');
       }, 1000);
     }, 3000); // 3秒后完成
   };
@@ -483,7 +775,10 @@ export function AIBackgroundGeneratorSection() {
         } else {
           // 如果选择具体颜色，应用背景颜色
           try {
-            const coloredImage = await applyBackgroundColor(processedImage, color);
+            const coloredImage = await applyBackgroundColor(
+              processedImage,
+              color
+            );
             setCurrentDisplayImage(coloredImage);
             setAfterImageSrc(coloredImage);
             console.log(`Applied background color: ${color}`);
@@ -747,8 +1042,13 @@ export function AIBackgroundGeneratorSection() {
       if (backgroundMode === 'color') {
         console.log('🎯 Solid Color mode: Using rembg API service');
         console.log(`📐 Selected aspect ratio: ${selectedAspect}`);
-        console.log(`📐 Parsed aspect ratio:`, parseAspectRatio(selectedAspect));
-        console.log(`📐 Processed image size: ${imageBase64.length} characters`);
+        console.log(
+          `📐 Parsed aspect ratio:`,
+          parseAspectRatio(selectedAspect)
+        );
+        console.log(
+          `📐 Processed image size: ${imageBase64.length} characters`
+        );
 
         try {
           // 优先使用rembg API - 不传递背景颜色，让API生成透明背景
@@ -759,13 +1059,13 @@ export function AIBackgroundGeneratorSection() {
           });
 
           // Clear progress interval
-              clearInterval(progressInterval);
+          clearInterval(progressInterval);
 
           if (result.success && result.image) {
             // Complete progress
             setProcessingProgress(100);
             setGenerationProgress(100);
-              setProcessedImage(result.image);
+            setProcessedImage(result.image);
 
             // 根据用户选择的背景颜色处理图片
             if (selectedBackgroundColor === 'transparent') {
@@ -776,10 +1076,15 @@ export function AIBackgroundGeneratorSection() {
             } else {
               // 如果选择具体颜色，应用背景颜色
               try {
-                const coloredImage = await applyBackgroundColor(result.image, selectedBackgroundColor);
+                const coloredImage = await applyBackgroundColor(
+                  result.image,
+                  selectedBackgroundColor
+                );
                 setCurrentDisplayImage(coloredImage);
                 setAfterImageSrc(coloredImage);
-                console.log(`Applied user-selected background color: ${selectedBackgroundColor}`);
+                console.log(
+                  `Applied user-selected background color: ${selectedBackgroundColor}`
+                );
               } catch (error) {
                 console.error('Failed to apply background color:', error);
                 // 如果应用颜色失败，使用原始透明图片
@@ -789,18 +1094,39 @@ export function AIBackgroundGeneratorSection() {
             }
 
             // 添加详细的尺寸信息日志
-            console.log(`✅ Rembg API processing completed in ${result.processingTime}ms`);
-            console.log(`📐 Result image size from API: ${result.image_size || 'unknown'}`);
+            console.log(
+              `✅ Rembg API processing completed in ${result.processingTime}ms`
+            );
+            console.log(
+              `📐 Result image size from API: ${result.image_size || 'unknown'}`
+            );
             console.log(`📐 Expected aspect ratio: ${selectedAspect}`);
-            console.log(`📐 Parsed aspect ratio:`, parseAspectRatio(selectedAspect));
+            console.log(
+              `📐 Parsed aspect ratio:`,
+              parseAspectRatio(selectedAspect)
+            );
+
+            // 保存到历史记录
+            const historyItem: AibgHistoryItem = {
+              url: currentDisplayImage || result.image,
+              mode: 'color',
+              style: selectedBackgroundColor,
+              createdAt: Date.now(),
+            };
+            await pushHistory(historyItem);
 
             // 更新积分缓存 - 扣除10积分
             try {
               const currentCredits = creditsCache.get();
               if (currentCredits !== null) {
-                const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
+                const newCredits = Math.max(
+                  0,
+                  currentCredits - CREDITS_PER_IMAGE
+                );
                 creditsCache.set(newCredits);
-                console.log(`💰 Updated credits cache: ${currentCredits} → ${newCredits}`);
+                console.log(
+                  `💰 Updated credits cache: ${currentCredits} → ${newCredits}`
+                );
               }
             } catch (error) {
               console.warn('Failed to update credits cache:', error);
@@ -813,12 +1139,12 @@ export function AIBackgroundGeneratorSection() {
               toast.success('Background removed successfully!');
             }, 1000);
 
-              return;
-            }
+            return;
+          }
           throw new Error(result.error || 'Rembg API failed');
         } catch (error) {
           // Clear progress interval on error
-            clearInterval(progressInterval);
+          clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
           toast.error(
             'Background removal service is temporarily unavailable. Please try again later.'
@@ -925,18 +1251,35 @@ export function AIBackgroundGeneratorSection() {
       setBeforeImageSrc(imagePreview);
       setCurrentDisplayImage(result.download_url);
 
+      // 保存到历史记录
+      const historyItem: AibgHistoryItem = {
+        url: result.download_url,
+        mode: backgroundMode,
+        style: backgroundMode === 'background'
+          ? (selectedBackground === 'custom'
+              ? customBackgroundDescription.trim()
+              : selectedBackground)
+          : selectedBackgroundColor,
+        createdAt: Date.now(),
+      };
+      await pushHistory(historyItem);
+
       // 更新积分缓存 - 使用API返回的积分信息
       try {
         if (result.remaining_credits !== undefined) {
           creditsCache.set(result.remaining_credits);
-          console.log(`💰 Updated credits cache from API: ${result.remaining_credits} credits`);
+          console.log(
+            `💰 Updated credits cache from API: ${result.remaining_credits} credits`
+          );
         } else {
           // 如果API没有返回积分信息，手动扣除
           const currentCredits = creditsCache.get();
           if (currentCredits !== null) {
             const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
             creditsCache.set(newCredits);
-            console.log(`💰 Updated credits cache manually: ${currentCredits} → ${newCredits}`);
+            console.log(
+              `💰 Updated credits cache manually: ${currentCredits} → ${newCredits}`
+            );
           }
         }
       } catch (error) {
@@ -1108,7 +1451,7 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-        // 如果是资产下载URL（新的格式），直接使用
+    // 如果是资产下载URL（新的格式），直接使用
     if (imageToDownload.startsWith('/api/assets/download')) {
       // 显示下载中提示
       toast.info('Downloading image...');
@@ -1140,13 +1483,13 @@ export function AIBackgroundGeneratorSection() {
 
       // 通过fetch下载图片并转换为blob
       fetch(downloadUrl)
-        .then(response => {
+        .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           return response.blob();
         })
-        .then(blob => {
+        .then((blob) => {
           // 创建blob URL并下载
           const blobUrl = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
@@ -1163,7 +1506,7 @@ export function AIBackgroundGeneratorSection() {
 
           toast.success('Image downloaded successfully');
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Download failed:', error);
           // 如果下载失败，回退到在新标签页中打开
           window.open(imageToDownload, '_blank');
@@ -1394,7 +1737,7 @@ export function AIBackgroundGeneratorSection() {
                             handleBackgroundColorSelect('transparent')
                           }
                           className={cn(
-                              'relative rounded-2xl size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
+                            'relative rounded-2xl size-10 sm:size-12 hover:scale-105 transition-all duration-200 cursor-pointer flex-shrink-0 overflow-hidden border-2',
                             selectedBackgroundColor === 'transparent'
                               ? 'border-yellow-500 border-opacity-100 scale-110 shadow-lg ring-1 ring-yellow-200'
                               : 'border-gray-300 hover:border-gray-400'
@@ -1802,10 +2145,10 @@ export function AIBackgroundGeneratorSection() {
                     (backgroundMode === 'color' && !!processedImage)
                   }
                   className={cn(
-                    "w-full font-semibold h-[50px] rounded-2xl text-base",
+                    'w-full font-semibold h-[50px] rounded-2xl text-base',
                     backgroundMode === 'color' && processedImage
-                      ? "cursor-not-allowed opacity-60" // 禁用状态样式
-                      : "cursor-pointer" // 正常状态样式
+                      ? 'cursor-not-allowed opacity-60' // 禁用状态样式
+                      : 'cursor-pointer' // 正常状态样式
                   )}
                 >
                   {isProcessing ? (
@@ -1871,13 +2214,14 @@ export function AIBackgroundGeneratorSection() {
                       className={cn(
                         'relative w-full max-w-sm mb-4',
                         // 根据选择的宽高比动态调整容器样式
-                        selectedAspect === '1:1' || selectedAspect === 'original'
+                        selectedAspect === '1:1' ||
+                          selectedAspect === 'original'
                           ? 'aspect-square' // 1:1 或原始比例保持正方形
                           : selectedAspect === '3:2'
-                          ? 'aspect-[3/2]' // 3:2 宽图
-                          : selectedAspect === '2:3'
-                          ? 'aspect-[2/3]' // 2:3 高图
-                          : 'aspect-square' // 默认正方形
+                            ? 'aspect-[3/2]' // 3:2 宽图
+                            : selectedAspect === '2:3'
+                              ? 'aspect-[2/3]' // 2:3 高图
+                              : 'aspect-square' // 默认正方形
                       )}
                     >
                       {/* 测试图片删除按钮 - 仅在测试图片模式下显示 */}
@@ -2039,13 +2383,14 @@ export function AIBackgroundGeneratorSection() {
                       className={cn(
                         'relative w-full max-w-sm mb-4',
                         // 根据选择的宽高比动态调整容器样式
-                        selectedAspect === '1:1' || selectedAspect === 'original'
+                        selectedAspect === '1:1' ||
+                          selectedAspect === 'original'
                           ? 'aspect-square' // 1:1 或原始比例保持正方形
                           : selectedAspect === '3:2'
-                          ? 'aspect-[3/2]' // 3:2 宽图
-                          : selectedAspect === '2:3'
-                          ? 'aspect-[2/3]' // 2:3 高图
-                          : 'aspect-square' // 默认正方形
+                            ? 'aspect-[3/2]' // 3:2 宽图
+                            : selectedAspect === '2:3'
+                              ? 'aspect-[2/3]' // 2:3 高图
+                              : 'aspect-square' // 默认正方形
                       )}
                     >
                       <Image
@@ -2097,7 +2442,65 @@ export function AIBackgroundGeneratorSection() {
           </div>
         </div>
 
-                {/* Mode switch confirmation dialog */}
+        {/* AI Background History Section */}
+        {aibgHistory.length > 0 && (
+          <div className="mx-auto max-w-7xl px-6 mt-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Your AI Background History</h3>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={clearHistory}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {aibgHistory.map((item, idx) => (
+                <div key={`${item.createdAt}-${idx}`} className="group relative">
+                  <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+                    <img
+                      src={item.url}
+                      alt={`AI Background ${idx + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate max-w-[60%]">
+                      {item.mode === 'background' ? 'Background Style' : 'Solid Color'}
+                    </span>
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Download AI background"
+                      onClick={() => downloadFromUrl(item.url, item.mode, item.style)}
+                    >
+                      <DownloadIcon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Remove AI background"
+                      onClick={() => removeHistoryItem(idx)}
+                    >
+                      <Trash2Icon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mode switch confirmation dialog */}
         <Dialog
           open={showModeSwitchDialog}
           onOpenChange={setShowModeSwitchDialog}
@@ -2135,67 +2538,74 @@ export function AIBackgroundGeneratorSection() {
                 onClick={() => {
                   // 保存图片并切换模式
                   if (pendingModeSwitch && processedImage) {
-                      // 根据当前模式选择正确的图片源进行下载
-                      const imageToDownload = currentDisplayImage || processedImage;
+                    // 根据当前模式选择正确的图片源进行下载
+                    const imageToDownload =
+                      currentDisplayImage || processedImage;
 
-                      if (imageToDownload.startsWith('data:')) {
-                        // 如果是base64数据，直接下载
-                    const link = document.createElement('a');
-                        link.href = imageToDownload;
-                    link.download = 'ai-background-result.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast.success('Image saved successfully');
-                      } else if (imageToDownload.startsWith('/api/assets/download')) {
-                        // 如果是资产下载URL（新的格式），直接使用
-                        const link = document.createElement('a');
-                        link.href = imageToDownload;
-                        link.download = 'ai-background-result.png';
-                        link.target = '_blank';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        toast.success('Image downloaded successfully');
-                      } else if (imageToDownload.startsWith('http')) {
-                        // 如果是URL，下载图片
-                        toast.info('Downloading image...');
+                    if (imageToDownload.startsWith('data:')) {
+                      // 如果是base64数据，直接下载
+                      const link = document.createElement('a');
+                      link.href = imageToDownload;
+                      link.download = 'ai-background-result.png';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      toast.success('Image saved successfully');
+                    } else if (
+                      imageToDownload.startsWith('/api/assets/download')
+                    ) {
+                      // 如果是资产下载URL（新的格式），直接使用
+                      const link = document.createElement('a');
+                      link.href = imageToDownload;
+                      link.download = 'ai-background-result.png';
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      toast.success('Image downloaded successfully');
+                    } else if (imageToDownload.startsWith('http')) {
+                      // 如果是URL，下载图片
+                      toast.info('Downloading image...');
 
-                        // 检查是否是签名URL，如果是，使用图片代理API
-                        const downloadUrl = imageToDownload.includes('signature=')
-                          ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
-                          : imageToDownload;
+                      // 检查是否是签名URL，如果是，使用图片代理API
+                      const downloadUrl = imageToDownload.includes('signature=')
+                        ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
+                        : imageToDownload;
 
-                        fetch(downloadUrl)
-                          .then(response => {
-                            if (!response.ok) {
-                              throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            return response.blob();
-                          })
-                          .then(blob => {
-                            const blobUrl = window.URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = blobUrl;
-                            link.download = 'ai-background-result.png';
+                      fetch(downloadUrl)
+                        .then((response) => {
+                          if (!response.ok) {
+                            throw new Error(
+                              `HTTP error! status: ${response.status}`
+                            );
+                          }
+                          return response.blob();
+                        })
+                        .then((blob) => {
+                          const blobUrl = window.URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = blobUrl;
+                          link.download = 'ai-background-result.png';
 
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
 
-                            window.URL.revokeObjectURL(blobUrl);
-                            toast.success('Image downloaded successfully');
-                          })
-                          .catch(error => {
-                            console.error('Download failed:', error);
-                            window.open(imageToDownload, '_blank');
-                            toast.error('Download failed, opened in new tab instead');
-                          });
-                      } else {
-                        // 其他情况，在新标签页中打开
-                        window.open(imageToDownload, '_blank');
-                        toast.success('Image opened in new tab');
-                      }
+                          window.URL.revokeObjectURL(blobUrl);
+                          toast.success('Image downloaded successfully');
+                        })
+                        .catch((error) => {
+                          console.error('Download failed:', error);
+                          window.open(imageToDownload, '_blank');
+                          toast.error(
+                            'Download failed, opened in new tab instead'
+                          );
+                        });
+                    } else {
+                      // 其他情况，在新标签页中打开
+                      window.open(imageToDownload, '_blank');
+                      toast.success('Image opened in new tab');
+                    }
 
                     // 然后切换模式
                     performModeSwitch(pendingModeSwitch);
@@ -2203,6 +2613,69 @@ export function AIBackgroundGeneratorSection() {
                 }}
               >
                 Save & Switch
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete history item confirmation dialog */}
+        <Dialog
+          open={showDeleteConfirmDialog}
+          onOpenChange={setShowDeleteConfirmDialog}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete AI Background History?</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this AI background from your
+                history? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteConfirmDialog(false);
+                  setPendingDeleteItem(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDeleteHistoryItem}
+              >
+                Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Clear all history confirmation dialog */}
+        <Dialog
+          open={showClearAllConfirmDialog}
+          onOpenChange={setShowClearAllConfirmDialog}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Clear All History?</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete all AI background history? This
+                action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setShowClearAllConfirmDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmClearAllHistory}
+              >
+                Clear All
               </Button>
             </div>
           </DialogContent>

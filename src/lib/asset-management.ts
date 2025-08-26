@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto';
-import { nanoid } from 'nanoid';
-import { writeFile, readFile, access } from 'fs/promises';
 import { join } from 'path';
+import { access, readFile, writeFile } from 'fs/promises';
+import { nanoid } from 'nanoid';
 
 export interface AssetMetadata {
   asset_id: string;
@@ -51,7 +51,9 @@ export function generateAssetId(): string {
 /**
  * 存储资产元数据
  */
-export async function storeAssetMetadata(metadata: AssetMetadata): Promise<void> {
+export async function storeAssetMetadata(
+  metadata: AssetMetadata
+): Promise<void> {
   await ensureAssetsDir();
   const filePath = join(ASSETS_DIR, `${metadata.asset_id}.json`);
   await writeFile(filePath, JSON.stringify(metadata, null, 2));
@@ -60,7 +62,9 @@ export async function storeAssetMetadata(metadata: AssetMetadata): Promise<void>
 /**
  * 获取资产元数据
  */
-export async function getAssetMetadata(assetId: string): Promise<AssetMetadata | null> {
+export async function getAssetMetadata(
+  assetId: string
+): Promise<AssetMetadata | null> {
   try {
     await ensureAssetsDir();
     const filePath = join(ASSETS_DIR, `${assetId}.json`);
@@ -82,9 +86,7 @@ export function generateDownloadSignature(
   const secret = process.env.URL_SIGNING_SECRET || 'default-secret-key';
   const dataToSign = `${assetId}|${expiresAt}|${displayMode}`;
 
-  return createHmac('sha256', secret)
-    .update(dataToSign)
-    .digest('base64url');
+  return createHmac('sha256', secret).update(dataToSign).digest('base64url');
 }
 
 /**
@@ -96,7 +98,11 @@ export function verifyDownloadSignature(
   signature: string,
   displayMode: 'inline' | 'attachment' = 'inline'
 ): boolean {
-  const expectedSignature = generateDownloadSignature(assetId, expiresAt, displayMode);
+  const expectedSignature = generateDownloadSignature(
+    assetId,
+    expiresAt,
+    displayMode
+  );
   return signature === expectedSignature;
 }
 
@@ -106,7 +112,7 @@ export function verifyDownloadSignature(
 export function generateSignedDownloadUrl(
   assetId: string,
   displayMode: 'inline' | 'attachment' = 'inline',
-  expiresIn: number = 3600
+  expiresIn = 3600
 ): SignedDownloadUrl {
   const expiresAt = Math.floor(Date.now() / 1000) + expiresIn;
   const signature = generateDownloadSignature(assetId, expiresAt, displayMode);
@@ -115,7 +121,7 @@ export function generateSignedDownloadUrl(
 
   return {
     url,
-    expires_at: expiresAt
+    expires_at: expiresAt,
   };
 }
 
@@ -128,7 +134,8 @@ export function parseDownloadUrl(url: string): AssetDownloadParams | null {
     const asset_id = urlObj.searchParams.get('asset_id');
     const exp = urlObj.searchParams.get('exp');
     const sig = urlObj.searchParams.get('sig');
-    const disp = urlObj.searchParams.get('disp') as 'inline' | 'attachment' || 'inline';
+    const disp =
+      (urlObj.searchParams.get('disp') as 'inline' | 'attachment') || 'inline';
 
     if (!asset_id || !exp || !sig) {
       return null;
@@ -136,9 +143,9 @@ export function parseDownloadUrl(url: string): AssetDownloadParams | null {
 
     return {
       asset_id,
-      exp: parseInt(exp),
+      exp: Number.parseInt(exp),
       sig,
-      disp
+      disp,
     };
   } catch {
     return null;

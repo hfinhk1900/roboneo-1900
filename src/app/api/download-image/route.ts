@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { verifySignedUrl } from '@/lib/signed-url';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
     if (imageUrl.includes('signature=')) {
       const isValid = verifySignedUrl(imageUrl);
       if (!isValid) {
-        console.warn('Download access denied: Invalid or expired signature URL');
+        console.warn(
+          'Download access denied: Invalid or expired signature URL'
+        );
         return NextResponse.json(
           { error: 'Access denied - Invalid or expired URL' },
           { status: 403 }

@@ -9,9 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,10 +77,16 @@ export default function HeroSection() {
     useState<NotificationPermission>('default');
 
   // 新增：历史记录相关状态
-  const [stickerHistory, setStickerHistory] = useState<StickerHistoryItem[]>([]);
+  const [stickerHistory, setStickerHistory] = useState<StickerHistoryItem[]>(
+    []
+  );
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
-  const [pendingDeleteItem, setPendingDeleteItem] = useState<{ idx: number; item: StickerHistoryItem } | null>(null);
-  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<{
+    idx: number;
+    item: StickerHistoryItem;
+  } | null>(null);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
+    useState(false);
 
   // 历史记录接口定义
   interface StickerHistoryItem {
@@ -138,7 +144,9 @@ export default function HeroSection() {
       try {
         if (currentUser) {
           console.log('🔄 Loading server history for user:', currentUser.id);
-          const res = await fetch('/api/history/sticker?limit=24', { credentials: 'include' });
+          const res = await fetch('/api/history/sticker', { // 移除limit=24，获取所有历史记录
+            credentials: 'include',
+          });
           if (res.ok) {
             const data = await res.json();
             console.log('📦 Server history response:', data);
@@ -156,25 +164,31 @@ export default function HeroSection() {
                     const assetId = urlObj.searchParams.get('asset_id');
 
                     if (exp && assetId) {
-                      const expiryTime = parseInt(exp) * 1000;
+                      const expiryTime = Number.parseInt(exp) * 1000;
                       const currentTime = Date.now();
 
                       // 如果URL即将过期或已过期，刷新它
                       if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                        console.log('🔄 Refreshing expired asset URL:', assetId);
+                        console.log(
+                          '🔄 Refreshing expired asset URL:',
+                          assetId
+                        );
                         try {
-                          const refreshRes = await fetch(`/api/storage/sign-download`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            credentials: 'include',
-                            body: JSON.stringify({
-                              asset_id: assetId,
-                              display_mode: 'inline',
-                              expires_in: 3600
-                            })
-                          });
+                          const refreshRes = await fetch(
+                            `/api/storage/sign-download`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify({
+                                asset_id: assetId,
+                                display_mode: 'inline',
+                                expires_in: 3600,
+                              }),
+                            }
+                          );
                           if (refreshRes.ok) {
                             const refreshData = await refreshRes.json();
                             finalUrl = refreshData.url;
@@ -193,13 +207,19 @@ export default function HeroSection() {
                   id: it.id,
                   url: finalUrl,
                   style: it.style,
-                  createdAt: it.createdAt ? new Date(it.createdAt).getTime() : Date.now(),
+                  createdAt: it.createdAt
+                    ? new Date(it.createdAt).getTime()
+                    : Date.now(),
                 } as StickerHistoryItem;
               })
             );
 
             setStickerHistory(processedItems);
-            console.log('✅ Server history loaded:', processedItems.length, 'items');
+            console.log(
+              '✅ Server history loaded:',
+              processedItems.length,
+              'items'
+            );
             return;
           } else {
             console.warn('⚠️ Server history request failed:', res.status);
@@ -224,25 +244,31 @@ export default function HeroSection() {
                     const assetId = urlObj.searchParams.get('asset_id');
 
                     if (exp && assetId) {
-                      const expiryTime = parseInt(exp) * 1000;
+                      const expiryTime = Number.parseInt(exp) * 1000;
                       const currentTime = Date.now();
 
                       // 如果URL即将过期或已过期，刷新它
                       if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                        console.log('🔄 Refreshing expired asset URL:', assetId);
+                        console.log(
+                          '🔄 Refreshing expired asset URL:',
+                          assetId
+                        );
                         try {
-                          const refreshRes = await fetch(`/api/storage/sign-download`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            credentials: 'include',
-                            body: JSON.stringify({
-                              asset_id: assetId,
-                              display_mode: 'inline',
-                              expires_in: 3600
-                            })
-                          });
+                          const refreshRes = await fetch(
+                            `/api/storage/sign-download`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify({
+                                asset_id: assetId,
+                                display_mode: 'inline',
+                                expires_in: 3600,
+                              }),
+                            }
+                          );
                           if (refreshRes.ok) {
                             const refreshData = await refreshRes.json();
                             finalUrl = refreshData.url;
@@ -265,7 +291,11 @@ export default function HeroSection() {
             );
 
             setStickerHistory(processedItems);
-            console.log('📱 Local history loaded:', processedItems.length, 'items');
+            console.log(
+              '📱 Local history loaded:',
+              processedItems.length,
+              'items'
+            );
           }
         }
       } catch (error) {
@@ -276,7 +306,11 @@ export default function HeroSection() {
           if (raw) {
             const parsed = JSON.parse(raw) as StickerHistoryItem[];
             setStickerHistory(parsed);
-            console.log('🔄 Fallback to local history:', parsed.length, 'items');
+            console.log(
+              '🔄 Fallback to local history:',
+              parsed.length,
+              'items'
+            );
           }
         } catch {}
       }
@@ -348,16 +382,18 @@ export default function HeroSection() {
               id: created.id,
               url: created.url,
               style: created.style,
-              createdAt: created.createdAt ? new Date(created.createdAt).getTime() : Date.now(),
+              createdAt: created.createdAt
+                ? new Date(created.createdAt).getTime()
+                : Date.now(),
             };
-            setStickerHistory((prev) => [createdItem, ...prev].slice(0, 24));
+            setStickerHistory((prev) => [createdItem, ...prev]); // 移除24条限制，永久保存所有历史记录
             return;
           }
         } catch {}
       }
       // 未登录：写入本地回退
       try {
-        const next = [item, ...stickerHistory].slice(0, 24);
+        const next = [item, ...stickerHistory]; // 移除24条限制，永久保存所有历史记录
         setStickerHistory(next);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
       } catch {}
@@ -366,14 +402,17 @@ export default function HeroSection() {
   );
 
   // 删除单条历史记录
-  const removeHistoryItem = useCallback((idx: number) => {
-    const target = stickerHistory[idx];
-    if (!target) return;
+  const removeHistoryItem = useCallback(
+    (idx: number) => {
+      const target = stickerHistory[idx];
+      if (!target) return;
 
-    // 显示确认弹窗
-    setPendingDeleteItem({ idx, item: target });
-    setShowDeleteConfirmDialog(true);
-  }, [stickerHistory]);
+      // 显示确认弹窗
+      setPendingDeleteItem({ idx, item: target });
+      setShowDeleteConfirmDialog(true);
+    },
+    [stickerHistory]
+  );
 
   // 确认删除历史记录
   const confirmDeleteHistoryItem = useCallback(async () => {
@@ -384,14 +423,19 @@ export default function HeroSection() {
     // 已登录：调用删除
     if (currentUser && item.id) {
       try {
-        await fetch(`/api/history/sticker/${item.id}`, { method: 'DELETE', credentials: 'include' });
+        await fetch(`/api/history/sticker/${item.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
       } catch {}
     }
 
     const next = stickerHistory.filter((_, i) => i !== idx);
     setStickerHistory(next);
     // 同步本地回退
-    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch {}
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+    } catch {}
 
     // 关闭弹窗并清理状态
     setShowDeleteConfirmDialog(false);
@@ -411,12 +455,19 @@ export default function HeroSection() {
       await Promise.all(
         snapshot.map(async (it) => {
           if (!it.id) return;
-          try { await fetch(`/api/history/sticker/${it.id}`, { method: 'DELETE', credentials: 'include' }); } catch {}
+          try {
+            await fetch(`/api/history/sticker/${it.id}`, {
+              method: 'DELETE',
+              credentials: 'include',
+            });
+          } catch {}
         })
       );
     }
     setStickerHistory([]);
-    try { localStorage.removeItem(HISTORY_KEY); } catch {}
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {}
 
     // 关闭弹窗
     setShowClearAllConfirmDialog(false);
@@ -435,12 +486,15 @@ export default function HeroSection() {
         const assetId = urlObj.searchParams.get('asset_id');
 
         if (exp && assetId) {
-          const expiryTime = parseInt(exp) * 1000;
+          const expiryTime = Number.parseInt(exp) * 1000;
           const currentTime = Date.now();
 
           // 如果URL即将过期或已过期，刷新它
           if (expiryTime - currentTime <= 5 * 60 * 1000) {
-            console.log('🔄 Refreshing expired asset URL for download:', assetId);
+            console.log(
+              '🔄 Refreshing expired asset URL for download:',
+              assetId
+            );
             try {
               const refreshRes = await fetch(`/api/storage/sign-download`, {
                 method: 'POST',
@@ -451,8 +505,8 @@ export default function HeroSection() {
                 body: JSON.stringify({
                   asset_id: assetId,
                   display_mode: 'inline',
-                  expires_in: 3600
-                })
+                  expires_in: 3600,
+                }),
               });
               if (refreshRes.ok) {
                 const refreshData = await refreshRes.json();
@@ -590,7 +644,11 @@ export default function HeroSection() {
       sendCompletionNotification();
 
       // 添加到历史记录
-      pushHistory({ url: stickerData.url, style: selectedStyle, createdAt: Date.now() });
+      pushHistory({
+        url: stickerData.url,
+        style: selectedStyle,
+        createdAt: Date.now(),
+      });
 
       console.log('🎉 Sticker generation completed successfully!');
     } catch (error) {
@@ -791,7 +849,6 @@ export default function HeroSection() {
       // 其他情况，在新标签页中打开
       window.open(generatedImageUrl, '_blank');
       console.log('Opened image in new tab');
-
     } catch (error) {
       console.error('Error downloading image:', error);
       alert('Failed to download image. Please try again.');
@@ -1102,7 +1159,7 @@ export default function HeroSection() {
                           border: 'none',
                           outline: 'none',
                           boxShadow: 'none',
-                          borderRadius: '0'
+                          borderRadius: '0',
                         }}
                       />
                     </div>
@@ -1224,7 +1281,8 @@ export default function HeroSection() {
           <DialogHeader>
             <DialogTitle>Delete Sticker History?</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this sticker from your history? This action cannot be undone.
+              Are you sure you want to delete this sticker from your history?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
@@ -1237,10 +1295,7 @@ export default function HeroSection() {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDeleteHistoryItem}
-            >
+            <Button variant="destructive" onClick={confirmDeleteHistoryItem}>
               Delete
             </Button>
           </div>
@@ -1256,7 +1311,8 @@ export default function HeroSection() {
           <DialogHeader>
             <DialogTitle>Clear All History?</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete all sticker history? This action cannot be undone.
+              Are you sure you want to delete all sticker history? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
@@ -1266,10 +1322,7 @@ export default function HeroSection() {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmClearAllHistory}
-            >
+            <Button variant="destructive" onClick={confirmClearAllHistory}>
               Clear All
             </Button>
           </div>
