@@ -98,3 +98,48 @@ export const aibgHistory = pgTable("aibg_history", {
 	style: text('style').notNull(), // background style or color value
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Assets table for storing R2 uploaded images
+export const assets = pgTable("assets", {
+	id: text('id').primaryKey(),
+	key: text('key').notNull().unique(), // R2 storage key
+	filename: text('filename').notNull(),
+	content_type: text('content_type').notNull(),
+	size: integer('size').notNull(),
+	user_id: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	metadata: text('metadata'), // JSON string for additional metadata
+	created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+// AI Log History table for tracking AI operations
+export const ailogHistory = pgTable("ailog_history", {
+	id: text('id').primaryKey(),
+	user_id: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	operation: text('operation').notNull(), // 'aibg', 'productshot', 'sticker'
+	mode: text('mode'), // specific mode for the operation
+	credits_used: integer('credits_used').notNull(),
+	status: text('status').notNull(), // 'success', 'failed', 'processing'
+	error_message: text('error_message'),
+	created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Credits Transaction table for tracking credit changes
+export const creditsTransaction = pgTable("credits_transaction", {
+	id: text('id').primaryKey(),
+	user_id: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	type: text('type').notNull(), // 'purchase', 'usage', 'refund', 'bonus'
+	amount: integer('amount').notNull(), // positive for credit addition, negative for usage
+	balance_before: integer('balance_before').notNull(),
+	balance_after: integer('balance_after').notNull(),
+	description: text('description'),
+	reference_id: text('reference_id'), // payment_id, operation_id, etc.
+	created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+// User Credits table for current credit balance
+export const userCredits = pgTable("user_credits", {
+	id: text('id').primaryKey(),
+	user_id: text('user_id').notNull().unique().references(() => user.id, { onDelete: 'cascade' }),
+	credits: integer('credits').notNull().default(10),
+	last_updated: timestamp("last_updated").notNull().defaultNow(),
+});

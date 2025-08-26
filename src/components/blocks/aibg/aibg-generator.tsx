@@ -802,8 +802,42 @@ export function AIBackgroundGeneratorSection() {
     if (processedImage) {
       try {
         const coloredImage = await applyBackgroundColor(processedImage, color);
-        setCurrentDisplayImage(coloredImage);
-        setAfterImageSrc(coloredImage);
+
+        // 将新生成的图片上传到 R2 存储
+        let finalImageUrl = coloredImage;
+
+        if (coloredImage.startsWith('data:')) {
+          try {
+            console.log('📤 Uploading custom color image to R2...');
+            const uploadResponse = await fetch('/api/upload/image', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                imageData: coloredImage,
+                filename: `aibg-custom-color-${Date.now()}.png`,
+                contentType: 'image/png',
+              }),
+            });
+
+            if (uploadResponse.ok) {
+              const uploadResult = await uploadResponse.json();
+              // 使用公共 URL 用于显示，下载 URL 用于下载
+              finalImageUrl = uploadResult.publicUrl || uploadResult.downloadUrl;
+              console.log('✅ Custom color image uploaded to R2:', uploadResult.publicUrl);
+            } else {
+              console.warn('⚠️ Failed to upload to R2, using base64 fallback');
+            }
+          } catch (error) {
+            console.error('❌ Error uploading to R2:', error);
+            console.warn('⚠️ Using base64 fallback for custom color image');
+            finalImageUrl = coloredImage;
+          }
+        }
+
+        setCurrentDisplayImage(finalImageUrl);
+        setAfterImageSrc(finalImageUrl);
         console.log(`Applied custom background color: ${color}`);
       } catch (error) {
         console.error('Failed to apply custom background color:', error);
@@ -1109,9 +1143,41 @@ export function AIBackgroundGeneratorSection() {
               parseAspectRatio(selectedAspect)
             );
 
+            // 将生成的图片上传到 R2 存储
+            let finalImageUrl = currentDisplayImage || result.image;
+
+            if (finalImageUrl.startsWith('data:')) {
+              try {
+                console.log('📤 Uploading Solid Color image to R2...');
+                const uploadResponse = await fetch('/api/upload/image', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    imageData: finalImageUrl,
+                    filename: `aibg-solid-color-${Date.now()}.png`,
+                    contentType: 'image/png',
+                  }),
+                });
+
+                if (uploadResponse.ok) {
+                  const uploadResult = await uploadResponse.json();
+                  // 使用公共 URL 用于显示，下载 URL 用于下载
+                  finalImageUrl = uploadResult.publicUrl || uploadResult.downloadUrl;
+                  console.log('✅ Solid Color image uploaded to R2:', uploadResult.publicUrl);
+                } else {
+                  console.warn('⚠️ Failed to upload to R2, using base64 fallback');
+                }
+              } catch (error) {
+                console.error('❌ Error uploading to R2:', error);
+                console.warn('⚠️ Using base64 fallback for Solid Color image');
+              }
+            }
+
             // 保存到历史记录
             const historyItem: AibgHistoryItem = {
-              url: currentDisplayImage || result.image,
+              url: finalImageUrl,
               mode: 'color',
               style: selectedBackgroundColor,
               createdAt: Date.now(),
@@ -1248,15 +1314,16 @@ export function AIBackgroundGeneratorSection() {
       setProcessingProgress(100);
       setGenerationProgress(100);
 
-      // Set the processed image
-      setProcessedImage(result.download_url);
-      setAfterImageSrc(result.download_url);
+      // Set the processed image - 使用公共 URL 用于显示
+      const displayUrl = result.public_url || result.download_url;
+      setProcessedImage(displayUrl);
+      setAfterImageSrc(displayUrl);
       setBeforeImageSrc(imagePreview);
-      setCurrentDisplayImage(result.download_url);
+      setCurrentDisplayImage(displayUrl);
 
-      // 保存到历史记录
+      // 保存到历史记录 - 使用公共 URL
       const historyItem: AibgHistoryItem = {
-        url: result.download_url,
+        url: displayUrl, // 使用之前设置的 displayUrl
         mode: backgroundMode,
         style: backgroundMode === 'background'
           ? (selectedBackground === 'custom'
@@ -2294,7 +2361,27 @@ export function AIBackgroundGeneratorSection() {
                         sizes="(max-width: 768px) 80vw, 400px"
                         className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10 cursor-pointer hover:scale-[1.02]"
                         onClick={() => {
-                          setPreviewImageUrl(showAfter ? afterImageSrc || processedImage || '' : beforeImageSrc || imagePreview || '');
+                          // 优先使用 afterImageSrc，如果不存在则使用 processedImage
+                          let previewUrl = '';
+                          if (showAfter) {
+                            previewUrl = afterImageSrc || processedImage || '';
+                          } else {
+                            previewUrl = beforeImageSrc || imagePreview || '';
+                          }
+
+                          // 如果是签名下载 URL 且已过期，尝试刷新
+                          if (previewUrl.includes('/api/assets/download') && previewUrl.includes('exp=')) {
+                            // 检查 URL 是否过期
+                            const urlParams = new URLSearchParams(previewUrl.split('?')[1]);
+                            const exp = urlParams.get('exp');
+                            if (exp && parseInt(exp) < Math.floor(Date.now() / 1000)) {
+                              // URL 已过期，使用原始图片 URL
+                              console.log('Preview URL expired, using original image');
+                              previewUrl = processedImage || '';
+                            }
+                          }
+
+                          setPreviewImageUrl(previewUrl);
                           setShowImagePreview(true);
                         }}
                       />
@@ -2697,16 +2784,29 @@ export function AIBackgroundGeneratorSection() {
           open={showImagePreview}
           onOpenChange={setShowImagePreview}
         >
-          <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-black/95 border-0">
-            <DialogHeader className="absolute top-4 right-4 z-20">
-              <DialogTitle className="sr-only">AI Background Image Preview</DialogTitle>
-              <button
-                onClick={() => setShowImagePreview(false)}
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm rounded-full p-2 transition-all duration-200"
-                title="Close preview (ESC)"
-              >
-                <XIcon className="w-5 h-5" />
-              </button>
+          <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+            {/* Header */}
+            <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                                    <DialogTitle className="text-white text-xl font-semibold">
+                    AI Background Preview
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-300 text-sm mt-1">
+                    Mode: {previewImageUrl && aibgHistory.find(item => item.url === previewImageUrl)?.mode === 'background' ? 'Background Style' : 'Solid Color'} • Style: {previewImageUrl && aibgHistory.find(item => item.url === previewImageUrl)?.style || 'Unknown'}
+                  </DialogDescription>
+                </div>
+
+                {/* Close button */}
+                <button
+                  type="button"
+                  onClick={() => setShowImagePreview(false)}
+                  className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                  title="Close preview (ESC)"
+                >
+                  <XIcon className="w-5 h-5" />
+                </button>
+              </div>
             </DialogHeader>
 
             {/* Main image area */}
@@ -2715,19 +2815,17 @@ export function AIBackgroundGeneratorSection() {
               onClick={() => setShowImagePreview(false)}
             >
               {previewImageUrl && (
-                <div className="relative w-full h-full flex items-center justify-center p-8">
-                  <div className="w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02]">
-                    <Image
-                      src={previewImageUrl}
-                      alt="AI Background preview"
-                      width={1200}
-                      height={1200}
-                      className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
-                      quality={100}
-                      priority
-                      draggable={false}
-                    />
-                  </div>
+                <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
+                  <Image
+                    src={previewImageUrl}
+                    alt="AI Background preview"
+                    width={1200}
+                    height={1200}
+                    className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                    quality={100}
+                    priority
+                    draggable={false}
+                  />
                 </div>
               )}
             </div>
@@ -2762,7 +2860,14 @@ export function AIBackgroundGeneratorSection() {
                 </Button>
               </div>
 
-
+              {/* Keyboard shortcuts hint */}
+              <div className="text-center mt-3 text-gray-400 text-xs">
+                Press{' '}
+                <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-white font-mono">
+                  ESC
+                </kbd>{' '}
+                to close
+              </div>
             </div>
           </DialogContent>
         </Dialog>
