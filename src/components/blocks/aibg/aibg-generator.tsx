@@ -2444,7 +2444,7 @@ export function AIBackgroundGeneratorSection() {
 
         {/* AI Background History Section */}
         {aibgHistory.length > 0 && (
-          <div className="mx-auto max-w-7xl px-6 mt-10">
+          <div className="mt-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Your AI Background History</h3>
               <div className="flex items-center gap-2">
