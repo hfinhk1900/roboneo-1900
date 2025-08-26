@@ -77,5 +77,14 @@ export const stickerHistory = pgTable("sticker_history", {
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
 	style: text('style').notNull(),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ProductShot generation history (account-scoped, for cross-device sync)
+export const productshotHistory = pgTable("productshot_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	scene: text('scene').notNull(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
 });

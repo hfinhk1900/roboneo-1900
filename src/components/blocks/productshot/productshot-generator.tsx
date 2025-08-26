@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { cn } from '@/lib/utils';
 import {
   BoxIcon,
@@ -38,7 +39,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
 // 导入新的 ProductShot 功能
@@ -50,7 +51,7 @@ import {
 } from '@/ai/image/hooks/use-productshot';
 
 // 6种专业产品摄影场景图标映射
-const sceneIcons = {
+const sceneIcons: Record<SceneType, string> = {
   'studio-white': '⚪',
   'studio-shadow': '🎭',
   'home-lifestyle': '🏠',
@@ -93,6 +94,34 @@ export default function ProductShotGeneratorSection() {
   // Image preview modal state
   const [showImagePreview, setShowImagePreview] = useState(false);
 
+  // 新增：历史记录相关状态
+  const [productshotHistory, setProductshotHistory] = useState<
+    ProductshotHistoryItem[]
+  >([]);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<{
+    idx: number;
+    item: ProductshotHistoryItem;
+  } | null>(null);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
+    useState(false);
+
+  // 历史记录接口定义
+  interface ProductshotHistoryItem {
+    id?: string;
+    url: string;
+    scene: string;
+    createdAt: number;
+  }
+
+  const HISTORY_KEY = 'roboneo_productshot_history_v1'; // 未登录时回退
+
+  // 获取当前用户
+  const currentUser = useCurrentUser();
+
+  // 新增：mounted 状态，避免 hydration 不匹配
+  const [isMounted, setIsMounted] = useState(false);
+
   const ASPECT_OPTIONS: Array<{
     id: string; // ratio id, e.g. '2:3'
     label: string; // display label, e.g. 'Tall'
@@ -125,17 +154,415 @@ export default function ProductShotGeneratorSection() {
     },
   ];
 
+  // 新增：Fix hydration mismatch by ensuring client-side state consistency
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // 新增：监听 currentUser 变化，重新加载历史记录
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        if (currentUser) {
+          console.log('🔄 Loading server history for user:', currentUser.id);
+          const res = await fetch('/api/history/productshot', { // 移除limit=24，获取所有历史记录
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            console.log('📦 Server history response:', data);
+
+            // 处理每个历史记录项，检查并刷新过期的URL
+            const processedItems = await Promise.all(
+              (data.items || []).map(async (it: any) => {
+                let finalUrl = it.url;
+
+                // 如果是资产下载URL，检查是否过期
+                if (it.url.startsWith('/api/assets/download')) {
+                  try {
+                    const urlObj = new URL(it.url, window.location.origin);
+                    const exp = urlObj.searchParams.get('exp');
+                    const assetId = urlObj.searchParams.get('asset_id');
+
+                    if (exp && assetId) {
+                      const expiryTime = Number.parseInt(exp) * 1000;
+                      const currentTime = Date.now();
+
+                      // 如果URL即将过期或已过期，刷新它
+                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                        console.log(
+                          '🔄 Refreshing expired asset URL:',
+                          assetId
+                        );
+                        try {
+                          const refreshRes = await fetch(
+                            `/api/storage/sign-download`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify({
+                                asset_id: assetId,
+                                display_mode: 'inline',
+                                expires_in: 3600,
+                              }),
+                            }
+                          );
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            finalUrl = refreshData.url;
+                          }
+                        } catch (error) {
+                          console.error('Failed to refresh asset URL:', error);
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking URL expiry:', error);
+                  }
+                }
+
+                return {
+                  id: it.id,
+                  url: finalUrl,
+                  scene: it.scene,
+                  createdAt: it.createdAt
+                    ? new Date(it.createdAt).getTime()
+                    : Date.now(),
+                } as ProductshotHistoryItem;
+              })
+            );
+
+            setProductshotHistory(processedItems);
+            console.log(
+              '✅ Server history loaded:',
+              processedItems.length,
+              'items'
+            );
+            return;
+          } else {
+            console.warn('⚠️ Server history request failed:', res.status);
+          }
+        } else {
+          console.log('👤 No user logged in, loading local history');
+          // fallback 本地
+          const raw = localStorage.getItem(HISTORY_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw) as ProductshotHistoryItem[];
+
+            // 处理本地历史记录，检查并刷新过期的URL
+            const processedItems = await Promise.all(
+              parsed.map(async (item) => {
+                let finalUrl = item.url;
+
+                // 如果是资产下载URL，检查是否过期
+                if (item.url.startsWith('/api/assets/download')) {
+                  try {
+                    const urlObj = new URL(item.url, window.location.origin);
+                    const exp = urlObj.searchParams.get('exp');
+                    const assetId = urlObj.searchParams.get('asset_id');
+
+                    if (exp && assetId) {
+                      const expiryTime = Number.parseInt(exp) * 1000;
+                      const currentTime = Date.now();
+
+                      // 如果URL即将过期或已过期，刷新它
+                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                        console.log(
+                          '🔄 Refreshing expired asset URL:',
+                          assetId
+                        );
+                        try {
+                          const refreshRes = await fetch(
+                            `/api/storage/sign-download`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify({
+                                asset_id: assetId,
+                                display_mode: 'inline',
+                                expires_in: 3600,
+                              }),
+                            }
+                          );
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            finalUrl = refreshData.url;
+                          }
+                        } catch (error) {
+                          console.error('Failed to refresh asset URL:', error);
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking URL expiry:', error);
+                  }
+                }
+
+                return {
+                  ...item,
+                  url: finalUrl,
+                };
+              })
+            );
+
+            setProductshotHistory(processedItems);
+            console.log(
+              '📱 Local history loaded:',
+              processedItems.length,
+              'items'
+            );
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error loading history:', error);
+        // 忽略错误，尽量展示本地
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw) as ProductshotHistoryItem[];
+            setProductshotHistory(parsed);
+            console.log(
+              '🔄 Fallback to local history:',
+              parsed.length,
+              'items'
+            );
+          }
+        } catch {}
+      }
+    };
+
+    // 只有在 mounted 后才加载历史
+    if (isMounted) {
+      loadHistory();
+    }
+  }, [currentUser, isMounted]);
+
   // 使用新的 ProductShot Hook
   const {
-    isLoading,
+    generateProductShot,
     result,
+    isLoading,
     error,
     availableScenes,
-    generateProductShot,
     clearResult,
     downloadImage,
     fetchAvailableScenes,
   } = useProductShot();
+
+  // 新增：历史记录操作函数
+  // 写入历史（永久保存所有历史记录）
+  const pushHistory = useCallback(
+    async (item: ProductshotHistoryItem) => {
+      // 已登录：写入服务端
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/productshot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ url: item.url, scene: item.scene }),
+          });
+          if (res.ok) {
+            const created = await res.json();
+            const createdItem: ProductshotHistoryItem = {
+              id: created.id,
+              url: created.url,
+              scene: created.scene,
+              createdAt: created.createdAt
+                ? new Date(created.createdAt).getTime()
+                : Date.now(),
+            };
+            setProductshotHistory((prev) =>
+              [createdItem, ...prev] // 永久保存所有历史记录
+            );
+            return;
+          }
+        } catch {}
+      }
+      // 未登录：写入本地回退
+      try {
+        setProductshotHistory((prev) => {
+          const next = [item, ...prev]; // 永久保存所有历史记录
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+          return next;
+        });
+      } catch {}
+    },
+    [currentUser]
+  );
+
+  // 删除单条历史记录
+  const removeHistoryItem = useCallback(
+    (idx: number) => {
+      setProductshotHistory((prev) => {
+        const target = prev[idx];
+        if (!target) return prev;
+
+        // 显示确认弹窗
+        setPendingDeleteItem({ idx, item: target });
+        setShowDeleteConfirmDialog(true);
+        return prev;
+      });
+    },
+    []
+  );
+
+  // 确认删除历史记录
+  const confirmDeleteHistoryItem = useCallback(async () => {
+    if (!pendingDeleteItem) return;
+
+    const { idx, item } = pendingDeleteItem;
+
+    // 已登录：调用删除
+    if (currentUser && item.id) {
+      try {
+        await fetch(`/api/history/productshot/${item.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      } catch {}
+    }
+
+    setProductshotHistory((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      // 同步本地回退
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    // 关闭弹窗并清理状态
+    setShowDeleteConfirmDialog(false);
+    setPendingDeleteItem(null);
+  }, [pendingDeleteItem, currentUser]);
+
+  // 清空所有历史记录（显示确认弹窗）
+  const clearHistory = useCallback(() => {
+    setShowClearAllConfirmDialog(true);
+  }, []);
+
+  // 确认清空所有历史记录
+  const confirmClearAllHistory = useCallback(async () => {
+    // 简化：前端逐条删除（避免新增批量删除API）
+    setProductshotHistory((prev) => {
+      const snapshot = [...prev];
+      if (currentUser) {
+        // 异步删除，不等待结果
+        Promise.all(
+          snapshot.map(async (it) => {
+            if (!it.id) return;
+            try {
+              await fetch(`/api/history/productshot/${it.id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+              });
+            } catch {}
+          })
+        );
+      }
+      try {
+        localStorage.removeItem(HISTORY_KEY);
+      } catch {}
+      return [];
+    });
+
+    // 关闭弹窗
+    setShowClearAllConfirmDialog(false);
+  }, [currentUser]);
+
+  // 从URL下载图片
+  const downloadFromUrl = useCallback(async (url: string, scene: string) => {
+    const filename = `productshot-${scene}-${Date.now()}.png`;
+
+    // 检查并刷新过期的URL
+    let finalUrl = url;
+    if (url.startsWith('/api/assets/download')) {
+      try {
+        const urlObj = new URL(url, window.location.origin);
+        const exp = urlObj.searchParams.get('exp');
+        const assetId = urlObj.searchParams.get('asset_id');
+
+        if (exp && assetId) {
+          const expiryTime = Number.parseInt(exp) * 1000;
+          const currentTime = Date.now();
+
+          // 如果URL即将过期或已过期，刷新它
+          if (expiryTime - currentTime <= 5 * 60 * 1000) {
+            console.log(
+              '🔄 Refreshing expired asset URL for download:',
+              assetId
+            );
+            try {
+              const refreshRes = await fetch(`/api/storage/sign-download`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  asset_id: assetId,
+                  display_mode: 'inline',
+                  expires_in: 3600,
+                }),
+              });
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                finalUrl = refreshData.url;
+              }
+            } catch (error) {
+              console.error('Failed to refresh asset URL for download:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking URL expiry for download:', error);
+      }
+    }
+
+    if (finalUrl.startsWith('/api/assets/download')) {
+      // 新资产管理系统
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    if (finalUrl.startsWith('data:')) {
+      // base64 数据
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    if (finalUrl.startsWith('http')) {
+      // HTTP URL，使用代理
+      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url: finalUrl, filename })}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+  }, []);
 
   // 初始化时获取可用场景
   useEffect(() => {
@@ -144,9 +571,10 @@ export default function ProductShotGeneratorSection() {
 
   // 使用默认场景或从API获取的场景
   const scenes = availableScenes.length > 0 ? availableScenes : DEFAULT_SCENES;
-  const selectedSceneConfig = scenes.find(
-    (scene) => scene.id === selectedScene
-  );
+  // 获取当前选中的场景配置
+  const selectedSceneConfig = selectedScene
+    ? DEFAULT_SCENES.find((scene) => scene.id === selectedScene)
+    : null;
 
   // 通用文件处理函数
   const processFile = (file: File) => {
@@ -358,6 +786,8 @@ export default function ProductShotGeneratorSection() {
       clearInterval(progressInterval);
       setGenerationProgress(100);
 
+      // 历史记录会自动通过 useEffect 添加到 result 变化时
+
       // 短暂显示100%后重置
       setTimeout(() => {
         setGenerationProgress(0);
@@ -394,6 +824,19 @@ export default function ProductShotGeneratorSection() {
       setShowImagePreview(true);
     }
   };
+
+  // 新增：监听 result 变化，自动添加到历史记录
+  useEffect(() => {
+    if (result?.download_url && isMounted) {
+      console.log('🎉 ProductShot generated, adding to history:', result);
+      const historyItem: ProductshotHistoryItem = {
+        url: result.download_url,
+        scene: selectedScene || 'custom',
+        createdAt: Date.now(),
+      };
+      pushHistory(historyItem);
+    }
+  }, [result, selectedScene, pushHistory, isMounted]);
 
   return (
     <section id="generator" className="py-24 bg-[#F5F5F5]">
@@ -611,7 +1054,7 @@ export default function ProductShotGeneratorSection() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <span className="text-2xl">
-                                      {sceneIcons[scene.id]}
+                                      {sceneIcons[scene.id as SceneType]}
                                     </span>
                                     <div className="text-left">
                                       <div className="font-medium">
@@ -1021,6 +1464,119 @@ export default function ProductShotGeneratorSection() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* 确认删除弹窗 */}
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onOpenChange={setShowDeleteConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete ProductShot History?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product shot from your
+              history? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteConfirmDialog(false);
+                setPendingDeleteItem(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteHistoryItem}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 确认清空所有历史弹窗 */}
+      <Dialog
+        open={showClearAllConfirmDialog}
+        onOpenChange={setShowClearAllConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clear All History?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete all product shot history? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearAllConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmClearAllHistory}>
+              Clear All
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 历史记录区块 */}
+      {productshotHistory.length > 0 && (
+        <div className="mx-auto max-w-7xl px-6 mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Your ProductShot History</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={clearHistory}
+              >
+                Clear All
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {productshotHistory.map((item, idx) => (
+              <div key={`${item.createdAt}-${idx}`} className="group relative">
+                <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+                  <img
+                    src={item.url}
+                    alt={`ProductShot ${idx + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="truncate max-w-[60%]">{item.scene}</span>
+                  <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    title="Download product shot"
+                    onClick={() => downloadFromUrl(item.url, item.scene)}
+                  >
+                    <DownloadIcon className="h-4 w-4 text-gray-600" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                    title="Remove product shot"
+                    onClick={() => removeHistoryItem(idx)}
+                  >
+                    <Trash2Icon className="h-4 w-4 text-gray-600" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
