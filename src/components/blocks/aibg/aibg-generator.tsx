@@ -226,6 +226,9 @@ export function AIBackgroundGeneratorSection() {
   } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
+  // 图片预览相关状态
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+
   // 历史记录本地存储键名
   const HISTORY_KEY = 'roboneo_aibg_history_v1';
 
@@ -595,9 +598,9 @@ export function AIBackgroundGeneratorSection() {
 
     // 立即设置文件状态，提供即时反馈
 
-    setUploadedImage(file);
+      setUploadedImage(file);
 
-    setProcessedImage(null); // Clear previous results
+      setProcessedImage(null); // Clear previous results
     setCurrentDisplayImage(null); // Clear current display
     setBeforeImageSrc(null);
     setAfterImageSrc(null);
@@ -728,20 +731,20 @@ export function AIBackgroundGeneratorSection() {
     setTimeout(() => {
       clearInterval(progressInterval);
       setGenerationProgress(100);
-      setIsProcessing(false);
-      setProcessedImage(demoImage.afterSrc);
+            setIsProcessing(false);
+            setProcessedImage(demoImage.afterSrc);
 
       // Set default background color to transparent
-      setTimeout(() => {
-        setSelectedBackgroundColor('transparent');
+            setTimeout(() => {
+              setSelectedBackgroundColor('transparent');
         console.log('Demo image processing completed');
-      }, 0);
+            }, 0);
 
       // Show success message and reset progress after a delay
-      setTimeout(() => {
+            setTimeout(() => {
         setProcessingProgress(0);
         setGenerationProgress(0);
-        toast.success('Demo image loaded successfully!');
+              toast.success('Demo image loaded successfully!');
       }, 1000);
     }, 3000); // 3秒后完成
   };
@@ -1059,13 +1062,13 @@ export function AIBackgroundGeneratorSection() {
           });
 
           // Clear progress interval
-          clearInterval(progressInterval);
+              clearInterval(progressInterval);
 
           if (result.success && result.image) {
             // Complete progress
             setProcessingProgress(100);
             setGenerationProgress(100);
-            setProcessedImage(result.image);
+              setProcessedImage(result.image);
 
             // 根据用户选择的背景颜色处理图片
             if (selectedBackgroundColor === 'transparent') {
@@ -1139,12 +1142,12 @@ export function AIBackgroundGeneratorSection() {
               toast.success('Background removed successfully!');
             }, 1000);
 
-            return;
-          }
+              return;
+            }
           throw new Error(result.error || 'Rembg API failed');
         } catch (error) {
           // Clear progress interval on error
-          clearInterval(progressInterval);
+            clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
           toast.error(
             'Background removal service is temporarily unavailable. Please try again later.'
@@ -2289,9 +2292,13 @@ export function AIBackgroundGeneratorSection() {
                         alt="AI Background processed result"
                         fill
                         sizes="(max-width: 768px) 80vw, 400px"
-                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10 cursor-pointer hover:scale-[1.02]"
+                        onClick={() => {
+                          setPreviewImageUrl(showAfter ? afterImageSrc || processedImage || '' : beforeImageSrc || imagePreview || '');
+                          setShowImagePreview(true);
+                        }}
                       />
-                    </div>
+                      </div>
 
                     {/* 移除第二个颜色选择器，避免与第一个选择器冲突 */}
                     {/* 用户应该在处理前选择颜色，而不是处理后 */}
@@ -2465,7 +2472,11 @@ export function AIBackgroundGeneratorSection() {
                     <img
                       src={item.url}
                       alt={`AI Background ${idx + 1}`}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                      onClick={() => {
+                        setPreviewImageUrl(item.url);
+                        setShowImagePreview(true);
+                      }}
                     />
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -2500,7 +2511,7 @@ export function AIBackgroundGeneratorSection() {
           </div>
         )}
 
-        {/* Mode switch confirmation dialog */}
+                {/* Mode switch confirmation dialog */}
         <Dialog
           open={showModeSwitchDialog}
           onOpenChange={setShowModeSwitchDialog}
@@ -2544,13 +2555,13 @@ export function AIBackgroundGeneratorSection() {
 
                     if (imageToDownload.startsWith('data:')) {
                       // 如果是base64数据，直接下载
-                      const link = document.createElement('a');
+                    const link = document.createElement('a');
                       link.href = imageToDownload;
-                      link.download = 'ai-background-result.png';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      toast.success('Image saved successfully');
+                    link.download = 'ai-background-result.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast.success('Image saved successfully');
                     } else if (
                       imageToDownload.startsWith('/api/assets/download')
                     ) {
@@ -2677,6 +2688,81 @@ export function AIBackgroundGeneratorSection() {
               >
                 Clear All
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Image preview dialog */}
+        <Dialog
+          open={showImagePreview}
+          onOpenChange={setShowImagePreview}
+        >
+          <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-black/95 border-0">
+            <DialogHeader className="absolute top-4 right-4 z-20">
+              <DialogTitle className="sr-only">AI Background Image Preview</DialogTitle>
+              <button
+                onClick={() => setShowImagePreview(false)}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm rounded-full p-2 transition-all duration-200"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </DialogHeader>
+
+            {/* Main image area */}
+            <div
+              className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+              onClick={() => setShowImagePreview(false)}
+            >
+              {previewImageUrl && (
+                <div className="relative w-full h-full flex items-center justify-center p-8">
+                  <div className="w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02]">
+                    <Image
+                      src={previewImageUrl}
+                      alt="AI Background preview"
+                      width={1200}
+                      height={1200}
+                      className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                      quality={100}
+                      priority
+                      draggable={false}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom controls */}
+            <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+              <div className="flex items-center justify-center gap-4">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (previewImageUrl) {
+                      downloadFromUrl(previewImageUrl, 'preview', 'full-size');
+                    }
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                  size="lg"
+                >
+                  <DownloadIcon className="h-5 w-5 mr-2" />
+                  Download Full Size
+                </Button>
+
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowImagePreview(false);
+                  }}
+                  variant="outline"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                  size="lg"
+                >
+                  Close Preview
+                </Button>
+              </div>
+
+
             </div>
           </DialogContent>
         </Dialog>

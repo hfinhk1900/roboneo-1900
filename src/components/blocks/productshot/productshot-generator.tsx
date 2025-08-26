@@ -1524,7 +1524,7 @@ export default function ProductShotGeneratorSection() {
 
       {/* 历史记录区块 */}
       {productshotHistory.length > 0 && (
-        <div className="mt-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Your ProductShot History</h3>
             <div className="flex items-center gap-2">
