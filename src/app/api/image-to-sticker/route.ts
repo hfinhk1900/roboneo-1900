@@ -12,12 +12,14 @@ import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
-  storeAssetMetadata,
 } from '@/lib/asset-management';
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { getLocalTimestr } from '@/lib/time-utils';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@/db';
+import { assets } from '@/db/schema';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -343,12 +345,14 @@ export async function POST(req: NextRequest) {
     console.log('☁️ Uploading sticker to R2...');
     const stickerBuffer = Buffer.from(stickerBase64, 'base64');
     const filename = `${style}-${nanoid()}.png`;
-    const { url: r2Url } = await uploadFile(
+    const uploadResult = await uploadFile(
       stickerBuffer,
       filename,
       'image/png',
       'stickers'
     );
+    const r2Url = uploadResult.url;
+    const storageKey = uploadResult.key || r2Url;
     console.log(`✅ Upload successful! URL: ${r2Url}`);
 
     // 5. Deduct credits after successful generation
@@ -374,18 +378,24 @@ export async function POST(req: NextRequest) {
     }
 
     const assetId = generateAssetId();
-    const fileName = r2Url.split('/').pop() || 'sticker.png';
-    const currentTime = Math.floor(Date.now() / 1000);
+    const fileName = filename;
 
-    // 存储资产元数据
-    await storeAssetMetadata({
-      asset_id: assetId,
-      original_url: r2Url,
-      file_name: fileName,
+    // 写入 assets 表
+    const db = await getDb();
+    await db.insert(assets).values({
+      id: assetId,
+      key: storageKey,
+      filename: fileName,
       content_type: 'image/png',
-      size: 0, // 暂时设为0，实际可以从R2获取
-      created_at: currentTime,
+      size: stickerBuffer.length,
       user_id: session.user.id,
+      metadata: {
+        source: 'image-to-sticker',
+        style: style,
+        original_size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
+        created_at: getLocalTimestr(),
+      },
+      created_at: new Date()
     });
 
     // 7. 生成签名下载URL
@@ -405,11 +415,13 @@ export async function POST(req: NextRequest) {
 
     // 8. 返回结果（完全脱敏）
     return NextResponse.json({
-      url: downloadUrl.url,
+      success: true,
+      asset_id: assetId,
+      url: downloadUrl.url, // 前端使用的URL字段
+      download_url: downloadUrl.url,
       expires_at: downloadUrl.expires_at,
       style: style,
       size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
-      source: 'image-to-sticker-api',
       credits_used: CREDITS_PER_IMAGE,
       credits_sufficient: true,
       from_cache: false,

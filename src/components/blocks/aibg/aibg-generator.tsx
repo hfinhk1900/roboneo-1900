@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { rembgApiService } from '@/lib/rembg-api';
+import { type RembgApiOptions, rembgApiService } from '@/lib/rembg-api';
 import {
   CpuIcon,
   DownloadIcon,
@@ -285,8 +285,9 @@ export function AIBackgroundGeneratorSection() {
                 : Date.now(),
             }));
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a: AibgHistoryItem, b: AibgHistoryItem) => 
-              (b.createdAt || 0) - (a.createdAt || 0)
+            const sortedItems = processedItems.sort(
+              (a: AibgHistoryItem, b: AibgHistoryItem) =>
+                (b.createdAt || 0) - (a.createdAt || 0)
             );
             setAibgHistory(sortedItems);
             return;
@@ -300,8 +301,8 @@ export function AIBackgroundGeneratorSection() {
         if (raw) {
           const parsed = JSON.parse(raw) as AibgHistoryItem[];
           // 确保按时间降序排列（最新的在前）
-          const sortedItems = parsed.sort((a, b) => 
-            (b.createdAt || 0) - (a.createdAt || 0)
+          const sortedItems = parsed.sort(
+            (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
           );
           setAibgHistory(sortedItems);
         }
@@ -353,7 +354,7 @@ export function AIBackgroundGeneratorSection() {
           // 新项目添加到最前面（已经在数组开头），确保时间戳
           const itemWithTime = {
             ...item,
-            createdAt: item.createdAt || Date.now()
+            createdAt: item.createdAt || Date.now(),
           };
           const next = [itemWithTime, ...prev];
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
@@ -464,7 +465,7 @@ export function AIBackgroundGeneratorSection() {
                 assetId
               );
               try {
-                const refreshRes = await fetch(`/api/storage/sign-download`, {
+                const refreshRes = await fetch('/api/storage/sign-download', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -805,7 +806,7 @@ export function AIBackgroundGeneratorSection() {
             );
             setCurrentDisplayImage(coloredImage);
             setAfterImageSrc(coloredImage);
-            console.log(`Applied background color: ${color}`);
+            console.log('Applied background color:', color);
           } catch (error) {
             console.error('Failed to apply background color:', error);
             toast.error('Failed to apply background color');
@@ -863,7 +864,7 @@ export function AIBackgroundGeneratorSection() {
 
         setCurrentDisplayImage(finalImageUrl);
         setAfterImageSrc(finalImageUrl);
-        console.log(`Applied custom background color: ${color}`);
+        console.log('Applied custom background color:', color);
       } catch (error) {
         console.error('Failed to apply custom background color:', error);
         toast.error('Failed to apply custom background color');
@@ -1103,13 +1104,15 @@ export function AIBackgroundGeneratorSection() {
       // For Solid Color mode, use rembg API service with fallback
       if (backgroundMode === 'color') {
         console.log('🎯 Solid Color mode: Using rembg API service');
-        console.log(`📐 Selected aspect ratio: ${selectedAspect}`);
+        console.log('📐 Selected aspect ratio:', selectedAspect);
         console.log(
-          `📐 Parsed aspect ratio:`,
+          '📐 Parsed aspect ratio:',
           parseAspectRatio(selectedAspect)
         );
         console.log(
-          `📐 Processed image size: ${imageBase64.length} characters`
+          '📐 Processed image size:',
+          imageBase64.length,
+          'characters'
         );
 
         try {
@@ -1118,7 +1121,7 @@ export function AIBackgroundGeneratorSection() {
             backgroundColor: 'transparent', // 固定为透明，让API生成透明背景
             timeout: 30000,
             aspectRatio: parseAspectRatio(selectedAspect), // 传递尺寸信息
-          });
+          } as RembgApiOptions);
 
           // Clear progress interval
           clearInterval(progressInterval);
@@ -1162,9 +1165,9 @@ export function AIBackgroundGeneratorSection() {
             console.log(
               `📐 Result image size from API: ${result.image_size || 'unknown'}`
             );
-            console.log(`📐 Expected aspect ratio: ${selectedAspect}`);
+            console.log('📐 Expected aspect ratio:', selectedAspect);
             console.log(
-              `📐 Parsed aspect ratio:`,
+              '📐 Parsed aspect ratio:',
               parseAspectRatio(selectedAspect)
             );
 
@@ -2509,7 +2512,6 @@ export function AIBackgroundGeneratorSection() {
                             <div className="text-white text-sm font-medium">
                               {Math.round(generationProgress)}%
                             </div>
-
                           </div>
                         </div>
                       </div>

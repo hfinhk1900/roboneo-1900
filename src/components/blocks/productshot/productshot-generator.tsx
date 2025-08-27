@@ -1,6 +1,7 @@
 'use client';
 
 import { CreditsDisplay } from '@/components/shared/credits-display';
+import { GalleryImage } from '@/components/shared/gallery-image';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1576,11 +1577,14 @@ export default function ProductShotGeneratorSection() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {productshotHistory.map((item, idx) => (
               <div key={`${item.createdAt}-${idx}`} className="group relative">
-                <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
-                  <img
+                <div className="relative w-full aspect-square bg-gray-50 border rounded-lg overflow-hidden">
+                  <GalleryImage
                     src={item.url}
                     alt={`ProductShot ${idx + 1}`}
-                    className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                    width={200}
+                    height={200}
+                    className="w-full h-full object-contain"
+                    fallbackSrc="/productshots/productshot.jpg"
                     onClick={() => {
                       setPreviewImageUrl(item.url);
                       setShowImagePreview(true);

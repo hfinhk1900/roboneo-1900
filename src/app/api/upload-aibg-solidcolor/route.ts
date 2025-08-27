@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { getLocalTimestr } from '@/lib/time-utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
       Metadata: {
         userId: session.user.id,
         originalFileName: originalFileName || 'unknown',
-        processedAt: new Date().toISOString(),
+        processedAt: getLocalTimestr(),
         processingType: 'background-removal-solid-color',
       },
     });

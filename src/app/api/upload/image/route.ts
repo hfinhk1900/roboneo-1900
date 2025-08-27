@@ -41,14 +41,22 @@ export async function POST(request: NextRequest) {
     const imageBuffer = Buffer.from(base64Data, 'base64');
 
     // 上传到 R2 使用现有的存储系统
+    let uploadResult;
+    let storageKey;
+    let r2PublicUrl;
+    
     try {
-      const uploadResult = await uploadFile(
+      uploadResult = await uploadFile(
         imageBuffer,
         filename,
         contentType,
         'aibg' // 指定文件夹
       );
 
+      // 使用上传结果中的信息
+      storageKey = uploadResult.key; // 使用上传后的存储键
+      r2PublicUrl = uploadResult.url; // 使用上传后的公共 URL
+      
       console.log('✅ File uploaded successfully:', uploadResult);
     } catch (error) {
       console.error('Failed to upload to R2:', error);
@@ -75,10 +83,6 @@ export async function POST(request: NextRequest) {
         uploaded_at: new Date().toISOString(),
       },
     });
-
-    // 使用上传结果中的信息
-    const r2PublicUrl = uploadResult.url; // 使用上传后的公共 URL
-    const storageKey = uploadResult.key; // 使用上传后的存储键
 
     // 生成签名下载 URL 用于下载功能
     const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60; // 24小时有效期

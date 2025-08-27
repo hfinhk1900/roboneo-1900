@@ -6,8 +6,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await auth.api.getSession({
       headers: request.headers as any,
@@ -23,7 +24,7 @@ export async function DELETE(
       .delete(aibgHistory)
       .where(
         and(
-          eq(aibgHistory.id, params.id),
+          eq(aibgHistory.id, id),
           eq(aibgHistory.userId, session.user.id)
         )
       );

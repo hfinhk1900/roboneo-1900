@@ -1,4 +1,4 @@
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { productshotHistory } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { and, eq } from 'drizzle-orm';
@@ -6,8 +6,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await auth.api.getSession({
       headers: request.headers as any,
@@ -17,7 +18,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const db = await getDb();
 
     // 确保只能删除自己的历史记录
     const deleted = await db

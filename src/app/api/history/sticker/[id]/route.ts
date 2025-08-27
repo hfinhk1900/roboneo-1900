@@ -7,8 +7,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 // DELETE /api/history/sticker/:id
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await auth.api.getSession({
       headers: request.headers as any,
@@ -16,8 +17,6 @@ export async function DELETE(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }

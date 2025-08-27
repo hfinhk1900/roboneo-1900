@@ -17,6 +17,7 @@ export interface RembgApiResult {
   processingTime?: number;
   method?: string;
   image_size?: string; // 新增：图片尺寸信息
+  remaining_credits?: number; // 新增：剩余积分信息
 }
 
 export class RembgApiService {

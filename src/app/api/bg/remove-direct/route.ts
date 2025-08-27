@@ -2,6 +2,7 @@
 // Vercel API 路由 - 代理到私有 HF Space
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { getLocalTimestr } from '@/lib/time-utils';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // 简单的内存速率限制（生产环境建议使用 Redis）
@@ -156,7 +157,7 @@ export async function POST(req: NextRequest) {
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
       // 添加一些元数据
-      proxy_timestamp: new Date().toISOString(),
+      proxy_timestamp: getLocalTimestr(),
       proxy_version: '1.0.0',
     });
   } catch (error) {
@@ -200,7 +201,7 @@ export async function GET() {
   return NextResponse.json({
     status: 'healthy',
     service: 'Background Removal Proxy',
-    timestamp: new Date().toISOString(),
+    timestamp: getLocalTimestr(),
     hf_space_configured: !!process.env.HF_SPACE_URL,
     hf_space_private: !!process.env.HF_SPACE_TOKEN,
   });
