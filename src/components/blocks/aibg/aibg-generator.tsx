@@ -754,11 +754,10 @@ export function AIBackgroundGeneratorSection() {
         console.log('Demo image processing completed');
       }, 0);
 
-      // Show success message and reset progress after a delay
+      // Reset progress after a delay
       setTimeout(() => {
         setProcessingProgress(0);
         setGenerationProgress(0);
-        toast.success('Demo image loaded successfully!');
       }, 1000);
     }, 3000); // 3秒后完成
   };
@@ -772,7 +771,6 @@ export function AIBackgroundGeneratorSection() {
     setSelectedDemoImage(null);
     setSelectedDemoImageData(null);
     setShowAfter(true);
-    toast.success('Demo image cleared, you can select another demo image');
   };
 
   // Background color handling
@@ -2405,13 +2403,32 @@ export function AIBackgroundGeneratorSection() {
                     {/* 移除第二个颜色选择器，避免与第一个选择器冲突 */}
                     {/* 用户应该在处理前选择颜色，而不是处理后 */}
 
-                    {/* Download button */}
-                    <Button
-                      onClick={handleDownload}
-                      className="bg-white border border-black rounded-2xl px-8 py-4 text-[14px] font-semibold text-black hover:bg-gray-50"
-                    >
-                      Download
-                    </Button>
+                    {/* Download and Delete buttons */}
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handleDownload}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Download image"
+                      >
+                        <DownloadIcon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setProcessedImage(null);
+                          setCurrentDisplayImage(null);
+                          setAfterImageSrc(null);
+                          setBeforeImageSrc(null);
+                        }}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Remove image"
+                      >
+                        <Trash2Icon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                    </div>
                   </div>
                 ) : isProcessing ? (
                   /* Loading state - show progress bar and loading animation */

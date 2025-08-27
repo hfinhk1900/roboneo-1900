@@ -1273,14 +1273,24 @@ export default function ProductShotGeneratorSection() {
                         </div>
                       </div>
                     </button>
-                    <div className="flex gap-2 flex-wrap justify-center">
+                    <div className="flex items-center gap-3">
                       <Button
                         onClick={handleDownload}
-                        variant="outline"
-                        className="flex items-center gap-2 cursor-pointer"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Download image"
                       >
-                        <DownloadIcon className="h-4 w-4" />
-                        Download Image
+                        <DownloadIcon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                      <Button
+                        onClick={() => setResult(null)}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Remove image"
+                      >
+                        <Trash2Icon className="h-4 w-4 text-gray-600" />
                       </Button>
                     </div>
                   </div>

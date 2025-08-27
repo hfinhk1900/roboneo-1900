@@ -1098,28 +1098,6 @@ export default function HeroSection() {
                               : `Generate My Sticker (${CREDITS_PER_IMAGE} credits)`}
                     </Button>
 
-                    {/* Enhanced Progress UI for generation */}
-                    {isGenerating && generationProgress > 0 && (
-                      <div className="w-full space-y-4">
-                        {/* Main Progress Bar */}
-                        <div className="w-full space-y-2">
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div
-                              className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 ease-out"
-                              style={{ width: `${generationProgress}%` }}
-                            />
-                          </div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span className="font-medium">
-                              {generationStep}
-                            </span>
-                            <span className="font-medium">
-                              {generationProgress}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardContent>
