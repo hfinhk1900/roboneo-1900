@@ -265,16 +265,16 @@ export function AIBackgroundGeneratorSection() {
 
     const loadHistory = async () => {
       if (currentUser) {
-        // 已登录：从服务器加载
+        // 已登录：从服务器加载，并刷新URLs
         try {
-          const res = await fetch('/api/history/aibg', {
+          const res = await fetch('/api/history/aibg?refresh_urls=true', {
             credentials: 'include',
           });
           if (res.ok) {
             const data = await res.json();
             const processedItems = data.items.map((item: any) => ({
               id: item.id,
-              asset_id: item.asset_id,
+              asset_id: item.asset_id || item.metadata?.asset_id,
               url: item.url,
               mode: item.mode,
               style: item.style,
@@ -284,7 +284,11 @@ export function AIBackgroundGeneratorSection() {
                   : item.createdAt
                 : Date.now(),
             }));
-            setAibgHistory(processedItems);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort((a: AibgHistoryItem, b: AibgHistoryItem) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setAibgHistory(sortedItems);
             return;
           }
         } catch {}
@@ -295,7 +299,11 @@ export function AIBackgroundGeneratorSection() {
         const raw = localStorage.getItem(HISTORY_KEY);
         if (raw) {
           const parsed = JSON.parse(raw) as AibgHistoryItem[];
-          setAibgHistory(parsed);
+          // 确保按时间降序排列（最新的在前）
+          const sortedItems = parsed.sort((a, b) => 
+            (b.createdAt || 0) - (a.createdAt || 0)
+          );
+          setAibgHistory(sortedItems);
         }
       } catch {}
     };
@@ -342,7 +350,12 @@ export function AIBackgroundGeneratorSection() {
       // 未登录：写入本地回退
       try {
         setAibgHistory((prev) => {
-          const next = [item, ...prev];
+          // 新项目添加到最前面（已经在数组开头），确保时间戳
+          const itemWithTime = {
+            ...item,
+            createdAt: item.createdAt || Date.now()
+          };
+          const next = [itemWithTime, ...prev];
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
           return next;
         });
@@ -1202,18 +1215,28 @@ export function AIBackgroundGeneratorSection() {
             };
             await pushHistory(historyItem);
 
-            // 更新积分缓存 - 扣除10积分
+            // 更新积分缓存 - 使用API返回的积分信息（API已经扣除了积分）
             try {
-              const currentCredits = creditsCache.get();
-              if (currentCredits !== null) {
-                const newCredits = Math.max(
-                  0,
-                  currentCredits - CREDITS_PER_IMAGE
-                );
-                creditsCache.set(newCredits);
+              // result对象来自rembg API，它转发了bg/remove-direct的响应
+              // 注意：bg/remove-direct API返回的是remaining_credits
+              if (result.remaining_credits !== undefined) {
+                creditsCache.set(result.remaining_credits);
                 console.log(
-                  `💰 Updated credits cache: ${currentCredits} → ${newCredits}`
+                  `💰 Updated credits cache from API: ${result.remaining_credits} credits`
                 );
+              } else {
+                // 如果API没有返回积分信息，手动更新缓存（fallback）
+                const currentCredits = creditsCache.get();
+                if (currentCredits !== null) {
+                  const newCredits = Math.max(
+                    0,
+                    currentCredits - CREDITS_PER_IMAGE
+                  );
+                  creditsCache.set(newCredits);
+                  console.log(
+                    `💰 Updated credits cache manually (fallback): ${currentCredits} → ${newCredits}`
+                  );
+                }
               }
             } catch (error) {
               console.warn('Failed to update credits cache:', error);
@@ -2487,14 +2510,6 @@ export function AIBackgroundGeneratorSection() {
                               {Math.round(generationProgress)}%
                             </div>
 
-                            {/* Main loading message */}
-                            <div className="text-white text-center max-w-sm">
-                              <p>
-                                {backgroundMode === 'color'
-                                  ? 'Removing background with AI precision...'
-                                  : 'Creating your AI-generated background...'}
-                              </p>
-                            </div>
                           </div>
                         </div>
                       </div>

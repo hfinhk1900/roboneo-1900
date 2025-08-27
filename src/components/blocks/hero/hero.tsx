@@ -98,6 +98,7 @@ export default function HeroSection() {
     url: string;
     style: string;
     createdAt: number;
+    asset_id?: string; // 添加asset_id字段
   }
 
   const HISTORY_KEY = 'roboneo_sticker_history_v1'; // 未登录时回退
@@ -148,8 +149,8 @@ export default function HeroSection() {
       try {
         if (currentUser) {
           console.log('🔄 Loading server history for user:', currentUser.id);
-          const res = await fetch('/api/history/sticker', {
-            // 移除limit=24，获取所有历史记录
+          const res = await fetch('/api/history/sticker?refresh_urls=true', {
+            // 移除limit=24，获取所有历史记录，并刷新URLs
             credentials: 'include',
           });
           if (res.ok) {
@@ -212,6 +213,7 @@ export default function HeroSection() {
                   id: it.id,
                   url: finalUrl,
                   style: it.style,
+                  asset_id: it.asset_id || it.metadata?.asset_id, // 保留asset_id
                   createdAt: it.createdAt
                     ? new Date(it.createdAt).getTime()
                     : Date.now(),
@@ -219,7 +221,11 @@ export default function HeroSection() {
               })
             );
 
-            setStickerHistory(processedItems);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort((a: StickerHistoryItem, b: StickerHistoryItem) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setStickerHistory(sortedItems);
             console.log(
               '✅ Server history loaded:',
               processedItems.length,
@@ -295,7 +301,11 @@ export default function HeroSection() {
               })
             );
 
-            setStickerHistory(processedItems);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort((a, b) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setStickerHistory(sortedItems);
             console.log(
               '📱 Local history loaded:',
               processedItems.length,
@@ -310,7 +320,11 @@ export default function HeroSection() {
           const raw = localStorage.getItem(HISTORY_KEY);
           if (raw) {
             const parsed = JSON.parse(raw) as StickerHistoryItem[];
-            setStickerHistory(parsed);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = parsed.sort((a, b) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setStickerHistory(sortedItems);
             console.log(
               '🔄 Fallback to local history:',
               parsed.length,
@@ -379,7 +393,11 @@ export default function HeroSection() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ url: item.url, style: item.style }),
+            body: JSON.stringify({ 
+              asset_id: item.asset_id, // 优先使用asset_id
+              url: item.url, 
+              style: item.style 
+            }),
           });
           if (res.ok) {
             const created = await res.json();
@@ -387,6 +405,7 @@ export default function HeroSection() {
               id: created.id,
               url: created.url,
               style: created.style,
+              asset_id: created.asset_id,
               createdAt: created.createdAt
                 ? new Date(created.createdAt).getTime()
                 : Date.now(),
@@ -398,7 +417,12 @@ export default function HeroSection() {
       }
       // 未登录：写入本地回退
       try {
-        const next = [item, ...stickerHistory]; // 移除24条限制，永久保存所有历史记录
+        // 新项目添加到最前面，确保时间戳
+        const itemWithTime = {
+          ...item,
+          createdAt: item.createdAt || Date.now()
+        };
+        const next = [itemWithTime, ...stickerHistory]; // 移除24条限制，永久保存所有历史记录
         setStickerHistory(next);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
       } catch {}
@@ -639,7 +663,12 @@ export default function HeroSection() {
       // AI service returns the result synchronously
       setGenerationStep('Your sticker is ready!');
       setGenerationProgress(100);
-      setGeneratedImageUrl(stickerData.url); // 新系统中 url 字段是 download_url 的别名
+      
+      // Store both URL and asset_id for proper asset management
+      setGeneratedImageUrl(stickerData.url || stickerData.download_url);
+      // Store asset_id in a ref or state if needed for future operations
+      const assetId = stickerData.asset_id;
+      
       setIsGenerating(false);
 
       // Clear credits cache to trigger refresh of credits display
@@ -648,11 +677,12 @@ export default function HeroSection() {
       // Send completion notification
       sendCompletionNotification();
 
-      // 添加到历史记录
+      // 添加到历史记录，使用asset_id
       pushHistory({
-        url: stickerData.url,
+        url: stickerData.url || stickerData.download_url,
         style: selectedStyle,
         createdAt: Date.now(),
+        asset_id: assetId, // 添加asset_id
       });
 
       console.log('🎉 Sticker generation completed successfully!');

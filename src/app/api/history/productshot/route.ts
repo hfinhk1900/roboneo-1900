@@ -3,7 +3,7 @@ import { getDb } from '@/db';
 import { assets, productshotHistory } from '@/db/schema';
 import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       .select()
       .from(productshotHistory)
       .where(eq(productshotHistory.userId, session.user.id))
-      .orderBy(productshotHistory.createdAt);
+      .orderBy(desc(productshotHistory.createdAt));
 
     // 如果没有指定limit，则不限制数量，返回所有历史记录
     if (limit) {

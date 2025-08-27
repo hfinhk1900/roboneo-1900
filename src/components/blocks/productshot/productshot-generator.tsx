@@ -238,7 +238,11 @@ export default function ProductShotGeneratorSection() {
               })
             );
 
-            setProductshotHistory(processedItems);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort((a: ProductshotHistoryItem, b: ProductshotHistoryItem) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setProductshotHistory(sortedItems);
             console.log(
               '✅ Server history loaded:',
               processedItems.length,
@@ -314,7 +318,11 @@ export default function ProductShotGeneratorSection() {
               })
             );
 
-            setProductshotHistory(processedItems);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort((a, b) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setProductshotHistory(sortedItems);
             console.log(
               '📱 Local history loaded:',
               processedItems.length,
@@ -329,7 +337,11 @@ export default function ProductShotGeneratorSection() {
           const raw = localStorage.getItem(HISTORY_KEY);
           if (raw) {
             const parsed = JSON.parse(raw) as ProductshotHistoryItem[];
-            setProductshotHistory(parsed);
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = parsed.sort((a, b) => 
+              (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setProductshotHistory(sortedItems);
             console.log(
               '🔄 Fallback to local history:',
               parsed.length,
@@ -395,7 +407,12 @@ export default function ProductShotGeneratorSection() {
       // 未登录：写入本地回退
       try {
         setProductshotHistory((prev) => {
-          const next = [item, ...prev]; // 永久保存所有历史记录
+          // 新项目添加到最前面，确保时间戳
+          const itemWithTime = {
+            ...item,
+            createdAt: item.createdAt || Date.now()
+          };
+          const next = [itemWithTime, ...prev]; // 永久保存所有历史记录
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
           return next;
         });
