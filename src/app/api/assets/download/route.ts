@@ -95,8 +95,33 @@ export async function GET(request: NextRequest) {
 
     // 从 R2 获取文件（若为本地回退模式则直接使用 original_url）
     if (!r2Url) {
-      r2Url = `${process.env.R2_PUBLIC_URL}/${assetMetadata.key}`;
+      // 使用 STORAGE_PUBLIC_URL 而不是 R2_PUBLIC_URL
+      const publicUrl = process.env.STORAGE_PUBLIC_URL || process.env.R2_PUBLIC_URL;
+      if (!publicUrl) {
+        console.error('Asset download: STORAGE_PUBLIC_URL not configured');
+        return NextResponse.json(
+          { error: 'Storage configuration error' },
+          { status: 500 }
+        );
+      }
+      
+      if (!assetMetadata.key) {
+        console.error('Asset download: Missing storage key', { asset_id });
+        return NextResponse.json(
+          { error: 'Asset storage key not found' },
+          { status: 500 }
+        );
+      }
+      
+      r2Url = `${publicUrl}/${assetMetadata.key}`;
     }
+    
+    console.log('📥 Fetching asset from R2:', { 
+      asset_id,
+      key: assetMetadata.key,
+      r2Url: r2Url.substring(0, 100) + '...'
+    });
+    
     const response = await fetch(r2Url);
     if (!response.ok) {
       console.error('Asset download: Failed to fetch file from R2', {
@@ -104,9 +129,10 @@ export async function GET(request: NextRequest) {
         key: assetMetadata.key,
         status: response.status,
         statusText: response.statusText,
+        r2Url: r2Url.substring(0, 100) + '...'
       });
       return NextResponse.json(
-        { error: 'Failed to fetch file from R2' },
+        { error: 'Failed to fetch file from storage' },
         { status: 500 }
       );
     }

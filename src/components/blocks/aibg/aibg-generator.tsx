@@ -587,11 +587,7 @@ export function AIBackgroundGeneratorSection() {
     current: number;
   } | null>(null);
 
-  // Mode switch confirmation dialog state
-  const [showModeSwitchDialog, setShowModeSwitchDialog] = useState(false);
-  const [pendingModeSwitch, setPendingModeSwitch] = useState<
-    'color' | 'background' | null
-  >(null);
+  // 移除模式切换确认对话框状态（因为历史记录已自动保存）
 
   // Track the currently selected demo image for loading state
   const [selectedDemoImage, setSelectedDemoImage] = useState<string | null>(
@@ -707,10 +703,6 @@ export function AIBackgroundGeneratorSection() {
 
     // 执行模式切换
     setBackgroundMode(newMode);
-
-    // 关闭确认对话框
-    setShowModeSwitchDialog(false);
-    setPendingModeSwitch(null);
   };
 
   // 模拟生成进度 - 与Productshot保持一致
@@ -1171,8 +1163,29 @@ export function AIBackgroundGeneratorSection() {
               parseAspectRatio(selectedAspect)
             );
 
+            // 确定要保存的图片：如果用户选择了颜色，使用带颜色的图片；否则使用透明图片
+            let imageToSave = result.image; // 默认使用透明图片
+            
+            if (selectedBackgroundColor !== 'transparent') {
+              // 如果用户选择了具体颜色，应用颜色并保存带颜色的图片
+              try {
+                const coloredImage = await applyBackgroundColor(
+                  result.image,
+                  selectedBackgroundColor
+                );
+                imageToSave = coloredImage;
+                console.log(`📎 Will save image with background color: ${selectedBackgroundColor}`);
+              } catch (error) {
+                console.error('Failed to apply color for saving:', error);
+                // 如果应用颜色失败，仍使用透明图片
+                imageToSave = result.image;
+              }
+            } else {
+              console.log('📎 Will save transparent image');
+            }
+
             // 将生成的图片上传到 R2 存储
-            let finalImageUrl = currentDisplayImage || result.image;
+            let finalImageUrl = imageToSave;
 
             if (finalImageUrl.startsWith('data:')) {
               try {
@@ -1184,7 +1197,7 @@ export function AIBackgroundGeneratorSection() {
                   },
                   body: JSON.stringify({
                     imageData: finalImageUrl,
-                    filename: `aibg-solid-color-${Date.now()}.png`,
+                    filename: `aibg-solid-color-${selectedBackgroundColor}-${Date.now()}.png`,
                     contentType: 'image/png',
                   }),
                 });
@@ -1569,9 +1582,6 @@ export function AIBackgroundGeneratorSection() {
 
     // 如果是资产下载URL（新的格式），直接使用
     if (imageToDownload.startsWith('/api/assets/download')) {
-      // 显示下载中提示
-      toast.info('Downloading image...');
-
       // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
       const link = document.createElement('a');
       link.href = imageToDownload;
@@ -1589,9 +1599,6 @@ export function AIBackgroundGeneratorSection() {
 
     // 如果是URL（如R2存储的图片），下载图片
     if (imageToDownload.startsWith('http')) {
-      // 显示下载中提示
-      toast.info('Downloading image...');
-
       // 检查是否是签名URL，如果是，使用图片代理API
       const downloadUrl = imageToDownload.includes('signature=')
         ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
@@ -1794,16 +1801,9 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         type="button"
                         onClick={() => {
-                          // 如果当前不是 Background Style 模式，检查是否需要确认
+                          // 直接切换到 Background Style 模式
                           if (backgroundMode !== 'background') {
-                            if (processedImage) {
-                              // 有已生成的图片，显示确认对话框
-                              setPendingModeSwitch('background');
-                              setShowModeSwitchDialog(true);
-                            } else {
-                              // 没有图片，直接切换
-                              performModeSwitch('background');
-                            }
+                            performModeSwitch('background');
                           }
                         }}
                         className={cn(
@@ -1818,16 +1818,9 @@ export function AIBackgroundGeneratorSection() {
                       <button
                         type="button"
                         onClick={() => {
-                          // 如果当前不是 Solid Color 模式，检查是否需要确认
+                          // 直接切换到 Solid Color 模式
                           if (backgroundMode !== 'color') {
-                            if (processedImage) {
-                              // 有已生成的图片，显示确认对话框
-                              setPendingModeSwitch('color');
-                              setShowModeSwitchDialog(true);
-                            } else {
-                              // 没有图片，直接切换
-                              performModeSwitch('color');
-                            }
+                            performModeSwitch('color');
                           }
                         }}
                         className={cn(
@@ -2405,42 +2398,7 @@ export function AIBackgroundGeneratorSection() {
                         alt="AI Background processed result"
                         fill
                         sizes="(max-width: 768px) 80vw, 400px"
-                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10 cursor-pointer hover:scale-[1.02]"
-                        onClick={() => {
-                          // 优先使用 afterImageSrc，如果不存在则使用 processedImage
-                          let previewUrl = '';
-                          if (showAfter) {
-                            previewUrl = afterImageSrc || processedImage || '';
-                          } else {
-                            previewUrl = beforeImageSrc || imagePreview || '';
-                          }
-
-                          // 如果是签名下载 URL 且已过期，尝试刷新
-                          if (
-                            previewUrl.includes('/api/assets/download') &&
-                            previewUrl.includes('exp=')
-                          ) {
-                            // 检查 URL 是否过期
-                            const urlParams = new URLSearchParams(
-                              previewUrl.split('?')[1]
-                            );
-                            const exp = urlParams.get('exp');
-                            if (
-                              exp &&
-                              Number.parseInt(exp) <
-                                Math.floor(Date.now() / 1000)
-                            ) {
-                              // URL 已过期，使用原始图片 URL
-                              console.log(
-                                'Preview URL expired, using original image'
-                              );
-                              previewUrl = processedImage || '';
-                            }
-                          }
-
-                          setPreviewImageUrl(previewUrl);
-                          setShowImagePreview(true);
-                        }}
+                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
                       />
                     </div>
 
@@ -2655,123 +2613,7 @@ export function AIBackgroundGeneratorSection() {
           </div>
         )}
 
-        {/* Mode switch confirmation dialog */}
-        <Dialog
-          open={showModeSwitchDialog}
-          onOpenChange={setShowModeSwitchDialog}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Save Generated Image?</DialogTitle>
-              <DialogDescription>
-                You have an unsaved image. Switching modes will lose your
-                current result. Would you like to save before switching?
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowModeSwitchDialog(false);
-                  setPendingModeSwitch(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // 直接切换模式，不保存
-                  if (pendingModeSwitch) {
-                    performModeSwitch(pendingModeSwitch);
-                  }
-                }}
-              >
-                Switch Directly
-              </Button>
-              <Button
-                onClick={() => {
-                  // 保存图片并切换模式
-                  if (pendingModeSwitch && processedImage) {
-                    // 根据当前模式选择正确的图片源进行下载
-                    const imageToDownload =
-                      currentDisplayImage || processedImage;
-
-                    if (imageToDownload.startsWith('data:')) {
-                      // 如果是base64数据，直接下载
-                      const link = document.createElement('a');
-                      link.href = imageToDownload;
-                      link.download = 'ai-background-result.png';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      toast.success('Image saved successfully');
-                    } else if (
-                      imageToDownload.startsWith('/api/assets/download')
-                    ) {
-                      // 如果是资产下载URL（新的格式），直接使用
-                      const link = document.createElement('a');
-                      link.href = imageToDownload;
-                      link.download = 'ai-background-result.png';
-                      link.target = '_blank';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      toast.success('Image downloaded successfully');
-                    } else if (imageToDownload.startsWith('http')) {
-                      // 如果是URL，下载图片
-                      toast.info('Downloading image...');
-
-                      // 检查是否是签名URL，如果是，使用图片代理API
-                      const downloadUrl = imageToDownload.includes('signature=')
-                        ? `/api/image-proxy?url=${encodeURIComponent(imageToDownload)}`
-                        : imageToDownload;
-
-                      fetch(downloadUrl)
-                        .then((response) => {
-                          if (!response.ok) {
-                            throw new Error(
-                              `HTTP error! status: ${response.status}`
-                            );
-                          }
-                          return response.blob();
-                        })
-                        .then((blob) => {
-                          const blobUrl = window.URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = blobUrl;
-                          link.download = 'ai-background-result.png';
-
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-
-                          window.URL.revokeObjectURL(blobUrl);
-                          toast.success('Image downloaded successfully');
-                        })
-                        .catch((error) => {
-                          console.error('Download failed:', error);
-                          window.open(imageToDownload, '_blank');
-                          toast.error(
-                            'Download failed, opened in new tab instead'
-                          );
-                        });
-                    } else {
-                      // 其他情况，在新标签页中打开
-                      window.open(imageToDownload, '_blank');
-                      toast.success('Image opened in new tab');
-                    }
-
-                    // 然后切换模式
-                    performModeSwitch(pendingModeSwitch);
-                  }
-                }}
-              >
-                Save & Switch
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* 模式切换确认对话框已移除 - 历史记录会自动保存所有生成的图片 */}
 
         {/* Delete history item confirmation dialog */}
         <Dialog

@@ -344,6 +344,7 @@ export async function POST(request: NextRequest) {
       backgroundType: backgroundType || null,
       backgroundColor: backgroundColor || null,
       credits_used: CREDITS_PER_IMAGE,
+      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0, // 添加剩余积分
       credits_sufficient: true,
       from_cache: false,
     });

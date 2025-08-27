@@ -701,6 +701,7 @@ export async function POST(request: NextRequest) {
         ? SCENE_PRESETS[sceneType].name
         : 'Reference Image Guided',
       credits_used: CREDITS_PER_IMAGE,
+      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0, // 添加剩余积分
       credits_sufficient: true,
       from_cache: false,
     });
