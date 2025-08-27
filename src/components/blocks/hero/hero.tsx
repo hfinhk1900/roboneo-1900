@@ -1404,12 +1404,12 @@ export default function HeroSection() {
 
       {/* 图片预览弹窗 */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
-        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+        <DialogContent className="max-w-6xl w-[90vw] h-[70vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
           {/* Header */}
           <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
+                <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
                   <svg
                     className="w-5 h-5 text-yellow-400"
                     fill="none"
@@ -1455,7 +1455,7 @@ export default function HeroSection() {
             onClick={() => setShowImagePreview(false)}
           >
             {previewImageUrl && (
-              <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
+              <div className="relative max-w-[85%] max-h-[70%] transition-transform duration-300 group-hover:scale-[1.02]">
                 <img
                   src={previewImageUrl}
                   alt="Sticker preview"
