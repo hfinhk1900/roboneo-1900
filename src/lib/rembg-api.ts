@@ -109,6 +109,7 @@ export class RembgApiService {
           processingTime,
           method: result.method || 'private-hf-space',
           image_size: result.image_size, // 新增：返回图片尺寸信息
+          remaining_credits: result.remaining_credits, // 新增：传递剩余积分信息
         };
       } else {
         throw new Error(result.error || 'Background removal failed');
