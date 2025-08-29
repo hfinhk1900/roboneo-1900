@@ -4,6 +4,7 @@ import { OptimizedImage } from '@/components/seo/optimized-image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SparklesIcon } from 'lucide-react';
+import { getStickerImages } from '@/config/gallery-config';
 
 interface ShowcaseGalleryProps {
   className?: string;
@@ -11,153 +12,8 @@ interface ShowcaseGalleryProps {
   onScrollToHero?: () => void;
 }
 
-// Real showcase images from R2 Storage - Landing-sticker folder
-const showcaseImages = [
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker01-ios.webp',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker02-snoopy.webp',
-    alt: 'RoboNeo AI generated sticker - Snoopy style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'snoopy',
-    styleLabel: 'Snoopy Style',
-    ctaText: 'Try Snoopy Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker03-snoopy.webp',
-    alt: 'RoboNeo AI generated sticker - Snoopy style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'snoopy',
-    styleLabel: 'Snoopy Style',
-    ctaText: 'Try Snoopy Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker04-pixel.webp',
-    alt: 'RoboNeo AI generated sticker - Pixel art style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'pixel',
-    styleLabel: 'Pixel Art Style',
-    ctaText: 'Try Pixel Art',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker05-ios.jpg',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker06-ios.jpeg',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker07-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker08-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker09-ios.jpg',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker10-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker11-ios.jpg',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker12-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker13-ios.jpeg',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker14-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker15-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-  {
-    src: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-sticker/sticker16-ios.png',
-    alt: 'RoboNeo AI generated sticker - iOS style by roboneo artificial intelligence',
-    aspectRatio: 'aspect-[4/5]',
-    className: '',
-    style: 'ios',
-    styleLabel: 'iOS Sticker Style',
-    ctaText: 'Try iOS Style',
-  },
-];
+// Get dynamically configured showcase images from gallery config
+const showcaseImages = getStickerImages();
 
 export function ShowcaseGallery({
   className,
