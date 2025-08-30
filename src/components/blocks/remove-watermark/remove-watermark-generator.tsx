@@ -28,7 +28,6 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
-  CpuIcon,
   DownloadIcon,
   EraserIcon,
   ImagePlusIcon,
@@ -37,7 +36,6 @@ import {
   Trash2Icon,
   UploadIcon,
   XIcon,
-  ZapIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -87,6 +85,37 @@ const QUALITY_OPTIONS = [
   { value: 'high', label: 'High Quality', description: 'Best quality, takes more time' },
 ] as const;
 
+// Demo images configuration with before/after states
+const DEMO_IMAGES = [
+  {
+    id: 1,
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark01.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark-remove01.png',
+    alt: 'Watermark Remove Demo - Sample 1',
+    type: 'sample1',
+  },
+  {
+    id: 2,
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark02.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark-remove02.png',
+    alt: 'Watermark Remove Demo - Sample 2',
+    type: 'sample2',
+  },
+  {
+    id: 3,
+    beforeSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark03.png',
+    afterSrc:
+      'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/Landing-watermark/watermark-remove03.png',
+    alt: 'Watermark Remove Demo - Sample 3',
+    type: 'sample3',
+  },
+];
+
 type RemovalMethod = typeof REMOVAL_METHODS[number]['id'];
 type WatermarkType = typeof WATERMARK_TYPES[number]['value'];
 type QualityLevel = typeof QUALITY_OPTIONS[number]['value'];
@@ -124,6 +153,10 @@ export function RemoveWatermarkGeneratorSection() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Demo image states
+  const [selectedDemoImage, setSelectedDemoImage] = useState<string>('');
+  const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
 
 
 
@@ -247,6 +280,48 @@ export function RemoveWatermarkGeneratorSection() {
       toast.error('Please drop an image file');
     }
   }, [handleFileSelect]);
+
+  // Demo image click handling
+  const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
+    // Prevent multiple simultaneous processing
+    if (isProcessing) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setSelectedDemoImage(demoImage.afterSrc);
+    setSelectedDemoImageData(demoImage);
+
+    try {
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Set the processed result
+      setProcessedImage(demoImage.afterSrc);
+
+      // Add to history
+      const newHistoryItem: RemovalHistoryItem = {
+        id: Date.now().toString(),
+        originalImage: demoImage.beforeSrc,
+        processedImage: demoImage.afterSrc,
+        method: 'auto',
+        watermarkType: 'unknown',
+        quality: 'balanced',
+        createdAt: Date.now(),
+      };
+
+      const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)]; // Keep last 20
+      setRemovalHistory(newHistory);
+      saveHistory(newHistory);
+
+      toast.success('Watermark removed successfully! ✨');
+    } catch (error) {
+      console.error('Demo watermark removal error:', error);
+      toast.error('Failed to process demo image. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const removeImage = useCallback(() => {
     setUploadedImage(null);
@@ -474,83 +549,125 @@ export function RemoveWatermarkGeneratorSection() {
 
           {/* Right: Result area */}
           <Card className="relative overflow-hidden border shadow-md h-full min-h-[604px] flex flex-col rounded-2xl bg-white">
-            <CardContent className="pt-1 px-6 pb-4 space-y-4 flex-grow flex flex-col">
-              <div className="pb-1 pt-0">
-                <h3 className="text-xl font-semibold mb-0.5 flex items-center gap-2">
-                  <SparklesIcon className="h-5 w-5 text-green-600" />
-                  Clean Result
-                </h3>
-                <p className="text-muted-foreground">
-                  Your watermark-free image will appear here.
-                </p>
-              </div>
-
-              <div className="flex-grow flex flex-col">
+            <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 relative h-full">
+              <div className="flex-grow flex flex-col w-full">
                 {isProcessing ? (
-                  <div className="flex-grow flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border-2 border-dashed border-purple-200">
+                  /* Loading state - show progress bar and loading animation */
+                  <div className="flex items-center justify-center p-8 relative">
                     <div className="relative">
-                      <LoaderIcon className="h-12 w-12 text-purple-600 animate-spin" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse" />
-                    </div>
-                    <div className="text-center space-y-2">
-                      <p className="font-medium text-purple-800">Removing watermark...</p>
-                      <p className="text-sm text-purple-600">AI is analyzing and cleaning your image</p>
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                      <div className="relative flex items-center justify-center">
+                        {/* Demo image with gray overlay */}
+                        <div className="relative">
+                          {selectedDemoImageData ? (
+                            <img
+                              src={selectedDemoImageData.beforeSrc}
+                              alt="Processing your selected demo"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          ) : imagePreview ? (
+                            <img
+                              src={imagePreview}
+                              alt="Processing your upload"
+                              width={400}
+                              height={300}
+                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                            />
+                          ) : (
+                            <div className="w-[400px] h-[300px] bg-gray-200 rounded-lg shadow-lg opacity-30" />
+                          )}
+                          {/* Progress overlay */}
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
+                            {/* Processing icon */}
+                            <div className="flex items-center space-x-2 text-white">
+                              <LoaderIcon className="h-6 w-6 animate-spin" />
+                              <span className="text-lg font-medium">
+                                Removing Watermark...
+                              </span>
+                            </div>
+
+                            {/* Progress bar - consistent with AI Background */}
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                style={{ width: '100%' }}
+                              />
+                            </div>
+
+                            {/* Processing status text */}
+                            <div className="text-center space-y-1">
+                              <p className="text-white text-sm">AI is analyzing and cleaning your image</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : processedImage ? (
-                  <div className="flex-grow flex flex-col space-y-4">
-                    <div className="relative flex-grow bg-white rounded-lg border overflow-hidden">
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    {/* Main image display */}
+                    <div className="relative w-full max-w-sm aspect-square">
                       <Image
                         src={processedImage}
                         alt="Watermark removed"
                         fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        className="object-contain"
+                        sizes="(max-width: 768px) 80vw, 400px"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
                       />
                     </div>
-                    <div className="flex gap-2">
+
+                    {/* Download and Delete buttons */}
+                    <div className="flex items-center gap-3">
                       <Button
                         onClick={() => handleDownload(processedImage)}
-                        className="flex-1"
-                        variant="default"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Download image"
                       >
-                        <DownloadIcon className="h-4 w-4 mr-2" />
-                        Download
+                        <DownloadIcon className="h-4 w-4 text-gray-600" />
                       </Button>
                       <Button
                         onClick={() => {
-                          setPreviewImageUrl(processedImage);
-                          setShowPreviewDialog(true);
+                          setProcessedImage(null);
+                          setSelectedDemoImage('');
+                          setSelectedDemoImageData(null);
                         }}
-                        variant="outline"
-                        className="flex-1"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Remove image"
                       >
-                        <ZapIcon className="h-4 w-4 mr-2" />
-                        Preview
+                        <Trash2Icon className="h-4 w-4 text-gray-600" />
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex-grow flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-200">
-                    <div className="text-center space-y-3">
-                      <svg
-                        width="64"
-                        height="64"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-16 w-16 text-gray-400 mx-auto"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M2 11H3V6C3 4.34314 4.34326 3 6 3H18C19.6567 3 21 4.34314 21 6V11H22C22.5522 11 23 11.4477 23 12C23 12.5523 22.5522 13 22 13H21V18C21 19.6569 19.6567 21 18 21H6C4.34326 21 3 19.6569 3 18V13H2C1.44775 13 1 12.5523 1 12C1 11.4477 1.44775 11 2 11ZM18 5H6C5.44775 5 5 5.44769 5 6V11H19V6C19 5.44769 18.5522 5 18 5ZM16.2929 13H13.7071L7.70711 19H10.2929L16.2929 13ZM11.7071 19L17.7071 13H19V14.2929L14.2929 19H11.7071ZM15.7071 19H18C18.5522 19 19 18.5523 19 18V15.7071L15.7071 19ZM6.29289 19L12.2929 13H9.70711L5 17.7071V18C5 18.5523 5.44775 19 6 19H6.29289ZM5 16.2929L8.29289 13H5V16.2929Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      <div>
-                        <p className="font-medium text-gray-700">Ready to remove watermarks</p>
-                        <p className="text-sm text-gray-500">Upload an image to get started</p>
+                  /* Default state - show demo images */
+                  <div className="flex flex-col gap-6 items-center justify-center w-full h-full">
+                    <div className="flex flex-col gap-4 items-center justify-center w-full">
+                      <div className="text-center text-[16px] text-black font-normal">
+                        <p>No image? Try one of these</p>
+                      </div>
+                      <div className="flex gap-4 items-center justify-center">
+                        {DEMO_IMAGES.map((demoImage, index) => (
+                          <button
+                            type="button"
+                            key={demoImage.id}
+                            onClick={() => handleDemoImageClick(demoImage)}
+                            className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
+                          >
+                            <Image
+                              src={demoImage.beforeSrc}
+                              alt={demoImage.alt}
+                              fill
+                              sizes="82px"
+                              className="object-cover"
+                            />
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -560,72 +677,74 @@ export function RemoveWatermarkGeneratorSection() {
           </Card>
         </div>
 
-        {/* History Section */}
+        {/* Watermark Removal History Section */}
         {removalHistory.length > 0 && (
-          <Card className="border shadow-md rounded-2xl bg-white">
-            <CardContent className="pt-6 px-6 pb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <CpuIcon className="h-5 w-5" />
-                  Recent Removals
-                </h3>
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                Your Watermark Removal History
+              </h3>
+              <div className="flex items-center gap-2">
                 <Button
-                  onClick={() => setShowClearAllConfirmDialog(true)}
                   variant="outline"
                   size="sm"
+                  className="cursor-pointer"
+                  onClick={() => setShowClearAllConfirmDialog(true)}
                 >
-                  <Trash2Icon className="h-4 w-4 mr-2" />
                   Clear All
                 </Button>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {removalHistory.slice(0, 8).map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="group relative bg-gray-50 rounded-lg overflow-hidden border hover:shadow-md transition-all duration-200"
-                  >
-                    <div className="aspect-square relative">
-                      <Image
-                        src={item.processedImage}
-                        alt={`Removed watermark ${index + 1}`}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleDownload(item.processedImage, `watermark-removed-${item.id}.png`)}
-                            size="sm"
-                            variant="secondary"
-                            className="bg-white/90 hover:bg-white"
-                          >
-                            <DownloadIcon className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setPendingDeleteItem({ idx: index, item });
-                              setShowDeleteConfirmDialog(true);
-                            }}
-                            size="sm"
-                            variant="secondary"
-                            className="bg-white/90 hover:bg-white text-red-600"
-                          >
-                            <Trash2Icon className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-2 text-xs text-muted-foreground">
-                      <p className="font-medium">{REMOVAL_METHODS.find(m => m.id === item.method)?.name}</p>
-                      <p>{new Date(item.createdAt).toLocaleDateString()}</p>
-                    </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {removalHistory.slice(0, 12).map((item, idx) => (
+                <div
+                  key={`${item.createdAt}-${idx}`}
+                  className="group relative"
+                >
+                  <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+                    <img
+                      src={item.processedImage}
+                      alt={`Watermark Removal ${idx + 1}`}
+                      className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                      onClick={() => {
+                        setPreviewImageUrl(item.processedImage);
+                        setShowPreviewDialog(true);
+                      }}
+                    />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate max-w-[60%]">
+                      {REMOVAL_METHODS.find(m => m.id === item.method)?.name || 'Auto Detection'}
+                    </span>
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Download removed image"
+                      onClick={() => handleDownload(item.processedImage, `watermark-removed-${item.id}.png`)}
+                    >
+                      <DownloadIcon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Remove from history"
+                      onClick={() => {
+                        setPendingDeleteItem({ idx, item });
+                        setShowDeleteConfirmDialog(true);
+                      }}
+                    >
+                      <Trash2Icon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
