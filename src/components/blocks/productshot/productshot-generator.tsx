@@ -30,6 +30,7 @@ import {
   BoxIcon,
   CameraIcon,
   DownloadIcon,
+  ImageIcon,
   ImagePlusIcon,
   LoaderIcon,
   PackageIcon,
@@ -240,8 +241,9 @@ export default function ProductShotGeneratorSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a: ProductshotHistoryItem, b: ProductshotHistoryItem) =>
-              (b.createdAt || 0) - (a.createdAt || 0)
+            const sortedItems = processedItems.sort(
+              (a: ProductshotHistoryItem, b: ProductshotHistoryItem) =>
+                (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
             console.log(
@@ -320,8 +322,8 @@ export default function ProductShotGeneratorSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a, b) =>
-              (b.createdAt || 0) - (a.createdAt || 0)
+            const sortedItems = processedItems.sort(
+              (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
             console.log(
@@ -339,8 +341,8 @@ export default function ProductShotGeneratorSection() {
           if (raw) {
             const parsed = JSON.parse(raw) as ProductshotHistoryItem[];
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = parsed.sort((a, b) =>
-              (b.createdAt || 0) - (a.createdAt || 0)
+            const sortedItems = parsed.sort(
+              (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
             console.log(
@@ -411,7 +413,7 @@ export default function ProductShotGeneratorSection() {
           // 新项目添加到最前面，确保时间戳
           const itemWithTime = {
             ...item,
-            createdAt: item.createdAt || Date.now()
+            createdAt: item.createdAt || Date.now(),
           };
           const next = [itemWithTime, ...prev]; // 永久保存所有历史记录
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
@@ -1405,37 +1407,15 @@ export default function ProductShotGeneratorSection() {
 
       {/* Image Preview Modal */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
-        <DialogContent className="max-w-6xl w-[90vw] h-[70vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+        <DialogContent className="max-w-7xl w-[95vw] h-[85vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
           {/* Header */}
           <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-white text-xl font-semibold flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-yellow-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-yellow-400" />
                   Product Shot Preview
                 </DialogTitle>
-                <DialogDescription className="text-gray-300 text-sm mt-1">
-                  Scene: {(() => {
-                    // 从历史记录中找到对应的场景信息
-                    const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
-                    return historyItem?.scene || 'Unknown';
-                  })()} • Created: {(() => {
-                    const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
-                    return historyItem ? new Date(historyItem.createdAt).toLocaleDateString() : 'Unknown';
-                  })()}
-                </DialogDescription>
               </div>
 
               {/* Close button */}
@@ -1456,7 +1436,7 @@ export default function ProductShotGeneratorSection() {
             onClick={() => setShowImagePreview(false)}
           >
             {previewImageUrl && (
-              <div className="relative max-w-[90%] max-h-[80%] transition-transform duration-300 group-hover:scale-[1.02]">
+              <div className="relative max-w-[95%] max-h-[90%] transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image
                   src={previewImageUrl}
                   alt="Product shot preview"
@@ -1478,7 +1458,9 @@ export default function ProductShotGeneratorSection() {
                 onClick={(e) => {
                   e.stopPropagation();
                   // 从历史记录中找到对应的项目进行下载
-                  const historyItem = productshotHistory.find(item => item.url === previewImageUrl);
+                  const historyItem = productshotHistory.find(
+                    (item) => item.url === previewImageUrl
+                  );
                   if (historyItem) {
                     downloadFromUrl(historyItem.url, historyItem.scene);
                   } else {

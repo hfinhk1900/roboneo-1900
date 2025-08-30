@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     // 解析成功响应
     const result = await response.json();
 
-    console.log(`✅ Background removal successful`);
+    console.log('✅ Background removal successful');
     console.log(`⏱️ Processing time: ${result.processing_time}s`);
     console.log(`📐 Image size: ${result.image_size}`);
 

@@ -30,6 +30,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   DownloadIcon,
   EraserIcon,
+  ImageIcon,
   ImagePlusIcon,
   LoaderIcon,
   SparklesIcon,
@@ -76,19 +77,55 @@ const REMOVAL_METHODS = [
 
 // Watermark types for better processing
 const WATERMARK_TYPES = [
-  { value: 'text', label: 'Text Watermark', description: 'Letters, words, or numbers' },
-  { value: 'logo', label: 'Logo/Brand', description: 'Company logos or brand marks' },
-  { value: 'signature', label: 'Signature', description: 'Handwritten signatures' },
-  { value: 'timestamp', label: 'Timestamp', description: 'Date and time stamps' },
-  { value: 'pattern', label: 'Pattern', description: 'Repeated patterns or textures' },
-  { value: 'unknown', label: 'Unknown/Mixed', description: 'Let AI decide the best approach' },
+  {
+    value: 'text',
+    label: 'Text Watermark',
+    description: 'Letters, words, or numbers',
+  },
+  {
+    value: 'logo',
+    label: 'Logo/Brand',
+    description: 'Company logos or brand marks',
+  },
+  {
+    value: 'signature',
+    label: 'Signature',
+    description: 'Handwritten signatures',
+  },
+  {
+    value: 'timestamp',
+    label: 'Timestamp',
+    description: 'Date and time stamps',
+  },
+  {
+    value: 'pattern',
+    label: 'Pattern',
+    description: 'Repeated patterns or textures',
+  },
+  {
+    value: 'unknown',
+    label: 'Unknown/Mixed',
+    description: 'Let AI decide the best approach',
+  },
 ] as const;
 
 // Processing quality options
 const QUALITY_OPTIONS = [
-  { value: 'fast', label: 'Fast', description: 'Quick processing, good for simple watermarks' },
-  { value: 'balanced', label: 'Balanced', description: 'Balance between speed and quality' },
-  { value: 'high', label: 'High Quality', description: 'Best quality, takes more time' },
+  {
+    value: 'fast',
+    label: 'Fast',
+    description: 'Quick processing, good for simple watermarks',
+  },
+  {
+    value: 'balanced',
+    label: 'Balanced',
+    description: 'Balance between speed and quality',
+  },
+  {
+    value: 'high',
+    label: 'High Quality',
+    description: 'Best quality, takes more time',
+  },
 ] as const;
 
 // Demo images configuration with before/after states
@@ -122,9 +159,9 @@ const DEMO_IMAGES = [
   },
 ];
 
-type RemovalMethod = typeof REMOVAL_METHODS[number]['id'];
-type WatermarkType = typeof WATERMARK_TYPES[number]['value'];
-type QualityLevel = typeof QUALITY_OPTIONS[number]['value'];
+type RemovalMethod = (typeof REMOVAL_METHODS)[number]['id'];
+type WatermarkType = (typeof WATERMARK_TYPES)[number]['value'];
+type QualityLevel = (typeof QUALITY_OPTIONS)[number]['value'];
 
 interface RemovalHistoryItem {
   id: string;
@@ -141,9 +178,12 @@ export function RemoveWatermarkGeneratorSection() {
   const currentUser = useCurrentUser();
 
   // History related states
-  const [removalHistory, setRemovalHistory] = useState<RemovalHistoryItem[]>([]);
+  const [removalHistory, setRemovalHistory] = useState<RemovalHistoryItem[]>(
+    []
+  );
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
-  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] = useState(false);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
+    useState(false);
   const [pendingDeleteItem, setPendingDeleteItem] = useState<{
     idx: number;
     item: RemovalHistoryItem;
@@ -162,18 +202,22 @@ export function RemoveWatermarkGeneratorSection() {
 
   // Demo image states
   const [selectedDemoImage, setSelectedDemoImage] = useState<string>('');
-  const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
+  const [selectedDemoImageData, setSelectedDemoImageData] = useState<
+    (typeof DEMO_IMAGES)[0] | null
+  >(null);
 
   // Processing configuration states
   const [selectedMethod, setSelectedMethod] = useState<RemovalMethod>('auto');
-  const [selectedWatermarkType, setSelectedWatermarkType] = useState<WatermarkType>('unknown');
-  const [selectedQuality, setSelectedQuality] = useState<QualityLevel>('balanced');
-
+  const [selectedWatermarkType, setSelectedWatermarkType] =
+    useState<WatermarkType>('unknown');
+  const [selectedQuality, setSelectedQuality] =
+    useState<QualityLevel>('balanced');
 
   // Dialog states
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
-  const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
+  const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] =
+    useState(false);
 
   // History storage key
   const HISTORY_KEY = 'roboneo_watermark_removal_history_v1';
@@ -213,58 +257,73 @@ export function RemoveWatermarkGeneratorSection() {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
           setRemovalHistory(parsed);
-          console.log('📱 Local removal history loaded:', parsed.length, 'items');
+          console.log(
+            '📱 Local removal history loaded:',
+            parsed.length,
+            'items'
+          );
         }
       }
     } catch (error) {
-      console.error('Error loading removal history:', error);
+      console.warn('Error loading removal history:', error);
     }
   }, [isMounted]);
 
   // Save history
-  const saveHistory = useCallback((newHistory: RemovalHistoryItem[]) => {
-    if (!isMounted) return;
+  const saveHistory = useCallback(
+    (newHistory: RemovalHistoryItem[]) => {
+      if (!isMounted) return;
 
-    try {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
-      console.log('💾 Removal history saved:', newHistory.length, 'items');
-    } catch (error) {
-      console.error('Error saving removal history:', error);
-    }
-  }, [isMounted]);
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+        console.log('💾 Removal history saved:', newHistory.length, 'items');
+      } catch (error) {
+        console.warn('Error saving removal history:', error);
+      }
+    },
+    [isMounted]
+  );
 
   // File upload handlers
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a valid image file (JPEG, PNG, WebP)');
-        return;
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        // Validate file type
+        const validTypes = [
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/webp',
+        ];
+        if (!validTypes.includes(file.type)) {
+          toast.error('Please upload a valid image file (JPEG, PNG, WebP)');
+          return;
+        }
+
+        // Validate file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          toast.error('Image file size must be less than 10MB');
+          return;
+        }
+
+        setUploadedImage(file);
+
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setImagePreview(result);
+        };
+        reader.readAsDataURL(file);
+
+        // Reset processed image
+        setProcessedImage(null);
       }
-
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size > maxSize) {
-        toast.error('Image file size must be less than 10MB');
-        return;
-      }
-
-      setUploadedImage(file);
-
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setImagePreview(result);
-      };
-      reader.readAsDataURL(file);
-
-      // Reset processed image
-      setProcessedImage(null);
-    }
-  }, []);
+    },
+    []
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -276,20 +335,23 @@ export function RemoveWatermarkGeneratorSection() {
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    const imageFile = files.find(file => file.type.startsWith('image/'));
+      const files = Array.from(e.dataTransfer.files);
+      const imageFile = files.find((file) => file.type.startsWith('image/'));
 
-    if (imageFile) {
-      const event = { target: { files: [imageFile] } } as any;
-      handleFileSelect(event);
-    } else {
-      toast.error('Please drop an image file');
-    }
-  }, [handleFileSelect]);
+      if (imageFile) {
+        const event = { target: { files: [imageFile] } } as any;
+        handleFileSelect(event);
+      } else {
+        toast.error('Please drop an image file');
+      }
+    },
+    [handleFileSelect]
+  );
 
   // Demo image click handling
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
@@ -304,7 +366,7 @@ export function RemoveWatermarkGeneratorSection() {
 
     try {
       // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Set the processed result
       setProcessedImage(demoImage.afterSrc);
@@ -326,7 +388,7 @@ export function RemoveWatermarkGeneratorSection() {
 
       toast.success('Watermark removed successfully! ✨');
     } catch (error) {
-      console.error('Demo watermark removal error:', error);
+      console.warn('Demo watermark removal error:', error);
       toast.error('Failed to process demo image. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -339,7 +401,9 @@ export function RemoveWatermarkGeneratorSection() {
     setProcessedImage(null);
 
     // Reset file input
-    const fileInput = document.getElementById('watermark-image-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      'watermark-image-upload'
+    ) as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
     }
@@ -356,6 +420,11 @@ export function RemoveWatermarkGeneratorSection() {
       setShowLoginDialog(true);
       return;
     }
+
+    console.log(
+      '👤 Current user:',
+      currentUser?.id ? 'Logged in' : 'Not logged in'
+    );
 
     // Check credits
     const currentCredits = creditsCache.get() || 0;
@@ -382,29 +451,78 @@ export function RemoveWatermarkGeneratorSection() {
 
       console.log('🚀 Calling watermark removal API...');
 
+      const requestBody = {
+        image_input: imageBase64,
+        quality: selectedQuality === 'high' ? 'hd' : 'standard',
+        steps:
+          selectedQuality === 'high'
+            ? 50
+            : selectedQuality === 'fast'
+              ? 20
+              : 30,
+        size: '1024x1024',
+        output_format: 'png',
+      };
+
+      console.log('📤 Request payload:', {
+        ...requestBody,
+        image_input: `${imageBase64.substring(0, 50)}... (${imageBase64.length} chars)`,
+      });
+
       // Call the watermark removal API
       const response = await fetch('/api/watermark/remove', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          image_input: imageBase64,
-          quality: selectedQuality === 'high' ? 'hd' : 'standard',
-          steps: selectedQuality === 'high' ? 50 : selectedQuality === 'fast' ? 20 : 30,
-          size: '1024x1024',
-          output_format: 'png',
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      const result = await response.json();
+      console.log('📥 Response status:', response.status, response.statusText);
+
+      let result: any;
+      try {
+        result = await response.json();
+        console.log('📥 Response data:', result);
+      } catch (jsonError) {
+        console.warn('❌ Failed to parse JSON response:', jsonError);
+        const responseText = await response.text();
+        console.warn('📄 Raw response:', responseText);
+        throw new Error(
+          `Server response is not valid JSON. Status: ${response.status}`
+        );
+      }
 
       if (!response.ok) {
+        // 安全地处理可能为空的 result 对象
+        const safeResult = result || {};
+        const errorInfo = {
+          status: response.status,
+          statusText: response.statusText,
+          error: safeResult.error || 'No error message',
+          details: safeResult.details || 'No details provided',
+        };
+
+        // 使用 console.warn 避免 Next.js 将错误抛出
+        console.warn('❌ API request failed:', errorInfo);
+
+        if (response.status === 401) {
+          console.warn('🔐 User not authenticated, showing login dialog');
+          setShowLoginDialog(true);
+          toast.error('Please log in to use watermark removal');
+          return;
+        }
+
         if (response.status === 402) {
           setShowInsufficientCreditsDialog(true);
           return;
         }
-        throw new Error(result.error || 'Failed to remove watermark');
+
+        const errorMessage =
+          safeResult.error ||
+          safeResult.details ||
+          `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
       }
 
       if (result.success && result.public_url) {
@@ -465,19 +583,64 @@ export function RemoveWatermarkGeneratorSection() {
         throw new Error('Invalid response from watermark removal service');
       }
     } catch (error) {
-      console.error('Watermark removal error:', error);
+      // 使用 console.warn 避免 Next.js 错误拦截
+      console.warn('Watermark removal error:', error);
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      let errorMessage = 'Unknown error occurred';
+      let userMessage = 'Failed to remove watermark. Please try again.';
 
-      if (errorMessage.includes('Insufficient credits')) {
-        setShowInsufficientCreditsDialog(true);
-      } else if (errorMessage.includes('timeout')) {
-        toast.error('Request timed out. Please try again.');
-      } else if (errorMessage.includes('AI服务暂时不可用')) {
-        toast.error('AI service temporarily unavailable. Please try again later.');
-      } else {
-      toast.error('Failed to remove watermark. Please try again.');
+      if (error instanceof Error) {
+        errorMessage = error.message;
+
+        // 根据错误类型提供更具体的用户反馈
+        if (errorMessage.includes('Insufficient credits')) {
+          setShowInsufficientCreditsDialog(true);
+          return; // 不显示 toast，由对话框处理
+        }
+
+        if (
+          errorMessage.includes('timeout') ||
+          errorMessage.includes('AbortError')
+        ) {
+          userMessage = 'Request timed out. Please try again.';
+        } else if (
+          errorMessage.includes('AI服务暂时不可用') ||
+          errorMessage.includes('service temporarily unavailable')
+        ) {
+          userMessage =
+            'AI service temporarily unavailable. Please try again later.';
+        } else if (
+          errorMessage.includes('Network error') ||
+          errorMessage.includes('fetch')
+        ) {
+          userMessage =
+            'Network error. Please check your connection and try again.';
+        } else if (
+          errorMessage.includes('Not authenticated') ||
+          errorMessage.includes('Unauthorized')
+        ) {
+          setShowLoginDialog(true);
+          userMessage = 'Please log in to use watermark removal.';
+        } else if (
+          errorMessage.includes('Invalid response') ||
+          errorMessage.includes('not valid JSON')
+        ) {
+          userMessage = 'Server error. Please try again later.';
+        } else if (errorMessage.includes('HTTP')) {
+          userMessage = `Server error: ${errorMessage}`;
+        }
       }
+
+      // 显示用户友好的错误消息
+      toast.error(userMessage);
+
+      // 记录详细错误信息用于调试（使用 console.warn 避免错误拦截）
+      console.warn('详细错误信息:', {
+        originalError: error,
+        errorMessage,
+        userMessage,
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -489,38 +652,44 @@ export function RemoveWatermarkGeneratorSection() {
     saveHistory,
     selectedMethod,
     selectedWatermarkType,
-    selectedQuality
+    selectedQuality,
   ]);
 
   // Download handler
-  const handleDownload = useCallback(async (imageUrl: string, filename: string = 'watermark-removed.png') => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+  const handleDownload = useCallback(
+    async (imageUrl: string, filename = 'watermark-removed.png') => {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
 
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      window.URL.revokeObjectURL(url);
-      toast.success('Image downloaded successfully!');
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download image');
-    }
-  }, []);
+        window.URL.revokeObjectURL(url);
+        toast.success('Image downloaded successfully!');
+      } catch (error) {
+        console.warn('Download error:', error);
+        toast.error('Failed to download image');
+      }
+    },
+    []
+  );
 
   // History management
-  const deleteHistoryItem = useCallback((index: number) => {
-    const newHistory = removalHistory.filter((_, i) => i !== index);
-    setRemovalHistory(newHistory);
-    saveHistory(newHistory);
-    toast.success('History item deleted');
-  }, [removalHistory, saveHistory]);
+  const deleteHistoryItem = useCallback(
+    (index: number) => {
+      const newHistory = removalHistory.filter((_, i) => i !== index);
+      setRemovalHistory(newHistory);
+      saveHistory(newHistory);
+      toast.success('History item deleted');
+    },
+    [removalHistory, saveHistory]
+  );
 
   const clearAllHistory = useCallback(() => {
     setRemovalHistory([]);
@@ -543,7 +712,8 @@ export function RemoveWatermarkGeneratorSection() {
             Remove Image Watermark
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Upload your image and remove watermarks instantly with AI. Simple, fast, and effective.
+            Upload your image and remove watermarks instantly with AI. Simple,
+            fast, and effective.
           </p>
         </div>
 
@@ -625,8 +795,6 @@ export function RemoveWatermarkGeneratorSection() {
                   </div>
                 </div>
 
-
-
                 {/* Process Button */}
                 <Button
                   onClick={handleRemoveWatermark}
@@ -688,7 +856,7 @@ export function RemoveWatermarkGeneratorSection() {
                               <span className="text-lg font-medium">
                                 Removing Watermark...
                               </span>
-                    </div>
+                            </div>
 
                             {/* Progress bar - consistent with AI Background */}
                             <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -700,7 +868,9 @@ export function RemoveWatermarkGeneratorSection() {
 
                             {/* Processing status text */}
                             <div className="text-center space-y-1">
-                              <p className="text-white text-sm">AI is analyzing and cleaning your image</p>
+                              <p className="text-white text-sm">
+                                AI is analyzing and cleaning your image
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -782,10 +952,10 @@ export function RemoveWatermarkGeneratorSection() {
         {/* Watermark Removal History Section */}
         {removalHistory.length > 0 && (
           <div className="mt-10">
-              <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">
                 Your Watermark Removal History
-                </h3>
+              </h3>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -805,7 +975,7 @@ export function RemoveWatermarkGeneratorSection() {
                 >
                   <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
                     <img
-                        src={item.processedImage}
+                      src={item.processedImage}
                       alt={`Watermark Removal ${idx + 1}`}
                       className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
                       onClick={() => {
@@ -815,37 +985,40 @@ export function RemoveWatermarkGeneratorSection() {
                     />
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="truncate max-w-[60%]">
-                      {REMOVAL_METHODS.find(m => m.id === item.method)?.name || 'Auto Detection'}
-                    </span>
+                    <span className="truncate max-w-[60%]">watermark</span>
                     <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                          <Button
+                    <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download removed image"
-                            onClick={() => handleDownload(item.processedImage, `watermark-removed-${item.id}.png`)}
-                          >
+                      onClick={() =>
+                        handleDownload(
+                          item.processedImage,
+                          `watermark-removed-${item.id}.png`
+                        )
+                      }
+                    >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
-                          </Button>
-                          <Button
+                    </Button>
+                    <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Remove from history"
-                            onClick={() => {
+                      onClick={() => {
                         setPendingDeleteItem({ idx, item });
-                              setShowDeleteConfirmDialog(true);
-                            }}
-                          >
+                        setShowDeleteConfirmDialog(true);
+                      }}
+                    >
                       <Trash2Icon className="h-4 w-4 text-gray-600" />
-                          </Button>
-                    </div>
+                    </Button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -864,7 +1037,11 @@ export function RemoveWatermarkGeneratorSection() {
             <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={() => window.location.href = '/auth/signin'}>
+            <Button
+              onClick={() => {
+                window.location.href = '/auth/signin';
+              }}
+            >
               Sign In
             </Button>
           </div>
@@ -873,31 +1050,97 @@ export function RemoveWatermarkGeneratorSection() {
 
       {/* Preview Dialog */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Watermark Removal Result</DialogTitle>
-          </DialogHeader>
-          {previewImageUrl && (
-            <div className="relative w-full h-96">
-              <Image
-                src={previewImageUrl}
-                alt="Preview"
-                fill
-                sizes="100vw"
-                className="object-contain rounded-lg"
-              />
+        <DialogContent className="max-w-7xl w-[95vw] h-[85vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+          {/* Header */}
+          <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-yellow-400" />
+                  Watermark Removal Result
+                </DialogTitle>
+                <DialogDescription className="text-gray-300 text-sm mt-1">
+                  High-quality AI watermark removal • Processed successfully
+                </DialogDescription>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setShowPreviewDialog(false)}
+                className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
             </div>
-          )}
+          </DialogHeader>
+
+          {/* Main image area */}
+          <div
+            className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+            onClick={() => setShowPreviewDialog(false)}
+          >
+            {previewImageUrl && (
+              <div className="relative max-w-[95%] max-h-[90%] transition-transform duration-300 group-hover:scale-[1.02]">
+                <Image
+                  src={previewImageUrl}
+                  alt="Watermark removal result"
+                  width={1200}
+                  height={1200}
+                  className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                  quality={100}
+                  priority
+                  draggable={false}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Bottom controls */}
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (previewImageUrl) {
+                    handleDownload(previewImageUrl, 'watermark-removed.png');
+                  }
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                size="lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Full Size
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPreviewDialog(false);
+                }}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                size="lg"
+              >
+                Close Preview
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteConfirmDialog} onOpenChange={setShowDeleteConfirmDialog}>
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onOpenChange={setShowDeleteConfirmDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete History Item</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this removal from your history? This action cannot be undone.
+              Are you sure you want to delete this removal from your history?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2">
@@ -927,12 +1170,16 @@ export function RemoveWatermarkGeneratorSection() {
       </Dialog>
 
       {/* Clear All Confirmation Dialog */}
-      <Dialog open={showClearAllConfirmDialog} onOpenChange={setShowClearAllConfirmDialog}>
+      <Dialog
+        open={showClearAllConfirmDialog}
+        onOpenChange={setShowClearAllConfirmDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Clear All History</DialogTitle>
             <DialogDescription>
-              Are you sure you want to clear all removal history? This action cannot be undone.
+              Are you sure you want to clear all removal history? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2">

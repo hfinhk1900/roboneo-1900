@@ -64,31 +64,43 @@ export async function POST(request: NextRequest) {
 
     // 3. 检查用户Credits余额
     console.log(`💳 Checking credits for user: ${session.user.id}`);
-    const { checkCreditsAction } = await import('@/actions/credits-actions');
-    const creditsCheck = await checkCreditsAction({
+    const { getUserCreditsAction } = await import('@/actions/credits-actions');
+    const creditsResult = await getUserCreditsAction({
       userId: session.user.id,
-      requiredCredits: CREDITS_PER_IMAGE,
     });
 
-    if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
+    if (!creditsResult?.data?.success) {
+      return NextResponse.json(
+        {
+          error: 'Failed to check credits',
+          details:
+            creditsResult?.data?.error || 'Unable to verify user credits',
+        },
+        { status: 500 }
+      );
+    }
+
+    const currentCredits = creditsResult.data.data?.credits || 0;
+
+    if (currentCredits < CREDITS_PER_IMAGE) {
       return NextResponse.json(
         {
           error: 'Insufficient credits',
           required: CREDITS_PER_IMAGE,
-          current: creditsCheck?.data?.data?.currentCredits || 0,
+          current: currentCredits,
         },
         { status: 402 }
       );
     }
 
     console.log(
-      `💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with watermark removal...`
+      `💳 User ${session.user.id} has ${currentCredits} credits, proceeding with watermark removal...`
     );
 
     // 4. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {
-      console.error('SiliconFlow API key not configured');
+      console.warn('SiliconFlow API key not configured');
       return NextResponse.json(
         { error: 'AI service temporarily unavailable' },
         { status: 503 }
@@ -167,7 +179,8 @@ export async function POST(request: NextRequest) {
     }
 
     const assetId = generateAssetId();
-    const fileName = result.resultUrl.split('/').pop() || 'watermark-removed.png';
+    const fileName =
+      result.resultUrl.split('/').pop() || 'watermark-removed.png';
 
     // 写入 assets 表
     const db = await getDb();
@@ -210,7 +223,7 @@ export async function POST(request: NextRequest) {
       from_cache: false,
     });
   } catch (error) {
-    console.error('Watermark removal error:', error);
+    console.warn('Watermark removal error:', error);
 
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
