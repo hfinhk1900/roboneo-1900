@@ -125,9 +125,10 @@ export default function MoreAITools() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
             {/* Text overlay with gradient background */}
-            <div className="relative z-10 flex flex-col justify-between h-full min-h-[400px] p-8
-              bg-gradient-to-t from-purple-900/95 via-purple-800/70 to-transparent">
-
+            <div
+              className="relative z-10 flex flex-col justify-between h-full min-h-[400px] p-8
+              bg-gradient-to-t from-purple-900/95 via-purple-800/70 to-transparent"
+            >
               {/* Content */}
               <div className="flex flex-col space-y-4">
                 <div className="space-y-3">
@@ -135,25 +136,26 @@ export default function MoreAITools() {
                     Remove Watermark
                   </h3>
                   <p className="text-purple-100/90 text-lg leading-relaxed">
-                    AI-powered watermark removal. Clean your images with intelligent content restoration technology.
+                    AI-powered watermark removal. Clean your images with
+                    intelligent content restoration technology.
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-300 rounded-full" />
                     <span className="text-purple-100/80 text-sm">
                       Automatic watermark detection
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-300 rounded-full" />
                     <span className="text-purple-100/80 text-sm">
                       AI-powered content restoration
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-300 rounded-full" />
                     <span className="text-purple-100/80 text-sm">
                       Multiple removal methods
                     </span>

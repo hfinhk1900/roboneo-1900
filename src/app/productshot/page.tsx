@@ -57,6 +57,7 @@ export default function ProductShotPage() {
     <>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe JSON-LD structured data for SEO
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 

@@ -24,33 +24,7 @@ export async function generateMetadata({
     title: 'AI Text to Image Generator | Free Text to Art Converter | RoboNeo',
     description:
       'Transform text to stunning images with our AI text to image generator. Create art, product photos, stickers, and more from text prompts. 4 powerful AI tools in one platform. Try free!',
-    keywords:
-      'AI text to image generator, text to art converter, AI image generation from text, free text to image AI, prompt to image creator, text description to picture, AI art generator from words, text to visual converter online, generate images from text prompts, text to image AI tools',
     canonicalUrl: getUrlWithLocale('/text-to-image', locale),
-    openGraph: {
-      title: 'AI Text to Image Generator - Transform Words into Visual Art',
-      description:
-        'Create stunning images from text with 4 powerful AI tools. Generate art, product photos, stickers, and more instantly.',
-      type: 'website',
-      images: [
-        {
-          url: '/og-text-to-image.jpg',
-          width: 1200,
-          height: 630,
-          alt: 'AI Text to Image Generator Preview',
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'AI Text to Image Generator | RoboNeo',
-      description:
-        'Transform text prompts into stunning visuals with 4 powerful AI tools.',
-      images: ['/og-text-to-image.jpg'],
-    },
-    alternates: {
-      canonical: '/text-to-image',
-    },
   });
 }
 
@@ -87,6 +61,7 @@ export default async function TextToImagePage(props: TextToImagePageProps) {
     <>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe JSON-LD structured data for SEO
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="flex flex-col">

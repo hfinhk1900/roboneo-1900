@@ -30,7 +30,7 @@ async function testImageToStickerAPI() {
     console.log('📁 Test image path:', testImagePath);
 
     // 读取测试图片
-    let imageBuffer;
+    let imageBuffer: Buffer;
     try {
       imageBuffer = await readFile(testImagePath);
       console.log(`✅ Image loaded successfully (${imageBuffer.length} bytes)`);

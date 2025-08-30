@@ -865,13 +865,6 @@ export function RemoveWatermarkGeneratorSection() {
                                 style={{ width: '100%' }}
                               />
                             </div>
-
-                            {/* Processing status text */}
-                            <div className="text-center space-y-1">
-                              <p className="text-white text-sm">
-                                AI is analyzing and cleaning your image
-                              </p>
-                            </div>
                           </div>
                         </div>
                       </div>

@@ -27,7 +27,7 @@ export default function AIMagicFeatures() {
 
             <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>One-Click Workflow:</strong> Upload your image, choose
                   a style (classic emoji, chibi, 3-D clay, etc.), and hit
@@ -35,7 +35,7 @@ export default function AIMagicFeatures() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Smart Cut-Out & Outline:</strong> Roboneo AI
                   automatically removes busy backgrounds, adds a crisp white
@@ -44,7 +44,7 @@ export default function AIMagicFeatures() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Unlimited Remixing:</strong> Want a neon outline? A
                   glitter effect? Just tweak the prompt and regenerate—no extra
@@ -119,7 +119,7 @@ export default function AIMagicFeatures() {
 
             <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Upload & Describe:</strong> Drop a selfie, add
                   keywords like Shōnen hero or Cyberpunk waifu, and let our
@@ -127,7 +127,7 @@ export default function AIMagicFeatures() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Genre-Perfect Results:</strong> From Ghibli-style
                   backgrounds to retro cel shading, Roboneo AI matches the color
@@ -135,7 +135,7 @@ export default function AIMagicFeatures() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>HD & Watermark-Free:</strong> Paid plans unlock 4K
                   renders and commercial licenses, ideal for Twitch panels,
@@ -183,7 +183,7 @@ export default function AIMagicFeatures() {
 
             <ul className="space-y-4 text-base text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Instant Retouching:</strong> We clean blemishes,
                   balance skin tones, and add flattering studio lighting—no
@@ -191,7 +191,7 @@ export default function AIMagicFeatures() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2"></span>
+                <span className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
                 <span>
                   <strong>Wardrobe & Background Control:</strong> Type "navy
                   blazer, soft-gray backdrop" or "startup hoodie, clean white
