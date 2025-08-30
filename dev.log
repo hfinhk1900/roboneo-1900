@@ -326,3 +326,1317 @@ Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
 << middleware end, applying intlMiddleware
  GET /remove-watermark 200 in 135ms
  GET /manifest.webmanifest 200 in 11ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/aibackground ...
+>> middleware start, pathname /productshot
+ ✓ Compiled /[locale]/aibackground in 4.9s (3602 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 3660ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 825ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 822ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale] ...
+ GET /aibackground 200 in 7667ms
+ ✓ Compiled /manifest.webmanifest in 10.5s (4489 modules)
+ GET /api/auth/get-session 200 in 9842ms
+ GET /manifest.webmanifest 200 in 5449ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 6639ms
+ GET /remove-watermark 200 in 11358ms
+ GET /api/auth/get-session 200 in 5742ms
+ GET /manifest.webmanifest 200 in 24ms
+>> middleware start, pathname /aibackground
+ ○ Compiling /api/history/aibg ...
+ GET / 200 in 14706ms
+ GET /productshot 200 in 14807ms
+ ✓ Compiled /api/history/aibg in 4.5s (4496 modules)
+ GET /api/auth/get-session 200 in 3644ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 3486ms
+ GET /manifest.webmanifest 200 in 28ms
+ GET /api/auth/get-session 200 in 6658ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /api/storage/sign-download ...
+ GET /api/auth/get-session 200 in 1414ms
+ ✓ Compiled /api/storage/sign-download in 4.7s (4572 modules)
+ GET /api/productshot/generate 200 in 5226ms
+ GET /api/history/aibg?refresh_urls=true 200 in 12466ms
+>> middleware start, pathname /productshot
+ ○ Compiling /api/history/productshot ...
+ POST /api/storage/sign-download 404 in 7522ms
+✅ Generated new download URL: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 6507ms
+✅ Generated new download URL: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 7304ms
+ ✓ Compiled /api/history/productshot in 1899ms (4574 modules)
+ ○ Compiling /api/assets/download ...
+ POST /aibackground 200 in 8968ms
+ ✓ Compiled /api/assets/download in 1188ms (4576 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 3695ms
+<< middleware end, applying intlMiddleware
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756533455&sig=VcylzGjd_E8Y9HTIZVCif-G6u7E3D8TqTePNBMXQBMQ&disp=inline 200 in 2802ms
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756533457&sig=0M6H2y-HeTmdT2yir7ciHFenhjz02gCVm7LiCsJOtZE&disp=inline 200 in 2418ms
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756533457&sig=hN0KESvru0JfYQQEZvxN0Be-B7eK3UDahF9sXgeGG8w&disp=inline 200 in 2841ms
+ GET /api/history/productshot 200 in 5463ms
+ GET /api/auth/get-session 200 in 1321ms
+<< middleware end, applying intlMiddleware
+Asset download: URL expired {
+  asset_id: 'c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0',
+  expiresAt: 1756322171,
+  currentTime: 1756529862
+}
+ GET /api/assets/download?asset_id=c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0&exp=1756322171&sig=TZQDv2IRc9RQXjHN5bXjQKzdCbAX0tnteLImt4neXDI&disp=inline 410 in 42ms
+ ⨯ The requested resource isn't a valid image for /api/assets/download?asset_id=c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0&exp=1756322171&sig=TZQDv2IRc9RQXjHN5bXjQKzdCbAX0tnteLImt4neXDI&disp=inline received application/json
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+⚠️ Using local asset metadata fallback for download { asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA' }
+✅ Asset download verified: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  filename: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/e135b779-de6d-4140-993e-76944ef0a3e...'
+}
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b' }
+✅ Asset download verified: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  filename: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/f328094d-9bb6-4f7c-adc8-0be08050d76...'
+}
+ POST /api/storage/sign-download 404 in 321ms
+✅ Asset download successful: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  file_name: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  size: 1308954,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=Ed4owHwc4O1om8fR3oMR9qNuwGFH456b&exp=1756533459&sig=5HVsWAa8ddsnzSajsGPOydUIcRFD5YOfPzvWGjKsGPA&disp=inline 200 in 339ms
+✅ Asset download successful: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  file_name: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  size: 1459129,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA&exp=1756533459&sig=1YeBAbxymCY1hxUDWV4mmKqCHbsfdHP0MhhKFyuKraM&disp=inline 200 in 502ms
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+✅ Generated new download URL: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 428ms
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756533457&sig=oSLteO4P0YdI9jzKC9J9B46A3tUMudiFOGOIYrThjwA&disp=inline 200 in 765ms
+ POST /api/storage/sign-download 404 in 1483ms
+ POST /aibackground 200 in 1489ms
+ POST /productshot 200 in 2601ms
+>> middleware start, pathname /productshot
+>> middleware start, pathname /aibackground
+✅ Generated new download URL: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 1376ms
+ GET /api/auth/get-session 200 in 386ms
+ GET /api/auth/get-session 200 in 390ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 76ms
+Asset download: URL expired {
+  asset_id: '9T638j_b6pyb1J285gTA1hOJQKByv94E',
+  expiresAt: 1756321100,
+  currentTime: 1756529864
+}
+ GET /api/assets/download?asset_id=9T638j_b6pyb1J285gTA1hOJQKByv94E&exp=1756321100&sig=eHUiF35vwdPTI3FVCicMfiGD9XbZGF4xmicxhLFYJhc&disp=inline 410 in 62ms
+ ⨯ The requested resource isn't a valid image for /api/assets/download?asset_id=9T638j_b6pyb1J285gTA1hOJQKByv94E&exp=1756321100&sig=eHUiF35vwdPTI3FVCicMfiGD9XbZGF4xmicxhLFYJhc&disp=inline received application/json
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+⚠️ Using local asset metadata fallback for download { asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA' }
+✅ Asset download verified: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  filename: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/e135b779-de6d-4140-993e-76944ef0a3e...'
+}
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b' }
+✅ Asset download verified: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  filename: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/f328094d-9bb6-4f7c-adc8-0be08050d76...'
+}
+✅ Asset download successful: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  file_name: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  size: 1459129,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA&exp=1756533463&sig=TWxdoU8lgxj4jDiQvK0XXSA8UUvsslitFN2OlMsHIak&disp=inline 200 in 410ms
+✅ Asset download successful: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  file_name: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  size: 1308954,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=Ed4owHwc4O1om8fR3oMR9qNuwGFH456b&exp=1756533464&sig=vIFNitIaq1uweXBCJdu7v-AyPSnyy5-Ch0idN-gBZiE&disp=inline 200 in 443ms
+ GET /api/auth/get-session 200 in 472ms
+ POST /productshot 200 in 525ms
+>> middleware start, pathname /productshot
+>> middleware start, pathname /
+ POST /aibackground 200 in 659ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 274ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 386ms
+>> middleware start, pathname /
+ POST /productshot 200 in 494ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 290ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 280ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST / 200 in 417ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackground 200 in 1615ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /productshot 200 in 968ms
+ ○ Compiling /api/history/sticker ...
+ ✓ Compiled /api/history/sticker in 1258ms (4578 modules)
+ GET /api/history/sticker?refresh_urls=true 200 in 2973ms
+✅ Generated new download URL: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 281ms
+✅ Generated new download URL: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 811ms
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1' }
+✅ Asset download verified: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  filename: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/e7c327fd-48a7-4989-a2d8-90794bb00d2d.pn...'
+}
+✅ Asset download successful: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  file_name: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  size: 1534494,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1&exp=1756533470&sig=bvLGS8bsQWJ1__EnnVc3Oh808eVsWuRLs-LngSIftvM&disp=inline 200 in 405ms
+⚠️ Using local asset metadata fallback for download { asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P' }
+✅ Asset download verified: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  filename: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/8b68b1a6-f7ea-41c6-8833-01b1e13d7004.pn...'
+}
+✅ Asset download successful: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  file_name: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  size: 1514302,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P&exp=1756533471&sig=mvFIde1DY8JyrKenrFOkelgad5XleKdryVEEAY0ZXDM&disp=inline 200 in 871ms
+ ✓ Compiled in 8s (3869 modules)
+ ✓ Compiled in 1587ms (3869 modules)
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 1652ms (3203 modules)
+ GET /api/auth/get-session 200 in 3076ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 1042ms
+ GET /api/auth/get-session 200 in 33ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 688ms
+ GET /api/auth/get-session 200 in 16ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 21ms
+<< middleware end, applying intlMiddleware
+ GET /aibackground 200 in 320ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 15ms
+<< middleware end, applying intlMiddleware
+ GET /productshot 200 in 411ms
+ GET /api/auth/get-session 200 in 17ms
+ ✓ Compiled in 3.5s (4496 modules)
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 1571ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 716ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 21ms
+ GET /api/auth/get-session 200 in 289ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 326ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 1838ms (3206 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1999ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /api/storage/sign-download in 1530ms (3210 modules)
+>> middleware start, pathname /productshot
+ ✓ Compiled (3216 modules)
+ GET /manifest.webmanifest 200 in 2985ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 1092ms
+ GET /api/auth/get-session 200 in 3410ms
+<< middleware end, applying intlMiddleware
+✅ Generated new download URL: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 2498ms
+✅ Generated new download URL: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 2471ms
+>> middleware start, pathname /
+ GET /productshot 200 in 569ms
+ ○ Compiling /api/assets/download ...
+ ✓ Compiled /api/assets/download in 890ms (3219 modules)
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 1711ms
+<< middleware end, applying intlMiddleware
+ ✓ Compiled (3221 modules)
+ GET /api/auth/get-session 200 in 1947ms
+>> middleware start, pathname /remove-watermark
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1' }
+✅ Asset download verified: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  filename: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/e7c327fd-48a7-4989-a2d8-90794bb00d2d.pn...'
+}
+⚠️ Using local asset metadata fallback for download { asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P' }
+✅ Asset download verified: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  filename: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/8b68b1a6-f7ea-41c6-8833-01b1e13d7004.pn...'
+}
+ GET /api/auth/get-session 200 in 2738ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 1825ms
+<< middleware end, applying intlMiddleware
+✅ Asset download successful: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  file_name: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  size: 1514302,
+  content_type: 'image/png'
+}
+✅ Asset download successful: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  file_name: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  size: 1534494,
+  content_type: 'image/png'
+}
+ GET /api/auth/get-session 200 in 1274ms
+<< middleware end, applying intlMiddleware
+ GET /api/assets/download?asset_id=WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P&exp=1756575424&sig=yatNy0QPDX65ajoPz6UFRypYzQYQSOmQKQepNwYCXag&disp=inline 200 in 3309ms
+ GET /api/assets/download?asset_id=Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1&exp=1756575424&sig=ZPRIjkBDV1jI5mAuWoF2tCM1BFyR0jkinMdbkqgvQUo&disp=inline 200 in 3310ms
+ GET /api/history/sticker?refresh_urls=true 200 in 3712ms
+ GET /api/auth/get-session 200 in 85ms
+ GET /aibackground 200 in 1164ms
+ GET /remove-watermark 200 in 650ms
+✅ Generated new download URL: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 392ms
+✅ Generated new download URL: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 449ms
+⚠️ Using local asset metadata fallback for download { asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P' }
+✅ Asset download verified: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  filename: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/8b68b1a6-f7ea-41c6-8833-01b1e13d7004.pn...'
+}
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1' }
+✅ Asset download verified: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  filename: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/stickers/e7c327fd-48a7-4989-a2d8-90794bb00d2d.pn...'
+}
+✅ Asset download successful: {
+  asset_id: 'WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P',
+  file_name: '8b68b1a6-f7ea-41c6-8833-01b1e13d7004.png',
+  size: 1514302,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=WWjoFUjK6eI5MbKZcOwLzgt7-7FCZs_P&exp=1756575428&sig=A6TQn_4iUiYDCkxDYORUTJudKfW-dGLCRCdCduqzaQw&disp=inline 200 in 495ms
+✅ Asset download successful: {
+  asset_id: 'Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1',
+  file_name: 'e7c327fd-48a7-4989-a2d8-90794bb00d2d.png',
+  size: 1534494,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=Ne5r24rotzb3KOIBsOJV4sB9VrgBFaD1&exp=1756575428&sig=yCfKrdKZdnrXo89fXZDgvWpWc59xgcifIf0SdShVT28&disp=inline 200 in 538ms
+ POST / 200 in 2874ms
+>> middleware start, pathname /
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 101ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 167ms
+ GET /api/auth/get-session 200 in 371ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 334ms
+>> middleware start, pathname /
+ GET /manifest.webmanifest 200 in 17ms
+ GET /api/auth/get-session 200 in 294ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 369ms
+ ○ Compiling /api/productshot/generate ...
+>> middleware start, pathname /productshot
+ POST / 200 in 1142ms
+>> middleware start, pathname /
+ ✓ Compiled /api/productshot/generate in 4.8s (3295 modules)
+ GET /manifest.webmanifest 200 in 4517ms
+ GET /manifest.webmanifest 200 in 3029ms
+ GET /api/productshot/generate 200 in 6290ms
+ GET /api/auth/get-session 200 in 6040ms
+ GET /api/auth/get-session 200 in 6885ms
+ GET /api/auth/get-session 200 in 7748ms
+ GET /api/auth/get-session 200 in 5302ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /aibackground
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /api/history/aibg ...
+ ✓ Compiled /api/history/aibg in 4.7s (3297 modules)
+ GET /api/auth/get-session 200 in 7435ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 7440ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 7756ms
+>> middleware start, pathname /productshot
+ POST /aibackground 200 in 317ms
+>> middleware start, pathname /aibackground
+ GET /api/auth/get-session 200 in 330ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 347ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 282ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST / 200 in 8499ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackground 200 in 415ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /productshot 200 in 1004ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /remove-watermark 200 in 1010ms
+ ○ Compiling /api/history/productshot ...
+ ✓ Compiled /api/history/productshot in 2.1s (3299 modules)
+ GET /api/history/aibg?refresh_urls=true 200 in 12209ms
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+ GET /api/history/productshot 200 in 4054ms
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756575453&sig=Kyt5xJBHoxPD6EFNngIlG-9pyt-VgZIdu-v5FPFVbSA&disp=inline 200 in 871ms
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756575451&sig=p3s3QMzKgr2hLipqxD5SYSA_fXLUSuUYuUSZS71hmLQ&disp=inline 200 in 895ms
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756575453&sig=15FiKh1pj-oCXeo3JETLEGCETBlU84QqAKpC318jMzE&disp=inline 200 in 1009ms
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+ POST /api/storage/sign-download 404 in 299ms
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756575453&sig=XGgfign55-K4wX4l4kyRY9E_nqVUPERX8v5PTFne1i0&disp=inline 200 in 411ms
+ POST /api/storage/sign-download 404 in 838ms
+✅ Generated new download URL: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 852ms
+✅ Generated new download URL: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 835ms
+Asset download: URL expired {
+  asset_id: 'c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0',
+  expiresAt: 1756322171,
+  currentTime: 1756571855
+}
+Asset download: URL expired {
+  asset_id: '9T638j_b6pyb1J285gTA1hOJQKByv94E',
+  expiresAt: 1756321100,
+  currentTime: 1756571855
+}
+ GET /api/assets/download?asset_id=c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0&exp=1756322171&sig=TZQDv2IRc9RQXjHN5bXjQKzdCbAX0tnteLImt4neXDI&disp=inline 410 in 17ms
+ GET /api/assets/download?asset_id=9T638j_b6pyb1J285gTA1hOJQKByv94E&exp=1756321100&sig=eHUiF35vwdPTI3FVCicMfiGD9XbZGF4xmicxhLFYJhc&disp=inline 410 in 17ms
+ ⨯ The requested resource isn't a valid image for /api/assets/download?asset_id=c0U4QM_4Bi__4xewgBwiuKLwQhmUuOM0&exp=1756322171&sig=TZQDv2IRc9RQXjHN5bXjQKzdCbAX0tnteLImt4neXDI&disp=inline received application/json
+ ⨯ The requested resource isn't a valid image for /api/assets/download?asset_id=9T638j_b6pyb1J285gTA1hOJQKByv94E&exp=1756321100&sig=eHUiF35vwdPTI3FVCicMfiGD9XbZGF4xmicxhLFYJhc&disp=inline received application/json
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+⚠️ Using local asset metadata fallback for download { asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA' }
+✅ Asset download verified: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  filename: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/e135b779-de6d-4140-993e-76944ef0a3e...'
+}
+⚠️ Using local asset metadata fallback for download { asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b' }
+✅ Asset download verified: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  filename: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/f328094d-9bb6-4f7c-adc8-0be08050d76...'
+}
+✅ Asset download successful: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  file_name: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  size: 1459129,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA&exp=1756575455&sig=uDe-DSAReTifVxZluy5TDCrMH9EetU8Z_nOCT4mHFUU&disp=inline 200 in 306ms
+✅ Asset download successful: {
+  asset_id: 'Ed4owHwc4O1om8fR3oMR9qNuwGFH456b',
+  file_name: 'f328094d-9bb6-4f7c-adc8-0be08050d76b.png',
+  size: 1308954,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=Ed4owHwc4O1om8fR3oMR9qNuwGFH456b&exp=1756575455&sig=PqYRQRYl6vxRjZL_mi546nZTF6WHtyUcZUA6Rf-9DhA&disp=inline 200 in 358ms
+ ○ Compiling /api/aibackground/generate ...
+ ✓ Compiled /api/aibackground/generate in 3.1s (4559 modules)
+ ○ Compiling /api/assets/download ...
+ ✓ Compiled /api/assets/download in 840ms (3282 modules)
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756575453&sig=Kyt5xJBHoxPD6EFNngIlG-9pyt-VgZIdu-v5FPFVbSA&disp=inline 200 in 2903ms
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756575453&sig=15FiKh1pj-oCXeo3JETLEGCETBlU84QqAKpC318jMzE&disp=inline 200 in 2913ms
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756575453&sig=XGgfign55-K4wX4l4kyRY9E_nqVUPERX8v5PTFne1i0&disp=inline 200 in 2900ms
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756575451&sig=p3s3QMzKgr2hLipqxD5SYSA_fXLUSuUYuUSZS71hmLQ&disp=inline 200 in 2994ms
+💳 User 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY has 3285 credits, proceeding with AI Background generation...
+🎯 Using background style: custom (Custom Background)
+🎨 Using custom background description
+🤖 AI Background generation prompt: {
+  mode: 'background',
+  backgroundType: 'custom',
+  backgroundColor: 'N/A',
+  prompt: 'replace the background with remove watermark of the image, keep the main subject exactly as it is, c...'
+}
+🚀 Generating AI Background with SiliconFlow: {
+  model: 'black-forest-labs/FLUX.1-Kontext-dev',
+  size: '1024x1024',
+  quality: 'standard',
+  steps: 25,
+  hasImageInput: true
+}
+🎯 SiliconFlow ProductShot generation starting...
+🖼️ Using image-to-image generation with FLUX.1-Kontext-dev
+🎨 Using SiliconFlow image-to-image generation with FLUX.1-Kontext-dev
+🚀 SiliconFlow image-to-image request: {
+  model: 'black-forest-labs/FLUX.1-Kontext-dev',
+  prompt: 'replace the background with remove watermark of the image, keep the main subject exactly as it is, c...',
+  prompt_enhancement: false,
+  hasImageInput: true,
+  hasReferenceImage: false,
+  dualImageMode: false,
+  usingReferenceImage: false,
+  hasSeed: false
+}
+📡 SiliconFlow API Response: 200 OK
+📦 SiliconFlow raw response: {
+  "images": [
+    {
+      "url": "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fvno7sumjql.png?Expires=1756576082&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=mv4Z4818BVByOGiH1Hle%2FJxk8%2Bg%3D"
+    }
+  ],
+  "timings": {
+    "inference": 3
+  },
+  "seed": 323831899,
+  "shared_id": "0",
+  "data": [
+    {
+      "url": "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fvno7sumjql.png?Expires=1756576082&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=mv4Z4818BVByOGiH1Hle%2FJxk8%2Bg%3D"
+    }
+  ],
+  "created": 1756572485
+}
+✅ SiliconFlow API response: {
+  hasData: true,
+  dataKeys: [ '0' ],
+  images: 'no images',
+  data_array: '1 data items'
+}
+🔍 Analyzing response structure...
+result.data type: object
+result.data: [
+  {
+    url: 'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fvno7sumjql.png?Expires=1756576082&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=mv4Z4818BVByOGiH1Hle%2FJxk8%2Bg%3D'
+  }
+]
+📋 Using alternative response format (result.data array)
+✅ Extracted image URL: https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fvno7sumjql.png?Expires=1756576082&...
+📥 Downloading generated image from SiliconFlow...
+✅ Image downloaded: 1274787 bytes
+☁️ Uploading to R2 aibackgrounds folder...
+uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png
+✅ Image saved to R2: https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png
+💰 Deducted 10 credits for AI Background. Remaining: 3275
+✅ AI Background asset created: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  expires_at: 1756576089
+}
+ POST /api/aibackground/generate 200 in 29066ms
+ ○ Compiling /api/history/aibg ...
+ ✓ Compiled /api/history/aibg in 716ms (3284 modules)
+✅ Asset download verified: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  filename: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  key: 'aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c70...'
+}
+ POST /api/history/aibg 200 in 2751ms
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+✅ Asset download successful: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  size: 1274787,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=62EXNT9I4SoNtwTUUDePURg002O3OCIZ&exp=1756576089&sig=v9hkLjLlfQdN_puTQOx3jDYXY-eZTWdF-21WDEwDhc8&disp=inline 200 in 2708ms
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756575451&sig=p3s3QMzKgr2hLipqxD5SYSA_fXLUSuUYuUSZS71hmLQ&disp=inline 200 in 316ms
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+✅ Asset download verified: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  filename: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  key: 'aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c70...'
+}
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756575453&sig=Kyt5xJBHoxPD6EFNngIlG-9pyt-VgZIdu-v5FPFVbSA&disp=inline 200 in 825ms
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756575453&sig=15FiKh1pj-oCXeo3JETLEGCETBlU84QqAKpC318jMzE&disp=inline 200 in 853ms
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756575453&sig=XGgfign55-K4wX4l4kyRY9E_nqVUPERX8v5PTFne1i0&disp=inline 200 in 859ms
+✅ Asset download successful: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  size: 1274787,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=62EXNT9I4SoNtwTUUDePURg002O3OCIZ&exp=1756576091&sig=sISJZNhycu2jnjRNw69jtGrQXYLI1wUIZhE0ETg2z4k&disp=inline 200 in 889ms
+✅ Asset download verified: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  filename: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  key: 'aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c70...'
+}
+✅ Asset download successful: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  size: 1274787,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=62EXNT9I4SoNtwTUUDePURg002O3OCIZ&exp=1756576091&sig=sISJZNhycu2jnjRNw69jtGrQXYLI1wUIZhE0ETg2z4k&disp=inline 200 in 281ms
+✅ Asset download verified: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  filename: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  key: 'aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c70...'
+}
+✅ Asset download successful: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  size: 1274787,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=62EXNT9I4SoNtwTUUDePURg002O3OCIZ&exp=1756576089&sig=v9hkLjLlfQdN_puTQOx3jDYXY-eZTWdF-21WDEwDhc8&disp=inline 200 in 280ms
+💳 User 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY has 3275 credits, proceeding with AI Background generation...
+🎯 Using background style: custom (Custom Background)
+🎨 Using custom background description
+🤖 AI Background generation prompt: {
+  mode: 'background',
+  backgroundType: 'custom',
+  backgroundColor: 'N/A',
+  prompt: 'replace the background with remove the watermark of the image, keep the main subject exactly as it i...'
+}
+🚀 Generating AI Background with SiliconFlow: {
+  model: 'black-forest-labs/FLUX.1-Kontext-dev',
+  size: '1024x1024',
+  quality: 'standard',
+  steps: 25,
+  hasImageInput: true
+}
+🎯 SiliconFlow ProductShot generation starting...
+🖼️ Using image-to-image generation with FLUX.1-Kontext-dev
+🎨 Using SiliconFlow image-to-image generation with FLUX.1-Kontext-dev
+🚀 SiliconFlow image-to-image request: {
+  model: 'black-forest-labs/FLUX.1-Kontext-dev',
+  prompt: 'replace the background with remove the watermark of the image, keep the main subject exactly as it i...',
+  prompt_enhancement: false,
+  hasImageInput: true,
+  hasReferenceImage: false,
+  dualImageMode: false,
+  usingReferenceImage: false,
+  hasSeed: false
+}
+📡 SiliconFlow API Response: 200 OK
+📦 SiliconFlow raw response: {
+  "images": [
+    {
+      "url": "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fgk2tgnubu9.png?Expires=1756576189&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=LdeS41ZXGqdG00EgYeX8zfUR5kk%3D"
+    }
+  ],
+  "timings": {
+    "inference": 3
+  },
+  "seed": 787703448,
+  "shared_id": "0",
+  "data": [
+    {
+      "url": "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fgk2tgnubu9.png?Expires=1756576189&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=LdeS41ZXGqdG00EgYeX8zfUR5kk%3D"
+    }
+  ],
+  "created": 1756572592
+}
+✅ SiliconFlow API response: {
+  hasData: true,
+  dataKeys: [ '0' ],
+  images: 'no images',
+  data_array: '1 data items'
+}
+🔍 Analyzing response structure...
+result.data type: object
+result.data: [
+  {
+    url: 'https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fgk2tgnubu9.png?Expires=1756576189&OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Signature=LdeS41ZXGqdG00EgYeX8zfUR5kk%3D'
+  }
+]
+📋 Using alternative response format (result.data array)
+✅ Extracted image URL: https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs%2F20250831%2Fgk2tgnubu9.png?Expires=1756576189&...
+📥 Downloading generated image from SiliconFlow...
+✅ Image downloaded: 1548654 bytes
+☁️ Uploading to R2 aibackgrounds folder...
+uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png
+✅ Image saved to R2: https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png
+💰 Deducted 10 credits for AI Background. Remaining: 3265
+✅ AI Background asset created: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  file_name: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  expires_at: 1756576196
+}
+ POST /api/aibackground/generate 200 in 25112ms
+✅ Asset download verified: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  filename: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  key: 'aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa...'
+}
+ POST /api/history/aibg 200 in 547ms
+✅ Asset download successful: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  file_name: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  size: 1548654,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj&exp=1756576196&sig=r_IDqhF9d-NpMMWTWJ1oeX3qWUXv3XiU8sCPGXS-uLE&disp=inline 200 in 379ms
+✅ Asset download verified: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  filename: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  key: 'aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/917ee407-f9df-4b47-9dd2-45677f3c70...'
+}
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+✅ Asset download successful: {
+  asset_id: '62EXNT9I4SoNtwTUUDePURg002O3OCIZ',
+  file_name: '917ee407-f9df-4b47-9dd2-45677f3c7083.png',
+  size: 1274787,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=62EXNT9I4SoNtwTUUDePURg002O3OCIZ&exp=1756576091&sig=sISJZNhycu2jnjRNw69jtGrQXYLI1wUIZhE0ETg2z4k&disp=inline 200 in 321ms
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756575453&sig=XGgfign55-K4wX4l4kyRY9E_nqVUPERX8v5PTFne1i0&disp=inline 200 in 331ms
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756575453&sig=15FiKh1pj-oCXeo3JETLEGCETBlU84QqAKpC318jMzE&disp=inline 200 in 415ms
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756575451&sig=p3s3QMzKgr2hLipqxD5SYSA_fXLUSuUYuUSZS71hmLQ&disp=inline 200 in 422ms
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756575453&sig=Kyt5xJBHoxPD6EFNngIlG-9pyt-VgZIdu-v5FPFVbSA&disp=inline 200 in 416ms
+✅ Asset download verified: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  filename: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  key: 'aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/f47ec4df-ae8a-4a63-a37e-2b13b89e01...'
+}
+✅ Asset download verified: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  filename: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  key: 'aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/1aa8eb5d-9a7e-4865-9d32-96ff46d99d...'
+}
+✅ Asset download verified: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  filename: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  key: 'aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/b260f24f-3b74-4bea-a4ac-287ddf3490...'
+}
+✅ Asset download verified: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  filename: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  key: 'aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/76bc2b72-0631-48ff-b8ca-85adbaec17...'
+}
+✅ Asset download successful: {
+  asset_id: '9Yj10fa9NSF9METsLTY49DDgpgV6yGUT',
+  file_name: 'f47ec4df-ae8a-4a63-a37e-2b13b89e0183.png',
+  size: 1100237,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=9Yj10fa9NSF9METsLTY49DDgpgV6yGUT&exp=1756575453&sig=XGgfign55-K4wX4l4kyRY9E_nqVUPERX8v5PTFne1i0&disp=inline 200 in 315ms
+✅ Asset download verified: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  filename: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  key: 'aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa...'
+}
+✅ Asset download successful: {
+  asset_id: 'f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE',
+  file_name: 'b260f24f-3b74-4bea-a4ac-287ddf3490d9.png',
+  size: 987892,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=f-1WzVbXk4vcIUVde4iyPJxv7xlq7KgE&exp=1756575453&sig=Kyt5xJBHoxPD6EFNngIlG-9pyt-VgZIdu-v5FPFVbSA&disp=inline 200 in 275ms
+✅ Asset download successful: {
+  asset_id: 'cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX',
+  file_name: '1aa8eb5d-9a7e-4865-9d32-96ff46d99d35.png',
+  size: 1233934,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=cKNfhYxAFgOuEd9rSMDFuGok1uzCs8OX&exp=1756575451&sig=p3s3QMzKgr2hLipqxD5SYSA_fXLUSuUYuUSZS71hmLQ&disp=inline 200 in 333ms
+✅ Asset download successful: {
+  asset_id: 'st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J',
+  file_name: '76bc2b72-0631-48ff-b8ca-85adbaec1725.png',
+  size: 1417260,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=st-4OUnpSirAYrOTG1s2XnB6Z5R8mY5J&exp=1756575453&sig=15FiKh1pj-oCXeo3JETLEGCETBlU84QqAKpC318jMzE&disp=inline 200 in 318ms
+✅ Asset download successful: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  file_name: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  size: 1548654,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj&exp=1756576197&sig=8hpl8nxGdKC48YFKRTtP_-G9Qrn3wesWOpZTfatGuAk&disp=inline 200 in 1140ms
+✅ Asset download verified: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  filename: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  key: 'aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa...'
+}
+✅ Asset download successful: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  file_name: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  size: 1548654,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj&exp=1756576197&sig=8hpl8nxGdKC48YFKRTtP_-G9Qrn3wesWOpZTfatGuAk&disp=inline 200 in 295ms
+✅ Asset download verified: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  filename: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  key: 'aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/aibackgrounds/7ca97a13-f543-4dae-a2f6-c6ca600afa...'
+}
+✅ Asset download successful: {
+  asset_id: '3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj',
+  file_name: '7ca97a13-f543-4dae-a2f6-c6ca600afa62.png',
+  size: 1548654,
+  content_type: 'image/png'
+}
+ GET /api/assets/download?asset_id=3wapKDTHWbyZXR1xPCb6atKs4OJOSgjj&exp=1756576196&sig=r_IDqhF9d-NpMMWTWJ1oeX3qWUXv3XiU8sCPGXS-uLE&disp=inline 200 in 280ms

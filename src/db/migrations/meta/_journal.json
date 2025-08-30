@@ -50,6 +50,13 @@
       "when": 1756185518077,
       "tag": "0006_dashing_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1756574616136,
+      "tag": "0007_glossy_chameleon",
+      "breakpoints": true
     }
   ]
 }

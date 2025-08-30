@@ -99,6 +99,18 @@ export const aibgHistory = pgTable("aibg_history", {
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Watermark removal history (account-scoped, for cross-device sync)
+export const watermarkHistory = pgTable("watermark_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	originalImageUrl: text('original_image_url').notNull(), // 原始图片URL
+	processedImageUrl: text('processed_image_url').notNull(), // 处理后图片URL
+	method: text('method').notNull(), // 'auto', 'inpainting', 'clone', 'blur', 'demo'
+	watermarkType: text('watermark_type'), // 'text', 'logo', 'signature', etc.
+	quality: text('quality'), // 'fast', 'balanced', 'high'
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Assets table for storing R2 uploaded images
 export const assets = pgTable("assets", {
 	id: text('id').primaryKey(),
