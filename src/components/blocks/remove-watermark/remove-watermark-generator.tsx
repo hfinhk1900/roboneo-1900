@@ -66,6 +66,12 @@ const REMOVAL_METHODS = [
     description: 'Intelligently blur and blend watermark areas',
     icon: '🌫️',
   },
+  {
+    id: 'demo',
+    name: 'Demo',
+    description: 'Demo example removal',
+    icon: '🎭',
+  },
 ] as const;
 
 // Watermark types for better processing
@@ -304,7 +310,7 @@ export function RemoveWatermarkGeneratorSection() {
         id: Date.now().toString(),
         originalImage: demoImage.beforeSrc,
         processedImage: demoImage.afterSrc,
-        method: 'auto',
+        method: 'demo',
         watermarkType: 'unknown',
         quality: 'balanced',
         createdAt: Date.now(),
