@@ -240,7 +240,7 @@ export default function ProductShotGeneratorSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a: ProductshotHistoryItem, b: ProductshotHistoryItem) => 
+            const sortedItems = processedItems.sort((a: ProductshotHistoryItem, b: ProductshotHistoryItem) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
@@ -320,7 +320,7 @@ export default function ProductShotGeneratorSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a, b) => 
+            const sortedItems = processedItems.sort((a, b) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
@@ -339,7 +339,7 @@ export default function ProductShotGeneratorSection() {
           if (raw) {
             const parsed = JSON.parse(raw) as ProductshotHistoryItem[];
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = parsed.sort((a, b) => 
+            const sortedItems = parsed.sort((a, b) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setProductshotHistory(sortedItems);
@@ -952,6 +952,9 @@ export default function ProductShotGeneratorSection() {
                           <p className="text-sm transition-colors text-muted-foreground text-center">
                             Click or drag & drop to upload
                           </p>
+                          <p className="text-xs text-muted-foreground text-center mt-1">
+                            (JPG, JPEG, PNG, WEBP)
+                          </p>
                         </label>
                       )}
                     </div>
@@ -1020,6 +1023,9 @@ export default function ProductShotGeneratorSection() {
                             <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
                             <p className="text-sm transition-colors text-muted-foreground text-center">
                               Click or drag & drop to upload
+                            </p>
+                            <p className="text-xs text-muted-foreground text-center mt-1">
+                              (JPG, JPEG, PNG, WEBP)
                             </p>
                           </label>
                         )}

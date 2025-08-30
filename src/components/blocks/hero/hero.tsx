@@ -222,7 +222,7 @@ export default function HeroSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a: StickerHistoryItem, b: StickerHistoryItem) => 
+            const sortedItems = processedItems.sort((a: StickerHistoryItem, b: StickerHistoryItem) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setStickerHistory(sortedItems);
@@ -302,7 +302,7 @@ export default function HeroSection() {
             );
 
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort((a, b) => 
+            const sortedItems = processedItems.sort((a, b) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setStickerHistory(sortedItems);
@@ -321,7 +321,7 @@ export default function HeroSection() {
           if (raw) {
             const parsed = JSON.parse(raw) as StickerHistoryItem[];
             // 确保按时间降序排列（最新的在前）
-            const sortedItems = parsed.sort((a, b) => 
+            const sortedItems = parsed.sort((a, b) =>
               (b.createdAt || 0) - (a.createdAt || 0)
             );
             setStickerHistory(sortedItems);
@@ -393,10 +393,10 @@ export default function HeroSection() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               asset_id: item.asset_id, // 优先使用asset_id
-              url: item.url, 
-              style: item.style 
+              url: item.url,
+              style: item.style
             }),
           });
           if (res.ok) {
@@ -663,12 +663,12 @@ export default function HeroSection() {
       // AI service returns the result synchronously
       setGenerationStep('Your sticker is ready!');
       setGenerationProgress(100);
-      
+
       // Store both URL and asset_id for proper asset management
       setGeneratedImageUrl(stickerData.url || stickerData.download_url);
       // Store asset_id in a ref or state if needed for future operations
       const assetId = stickerData.asset_id;
-      
+
       setIsGenerating(false);
 
       // Clear credits cache to trigger refresh of credits display
@@ -1005,6 +1005,9 @@ export default function HeroSection() {
                           <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
                           <p className="text-sm transition-colors text-muted-foreground text-center">
                             Click or drag & drop to upload
+                          </p>
+                          <p className="text-xs text-muted-foreground text-center mt-1">
+                            (JPG, JPEG, PNG, WEBP)
                           </p>
                         </label>
                       )}

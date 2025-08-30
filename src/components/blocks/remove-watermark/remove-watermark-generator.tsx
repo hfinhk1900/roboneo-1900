@@ -440,6 +440,9 @@ export function RemoveWatermarkGeneratorSection() {
                         <p className="text-sm transition-colors text-muted-foreground text-center">
                           Click or drag & drop to upload
                         </p>
+                        <p className="text-xs text-muted-foreground text-center mt-1">
+                          (JPG, JPEG, PNG, WEBP)
+                        </p>
                       </label>
                     )}
                   </div>

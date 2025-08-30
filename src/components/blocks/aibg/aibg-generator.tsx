@@ -1163,7 +1163,7 @@ export function AIBackgroundGeneratorSection() {
 
             // 确定要保存的图片：如果用户选择了颜色，使用带颜色的图片；否则使用透明图片
             let imageToSave = result.image; // 默认使用透明图片
-            
+
             if (selectedBackgroundColor !== 'transparent') {
               // 如果用户选择了具体颜色，应用颜色并保存带颜色的图片
               try {
@@ -1782,6 +1782,9 @@ export function AIBackgroundGeneratorSection() {
                         <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
                         <p className="text-sm transition-colors text-muted-foreground text-center">
                           Click or drag & drop to upload
+                        </p>
+                        <p className="text-xs text-muted-foreground text-center mt-1">
+                          (JPG, JPEG, PNG, WEBP)
                         </p>
                       </label>
                     )}
