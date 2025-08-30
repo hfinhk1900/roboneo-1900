@@ -2,7 +2,7 @@
 > roboneo art webapp@0.1.0 dev
 > next dev -p 3000
 
-[MDX] updated map file in 11.854937999999947ms
+[MDX] updated map file in 28.825964999999997ms
 [MDX] started dev server
    ▲ Next.js 15.2.1
    - Local:        http://localhost:3000
@@ -13,171 +13,316 @@
  ⚠ Invalid next.config.ts options detected: 
  ⚠     Unrecognized key(s) in object: 'turbopack'
  ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
- ✓ Ready in 1909ms
- ✓ Compiled /middleware in 402ms (183 modules)
->> middleware start, pathname /aibackground
+ ✓ Ready in 4.5s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 893ms (183 modules)
+>> middleware start, pathname /remove-watermark
  ○ Compiling /api/auth/get-session ...
- ✓ Compiled /api/auth/get-session in 2.3s (1068 modules)
- GET /api/auth/get-session 200 in 4022ms
+ ✓ Compiled /api/auth/get-session in 5.2s (1068 modules)
+ GET /api/auth/get-session 200 in 6131ms
 << middleware end, applying intlMiddleware
- ○ Compiling /[locale]/aibackground ...
- ✓ Compiled /[locale]/aibackground in 5.8s (3562 modules)
- GET /api/auth/get-session 200 in 525ms
- GET /aibackground 200 in 8180ms
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /manifest.webmanifest in 3.6s (3569 modules)
- GET /manifest.webmanifest 200 in 1594ms
- GET /api/auth/get-session 200 in 2721ms
->> middleware start, pathname /aibackground
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 5622ms
- GET /api/auth/get-session 200 in 345ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 1892ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 276ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 275ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 267ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 402ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 270ms
-<< middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
- POST /aibackground 200 in 410ms
- ✓ Compiled in 2.4s (3583 modules)
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 1335ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 111ms
- GET /manifest.webmanifest 200 in 13ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 280ms
-<< middleware end, applying intlMiddleware
- GET /api/auth/get-session 200 in 29ms
- GET /aibackground 200 in 470ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 253ms
- GET /manifest.webmanifest 200 in 71ms
- GET /api/auth/get-session 200 in 357ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 279ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 1384ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 278ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 953ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 283ms
-<< middleware end, applying intlMiddleware
- POST /aibackground 200 in 405ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 274ms
-<< middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
- POST /aibackground 200 in 416ms
- ✓ Compiled in 1452ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 414ms (2712 modules)
- GET /api/auth/get-session 200 in 1901ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 122ms
- ✓ Compiled /manifest.webmanifest in 369ms (2716 modules)
- GET /manifest.webmanifest 200 in 586ms
- ✓ Compiled in 1536ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 488ms (2712 modules)
- GET /api/auth/get-session 200 in 2013ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 153ms
- ✓ Compiled /manifest.webmanifest in 431ms (2716 modules)
- GET /manifest.webmanifest 200 in 593ms
- ✓ Compiled in 1388ms (2948 modules)
->> middleware start, pathname /aibackground
+ ○ Compiling /[locale]/remove-watermark ...
+ ✓ Compiled /[locale]/remove-watermark in 15.2s (3590 modules)
+ ✓ Compiled in 1305ms (871 modules)
+ GET /remove-watermark 200 in 18494ms
+ GET /api/auth/get-session 200 in 621ms
+ ✓ Compiled in 1824ms (3590 modules)
+ ✓ Compiled in 1144ms (3590 modules)
+ ✓ Compiled in 1652ms (870 modules)
+ ✓ Compiled in 675ms (870 modules)
+ ✓ Compiled in 528ms (870 modules)
+ ✓ Compiled in 582ms (870 modules)
+ ✓ Compiled in 680ms (870 modules)
+ ✓ Compiled in 676ms (870 modules)
+>> middleware start, pathname /remove-watermark
  ○ Compiling /api/auth/get-session ...
- ✓ Compiled /api/auth/get-session in 610ms (2712 modules)
- GET /api/auth/get-session 200 in 1991ms
+ ✓ Compiled /api/auth/get-session in 833ms (790 modules)
+ GET /api/auth/get-session 200 in 1405ms
 << middleware end, applying intlMiddleware
- GET /aibackground 200 in 119ms
- ✓ Compiled /manifest.webmanifest in 319ms (2716 modules)
- GET /manifest.webmanifest 200 in 450ms
- ✓ Compiled in 2.1s (3580 modules)
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 1182ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 127ms
- GET /manifest.webmanifest 200 in 25ms
- ✓ Compiled in 1483ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 384ms (2712 modules)
- GET /api/auth/get-session 200 in 2023ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 137ms
- ✓ Compiled /manifest.webmanifest in 341ms (2716 modules)
- GET /manifest.webmanifest 200 in 507ms
- ✓ Compiled in 1684ms (3580 modules)
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 1245ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 208ms
- GET /manifest.webmanifest 200 in 16ms
- ✓ Compiled in 1403ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 376ms (2712 modules)
- GET /api/auth/get-session 200 in 1812ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 109ms
- ✓ Compiled /manifest.webmanifest in 339ms (2716 modules)
- GET /manifest.webmanifest 200 in 516ms
- ✓ Compiled in 962ms (3580 modules)
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 975ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 109ms
- GET /manifest.webmanifest 200 in 14ms
- ✓ Compiled in 1370ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 392ms (2712 modules)
- GET /api/auth/get-session 200 in 1748ms
-<< middleware end, applying intlMiddleware
- GET /aibackground 200 in 108ms
- ✓ Compiled /manifest.webmanifest in 296ms (2716 modules)
- GET /manifest.webmanifest 200 in 434ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 929ms
+ ○ Compiling /[locale]/remove-watermark ...
+ ✓ Compiled /[locale]/remove-watermark in 790ms (2718 modules)
+ GET /remove-watermark 200 in 1889ms
+ GET /api/auth/get-session 200 in 376ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 838ms
 << middleware end, applying intlMiddleware
  GET /api/auth/get-session 200 in 16ms
- GET /aibackground 200 in 470ms
+ GET /remove-watermark 200 in 171ms
  ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 993ms (2719 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1366ms
- GET /manifest.webmanifest 200 in 34ms
- GET /api/auth/get-session 200 in 1118ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 272ms
+ ✓ Compiled /[locale]/[...rest] in 2.2s (3591 modules)
+ ○ Compiling /manifest.webmanifest ...
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 4059ms
+ ✓ Compiled /manifest.webmanifest in 1579ms (3581 modules)
+ GET /manifest.webmanifest 200 in 1704ms
+ GET /api/auth/get-session 200 in 2449ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 281ms
 << middleware end, applying intlMiddleware
- POST /aibackground 200 in 1858ms
->> middleware start, pathname /aibackground
- GET /api/auth/get-session 200 in 283ms
+ POST /remove-watermark 200 in 1934ms
+>> middleware start, pathname /remove-watermark
+ GET /manifest.webmanifest 200 in 21ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 152ms
+ GET /api/auth/get-session 200 in 395ms
 << middleware end, applying intlMiddleware
- POST /aibackground 200 in 275ms
->> middleware start, pathname /aibackground
+ POST /remove-watermark 200 in 288ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 584ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 297ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /remove-watermark 200 in 426ms
+ ✓ Compiled in 1185ms (3595 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1370ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 196ms
+ ✓ Compiled in 1404ms (3595 modules)
+>> middleware start, pathname /remove-watermark
+ GET /manifest.webmanifest 200 in 95ms
+ GET /api/auth/get-session 200 in 1120ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 75ms
+ GET /manifest.webmanifest 200 in 9ms
+ ✓ Compiled in 1180ms (3595 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1008ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 107ms
+ GET /manifest.webmanifest 200 in 62ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 7ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 518ms
+ GET /api/auth/get-session 200 in 32ms
+ ✓ Compiled in 3s (3592 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1153ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 125ms
+ GET /manifest.webmanifest 200 in 19ms
+ ✓ Compiled in 2.4s (2960 modules)
+>> middleware start, pathname /remove-watermark
+ ✓ Compiled /api/auth/get-session in 487ms (2718 modules)
+ GET /api/auth/get-session 200 in 1959ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 113ms
+ ✓ Compiled /manifest.webmanifest in 350ms (2722 modules)
+ GET /manifest.webmanifest 200 in 467ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 131ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 723ms
+ GET /api/auth/get-session 200 in 27ms
+ ✓ Compiled in 2.3s (3588 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1192ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 191ms
+ ⨯ Failed to generate static paths for /[locale]/remove-watermark:
+[TypeError: Cannot read properties of undefined (reading 'definition')] {
+  type: 'TypeError'
+}
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 593ms (2722 modules)
+ GET /manifest.webmanifest 200 in 918ms
+ ✓ Compiled in 1327ms (3592 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1133ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 1622ms
+ GET /manifest.webmanifest 200 in 13ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 621ms
+ GET /api/auth/get-session 200 in 29ms
+ ✓ Compiled in 1012ms (3592 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 993ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 66ms
+ GET /manifest.webmanifest 200 in 12ms
+ ✓ Compiled in 2.5s (2960 modules)
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 718ms (2718 modules)
+ GET /api/auth/get-session 200 in 2474ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 159ms
+ ✓ Compiled /manifest.webmanifest in 504ms (2722 modules)
+ GET /manifest.webmanifest 200 in 1086ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 189ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 661ms
+ GET /api/auth/get-session 200 in 27ms
+ ✓ Compiled in 2.5s (3590 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1105ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 140ms
+ GET /manifest.webmanifest 200 in 29ms
+ ✓ Compiled in 1003ms (3590 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1719ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 107ms
+ GET /manifest.webmanifest 200 in 30ms
+>> middleware start, pathname /remove-watermark
  GET /api/auth/get-session 200 in 270ms
 << middleware end, applying intlMiddleware
- POST /aibackground 200 in 402ms
->> middleware start, pathname /aibackground
+ GET /remove-watermark 200 in 31ms
+ GET /manifest.webmanifest 200 in 26ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 281ms
+<< middleware end, applying intlMiddleware
+ ⨯ ReferenceError: EraserIcon is not defined
+    at RemoveWatermarkGeneratorSection (src/components/blocks/remove-watermark/remove-watermark-generator.tsx:548:23)
+  546 |                   <div className="flex-grow flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-200">
+  547 |                     <div className="text-center space-y-3">
+> 548 |                       <EraserIcon className="h-16 w-16 text-gray-400 mx-auto" />
+      |                       ^
+  549 |                       <div>
+  550 |                         <p className="font-medium text-gray-700">Ready to remove watermarks</p>
+  551 |                         <p className="text-sm text-gray-500">Upload an image to get started</p> {
+  digest: '834787277'
+}
+ GET /api/auth/get-session 200 in 30ms
+ GET /remove-watermark 200 in 407ms
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 1135ms (2724 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2216ms
+ GET /api/auth/get-session 200 in 2441ms
+<< middleware end, applying intlMiddleware
+ ⨯ ReferenceError: EraserIcon is not defined
+    at RemoveWatermarkGeneratorSection (src/components/blocks/remove-watermark/remove-watermark-generator.tsx:548:23)
+  546 |                   <div className="flex-grow flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-200">
+  547 |                     <div className="text-center space-y-3">
+> 548 |                       <EraserIcon className="h-16 w-16 text-gray-400 mx-auto" />
+      |                       ^
+  549 |                       <div>
+  550 |                         <p className="font-medium text-gray-700">Ready to remove watermarks</p>
+  551 |                         <p className="text-sm text-gray-500">Upload an image to get started</p> {
+  digest: '834787277'
+}
+ GET /api/auth/get-session 200 in 954ms
+ GET /api/auth/get-session 200 in 28ms
+ GET /remove-watermark 200 in 384ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 114ms
+ GET /api/auth/get-session 200 in 274ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 270ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1288ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 271ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /remove-watermark 200 in 964ms
+ ✓ Compiled in 2.1s (3593 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1575ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 171ms
+ GET /manifest.webmanifest 200 in 31ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 16ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 690ms
+ GET /api/auth/get-session 200 in 33ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 35ms
+>> middleware start, pathname /remove-watermark
+ GET /manifest.webmanifest 200 in 10ms
+ GET /api/auth/get-session 200 in 318ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1897ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 399ms
+ ✓ Compiled in 1144ms (3590 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 974ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 90ms
+ GET /manifest.webmanifest 200 in 33ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 17ms
+ GET /remove-watermark 200 in 287ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 756ms (2724 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 942ms
+ GET /manifest.webmanifest 200 in 20ms
+ GET /api/auth/get-session 200 in 1019ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 269ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1032ms
+>> middleware start, pathname /remove-watermark
  GET /api/auth/get-session 200 in 268ms
 << middleware end, applying intlMiddleware
 Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
- POST /aibackground 200 in 412ms
- ✓ Compiled in 1656ms (2948 modules)
->> middleware start, pathname /aibackground
- ✓ Compiled /api/auth/get-session in 377ms (2712 modules)
- GET /api/auth/get-session 200 in 1979ms
+ POST /remove-watermark 200 in 936ms
+ ✓ Compiled in 4.4s (2956 modules)
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 732ms (2716 modules)
+ GET /api/auth/get-session 200 in 2688ms
 << middleware end, applying intlMiddleware
- GET /aibackground 200 in 122ms
- ✓ Compiled /manifest.webmanifest in 324ms (2716 modules)
- GET /manifest.webmanifest 200 in 537ms
-[?25h
-[MDX] closing dev server
+ GET /remove-watermark 200 in 157ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 585ms (2720 modules)
+ GET /manifest.webmanifest 200 in 759ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 211ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 706ms
+ GET /api/auth/get-session 200 in 23ms
+ ✓ Compiled in 1185ms (3588 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 979ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 68ms
+ GET /manifest.webmanifest 200 in 15ms
+ ✓ Compiled in 1739ms (2956 modules)
+>> middleware start, pathname /remove-watermark
+ ✓ Compiled /api/auth/get-session in 435ms (2716 modules)
+ GET /api/auth/get-session 200 in 3896ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /remove-watermark
+ ✓ Compiled in 4.2s (3586 modules)
+ GET /api/auth/get-session 200 in 1221ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 2902ms
+ GET /remove-watermark 200 in 723ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 63ms
+ GET /api/auth/get-session 200 in 830ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1828ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 276ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 402ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 266ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 29ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 1202ms (2721 modules)
+ GET /manifest.webmanifest 200 in 1429ms
+ ✓ Compiled in 1191ms (3590 modules)
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1120ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 135ms
+ GET /manifest.webmanifest 200 in 11ms

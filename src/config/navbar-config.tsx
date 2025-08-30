@@ -105,6 +105,13 @@ export function getNavbarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
+          title: 'Remove Watermark',
+          description: 'AI-powered watermark removal tool',
+          icon: '/text-to-image01.webp',
+          href: Routes.RemoveWatermark,
+          external: false,
+        },
+        {
           title: 'AI Anime Art',
           description: 'Create stunning AI anime art',
           icon: '/text-to-image04.webp',

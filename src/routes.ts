@@ -50,6 +50,7 @@ export enum Routes {
   ProductShot = '/productshot',
   TextToImage = '/text-to-image',
   AIBackground = '/aibackground',
+  RemoveWatermark = '/remove-watermark',
 
   // block routes
   MagicuiBlocks = '/magicui',

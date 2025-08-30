@@ -23,7 +23,7 @@ const FILES_TO_DOWNLOAD = [
   'isnet_fp16/model.onnx',
   'isnet_fp16/model.json',
   'isnet_quint8/model.onnx',
-  'isnet_quint8/model.json',
+  'isnet_quint8/model.json'
 ];
 
 // 创建目录
@@ -31,10 +31,10 @@ function createDirectories() {
   const dirs = [
     path.join(MODEL_DIR, 'isnet'),
     path.join(MODEL_DIR, 'isnet_fp16'),
-    path.join(MODEL_DIR, 'isnet_quint8'),
+    path.join(MODEL_DIR, 'isnet_quint8')
   ];
 
-  dirs.forEach((dir) => {
+  dirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
       console.log(`✅ 创建目录: ${dir}`);
@@ -47,23 +47,21 @@ function downloadFile(url, filepath) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(filepath);
 
-    https
-      .get(url, (response) => {
-        if (response.statusCode === 200) {
-          response.pipe(file);
-          file.on('finish', () => {
-            file.close();
-            console.log(`✅ 下载完成: ${filepath}`);
-            resolve();
-          });
-        } else {
-          reject(new Error(`HTTP ${response.statusCode}: ${url}`));
-        }
-      })
-      .on('error', (err) => {
-        fs.unlink(filepath, () => {}); // 删除不完整的文件
-        reject(err);
-      });
+    https.get(url, (response) => {
+      if (response.statusCode === 200) {
+        response.pipe(file);
+        file.on('finish', () => {
+          file.close();
+          console.log(`✅ 下载完成: ${filepath}`);
+          resolve();
+        });
+      } else {
+        reject(new Error(`HTTP ${response.statusCode}: ${url}`));
+      }
+    }).on('error', (err) => {
+      fs.unlink(filepath, () => {}); // 删除不完整的文件
+      reject(err);
+    });
   });
 }
 
@@ -92,7 +90,7 @@ async function main() {
 
     // 显示文件大小
     console.log('\n📊 文件大小:');
-    FILES_TO_DOWNLOAD.forEach((file) => {
+    FILES_TO_DOWNLOAD.forEach(file => {
       const filepath = path.join(MODEL_DIR, file);
       if (fs.existsSync(filepath)) {
         const stats = fs.statSync(filepath);
@@ -100,6 +98,7 @@ async function main() {
         console.log(`  ${file}: ${sizeInMB} MB`);
       }
     });
+
   } catch (error) {
     console.error('❌ 下载过程中出现错误:', error.message);
     process.exit(1);

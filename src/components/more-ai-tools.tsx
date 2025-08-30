@@ -16,7 +16,7 @@ export default function MoreAITools() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Text-to-Image Card */}
           <div className="relative overflow-hidden rounded-3xl shadow-2xl">
             {/* Background Image */}
@@ -107,6 +107,74 @@ export default function MoreAITools() {
                     </Link>
                   </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Remove Watermark Card */}
+          <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+            {/* Background Image */}
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: "url('/aibg/aibg.png')",
+              }}
+            />
+
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+
+            {/* Text overlay with gradient background */}
+            <div className="relative z-10 flex flex-col justify-between h-full min-h-[400px] p-8
+              bg-gradient-to-t from-purple-900/95 via-purple-800/70 to-transparent">
+
+              {/* Content */}
+              <div className="flex flex-col space-y-4">
+                <div className="space-y-3">
+                  <h3 className="text-3xl font-bold text-white">
+                    Remove Watermark
+                  </h3>
+                  <p className="text-purple-100/90 text-lg leading-relaxed">
+                    AI-powered watermark removal. Clean your images with intelligent content restoration technology.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <span className="text-purple-100/80 text-sm">
+                      Automatic watermark detection
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <span className="text-purple-100/80 text-sm">
+                      AI-powered content restoration
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+                    <span className="text-purple-100/80 text-sm">
+                      Multiple removal methods
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <div className="mt-8">
+                <Link href="/remove-watermark">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="group bg-white/10 backdrop-blur-sm border-white/20 text-white
+                      hover:bg-white hover:text-purple-900 transition-all duration-300 w-full
+                      font-semibold shadow-lg hover:shadow-xl"
+                  >
+                    Try Remove Watermark
+                    <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
