@@ -164,6 +164,10 @@ export function RemoveWatermarkGeneratorSection() {
   const [selectedDemoImage, setSelectedDemoImage] = useState<string>('');
   const [selectedDemoImageData, setSelectedDemoImageData] = useState<(typeof DEMO_IMAGES)[0] | null>(null);
 
+  // Processing configuration states
+  const [selectedMethod, setSelectedMethod] = useState<RemovalMethod>('auto');
+  const [selectedWatermarkType, setSelectedWatermarkType] = useState<WatermarkType>('unknown');
+  const [selectedQuality, setSelectedQuality] = useState<QualityLevel>('balanced');
 
 
   // Dialog states
@@ -354,7 +358,7 @@ export function RemoveWatermarkGeneratorSection() {
     }
 
     // Check credits
-    const currentCredits = creditsCache.credits;
+    const currentCredits = creditsCache.get() || 0;
     if (currentCredits < CREDITS_PER_IMAGE) {
       setShowInsufficientCreditsDialog(true);
       return;
@@ -405,12 +409,12 @@ export function RemoveWatermarkGeneratorSection() {
 
       if (result.success && result.public_url) {
         console.log('✅ Watermark removal successful:', result);
-        
+
         setProcessedImage(result.public_url);
 
         // Update credits cache
         if (result.remaining_credits !== undefined) {
-          creditsCache.updateCredits(result.remaining_credits);
+          creditsCache.set(result.remaining_credits);
         }
 
         // Save to server history
@@ -462,9 +466,9 @@ export function RemoveWatermarkGeneratorSection() {
       }
     } catch (error) {
       console.error('Watermark removal error:', error);
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       if (errorMessage.includes('Insufficient credits')) {
         setShowInsufficientCreditsDialog(true);
       } else if (errorMessage.includes('timeout')) {
@@ -478,13 +482,13 @@ export function RemoveWatermarkGeneratorSection() {
       setIsProcessing(false);
     }
   }, [
-    uploadedImage, 
-    currentUser, 
-    imagePreview, 
-    removalHistory, 
-    saveHistory, 
-    selectedMethod, 
-    selectedWatermarkType, 
+    uploadedImage,
+    currentUser,
+    imagePreview,
+    removalHistory,
+    saveHistory,
+    selectedMethod,
+    selectedWatermarkType,
     selectedQuality
   ]);
 
@@ -954,8 +958,8 @@ export function RemoveWatermarkGeneratorSection() {
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsDialog
         open={showInsufficientCreditsDialog}
-        onClose={() => setShowInsufficientCreditsDialog(false)}
-        requiredCredits={CREDITS_PER_IMAGE}
+        required={CREDITS_PER_IMAGE}
+        current={creditsCache.get() || 0}
       />
     </section>
   );
