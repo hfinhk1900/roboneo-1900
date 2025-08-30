@@ -1059,9 +1059,6 @@ export function RemoveWatermarkGeneratorSection() {
                   <ImageIcon className="w-5 h-5 text-yellow-400" />
                   Watermark Removal Result
                 </DialogTitle>
-                <DialogDescription className="text-gray-300 text-sm mt-1">
-                  High-quality AI watermark removal • Processed successfully
-                </DialogDescription>
               </div>
 
               {/* Close button */}

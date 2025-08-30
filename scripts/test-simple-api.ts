@@ -78,7 +78,7 @@ async function testSimpleAPI() {
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应数据:`, {
+        console.log('📊 响应数据:', {
           success: data.success,
           style: data.style,
           originalFormat: data.originalFormat,
@@ -121,14 +121,14 @@ async function testSimpleAPI() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
     }
 
     // 等待间隔避免频率限制
     if (index < testCases.length - 1) {
-      console.log(`⏳ 等待3秒避免频率限制...`);
+      console.log('⏳ 等待3秒避免频率限制...');
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
