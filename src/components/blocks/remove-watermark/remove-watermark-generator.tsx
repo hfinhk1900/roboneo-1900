@@ -341,7 +341,7 @@ export function RemoveWatermarkGeneratorSection() {
     }
   }, []);
 
-  // Processing handler (placeholder)
+  // Processing handler - Real API call
   const handleRemoveWatermark = useCallback(async () => {
     if (!uploadedImage) {
       toast.error('Please upload an image first');
@@ -363,38 +363,130 @@ export function RemoveWatermarkGeneratorSection() {
     setIsProcessing(true);
 
     try {
-      // TODO: Implement actual watermark removal API call
-      // For now, just simulate processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Convert image to base64
+      const reader = new FileReader();
+      const imageBase64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove data:image/jpeg;base64, prefix to get pure base64
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(uploadedImage);
+      });
 
-      // Simulate processed result (using original image for demo)
-      if (imagePreview) {
-        setProcessedImage(imagePreview);
+      console.log('🚀 Calling watermark removal API...');
 
-        // Add to history
+      // Call the watermark removal API
+      const response = await fetch('/api/watermark/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image_input: imageBase64,
+          quality: selectedQuality === 'high' ? 'hd' : 'standard',
+          steps: selectedQuality === 'high' ? 50 : selectedQuality === 'fast' ? 20 : 30,
+          size: '1024x1024',
+          output_format: 'png',
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402) {
+          setShowInsufficientCreditsDialog(true);
+          return;
+        }
+        throw new Error(result.error || 'Failed to remove watermark');
+      }
+
+      if (result.success && result.public_url) {
+        console.log('✅ Watermark removal successful:', result);
+        
+        setProcessedImage(result.public_url);
+
+        // Update credits cache
+        if (result.remaining_credits !== undefined) {
+          creditsCache.updateCredits(result.remaining_credits);
+        }
+
+        // Save to server history
+        try {
+          const historyResponse = await fetch('/api/history/watermark', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              originalImageUrl: imagePreview,
+              processedImageUrl: result.public_url,
+              method: selectedMethod,
+              watermarkType: selectedWatermarkType,
+              quality: selectedQuality,
+              assetId: result.asset_id,
+            }),
+          });
+
+          if (historyResponse.ok) {
+            console.log('✅ History saved to server');
+          } else {
+            console.warn('⚠️ Failed to save history to server');
+          }
+        } catch (historyError) {
+          console.warn('⚠️ Failed to save history:', historyError);
+        }
+
+        // Add to local history for immediate display
         const newHistoryItem: RemovalHistoryItem = {
-          id: Date.now().toString(),
-          originalImage: imagePreview,
-          processedImage: imagePreview,
-          method: 'auto',
-          watermarkType: 'unknown',
-          quality: 'balanced',
+          id: result.asset_id || Date.now().toString(),
+          originalImage: imagePreview || '',
+          processedImage: result.public_url,
+          method: selectedMethod,
+          watermarkType: selectedWatermarkType,
+          quality: selectedQuality,
           createdAt: Date.now(),
         };
 
-        const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)]; // Keep last 20
+        const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)];
         setRemovalHistory(newHistory);
         saveHistory(newHistory);
 
-        toast.success('Watermark removed successfully! ✨');
+        toast.success(
+          `Watermark removed successfully! ${result.credits_used} credits used. ${result.remaining_credits} credits remaining.`
+        );
+      } else {
+        throw new Error('Invalid response from watermark removal service');
       }
     } catch (error) {
       console.error('Watermark removal error:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (errorMessage.includes('Insufficient credits')) {
+        setShowInsufficientCreditsDialog(true);
+      } else if (errorMessage.includes('timeout')) {
+        toast.error('Request timed out. Please try again.');
+      } else if (errorMessage.includes('AI服务暂时不可用')) {
+        toast.error('AI service temporarily unavailable. Please try again later.');
+      } else {
       toast.error('Failed to remove watermark. Please try again.');
+      }
     } finally {
       setIsProcessing(false);
     }
-  }, [uploadedImage, currentUser, imagePreview, removalHistory, saveHistory]);
+  }, [
+    uploadedImage, 
+    currentUser, 
+    imagePreview, 
+    removalHistory, 
+    saveHistory, 
+    selectedMethod, 
+    selectedWatermarkType, 
+    selectedQuality
+  ]);
 
   // Download handler
   const handleDownload = useCallback(async (imageUrl: string, filename: string = 'watermark-removed.png') => {
@@ -592,7 +684,7 @@ export function RemoveWatermarkGeneratorSection() {
                               <span className="text-lg font-medium">
                                 Removing Watermark...
                               </span>
-                            </div>
+                    </div>
 
                             {/* Progress bar - consistent with AI Background */}
                             <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -686,10 +778,10 @@ export function RemoveWatermarkGeneratorSection() {
         {/* Watermark Removal History Section */}
         {removalHistory.length > 0 && (
           <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">
                 Your Watermark Removal History
-              </h3>
+                </h3>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
@@ -709,7 +801,7 @@ export function RemoveWatermarkGeneratorSection() {
                 >
                   <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
                     <img
-                      src={item.processedImage}
+                        src={item.processedImage}
                       alt={`Watermark Removal ${idx + 1}`}
                       className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
                       onClick={() => {
@@ -725,31 +817,31 @@ export function RemoveWatermarkGeneratorSection() {
                     <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                    <Button
+                          <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download removed image"
-                      onClick={() => handleDownload(item.processedImage, `watermark-removed-${item.id}.png`)}
-                    >
+                            onClick={() => handleDownload(item.processedImage, `watermark-removed-${item.id}.png`)}
+                          >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
-                    </Button>
-                    <Button
+                          </Button>
+                          <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Remove from history"
-                      onClick={() => {
+                            onClick={() => {
                         setPendingDeleteItem({ idx, item });
-                        setShowDeleteConfirmDialog(true);
-                      }}
-                    >
+                              setShowDeleteConfirmDialog(true);
+                            }}
+                          >
                       <Trash2Icon className="h-4 w-4 text-gray-600" />
-                    </Button>
+                          </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
           </div>
         )}
       </div>

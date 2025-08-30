@@ -98,6 +98,8 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
       : eq(assets.id, assetId);
 
     const deletedRows = await db.delete(assets).where(deleteWhereConditions).returning();
+
+
     result.deleted_from_db = deletedRows.length > 0;
 
     result.success = result.deleted_from_db; // 数据库删除成功即可
