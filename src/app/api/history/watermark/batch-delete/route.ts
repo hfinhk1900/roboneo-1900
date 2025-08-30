@@ -16,7 +16,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { ids } = await request.json();
-    
+
     if (!Array.isArray(ids) || ids.length === 0) {
       return NextResponse.json({ error: 'Invalid or empty ids array' }, { status: 400 });
     }
@@ -24,7 +24,7 @@ export async function DELETE(request: NextRequest) {
     console.log(`🗑️ Batch deleting ${ids.length} Watermark history items...`);
 
     const db = await getDb();
-    
+
     // 1. 先获取所有历史记录，以便提取资产信息
     const historyRecords = await db
       .select()

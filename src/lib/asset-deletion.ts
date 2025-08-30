@@ -1,6 +1,6 @@
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * 通用资产删除服务
@@ -32,7 +32,7 @@ async function deleteFromR2(storageKey: string): Promise<boolean> {
 
     // 使用AWS SDK兼容的S3客户端
     const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
-    
+
     const s3Client = new S3Client({
       region: 'auto',
       endpoint: R2_ENDPOINT,
@@ -68,17 +68,14 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
 
   try {
     const db = await getDb();
-    
+
     // 先获取资产信息
-    let assetQuery = db.select().from(assets).where(eq(assets.id, assetId));
-    
-    // 如果提供了用户ID，则添加用户过滤（安全检查）
-    if (userId) {
-      assetQuery = assetQuery.where(eq(assets.user_id, userId));
-    }
-    
-    const assetRecord = await assetQuery.limit(1);
-    
+    const whereConditions = userId
+      ? and(eq(assets.id, assetId), eq(assets.user_id, userId))
+      : eq(assets.id, assetId);
+
+    const assetRecord = await db.select().from(assets).where(whereConditions).limit(1);
+
     if (assetRecord.length === 0) {
       result.error = 'Asset not found or access denied';
       return result;
@@ -96,18 +93,15 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
     }
 
     // 2. 从数据库删除记录
-    const deleteQuery = db.delete(assets).where(eq(assets.id, assetId));
-    
-    // 如果提供了用户ID，则添加用户过滤（安全检查）
-    if (userId) {
-      deleteQuery.where(eq(assets.user_id, userId));
-    }
-    
-    const deletedRows = await deleteQuery.returning();
+    const deleteWhereConditions = userId
+      ? and(eq(assets.id, assetId), eq(assets.user_id, userId))
+      : eq(assets.id, assetId);
+
+    const deletedRows = await db.delete(assets).where(deleteWhereConditions).returning();
     result.deleted_from_db = deletedRows.length > 0;
 
     result.success = result.deleted_from_db; // 数据库删除成功即可
-    
+
     if (result.success) {
       console.log(`✅ Asset ${assetId} deleted successfully (DB: ${result.deleted_from_db}, R2: ${result.deleted_from_r2})`);
     }
@@ -133,9 +127,9 @@ export async function deleteAssets(assetIds: string[], userId?: string): Promise
   };
 }> {
   const results: Record<string, AssetDeletionResult> = {};
-  
+
   console.log(`🗑️ Batch deleting ${assetIds.length} assets...`);
-  
+
   // 并行删除（限制并发数）
   const BATCH_SIZE = 5;
   for (let i = 0; i < assetIds.length; i += BATCH_SIZE) {
@@ -144,7 +138,7 @@ export async function deleteAssets(assetIds: string[], userId?: string): Promise
       const result = await deleteAsset(assetId, userId);
       results[assetId] = result;
     });
-    
+
     await Promise.all(batchPromises);
   }
 

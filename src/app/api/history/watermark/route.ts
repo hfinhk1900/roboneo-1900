@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`✅ Watermark history item ${historyId} created successfully`);
-    
+
     return NextResponse.json({
       success: true,
       id: historyId,

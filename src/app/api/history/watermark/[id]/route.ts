@@ -20,7 +20,7 @@ export async function DELETE(
     }
 
     const db = await getDb();
-    
+
     // 1. 先获取历史记录，以便提取资产信息
     const historyRecord = await db
       .select()
@@ -38,7 +38,7 @@ export async function DELETE(
     }
 
     const historyItem = historyRecord[0];
-    
+
     // 2. 尝试删除关联的资产文件
     const assetId = extractAssetIdFromHistoryItem(historyItem);
     if (assetId) {
