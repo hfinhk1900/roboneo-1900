@@ -865,6 +865,12 @@ export function RemoveWatermarkGeneratorSection() {
                                 style={{ width: '100%' }}
                               />
                             </div>
+
+                            {/* 页面刷新提示 */}
+                            <div className="text-white text-xs opacity-80 text-center">
+                              Don't refresh the page until the image is
+                              generated.
+                            </div>
                           </div>
                         </div>
                       </div>

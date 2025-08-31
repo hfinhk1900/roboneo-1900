@@ -181,7 +181,7 @@ export default function HeroSection() {
                         );
                         try {
                           const refreshRes = await fetch(
-                            `/api/storage/sign-download`,
+                            '/api/storage/sign-download',
                             {
                               method: 'POST',
                               headers: {
@@ -233,9 +233,8 @@ export default function HeroSection() {
               'items'
             );
             return;
-          } else {
-            console.warn('⚠️ Server history request failed:', res.status);
           }
+          console.warn('⚠️ Server history request failed:', res.status);
         } else {
           console.log('👤 No user logged in, loading local history');
           // fallback 本地
@@ -267,7 +266,7 @@ export default function HeroSection() {
                         );
                         try {
                           const refreshRes = await fetch(
-                            `/api/storage/sign-download`,
+                            '/api/storage/sign-download',
                             {
                               method: 'POST',
                               headers: {
@@ -526,7 +525,7 @@ export default function HeroSection() {
               assetId
             );
             try {
-              const refreshRes = await fetch(`/api/storage/sign-download`, {
+              const refreshRes = await fetch('/api/storage/sign-download', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -1122,7 +1121,7 @@ export default function HeroSection() {
                           {previewUrl ? (
                             <img
                               src={previewUrl}
-                              alt="Processing your image"
+                              alt="Processing upload"
                               width={400}
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
@@ -1157,6 +1156,12 @@ export default function HeroSection() {
                             {/* 进度百分比 */}
                             <div className="text-white text-sm font-medium">
                               {Math.round(generationProgress)}%
+                            </div>
+
+                            {/* 页面刷新提示 */}
+                            <div className="text-white text-xs opacity-80 text-center">
+                              Don't refresh the page until the image is
+                              generated.
                             </div>
                           </div>
                         </div>
@@ -1210,7 +1215,7 @@ export default function HeroSection() {
                           <div className="text-center space-y-4">
                             <img
                               src={previewUrl}
-                              alt="Your uploaded image"
+                              alt="Upload preview"
                               width={400}
                               height={300}
                               className="object-contain rounded-lg shadow-lg max-w-full max-h-full"

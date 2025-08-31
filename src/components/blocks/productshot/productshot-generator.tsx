@@ -1349,6 +1349,12 @@ export default function ProductShotGeneratorSection() {
                             <div className="text-white text-sm font-medium">
                               {Math.round(generationProgress)}%
                             </div>
+
+                            {/* 页面刷新提示 */}
+                            <div className="text-white text-xs opacity-80 text-center">
+                              Don't refresh the page until the image is
+                              generated.
+                            </div>
                           </div>
                         </div>
                       </div>
