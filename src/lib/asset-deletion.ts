@@ -1,6 +1,6 @@
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 /**
  * 通用资产删除服务
@@ -25,13 +25,20 @@ async function deleteFromR2(storageKey: string): Promise<boolean> {
     const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
     const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME;
 
-    if (!R2_ENDPOINT || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME) {
+    if (
+      !R2_ENDPOINT ||
+      !R2_ACCESS_KEY_ID ||
+      !R2_SECRET_ACCESS_KEY ||
+      !R2_BUCKET_NAME
+    ) {
       console.warn('⚠️ R2 configuration missing, skipping file deletion');
       return false;
     }
 
     // 使用AWS SDK兼容的S3客户端
-    const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+    const { S3Client, DeleteObjectCommand } = await import(
+      '@aws-sdk/client-s3'
+    );
 
     const s3Client = new S3Client({
       region: 'auto',
@@ -59,7 +66,10 @@ async function deleteFromR2(storageKey: string): Promise<boolean> {
 /**
  * 删除单个资产（数据库记录 + R2文件）
  */
-export async function deleteAsset(assetId: string, userId?: string): Promise<AssetDeletionResult> {
+export async function deleteAsset(
+  assetId: string,
+  userId?: string
+): Promise<AssetDeletionResult> {
   const result: AssetDeletionResult = {
     success: false,
     deleted_from_db: false,
@@ -74,7 +84,11 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
       ? and(eq(assets.id, assetId), eq(assets.user_id, userId))
       : eq(assets.id, assetId);
 
-    const assetRecord = await db.select().from(assets).where(whereConditions).limit(1);
+    const assetRecord = await db
+      .select()
+      .from(assets)
+      .where(whereConditions)
+      .limit(1);
 
     if (assetRecord.length === 0) {
       result.error = 'Asset not found or access denied';
@@ -88,7 +102,9 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
     if (asset.key) {
       result.deleted_from_r2 = await deleteFromR2(asset.key);
     } else {
-      console.warn(`⚠️ Asset ${assetId} has no storage key, skipping R2 deletion`);
+      console.warn(
+        `⚠️ Asset ${assetId} has no storage key, skipping R2 deletion`
+      );
       result.deleted_from_r2 = true; // 没有key就当作成功
     }
 
@@ -97,15 +113,19 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
       ? and(eq(assets.id, assetId), eq(assets.user_id, userId))
       : eq(assets.id, assetId);
 
-    const deletedRows = await db.delete(assets).where(deleteWhereConditions).returning();
-
+    const deletedRows = await db
+      .delete(assets)
+      .where(deleteWhereConditions)
+      .returning();
 
     result.deleted_from_db = deletedRows.length > 0;
 
     result.success = result.deleted_from_db; // 数据库删除成功即可
 
     if (result.success) {
-      console.log(`✅ Asset ${assetId} deleted successfully (DB: ${result.deleted_from_db}, R2: ${result.deleted_from_r2})`);
+      console.log(
+        `✅ Asset ${assetId} deleted successfully (DB: ${result.deleted_from_db}, R2: ${result.deleted_from_r2})`
+      );
     }
 
     return result;
@@ -119,7 +139,10 @@ export async function deleteAsset(assetId: string, userId?: string): Promise<Ass
 /**
  * 批量删除资产
  */
-export async function deleteAssets(assetIds: string[], userId?: string): Promise<{
+export async function deleteAssets(
+  assetIds: string[],
+  userId?: string
+): Promise<{
   success: boolean;
   results: Record<string, AssetDeletionResult>;
   summary: {
@@ -144,10 +167,12 @@ export async function deleteAssets(assetIds: string[], userId?: string): Promise
     await Promise.all(batchPromises);
   }
 
-  const successful = Object.values(results).filter(r => r.success).length;
-  const failed = Object.values(results).filter(r => !r.success).length;
+  const successful = Object.values(results).filter((r) => r.success).length;
+  const failed = Object.values(results).filter((r) => !r.success).length;
 
-  console.log(`✅ Batch deletion complete: ${successful} successful, ${failed} failed`);
+  console.log(
+    `✅ Batch deletion complete: ${successful} successful, ${failed} failed`
+  );
 
   return {
     success: failed === 0,

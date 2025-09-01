@@ -1,5 +1,6 @@
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import FaqSection from '@/components/blocks/faqs/faqs';
+import AISuperchargeToolsSection from '@/components/blocks/features/ai-supercharge-tools';
 import AllToolsSection from '@/components/blocks/features/all-tools';
 import HomeHeroSection from '@/components/blocks/hero/home-hero';
 import PricingSection from '@/components/blocks/pricing/pricing';
@@ -49,6 +50,8 @@ export default async function HomePage(props: HomePageProps) {
         <HomeHeroSection />
 
         <AllToolsSection />
+
+        <AISuperchargeToolsSection />
 
         <PricingSection />
 

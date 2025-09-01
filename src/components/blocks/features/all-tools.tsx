@@ -33,7 +33,7 @@ const tools: ToolCard[] = [
     title: 'AI Backgrounds',
     image: '/home/all-tools03.png',
     alt: 'AI Backgrounds - Generate stunning backgrounds',
-    href: '/aibg',
+    href: '/aibackgrounds',
   },
   {
     id: 'remove-watermark',
@@ -47,7 +47,7 @@ const tools: ToolCard[] = [
     title: 'Profile Picture Maker',
     image: '/home/all-tools05.png',
     alt: 'Profile Picture Maker - Create professional avatars',
-    href: '/profile-picture',
+    href: '/profile-picture-maker',
   },
 ];
 
