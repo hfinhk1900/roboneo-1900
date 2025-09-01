@@ -172,12 +172,13 @@ export default function HomeHeroSection() {
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className={image.className}
                 >
-                  <div className="relative w-[150px] h-[160px] sm:w-[200px] sm:h-[210px] md:w-[250px] md:h-[270px] lg:w-[300px] lg:h-[320px] bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                  <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
                     <Image
                       src={image.src}
                       alt={image.alt}
-                      fill
-                      className="object-cover"
+                      width={300}
+                      height={300}
+                      className="w-full h-auto"
                       sizes="(max-width: 640px) 150px, (max-width: 768px) 200px, (max-width: 1024px) 250px, 300px"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
