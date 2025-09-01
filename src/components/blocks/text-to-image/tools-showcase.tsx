@@ -85,7 +85,7 @@ const tools: Tool[] = [
       'High quality output',
       'Profile ready',
     ],
-    href: '/ai/sticker',
+    href: '/sticker',
     badge: 'Most Popular',
     gradient: 'from-green-500 to-emerald-500',
     examples: [

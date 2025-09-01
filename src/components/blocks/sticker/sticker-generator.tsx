@@ -2,7 +2,6 @@
 
 import { LoginForm } from '@/components/auth/login-form';
 import { OptimizedImage } from '@/components/seo/optimized-image';
-import { CreditsDisplay } from '@/components/shared/credits-display';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -26,7 +24,7 @@ import {
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
-import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { validateImageFile } from '@/lib/image-validation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
@@ -37,12 +35,11 @@ import {
   LoaderIcon,
   SparklesIcon,
   Trash2Icon,
-  UploadIcon,
   XIcon,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.webp' },
@@ -51,8 +48,18 @@ const styleOptions = [
   { value: 'snoopy', label: 'Snoopy Style', icon: '/snoopy-style.webp' },
 ];
 
-export default function HeroSection() {
-  const t = useTranslations('HomePage.hero');
+// 历史记录接口定义
+interface StickerHistoryItem {
+  id?: string;
+  url: string;
+  style: string;
+  asset_id?: string;
+  createdAt: number;
+}
+
+const HISTORY_KEY = 'sticker_history';
+
+export default function StickerGenerator() {
   const currentUser = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -76,7 +83,7 @@ export default function HeroSection() {
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>('default');
 
-  // 新增：历史记录相关状态
+  // 历史记录相关状态
   const [stickerHistory, setStickerHistory] = useState<StickerHistoryItem[]>(
     []
   );
@@ -88,235 +95,112 @@ export default function HeroSection() {
   const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
     useState(false);
 
-  // 新增：图片预览弹窗状态
+  // 图片预览弹窗状态
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
 
-  // 历史记录接口定义
-  interface StickerHistoryItem {
-    id?: string;
-    url: string;
-    style: string;
-    createdAt: number;
-    asset_id?: string; // 添加asset_id字段
-  }
-
-  const HISTORY_KEY = 'roboneo_sticker_history_v1'; // 未登录时回退
-
-  // Ref for scrolling to this section
-  const heroRef = useRef<HTMLElement>(null);
-
+  // Get selected style option
   const selectedOption = styleOptions.find(
     (option) => option.value === selectedStyle
   );
 
-  // Function to handle style selection from gallery
-  const handleStyleSelect = useCallback((style: string) => {
-    setSelectedStyle(style);
-  }, []);
-
-  // Function to scroll to hero section
-  const scrollToHero = useCallback(() => {
-    if (heroRef.current) {
-      heroRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, []);
-
-  // Expose functions to parent component
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).heroStyleSelect = handleStyleSelect;
-      (window as any).heroScrollToHero = scrollToHero;
-    }
-  }, [handleStyleSelect, scrollToHero]);
-
-  // Fix hydration mismatch by ensuring client-side state consistency
   useEffect(() => {
     setIsMounted(true);
 
-    // Check notification permission on mount
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
   }, []);
 
-  // 新增：监听 currentUser 变化，重新加载历史记录
+  // 加载历史记录
   useEffect(() => {
     const loadHistory = async () => {
       try {
         if (currentUser) {
-          console.log('🔄 Loading server history for user:', currentUser.id);
-          const res = await fetch('/api/history/sticker?refresh_urls=true', {
-            // 移除limit=24，获取所有历史记录，并刷新URLs
+          // 已登录：优先从服务端加载
+          const res = await fetch('/api/history/sticker', {
             credentials: 'include',
           });
           if (res.ok) {
-            const data = await res.json();
-            console.log('📦 Server history response:', data);
+            const result = await res.json();
+            if (result.success && result.data) {
+              // 处理服务端历史记录
+              const processedItems = await Promise.all(
+                result.data.map(
+                  async (it: any): Promise<StickerHistoryItem> => {
+                    let finalUrl = it.url;
 
-            // 处理每个历史记录项，检查并刷新过期的URL
-            const processedItems = await Promise.all(
-              (data.items || []).map(async (it: any) => {
-                let finalUrl = it.url;
+                    // 如果是资产下载URL，检查是否过期
+                    if (it.url?.startsWith('/api/assets/download')) {
+                      try {
+                        const urlObj = new URL(it.url, window.location.origin);
+                        const exp = urlObj.searchParams.get('exp');
+                        const assetId = urlObj.searchParams.get('asset_id');
 
-                // 如果是资产下载URL，检查是否过期
-                if (it.url.startsWith('/api/assets/download')) {
-                  try {
-                    const urlObj = new URL(it.url, window.location.origin);
-                    const exp = urlObj.searchParams.get('exp');
-                    const assetId = urlObj.searchParams.get('asset_id');
+                        if (exp && assetId) {
+                          const expiryTime = Number.parseInt(exp) * 1000;
+                          const currentTime = Date.now();
 
-                    if (exp && assetId) {
-                      const expiryTime = Number.parseInt(exp) * 1000;
-                      const currentTime = Date.now();
-
-                      // 如果URL即将过期或已过期，刷新它
-                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                        console.log(
-                          '🔄 Refreshing expired asset URL:',
-                          assetId
-                        );
-                        try {
-                          const refreshRes = await fetch(
-                            '/api/storage/sign-download',
-                            {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                              },
-                              credentials: 'include',
-                              body: JSON.stringify({
-                                asset_id: assetId,
-                                display_mode: 'inline',
-                                expires_in: 3600,
-                              }),
+                          // 如果URL即将过期或已过期，刷新它
+                          if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                            try {
+                              const refreshRes = await fetch(
+                                '/api/storage/sign-download',
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  credentials: 'include',
+                                  body: JSON.stringify({
+                                    asset_id: assetId,
+                                    display_mode: 'inline',
+                                    expires_in: 3600,
+                                  }),
+                                }
+                              );
+                              if (refreshRes.ok) {
+                                const refreshData = await refreshRes.json();
+                                finalUrl = refreshData.url;
+                              }
+                            } catch (error) {
+                              console.error(
+                                'Failed to refresh asset URL:',
+                                error
+                              );
                             }
-                          );
-                          if (refreshRes.ok) {
-                            const refreshData = await refreshRes.json();
-                            finalUrl = refreshData.url;
                           }
-                        } catch (error) {
-                          console.error('Failed to refresh asset URL:', error);
                         }
+                      } catch (error) {
+                        console.error('Error checking URL expiry:', error);
                       }
                     }
-                  } catch (error) {
-                    console.error('Error checking URL expiry:', error);
+
+                    return {
+                      id: it.id,
+                      url: finalUrl,
+                      style: it.style,
+                      asset_id: it.asset_id || it.metadata?.asset_id,
+                      createdAt: it.createdAt
+                        ? new Date(it.createdAt).getTime()
+                        : Date.now(),
+                    } as StickerHistoryItem;
                   }
-                }
+                )
+              );
 
-                return {
-                  id: it.id,
-                  url: finalUrl,
-                  style: it.style,
-                  asset_id: it.asset_id || it.metadata?.asset_id, // 保留asset_id
-                  createdAt: it.createdAt
-                    ? new Date(it.createdAt).getTime()
-                    : Date.now(),
-                } as StickerHistoryItem;
-              })
-            );
+              // 确保按时间降序排列（最新的在前）
+              const sortedItems = processedItems.sort(
+                (a: StickerHistoryItem, b: StickerHistoryItem) =>
+                  (b.createdAt || 0) - (a.createdAt || 0)
+              );
 
-            // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort(
-              (a: StickerHistoryItem, b: StickerHistoryItem) =>
-                (b.createdAt || 0) - (a.createdAt || 0)
-            );
-            setStickerHistory(sortedItems);
-            console.log(
-              '✅ Server history loaded:',
-              processedItems.length,
-              'items'
-            );
-            return;
+              setStickerHistory(sortedItems);
+              return;
+            }
           }
-          console.warn('⚠️ Server history request failed:', res.status);
         } else {
-          console.log('👤 No user logged in, loading local history');
-          // fallback 本地
-          const raw = localStorage.getItem(HISTORY_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw) as StickerHistoryItem[];
-
-            // 处理本地历史记录，检查并刷新过期的URL
-            const processedItems = await Promise.all(
-              parsed.map(async (item) => {
-                let finalUrl = item.url;
-
-                // 如果是资产下载URL，检查是否过期
-                if (item.url.startsWith('/api/assets/download')) {
-                  try {
-                    const urlObj = new URL(item.url, window.location.origin);
-                    const exp = urlObj.searchParams.get('exp');
-                    const assetId = urlObj.searchParams.get('asset_id');
-
-                    if (exp && assetId) {
-                      const expiryTime = Number.parseInt(exp) * 1000;
-                      const currentTime = Date.now();
-
-                      // 如果URL即将过期或已过期，刷新它
-                      if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                        console.log(
-                          '🔄 Refreshing expired asset URL:',
-                          assetId
-                        );
-                        try {
-                          const refreshRes = await fetch(
-                            '/api/storage/sign-download',
-                            {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                              },
-                              credentials: 'include',
-                              body: JSON.stringify({
-                                asset_id: assetId,
-                                display_mode: 'inline',
-                                expires_in: 3600,
-                              }),
-                            }
-                          );
-                          if (refreshRes.ok) {
-                            const refreshData = await refreshRes.json();
-                            finalUrl = refreshData.url;
-                          }
-                        } catch (error) {
-                          console.error('Failed to refresh asset URL:', error);
-                        }
-                      }
-                    }
-                  } catch (error) {
-                    console.error('Error checking URL expiry:', error);
-                  }
-                }
-
-                return {
-                  ...item,
-                  url: finalUrl,
-                };
-              })
-            );
-
-            // 确保按时间降序排列（最新的在前）
-            const sortedItems = processedItems.sort(
-              (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
-            );
-            setStickerHistory(sortedItems);
-            console.log(
-              '📱 Local history loaded:',
-              processedItems.length,
-              'items'
-            );
-          }
-        }
-      } catch (error) {
-        console.error('❌ Error loading history:', error);
-        // 忽略错误，尽量展示本地
-        try {
+          // 未登录：加载本地历史
           const raw = localStorage.getItem(HISTORY_KEY);
           if (raw) {
             const parsed = JSON.parse(raw) as StickerHistoryItem[];
@@ -324,14 +208,12 @@ export default function HeroSection() {
             const sortedItems = parsed.sort(
               (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
             );
+
             setStickerHistory(sortedItems);
-            console.log(
-              '🔄 Fallback to local history:',
-              parsed.length,
-              'items'
-            );
           }
-        } catch {}
+        }
+      } catch (error) {
+        console.error('Error loading history:', error);
       }
     };
 
@@ -341,48 +223,6 @@ export default function HeroSection() {
     }
   }, [currentUser, isMounted]);
 
-  // Request notification permission when generation starts
-  const requestNotificationPermission = async () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        try {
-          const permission = await Notification.requestPermission();
-          setNotificationPermission(permission);
-          return permission;
-        } catch (error) {
-          console.log('Error requesting notification permission:', error);
-          return 'denied';
-        }
-      }
-    }
-    return Notification.permission;
-  };
-
-  // Send notification when generation completes
-  const sendCompletionNotification = () => {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('Your sticker is ready!', {
-        body: 'Click to view your generated sticker',
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'sticker-generation',
-        requireInteraction: false,
-        silent: false,
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
-
-      // Auto-close after 5 seconds
-      setTimeout(() => {
-        notification.close();
-      }, 5000);
-    }
-  };
-
-  // 新增：历史记录操作函数
   // 写入历史（最多保留 24 条，最新在前）
   const pushHistory = useCallback(
     async (item: StickerHistoryItem) => {
@@ -394,7 +234,7 @@ export default function HeroSection() {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({
-              asset_id: item.asset_id, // 优先使用asset_id
+              asset_id: item.asset_id,
               url: item.url,
               style: item.style,
             }),
@@ -410,19 +250,18 @@ export default function HeroSection() {
                 ? new Date(created.createdAt).getTime()
                 : Date.now(),
             };
-            setStickerHistory((prev) => [createdItem, ...prev]); // 移除24条限制，永久保存所有历史记录
+            setStickerHistory((prev) => [createdItem, ...prev]);
             return;
           }
         } catch {}
       }
       // 未登录：写入本地回退
       try {
-        // 新项目添加到最前面，确保时间戳
         const itemWithTime = {
           ...item,
           createdAt: item.createdAt || Date.now(),
         };
-        const next = [itemWithTime, ...stickerHistory]; // 移除24条限制，永久保存所有历史记录
+        const next = [itemWithTime, ...stickerHistory].slice(0, 24);
         setStickerHistory(next);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
       } catch {}
@@ -478,7 +317,6 @@ export default function HeroSection() {
 
   // 确认清空所有历史记录
   const confirmClearAllHistory = useCallback(async () => {
-    // 简化：前端逐条删除（避免新增批量删除API）
     const snapshot = [...stickerHistory];
     if (currentUser) {
       await Promise.all(
@@ -506,55 +344,10 @@ export default function HeroSection() {
   const downloadFromUrl = useCallback(async (url: string, style: string) => {
     const filename = `sticker-${style}-${Date.now()}.png`;
 
-    // 检查并刷新过期的URL
-    let finalUrl = url;
     if (url.startsWith('/api/assets/download')) {
-      try {
-        const urlObj = new URL(url, window.location.origin);
-        const exp = urlObj.searchParams.get('exp');
-        const assetId = urlObj.searchParams.get('asset_id');
-
-        if (exp && assetId) {
-          const expiryTime = Number.parseInt(exp) * 1000;
-          const currentTime = Date.now();
-
-          // 如果URL即将过期或已过期，刷新它
-          if (expiryTime - currentTime <= 5 * 60 * 1000) {
-            console.log(
-              '🔄 Refreshing expired asset URL for download:',
-              assetId
-            );
-            try {
-              const refreshRes = await fetch('/api/storage/sign-download', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                  asset_id: assetId,
-                  display_mode: 'inline',
-                  expires_in: 3600,
-                }),
-              });
-              if (refreshRes.ok) {
-                const refreshData = await refreshRes.json();
-                finalUrl = refreshData.url;
-              }
-            } catch (error) {
-              console.error('Failed to refresh asset URL for download:', error);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error checking URL expiry for download:', error);
-      }
-    }
-
-    if (finalUrl.startsWith('/api/assets/download')) {
       // 新资产管理系统
       const link = document.createElement('a');
-      link.href = finalUrl;
+      link.href = url;
       link.download = filename;
       link.style.display = 'none';
       document.body.appendChild(link);
@@ -563,10 +356,10 @@ export default function HeroSection() {
       return;
     }
 
-    if (finalUrl.startsWith('data:')) {
+    if (url.startsWith('data:')) {
       // base64 数据
       const link = document.createElement('a');
-      link.href = finalUrl;
+      link.href = url;
       link.download = filename;
       link.style.display = 'none';
       document.body.appendChild(link);
@@ -575,9 +368,9 @@ export default function HeroSection() {
       return;
     }
 
-    if (finalUrl.startsWith('http')) {
+    if (url.startsWith('http')) {
       // HTTP URL，使用代理
-      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url: finalUrl, filename })}`;
+      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url, filename })}`;
       const link = document.createElement('a');
       link.href = downloadUrl;
       link.download = filename;
@@ -589,314 +382,199 @@ export default function HeroSection() {
     }
   }, []);
 
-  // Function to perform the actual generation (without auth check) - Using AI service
-  const performGeneration = useCallback(async () => {
-    if (!selectedImage) return;
-
-    // Double-check file validation before sending
-    const validation = validateImageFile(selectedImage);
-    if (!validation.isValid) {
-      setFileError(validation.error || 'Invalid file');
-      return;
-    }
-
-    setGeneratedImageUrl(null);
-    setIsGenerating(true);
-    setFileError(null);
-    setGenerationStep('Generating your sticker...');
-    setGenerationProgress(10);
-
-    // Request notification permission for completion notification
-    requestNotificationPermission();
-
-    try {
-      // Step 1: Generate sticker using AI service (synchronous)
-      setGenerationStep('Generating your sticker...');
-      setGenerationProgress(50);
-
-      console.log('🔧 DEBUG: Calling /api/image-to-sticker with AI service');
-
-      const formData = new FormData();
-      formData.append('imageFile', selectedImage);
-      formData.append('style', selectedStyle);
-
-      const stickerResponse = await fetch('/api/image-to-sticker', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log(
-        '🔧 DEBUG: Sticker response status:',
-        stickerResponse.status,
-        stickerResponse.statusText
-      );
-
-      if (!stickerResponse.ok) {
-        const stickerError = await stickerResponse.json();
-
-        // Handle insufficient credits error
-        if (stickerResponse.status === 402) {
-          setCreditsError({
-            required: stickerError.required,
-            current: stickerError.current,
-          });
-          setShowCreditsDialog(true);
-          return;
-        }
-
-        // Handle authentication error
-        if (stickerResponse.status === 401) {
-          setShowLoginDialog(true);
-          return;
-        }
-
-        throw new Error(stickerError.error || 'Failed to generate sticker');
-      }
-
-      const stickerData = await stickerResponse.json();
-      console.log('🔧 DEBUG: Sticker generated successfully!', stickerData);
-
-      // Step 3: Process the completed result (AI service returns result immediately)
-      setGenerationStep('Processing final result...');
-      setGenerationProgress(90);
-
-      // AI service returns the result synchronously
-      setGenerationStep('Your sticker is ready!');
-      setGenerationProgress(100);
-
-      // Store both URL and asset_id for proper asset management
-      setGeneratedImageUrl(stickerData.url || stickerData.download_url);
-      // Store asset_id in a ref or state if needed for future operations
-      const assetId = stickerData.asset_id;
-
-      setIsGenerating(false);
-
-      // Clear credits cache to trigger refresh of credits display
-      creditsCache.clear();
-
-      // Send completion notification
-      sendCompletionNotification();
-
-      // 添加到历史记录，使用asset_id
-      pushHistory({
-        url: stickerData.url || stickerData.download_url,
-        style: selectedStyle,
-        createdAt: Date.now(),
-        asset_id: assetId, // 添加asset_id
-      });
-
-      console.log('🎉 Sticker generation completed successfully!');
-    } catch (error) {
-      console.error('❌ Sticker generation failed:', error);
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred.';
-      setFileError(errorMessage);
-      setIsGenerating(false);
-      setGenerationStep(null);
-      setGenerationProgress(0);
-    }
-  }, [selectedImage, selectedStyle, pushHistory]);
-
-  // Effect to handle automatic generation after login
-  useEffect(() => {
-    if (currentUser && pendingGeneration.current && selectedImage) {
-      // User just logged in and we have a pending generation
-      pendingGeneration.current = false;
-      setShowLoginDialog(false);
-      // Automatically continue with generation
-      performGeneration();
-    }
-  }, [currentUser, performGeneration, selectedImage]);
-
-  // 删除上传的图片
-  const removeUploadedImage = () => {
-    // Clean up preview URL to prevent memory leaks
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
-    // Reset all image-related states
-    setSelectedImage(null);
-    setPreviewUrl(null);
-    setGeneratedImageUrl(null);
-    setFileError(null);
-  };
-
-  // 通用文件处理函数
-  const processFile = (file: File) => {
-    // Clear previous errors
-    setFileError(null);
-
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.isValid) {
-      setFileError(validation.error || 'Invalid file');
-      setSelectedImage(null);
-      setPreviewUrl(null);
-      return;
-    }
-
-    setSelectedImage(file);
-    setGeneratedImageUrl(null); // Reset previous generation
-
-    // Create a preview URL
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-
-    // Clean up the URL when component unmounts
-    return () => URL.revokeObjectURL(objectUrl);
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    processFile(file);
-  };
-
-  // 拖拽事件处理
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isDragging) {
-      setIsDragging(true);
-    }
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => {
+  // 处理文件拖拽
+  const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
-  };
+  }, []);
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    // 只有当离开整个拖拽区域时才设置为false
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX;
-    const y = e.clientY;
-
-    if (
-      x <= rect.left ||
-      x >= rect.right ||
-      y <= rect.top ||
-      y >= rect.bottom
-    ) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsDragging(false);
     }
-  };
+  }, []);
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
 
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
       const file = files[0];
-      processFile(file);
+      handleImageUpload({ target: { files: [file] } } as any);
     }
-  };
+  }, []);
 
-  const handleGenerate = async () => {
-    if (!selectedImage || !isMounted) return;
+  // 处理图片上传
+  const handleImageUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    // Check if user is authenticated
+      setFileError(null);
+      setGeneratedImageUrl(null);
+
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setFileError(validation.error || 'Invalid file');
+        return;
+      }
+
+      setSelectedImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    },
+    []
+  );
+
+  // 移除上传的图片
+  const removeUploadedImage = useCallback(() => {
+    setSelectedImage(null);
+    setPreviewUrl(null);
+    setGeneratedImageUrl(null);
+    setFileError(null);
+  }, []);
+
+  // 生成贴纸
+  const handleGenerate = useCallback(async () => {
+    if (!selectedImage) {
+      toast.error('Please upload an image first');
+      return;
+    }
+
     if (!currentUser) {
-      // Set pending generation flag and show login dialog
-      pendingGeneration.current = true;
       setShowLoginDialog(true);
       return;
     }
 
-    // User is authenticated, proceed with generation
-    await performGeneration();
-  };
+    // 检查积分
+    const currentCredits = creditsCache.get() || 0;
+    if (currentCredits < CREDITS_PER_IMAGE) {
+      setCreditsError({
+        required: CREDITS_PER_IMAGE,
+        current: currentCredits,
+      });
+      setShowCreditsDialog(true);
+      return;
+    }
 
-  const handleDownload = async () => {
-    if (!generatedImageUrl) return;
+    if (pendingGeneration.current) {
+      return;
+    }
+
+    pendingGeneration.current = true;
+    setIsGenerating(true);
+    setGenerationProgress(0);
+    setGenerationStep('Preparing image...');
 
     try {
-      // 如果是资产下载URL（新的格式），直接使用
-      if (generatedImageUrl.startsWith('/api/assets/download')) {
-        // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
-        const link = document.createElement('a');
-        link.href = generatedImageUrl;
-        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
-        link.target = '_blank';
+      // 模拟进度
+      const progressInterval = setInterval(() => {
+        setGenerationProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 500);
 
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      setGenerationStep('Generating sticker...');
 
-        return;
+      // 创建 FormData 以匹配 API 期待的格式
+      const formData = new FormData();
+      formData.append('imageFile', selectedImage);
+      formData.append('style', selectedStyle);
+
+      const response = await fetch('/api/image-to-sticker', {
+        method: 'POST',
+        body: formData,
+      });
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
 
-      // 如果是base64数据，直接下载
-      if (generatedImageUrl.startsWith('data:')) {
-        const link = document.createElement('a');
-        link.href = generatedImageUrl;
-        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return;
-      }
+      const result = await response.json();
 
-      // 如果是URL（如R2存储的图片），下载图片
-      if (generatedImageUrl.startsWith('http')) {
-        // 显示下载中提示
-        console.log('Downloading image from URL...');
+      if (result.success && result.url) {
+        setGeneratedImageUrl(result.url);
+        setGenerationProgress(100);
+        setGenerationStep('Complete!');
 
-        // 检查是否是签名URL，如果是，使用图片代理API
-        const downloadUrl = generatedImageUrl.includes('signature=')
-          ? `/api/image-proxy?url=${encodeURIComponent(generatedImageUrl)}`
-          : generatedImageUrl;
+        // 更新积分
+        const currentCredits = creditsCache.get() || 0;
+        creditsCache.set(currentCredits - CREDITS_PER_IMAGE);
 
-        // 通过fetch下载图片并转换为blob
-        const response = await fetch(downloadUrl);
+        // 保存到历史记录
+        await pushHistory({
+          url: result.url,
+          style: selectedStyle,
+          asset_id: result.asset_id,
+          createdAt: Date.now(),
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        toast.success('Sticker generated successfully!');
+
+        // 发送通知（如果已授权）
+        if (notificationPermission === 'granted') {
+          new Notification('Sticker Ready!', {
+            body: 'Your AI sticker has been generated successfully.',
+            icon: '/favicon.ico',
+          });
         }
-
-        const blob = await response.blob();
-
-        // 创建blob URL并下载
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = `roboneo-sticker-${selectedStyle}-${Date.now()}.png`;
-
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // 清理blob URL
-        window.URL.revokeObjectURL(blobUrl);
-
-        return;
+      } else {
+        throw new Error(result.message || 'Generation failed');
       }
-
-      // 其他情况，在新标签页中打开
-      window.open(generatedImageUrl, '_blank');
-      console.log('Opened image in new tab');
     } catch (error) {
-      console.error('Error downloading image:', error);
-      alert('Failed to download image. Please try again.');
+      console.error('Generation error:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to generate sticker'
+      );
+    } finally {
+      setIsGenerating(false);
+      pendingGeneration.current = false;
+      setGenerationProgress(0);
+      setGenerationStep(null);
     }
-  };
+  }, [
+    selectedImage,
+    selectedStyle,
+    currentUser,
+    notificationPermission,
+    pushHistory,
+  ]);
+
+  // 下载生成的图片
+  const handleDownload = useCallback(async () => {
+    if (!generatedImageUrl) return;
+    await downloadFromUrl(generatedImageUrl, selectedStyle);
+    toast.success('Image downloaded successfully!');
+  }, [generatedImageUrl, selectedStyle, downloadFromUrl]);
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoaderIcon className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <main
-      ref={heroRef}
-      id="hero"
-      className="overflow-hidden py-12 bg-[#F5F5F5]"
-    >
-      {/* background, light shadows on top of the hero section */}
+    <main className="relative bg-gradient-to-b from-gray-50 to-white min-h-screen overflow-hidden">
+      {/* Background decoration */}
       <div
         aria-hidden
         className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block"
@@ -913,7 +591,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+            className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl pt-24"
             style={{
               fontFamily:
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
@@ -1287,6 +965,8 @@ export default function HeroSection() {
         </div>
       </div>
 
+      {/* Credits Display - Removed */}
+
       {/* Insufficient Credits Dialog */}
       {creditsError && (
         <InsufficientCreditsDialog
@@ -1369,6 +1049,7 @@ export default function HeroSection() {
       </Dialog>
 
       {/* 历史记录区块 */}
+
       {stickerHistory.length > 0 && (
         <div className="mx-auto max-w-7xl px-6 mt-10">
           <div className="flex items-center justify-between mb-4">

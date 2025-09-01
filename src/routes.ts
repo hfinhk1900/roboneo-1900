@@ -42,15 +42,16 @@ export enum Routes {
   AIVideo = '/ai/video',
   AIAudio = '/ai/audio',
   AIIllustrator = '/ai/illustrator',
-  AISticker = '/ai/sticker',
+  AISticker = '/sticker',
   AIPoster = '/ai/poster',
   AIImageToSticker = '/ai/image-to-sticker',
   AIImageToImage = '/ai/image-to-image',
   AIPortrait = '/ai/portrait',
   ProductShot = '/productshot',
   TextToImage = '/text-to-image',
-  AIBackground = '/aibackground',
+  AIBackground = '/aibackgrounds',
   RemoveWatermark = '/remove-watermark',
+  ProfilePictureMaker = '/profile-picture-maker',
 
   // block routes
   MagicuiBlocks = '/magicui',

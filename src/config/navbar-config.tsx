@@ -55,15 +55,14 @@ export function getNavbarLinks(): NestedMenuItem[] {
   const t = useTranslations('Marketing.navbar');
 
   return [
-    // {
-    //   title: 'Text to Image',
-    //   href: Routes.AIImage,
-    //   external: false,
-    //   icon: <ImageIcon className="size-4 shrink-0" />,
-    // },
     {
-      title: t('features.title'),
+      title: 'Home',
       href: Routes.Root,
+      external: false,
+    },
+    {
+      title: 'Sticker',
+      href: Routes.AISticker,
       external: false,
     },
     {
@@ -98,7 +97,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
-          title: 'AI Background',
+          title: 'AI Backgrounds',
           description: 'Remove and replace image backgrounds',
           icon: '/text-to-image03.webp',
           href: Routes.AIBackground,
@@ -109,6 +108,13 @@ export function getNavbarLinks(): NestedMenuItem[] {
           description: 'AI-powered watermark removal tool',
           icon: '/text-to-image01.webp',
           href: Routes.RemoveWatermark,
+          external: false,
+        },
+        {
+          title: 'Profile Picture Maker',
+          description: 'Create professional profile pictures with AI',
+          icon: '/profile-maker-icon.webp',
+          href: Routes.ProfilePictureMaker,
           external: false,
         },
         {

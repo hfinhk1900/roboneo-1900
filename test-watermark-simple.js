@@ -19,7 +19,7 @@ function checkImage() {
     log(`测试图片不存在: ${TEST_IMAGE}`, '❌');
     process.exit(1);
   }
-  
+
   const stats = fs.statSync(TEST_IMAGE);
   log(`找到测试图片: ${(stats.size / 1024).toFixed(1)}KB`, '✅');
 }
@@ -33,56 +33,62 @@ function imageToBase64() {
 async function testAPI() {
   checkImage();
   const base64 = imageToBase64();
-  
+
   log('准备测试数据...', '⚡');
-  
+
   const testData = {
     image_input: base64,
     quality: 'standard',
     steps: 20,
-    output_format: 'png'
+    output_format: 'png',
   };
-  
+
   // 保存测试数据到临时文件
   const tempFile = './temp-test-data.json';
   fs.writeFileSync(tempFile, JSON.stringify(testData));
-  
+
   log('发送 API 请求...', '🚀');
-  
+
   try {
     const curlCommand = `curl -X POST "${API_URL}" \\
       -H "Content-Type: application/json" \\
       -d @${tempFile} \\
       -w "HTTP_STATUS:%{http_code}\\nTIME:%{time_total}s\\n" \\
       -s`;
-    
-    const result = execSync(curlCommand, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
-    
+
+    const result = execSync(curlCommand, {
+      encoding: 'utf8',
+      maxBuffer: 50 * 1024 * 1024,
+    });
+
     // 清理临时文件
     fs.unlinkSync(tempFile);
-    
+
     // 解析结果
     const lines = result.split('\n');
-    const statusLine = lines.find(line => line.startsWith('HTTP_STATUS:'));
-    const timeLine = lines.find(line => line.startsWith('TIME:'));
-    
+    const statusLine = lines.find((line) => line.startsWith('HTTP_STATUS:'));
+    const timeLine = lines.find((line) => line.startsWith('TIME:'));
+
     const status = statusLine ? statusLine.split(':')[1] : 'unknown';
     const time = timeLine ? timeLine.split(':')[1] : 'unknown';
-    
+
     // 获取响应体
-    const responseBody = lines.filter(line => 
-      !line.startsWith('HTTP_STATUS:') && 
-      !line.startsWith('TIME:') && 
-      line.trim()
-    ).join('\n');
-    
+    const responseBody = lines
+      .filter(
+        (line) =>
+          !line.startsWith('HTTP_STATUS:') &&
+          !line.startsWith('TIME:') &&
+          line.trim()
+      )
+      .join('\n');
+
     log(`响应状态: ${status}`, status === '200' ? '✅' : '❌');
     log(`响应时间: ${time}`, '⏱️');
-    
+
     if (responseBody.trim()) {
       try {
         const response = JSON.parse(responseBody);
-        
+
         if (response.success) {
           log('水印去除成功!', '🎉');
           log(`结果 URL: ${response.public_url}`, '🖼️');
@@ -96,10 +102,9 @@ async function testAPI() {
         console.log('原始响应:', responseBody);
       }
     }
-    
   } catch (error) {
     log(`测试失败: ${error.message}`, '💥');
-    
+
     // 清理临时文件
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile);

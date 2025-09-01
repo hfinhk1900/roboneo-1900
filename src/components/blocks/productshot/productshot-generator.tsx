@@ -201,7 +201,7 @@ export default function ProductShotGeneratorSection() {
                         );
                         try {
                           const refreshRes = await fetch(
-                            `/api/storage/sign-download`,
+                            '/api/storage/sign-download',
                             {
                               method: 'POST',
                               headers: {
@@ -252,9 +252,8 @@ export default function ProductShotGeneratorSection() {
               'items'
             );
             return;
-          } else {
-            console.warn('⚠️ Server history request failed:', res.status);
           }
+          console.warn('⚠️ Server history request failed:', res.status);
         } else {
           console.log('👤 No user logged in, loading local history');
           // fallback 本地
@@ -286,7 +285,7 @@ export default function ProductShotGeneratorSection() {
                         );
                         try {
                           const refreshRes = await fetch(
-                            `/api/storage/sign-download`,
+                            '/api/storage/sign-download',
                             {
                               method: 'POST',
                               headers: {
@@ -524,7 +523,7 @@ export default function ProductShotGeneratorSection() {
               assetId
             );
             try {
-              const refreshRes = await fetch(`/api/storage/sign-download`, {
+              const refreshRes = await fetch('/api/storage/sign-download', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -1292,7 +1291,7 @@ export default function ProductShotGeneratorSection() {
                         <DownloadIcon className="h-4 w-4 text-gray-600" />
                       </Button>
                       <Button
-                        onClick={() => setResult(null)}
+                        onClick={() => clearResult()}
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"

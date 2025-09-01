@@ -158,14 +158,14 @@ export function Navbar({ scroll }: NavBarProps) {
         };
         console.log('Closing menu, new state:', newState); // Debug log
         return newState;
-      } else {
-        // If the menu is closed, close all other menus and open this one
-        const newState = {
-          [menuTitle]: true, // Only this menu will be open
-        };
-        console.log('Opening menu (closing others), new state:', newState); // Debug log
-        return newState;
       }
+
+      // If the menu is closed, close all other menus and open this one
+      const newState = {
+        [menuTitle]: true, // Only this menu will be open
+      };
+      console.log('Opening menu (closing others), new state:', newState); // Debug log
+      return newState;
     });
   };
 
@@ -229,6 +229,7 @@ export function Navbar({ scroll }: NavBarProps) {
                   item.items ? (
                     <NavigationMenuItem key={index} className="relative">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleMenu(item.title);

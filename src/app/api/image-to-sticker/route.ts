@@ -9,6 +9,8 @@
  */
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
+import { getDb } from '@/db';
+import { assets } from '@/db/schema';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
@@ -18,8 +20,6 @@ import { getLocalTimestr } from '@/lib/time-utils';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/db';
-import { assets } from '@/db/schema';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -389,13 +389,12 @@ export async function POST(req: NextRequest) {
       content_type: 'image/png',
       size: stickerBuffer.length,
       user_id: session.user.id,
-      metadata: {
+      metadata: JSON.stringify({
         source: 'image-to-sticker',
         style: style,
         original_size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         created_at: getLocalTimestr(),
-      },
-      created_at: new Date()
+      }),
     });
 
     // 7. 生成签名下载URL

@@ -268,7 +268,7 @@ export function AIBackgroundGeneratorSection() {
       if (currentUser) {
         // 已登录：从服务器加载，并刷新URLs
         try {
-          const res = await fetch('/api/history/aibg?refresh_urls=true', {
+          const res = await fetch('/api/history/aibgs?refresh_urls=true', {
             credentials: 'include',
           });
           if (res.ok) {
@@ -319,7 +319,7 @@ export function AIBackgroundGeneratorSection() {
       // 已登录：写入服务端
       if (currentUser) {
         try {
-          const res = await fetch('/api/history/aibg', {
+          const res = await fetch('/api/history/aibgs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -388,7 +388,7 @@ export function AIBackgroundGeneratorSection() {
     // 已登录：调用删除
     if (currentUser && item.id) {
       try {
-        await fetch(`/api/history/aibg/${item.id}`, {
+        await fetch(`/api/history/aibgs/${item.id}`, {
           method: 'DELETE',
           credentials: 'include',
         });
@@ -424,7 +424,7 @@ export function AIBackgroundGeneratorSection() {
           snapshot.map(async (it) => {
             if (!it.id) return;
             try {
-              await fetch(`/api/history/aibg/${it.id}`, {
+              await fetch(`/api/history/aibgs/${it.id}`, {
                 method: 'DELETE',
                 credentials: 'include',
               });
@@ -1311,7 +1311,7 @@ export function AIBackgroundGeneratorSection() {
       });
 
       // Call AI Background API
-      const response = await fetch('/api/aibackground/generate', {
+      const response = await fetch('/api/aibackgrounds/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1695,7 +1695,7 @@ export function AIBackgroundGeneratorSection() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            AI Background
+            AI Backgrounds
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
             Upload any photo and generate stunning custom backgrounds with AI -
@@ -1723,7 +1723,7 @@ export function AIBackgroundGeneratorSection() {
                       fill="currentColor"
                     />
                   </svg>
-                  AI Background
+                  AI Backgrounds
                 </h3>
                 <p className="text-muted-foreground">
                   Upload your photo and create custom backgrounds with AI.
@@ -2571,12 +2571,12 @@ export function AIBackgroundGeneratorSection() {
           </div>
         </div>
 
-        {/* AI Background History Section */}
+        {/* AI Backgrounds History Section */}
         {aibgHistory.length > 0 && (
           <div className="mt-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">
-                Your AI Background History
+                Your AI Backgrounds History
               </h3>
               <div className="flex items-center gap-2">
                 <Button
@@ -2651,7 +2651,7 @@ export function AIBackgroundGeneratorSection() {
         >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Delete AI Background History?</DialogTitle>
+              <DialogTitle>Delete AI Backgrounds History?</DialogTitle>
               <DialogDescription>
                 Are you sure you want to delete this AI background from your
                 history? This action cannot be undone.
@@ -2710,7 +2710,7 @@ export function AIBackgroundGeneratorSection() {
                 <div>
                   <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
                     <ImageIcon className="w-5 h-5 text-yellow-400" />
-                    AI Background Preview
+                    AI Backgrounds Preview
                   </DialogTitle>
                 </div>
 
