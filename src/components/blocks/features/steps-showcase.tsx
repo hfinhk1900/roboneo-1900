@@ -187,6 +187,7 @@ export default function StepsShowcaseSection() {
               <div className="flex gap-2">
                 {steps.map((step) => (
                   <button
+                    type="button"
                     key={`indicator-${step.id}`}
                     onClick={() => handleStepClick(step.id)}
                     className={cn(

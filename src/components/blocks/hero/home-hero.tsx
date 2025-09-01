@@ -8,11 +8,12 @@ import Link from 'next/link';
 
 // 合作伙伴 logo 数据
 const PARTNER_LOGOS = [
-  { name: 'FLUX', src: '/partners/flux.png' },
-  { name: 'Google DeepMind', src: '/partners/deepmind.png' },
-  { name: 'ByteDance', src: '/partners/bytedance.png' },
-  { name: 'Runway', src: '/partners/runway.png' },
-  { name: 'KLING', src: '/partners/kling.png' },
+  { name: 'Partner 1', src: '/home/power01.svg' },
+  { name: 'Partner 2', src: '/home/power02.svg' },
+  { name: 'Partner 3', src: '/home/power03.svg' },
+  { name: 'Partner 4', src: '/home/power04.svg' },
+  { name: 'Partner 5', src: '/home/power05.svg' },
+  { name: 'Partner 6', src: '/home/power06.svg' },
 ];
 
 export default function HomeHeroSection() {
@@ -60,7 +61,7 @@ export default function HomeHeroSection() {
               size="lg"
               className="rounded-full text-base px-8 h-[50px]"
             >
-              <Link href="/#generator">Create Sticker</Link>
+              <Link href="/">Create Sticker</Link>
             </Button>
 
             <Button
@@ -68,7 +69,7 @@ export default function HomeHeroSection() {
               size="lg"
               className="rounded-full text-base px-8 h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
             >
-              <Link href="/#generator">
+              <Link href="/">
                 <SparklesIcon className="mr-2 h-5 w-5" />
                 Start creating for free
               </Link>
@@ -204,7 +205,7 @@ export default function HomeHeroSection() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-20 text-center"
         >
-          <p className="text-sm font-medium text-gray-500 mb-8">Powered by</p>
+          <p className="text-sm font-medium text-gray-400 mb-8">Powered by</p>
 
           <div className="flex items-center justify-center gap-8 flex-wrap opacity-60">
             {PARTNER_LOGOS.map((partner) => (
@@ -212,10 +213,13 @@ export default function HomeHeroSection() {
                 key={partner.name}
                 className="flex items-center justify-center h-8"
               >
-                {/* Placeholder for partner logos */}
-                <div className="px-4 py-2 bg-gray-100 rounded text-xs text-gray-600 font-medium">
-                  {partner.name}
-                </div>
+                <Image
+                  src={partner.src}
+                  alt={partner.name}
+                  width={40}
+                  height={40}
+                  className="h-8 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                />
               </div>
             ))}
           </div>

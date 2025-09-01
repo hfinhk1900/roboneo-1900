@@ -1,7 +1,6 @@
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import FaqSection from '@/components/blocks/faqs/faqs';
-import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
-import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
+import AllToolsSection from '@/components/blocks/features/all-tools';
 import HomeHeroSection from '@/components/blocks/hero/home-hero';
 import PricingSection from '@/components/blocks/pricing/pricing';
 import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
@@ -49,9 +48,7 @@ export default async function HomePage(props: HomePageProps) {
       <div className="flex flex-col">
         <HomeHeroSection />
 
-        <StepsShowcaseSection />
-
-        <ImageShowcaseSection />
+        <AllToolsSection />
 
         <PricingSection />
 
