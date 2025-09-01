@@ -77,14 +77,14 @@ export default function AllToolsSection() {
                 className="group block bg-neutral-100 rounded-3xl p-6 h-[337px] relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
               >
                 {/* Tool Title */}
-                <div className="text-center mb-6">
+                <div className="text-center mb-6 h-16 flex items-center justify-center">
                   <h3 className="text-lg font-bold text-black leading-tight">
                     {tool.title}
                   </h3>
                 </div>
 
                 {/* Tool Image */}
-                <div className="relative w-[166px] h-[166px] mx-auto mb-6 rounded-2xl overflow-hidden bg-white">
+                <div className="relative w-[166px] h-[166px] mx-auto mb-0 rounded-2xl overflow-hidden bg-white">
                   <Image
                     src={tool.image}
                     alt={tool.alt}
@@ -95,7 +95,7 @@ export default function AllToolsSection() {
                 </div>
 
                 {/* Arrow Icon */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
                   <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center group-hover:bg-yellow-500 transition-colors duration-300">
                     <ArrowRight className="w-4 h-4 text-black" />
                   </div>
