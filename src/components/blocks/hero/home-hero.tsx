@@ -6,48 +6,6 @@ import { SparklesIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// 示例图像数据 - 5张图片左右对称布局
-const SHOWCASE_IMAGES = [
-  // 左侧图片
-  {
-    id: 'left-top',
-    src: '/home/home-hero.png',
-    alt: 'AI Image Processing Example',
-    className: 'rounded-2xl',
-    position: 'left-top',
-  },
-  {
-    id: 'left-bottom',
-    src: '/home/home-hero-1.png',
-    alt: 'Background Removal Demo',
-    className: 'rounded-2xl',
-    position: 'left-bottom',
-  },
-  // 中间大图
-  {
-    id: 'center-main',
-    src: '/home/home-hero-4.png',
-    alt: 'AI Generated Showcase',
-    className: 'rounded-2xl',
-    position: 'center',
-  },
-  // 右侧图片
-  {
-    id: 'right-top',
-    src: '/home/home-hero-2.png',
-    alt: 'Portrait Enhancement',
-    className: 'rounded-2xl',
-    position: 'right-top',
-  },
-  {
-    id: 'right-bottom',
-    src: '/home/home-hero-3.png',
-    alt: 'Style Transfer Demo',
-    className: 'rounded-2xl',
-    position: 'right-bottom',
-  },
-];
-
 // 合作伙伴 logo 数据
 const PARTNER_LOGOS = [
   { name: 'FLUX', src: '/partners/flux.png' },
@@ -118,119 +76,123 @@ export default function HomeHeroSection() {
           </motion.div>
         </div>
 
-        {/* Image showcase grid - 5张图片左右对称布局 */}
+        {/* Image showcase grid - 凸字形布局 */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative"
         >
-          <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 max-w-6xl mx-auto px-4">
-            {/* 左侧图片列 */}
-            <div className="flex flex-col gap-2 sm:gap-4">
-              {SHOWCASE_IMAGES.filter((img) =>
-                img.position?.startsWith('left')
-              ).map((image, index) => (
-                <motion.div
-                  key={image.id}
-                  initial={{ opacity: 0, scale: 0.8, x: -50 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                  className={image.className}
+          <div className="flex items-center justify-center max-w-6xl mx-auto px-4 h-[358px] gap-4">
+            {/* 左侧图片组 */}
+            <div className="flex flex-col justify-between h-full gap-4 items-end">
+              {/* 左上角图片 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: -50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="relative"
+              >
+                <div
+                  className="relative w-[168px] h-[174px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  style={{ aspectRatio: 'auto' }}
                 >
-                  <div className="relative w-[100px] h-[75px] sm:w-[140px] sm:h-[105px] md:w-[180px] md:h-[135px] lg:w-[200px] lg:h-[150px] bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100px, (max-width: 768px) 140px, (max-width: 1024px) 180px, 200px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.parentElement!.innerHTML = `
-                          <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                            <div class="text-gray-400 text-sm text-center p-4">
-                              ${image.alt}
-                            </div>
-                          </div>
-                        `;
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
+                  <Image
+                    src="/home/home-hero.png"
+                    alt="AI Image Processing Example"
+                    fill
+                    className="object-cover"
+                    sizes="168px"
+                  />
+                </div>
+              </motion.div>
+
+              {/* 左下角图片 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: -50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="relative"
+              >
+                <div
+                  className="relative w-[336px] h-[168px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  style={{ aspectRatio: '2/1' }}
+                >
+                  <Image
+                    src="/home/home-hero-1.png"
+                    alt="Background Removal Demo"
+                    fill
+                    className="object-cover"
+                    sizes="336px"
+                  />
+                </div>
+              </motion.div>
             </div>
 
             {/* 中间大图 */}
-            {SHOWCASE_IMAGES.filter((img) => img.position === 'center').map(
-              (image, index) => (
-                <motion.div
-                  key={image.id}
-                  initial={{ opacity: 0, scale: 0.8, y: 30 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                  className={image.className}
-                >
-                  <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      width={300}
-                      height={300}
-                      className="w-full h-auto"
-                      sizes="(max-width: 640px) 150px, (max-width: 768px) 200px, (max-width: 1024px) 250px, 300px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.parentElement!.innerHTML = `
-                        <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                          <div class="text-gray-400 text-sm text-center p-4">
-                            ${image.alt}
-                          </div>
-                        </div>
-                      `;
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )
-            )}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="relative mx-2"
+            >
+              <div
+                className="relative w-[270px] h-[358px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                style={{ aspectRatio: 'auto' }}
+              >
+                <Image
+                  src="/home/home-hero-4.png"
+                  alt="AI Generated Showcase"
+                  fill
+                  className="object-cover"
+                  sizes="270px"
+                />
+              </div>
+            </motion.div>
 
-            {/* 右侧图片列 */}
-            <div className="flex flex-col gap-2 sm:gap-4">
-              {SHOWCASE_IMAGES.filter((img) =>
-                img.position?.startsWith('right')
-              ).map((image, index) => (
-                <motion.div
-                  key={image.id}
-                  initial={{ opacity: 0, scale: 0.8, x: 50 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                  className={image.className}
+            {/* 右侧图片组 */}
+            <div className="flex flex-col justify-between h-full gap-4 items-start">
+              {/* 右上角图片 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="relative"
+              >
+                <div
+                  className="relative w-[168px] h-[174px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  style={{ aspectRatio: 'auto' }}
                 >
-                  <div className="relative w-[100px] h-[75px] sm:w-[140px] sm:h-[105px] md:w-[180px] md:h-[135px] lg:w-[200px] lg:h-[150px] bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100px, (max-width: 768px) 140px, (max-width: 1024px) 180px, 200px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.parentElement!.innerHTML = `
-                          <div class="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                            <div class="text-gray-400 text-sm text-center p-4">
-                              ${image.alt}
-                            </div>
-                          </div>
-                        `;
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
+                  <Image
+                    src="/home/home-hero-2.png"
+                    alt="Portrait Enhancement"
+                    fill
+                    className="object-cover"
+                    sizes="168px"
+                  />
+                </div>
+              </motion.div>
+
+              {/* 右下角图片 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="relative"
+              >
+                <div
+                  className="relative w-[336px] h-[168px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  style={{ aspectRatio: '2/1' }}
+                >
+                  <Image
+                    src="/home/home-hero-3.png"
+                    alt="Style Transfer Demo"
+                    fill
+                    className="object-cover"
+                    sizes="336px"
+                  />
+                </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
