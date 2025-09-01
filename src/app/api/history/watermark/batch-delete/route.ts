@@ -1,7 +1,10 @@
 import { getDb } from '@/db';
 import { watermarkHistory } from '@/db/schema';
+import {
+  deleteAssets,
+  extractAssetIdFromHistoryItem,
+} from '@/lib/asset-deletion';
 import { auth } from '@/lib/auth';
-import { deleteAssets, extractAssetIdFromHistoryItem } from '@/lib/asset-deletion';
 import { and, eq, inArray } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -18,7 +21,10 @@ export async function DELETE(request: NextRequest) {
     const { ids } = await request.json();
 
     if (!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json({ error: 'Invalid or empty ids array' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid or empty ids array' },
+        { status: 400 }
+      );
     }
 
     console.log(`🗑️ Batch deleting ${ids.length} Watermark history items...`);
@@ -37,25 +43,33 @@ export async function DELETE(request: NextRequest) {
       );
 
     if (historyRecords.length === 0) {
-      return NextResponse.json({ error: 'No history items found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'No history items found' },
+        { status: 404 }
+      );
     }
 
     // 2. 提取资产ID
     const assetIds = historyRecords
-      .map(item => extractAssetIdFromHistoryItem(item))
+      .map((item) => extractAssetIdFromHistoryItem(item))
       .filter((id): id is string => id !== null);
 
-    console.log(`📂 Found ${assetIds.length} assets to delete from ${historyRecords.length} Watermark history items`);
+    console.log(
+      `📂 Found ${assetIds.length} assets to delete from ${historyRecords.length} Watermark history items`
+    );
 
     // 3. 批量删除资产文件
     let assetDeletionResult = null;
     if (assetIds.length > 0) {
       assetDeletionResult = await deleteAssets(assetIds, session.user.id);
-      console.log(`📊 Watermark asset deletion summary:`, assetDeletionResult.summary);
+      console.log(
+        '📊 Watermark asset deletion summary:',
+        assetDeletionResult.summary
+      );
     }
 
     // 4. 删除历史记录（只删除找到的记录）
-    const foundIds = historyRecords.map(record => record.id);
+    const foundIds = historyRecords.map((record) => record.id);
     await db
       .delete(watermarkHistory)
       .where(
@@ -65,7 +79,9 @@ export async function DELETE(request: NextRequest) {
         )
       );
 
-    console.log(`✅ Watermark batch deletion completed: ${foundIds.length} history items deleted`);
+    console.log(
+      `✅ Watermark batch deletion completed: ${foundIds.length} history items deleted`
+    );
 
     return NextResponse.json({
       success: true,
