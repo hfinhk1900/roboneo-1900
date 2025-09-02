@@ -622,6 +622,27 @@ export default function ProfilePictureMakerGenerator() {
                       </Button>
                     </div>
                   </div>
+                ) : previewUrl ? (
+                  /* Uploaded image preview state - show uploaded image before processing */
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
+                    {/* Main image display */}
+                    <div className="relative w-full max-w-sm mb-4 aspect-square">
+                      <Image
+                        src={previewUrl}
+                        alt="Uploaded image preview"
+                        fill
+                        sizes="(max-width: 768px) 80vw, 400px"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out"
+                      />
+                    </div>
+
+                    {/* Upload info */}
+                    <div className="text-center space-y-2">
+                      <p className="text-sm text-gray-600">
+                        Your image is ready! Choose a style and click "Generate Profile Picture" to transform it.
+                      </p>
+                    </div>
+                  </div>
                 ) : (
                   /* Default state - show demo images */
                   <div className="flex flex-col gap-6 items-center justify-center w-full h-full">
