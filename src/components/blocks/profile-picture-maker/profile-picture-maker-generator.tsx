@@ -220,74 +220,76 @@ export default function ProfilePictureMakerGenerator() {
   }, []);
 
   // Handle demo image click - simulate generation process
-  const handleDemoClick = useCallback(async (demo: typeof DEMO_IMAGES[0]) => {
-    if (!currentUser) {
-      setShowLoginDialog(true);
-      return;
-    }
+  const handleDemoClick = useCallback(
+    async (demo: (typeof DEMO_IMAGES)[0]) => {
+      if (!currentUser) {
+        setShowLoginDialog(true);
+        return;
+      }
 
-    // Check credits
-    const currentCredits = creditsCache.get() || 0;
-    if (currentCredits < CREDITS_PER_IMAGE) {
-      setCreditsError({
-        required: CREDITS_PER_IMAGE,
-        current: currentCredits,
-      });
-      setShowCreditsDialog(true);
-      return;
-    }
-
-    if (pendingGeneration.current) {
-      return;
-    }
-
-    // Set demo image as preview
-    setPreviewUrl(demo.url);
-    
-    // Start simulation
-    pendingGeneration.current = true;
-    setIsGenerating(true);
-    setGenerationProgress(0);
-
-    try {
-      // Simulate generation progress
-      const progressInterval = setInterval(() => {
-        setGenerationProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            return 95;
-          }
-          return prev + 5;
+      // Check credits
+      const currentCredits = creditsCache.get() || 0;
+      if (currentCredits < CREDITS_PER_IMAGE) {
+        setCreditsError({
+          required: CREDITS_PER_IMAGE,
+          current: currentCredits,
         });
-      }, 100);
+        setShowCreditsDialog(true);
+        return;
+      }
 
-      // Simulate 2 second generation time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      clearInterval(progressInterval);
-      setGenerationProgress(100);
-      
-      // Show result after short delay
-      setTimeout(() => {
-        setGeneratedImageUrl(demo.resultUrl);
+      if (pendingGeneration.current) {
+        return;
+      }
+
+      // Set demo image as preview
+      setPreviewUrl(demo.url);
+
+      // Start simulation
+      pendingGeneration.current = true;
+      setIsGenerating(true);
+      setGenerationProgress(0);
+
+      try {
+        // Simulate generation progress
+        const progressInterval = setInterval(() => {
+          setGenerationProgress((prev) => {
+            if (prev >= 95) {
+              clearInterval(progressInterval);
+              return 95;
+            }
+            return prev + 5;
+          });
+        }, 100);
+
+        // Simulate 2 second generation time
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        clearInterval(progressInterval);
+        setGenerationProgress(100);
+
+        // Show result after short delay
+        setTimeout(() => {
+          setGeneratedImageUrl(demo.resultUrl);
+          setIsGenerating(false);
+          setGenerationProgress(0);
+          pendingGeneration.current = false;
+
+          // Simulate credits deduction
+          creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
+
+          toast.success('Demo profile picture generated successfully!');
+        }, 300);
+      } catch (error) {
+        console.error('Demo generation error:', error);
         setIsGenerating(false);
         setGenerationProgress(0);
         pendingGeneration.current = false;
-        
-        // Simulate credits deduction
-        creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
-        
-        toast.success('Demo profile picture generated successfully!');
-      }, 300);
-      
-    } catch (error) {
-      console.error('Demo generation error:', error);
-      setIsGenerating(false);
-      setGenerationProgress(0);
-      pendingGeneration.current = false;
-      toast.error('Demo generation failed');
-    }
-  }, [currentUser]);
+        toast.error('Demo generation failed');
+      }
+    },
+    [currentUser]
+  );
 
   // Generate profile picture
   const handleGenerate = useCallback(async () => {
@@ -514,7 +516,10 @@ export default function ProfilePictureMakerGenerator() {
                           {selectedImage?.name}
                         </p>
                         <Button
-                          onClick={removeImage}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImage();
+                          }}
                           variant="outline"
                           size="sm"
                           className="text-xs"
@@ -608,22 +613,20 @@ export default function ProfilePictureMakerGenerator() {
               <div className="flex-grow flex flex-col w-full">
                 {isGenerating ? (
                   /* Loading state - show progress bar and loading animation */
-                  <div className="flex items-center justify-center p-8 relative">
-                    <div className="relative">
+                  <div className="flex items-center justify-center p-8 relative w-full h-full">
+                    <div className="relative flex flex-col items-center justify-center">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                       <div className="relative flex items-center justify-center">
                         {/* Demo image with gray overlay */}
-                        <div className="relative">
+                        <div className="relative flex items-center justify-center">
                           {previewUrl ? (
                             <img
                               src={previewUrl}
                               alt="Processing upload"
-                              width={400}
-                              height={300}
-                              className="object-contain rounded-lg shadow-lg max-w-full max-h-full opacity-30 grayscale"
+                              className="object-contain rounded-lg shadow-lg max-w-md max-h-96 opacity-30 grayscale"
                             />
                           ) : (
-                            <div className="w-[400px] h-[300px] bg-gray-200 rounded-lg shadow-lg opacity-30" />
+                            <div className="w-96 h-72 bg-gray-200 rounded-lg shadow-lg opacity-30" />
                           )}
                           {/* Progress overlay */}
                           <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
@@ -661,14 +664,16 @@ export default function ProfilePictureMakerGenerator() {
                 ) : generatedImageUrl ? (
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     {/* Main image display */}
-                    <div className="relative w-full max-w-sm aspect-square">
-                      <Image
-                        src={generatedImageUrl}
-                        alt="Generated profile picture"
-                        fill
-                        sizes="(max-width: 768px) 80vw, 400px"
-                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
-                      />
+                    <div className="flex items-center justify-center w-full">
+                      <div className="relative w-full max-w-sm aspect-square">
+                        <Image
+                          src={generatedImageUrl}
+                          alt="Generated profile picture"
+                          fill
+                          sizes="(max-width: 768px) 80vw, 400px"
+                          className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
+                        />
+                      </div>
                     </div>
 
                     {/* Download and Delete buttons */}
@@ -697,16 +702,18 @@ export default function ProfilePictureMakerGenerator() {
                   </div>
                 ) : previewUrl ? (
                   /* Uploaded image preview state - show uploaded image before processing */
-                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 px-4">
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     {/* Main image display */}
-                    <div className="relative w-full max-w-sm mb-4 aspect-square">
-                      <Image
-                        src={previewUrl}
-                        alt="Uploaded image preview"
-                        fill
-                        sizes="(max-width: 768px) 80vw, 400px"
-                        className="object-contain rounded-lg transition-all duration-300 ease-out"
-                      />
+                    <div className="flex items-center justify-center w-full">
+                      <div className="relative w-full max-w-sm aspect-square">
+                        <Image
+                          src={previewUrl}
+                          alt="Uploaded image preview"
+                          fill
+                          sizes="(max-width: 768px) 80vw, 400px"
+                          className="object-contain rounded-lg transition-all duration-300 ease-out"
+                        />
+                      </div>
                     </div>
 
                     {/* Upload info */}
