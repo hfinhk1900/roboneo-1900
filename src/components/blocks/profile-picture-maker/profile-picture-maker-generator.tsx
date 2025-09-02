@@ -106,18 +106,18 @@ const PROFILE_STYLES = [
 const DEMO_IMAGES = [
   {
     id: 'demo1',
-    url: '/profile-demo-1.webp', // You'll provide this
-    alt: 'Professional Profile Example 1',
+    url: '/protile-maker/man-portrait01.png',
+    alt: 'Professional Business Portrait Example',
   },
   {
     id: 'demo2',
-    url: '/profile-demo-2.webp', // You'll provide this
-    alt: 'Professional Profile Example 2',
+    url: '/protile-maker/woman-portrait02.png',
+    alt: 'Corporate Blue Portrait Example',
   },
   {
     id: 'demo3',
-    url: '/profile-demo-3.webp', // You'll provide this
-    alt: 'Professional Profile Example 3',
+    url: '/protile-maker/woman-portrait04.png',
+    alt: 'Minimalist Professional Portrait Example',
   },
 ];
 
@@ -427,26 +427,29 @@ export default function ProfilePictureMakerGenerator() {
                     />
 
                     {previewUrl ? (
-                      <div className="relative w-full max-w-xs">
-                        <Image
-                          src={previewUrl}
-                          alt="Upload preview"
-                          width={300}
-                          height={300}
-                          className="w-full h-auto rounded-lg object-cover"
-                        />
+                      <>
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-lg bg-white border">
+                          <Image
+                            src={previewUrl}
+                            alt="Upload preview"
+                            fill
+                            sizes="(max-width: 640px) 20vw, 16vw"
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center truncate max-w-full px-2">
+                          {selectedImage?.name}
+                        </p>
                         <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeImage();
-                          }}
+                          onClick={removeImage}
+                          variant="outline"
                           size="sm"
-                          variant="destructive"
-                          className="absolute top-2 right-2"
+                          className="text-xs"
                         >
-                          <XIcon className="h-4 w-4" />
+                          <XIcon className="h-3 w-3 mr-1" />
+                          Remove
                         </Button>
-                      </div>
+                      </>
                     ) : (
                       <div className="text-center space-y-3">
                         <div className="flex justify-center">
@@ -633,9 +636,13 @@ export default function ProfilePictureMakerGenerator() {
                             key={demo.id}
                             className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
                           >
-                            <div className="w-full h-full bg-gray-100 rounded-2xl flex items-center justify-center">
-                              <SquareUserRound className="h-8 w-8 text-gray-400" />
-                            </div>
+                            <Image
+                              src={demo.url}
+                              alt={demo.alt}
+                              width={82}
+                              height={82}
+                              className="w-full h-full object-cover rounded-2xl"
+                            />
                           </button>
                         ))}
                       </div>
