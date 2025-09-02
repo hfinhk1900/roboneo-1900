@@ -521,7 +521,7 @@ export default function ProfilePictureMakerGenerator() {
                   ) : (
                     <>
                       <SparklesIcon className="h-5 w-5 mr-2" />
-                      Generate Profile Picture
+                      Generate Profile Picture (10 credits)
                     </>
                   )}
                 </Button>
@@ -639,7 +639,8 @@ export default function ProfilePictureMakerGenerator() {
                     {/* Upload info */}
                     <div className="text-center space-y-2">
                       <p className="text-sm text-gray-600">
-                        Your image is ready! Choose a style and click "Generate Profile Picture" to transform it.
+                        Your image is ready! Choose a style and click "Generate
+                        Profile Picture" to transform it.
                       </p>
                     </div>
                   </div>
