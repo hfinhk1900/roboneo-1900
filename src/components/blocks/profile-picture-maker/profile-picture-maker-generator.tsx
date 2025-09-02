@@ -74,7 +74,7 @@ const PROFILE_STYLES = [
     description: 'Executive style with warm professional tones',
     image: '/protile-maker/woman-portrait01.png',
     prompt:
-      'Transform into an executive professional portrait. Subject wearing a warm brown/tan blazer with white blouse. Neutral professional background. Confident, warm expression with excellent studio lighting. High-end business portrait style.',
+      'Transform the uploaded photo into a minimalist and intellectual professional headshot. Maintain the subject\'s core identity, but ensure she is wearing a clean light gray turtleneck sweater. Her hair should be styled in a neat, short blonde bob. Replace the original background with a solid, clean light gray studio backdrop. The lighting should be soft, even, and bright studio lighting, creating a pristine look with no harsh shadows. The subject\'s expression should be adjusted to be neutral, calm, and thoughtful, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a sense of understated elegance and intellectual professionalism.',
   },
   {
     value: 'woman-portrait02',
@@ -98,7 +98,7 @@ const PROFILE_STYLES = [
     description: 'Clean minimalist professional style',
     image: '/protile-maker/woman-portrait04.png',
     prompt:
-      'Create a minimalist professional portrait. Subject in gray turtleneck sweater. Clean, neutral background with soft lighting. Sophisticated, understated professional look. High quality, contemporary style.',
+      'Transform the uploaded photo into a classic professional studio headshot. Maintain the subject\'s core identity, but ensure she is wearing a stylish tan or light brown blazer over a crisp white open-collared shirt. Replace the original background with a solid, dark gray textured studio backdrop. Adjust the lighting to professional studio lighting, creating soft, flattering light on the face with subtle shadows to add depth and dimension. The subject\'s expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and have the polished feel of a high-end corporate portrait.',
   },
 ];
 
