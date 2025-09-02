@@ -1,0 +1,2 @@
+-- Placeholder migration to fix missing file issue
+-- This migration was missing but referenced in the journal

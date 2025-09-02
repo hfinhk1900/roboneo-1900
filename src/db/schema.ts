@@ -111,6 +111,15 @@ export const watermarkHistory = pgTable("watermark_history", {
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Profile Picture generation history (account-scoped, for cross-device sync)
+export const profilePictureHistory = pgTable("profile_picture_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	style: text('style').notNull(), // selected profile style (e.g., 'man-portrait01', 'woman-portrait02')
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Assets table for storing R2 uploaded images
 export const assets = pgTable("assets", {
 	id: text('id').primaryKey(),

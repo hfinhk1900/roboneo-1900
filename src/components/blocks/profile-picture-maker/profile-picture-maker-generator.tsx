@@ -74,7 +74,7 @@ const PROFILE_STYLES = [
     description: 'Executive style with warm professional tones',
     image: '/protile-maker/woman-portrait01.png',
     prompt:
-      'Transform the uploaded photo into a minimalist and intellectual professional headshot. Maintain the subject\'s core identity, but ensure she is wearing a clean light gray turtleneck sweater. Her hair should be styled in a neat, short blonde bob. Replace the original background with a solid, clean light gray studio backdrop. The lighting should be soft, even, and bright studio lighting, creating a pristine look with no harsh shadows. The subject\'s expression should be adjusted to be neutral, calm, and thoughtful, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a sense of understated elegance and intellectual professionalism.',
+      "Transform the uploaded photo into a minimalist and intellectual professional headshot. Maintain the subject's core identity, but ensure she is wearing a clean light gray turtleneck sweater. Her hair should be styled in a neat, short blonde bob. Replace the original background with a solid, clean light gray studio backdrop. The lighting should be soft, even, and bright studio lighting, creating a pristine look with no harsh shadows. The subject's expression should be adjusted to be neutral, calm, and thoughtful, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a sense of understated elegance and intellectual professionalism.",
   },
   {
     value: 'woman-portrait02',
@@ -98,7 +98,7 @@ const PROFILE_STYLES = [
     description: 'Clean minimalist professional style',
     image: '/protile-maker/woman-portrait04.png',
     prompt:
-      'Transform the uploaded photo into a classic professional studio headshot. Maintain the subject\'s core identity, but ensure she is wearing a stylish tan or light brown blazer over a crisp white open-collared shirt. Replace the original background with a solid, dark gray textured studio backdrop. Adjust the lighting to professional studio lighting, creating soft, flattering light on the face with subtle shadows to add depth and dimension. The subject\'s expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and have the polished feel of a high-end corporate portrait.',
+      "Transform the uploaded photo into a classic professional studio headshot. Maintain the subject's core identity, but ensure she is wearing a stylish tan or light brown blazer over a crisp white open-collared shirt. Replace the original background with a solid, dark gray textured studio backdrop. Adjust the lighting to professional studio lighting, creating soft, flattering light on the face with subtle shadows to add depth and dimension. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and have the polished feel of a high-end corporate portrait.",
   },
 ];
 
@@ -124,6 +124,15 @@ const DEMO_IMAGES = [
   },
 ];
 
+// Profile Picture 历史记录接口
+interface ProfilePictureHistoryItem {
+  id?: string;
+  asset_id?: string; // 资产ID，用于R2存储
+  url: string; // 图片URL
+  style: string; // 选择的风格
+  createdAt: number;
+}
+
 export default function ProfilePictureMakerGenerator() {
   const currentUser = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
@@ -144,8 +153,24 @@ export default function ProfilePictureMakerGenerator() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // 历史记录相关状态
+  const [profilePictureHistory, setProfilePictureHistory] = useState<
+    ProfilePictureHistoryItem[]
+  >([]);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
+    useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<{
+    idx: number;
+    item: ProfilePictureHistoryItem;
+  } | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingGeneration = useRef(false);
+
+  // 历史记录本地存储键名
+  const HISTORY_KEY = 'roboneo_profile_picture_history_v1';
 
   // Get selected style option
   const selectedOption = PROFILE_STYLES.find(
@@ -155,6 +180,146 @@ export default function ProfilePictureMakerGenerator() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // 加载历史记录
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!isMounted) return;
+
+      try {
+        if (currentUser) {
+          // 已登录：从服务器加载，并刷新URLs
+          const res = await fetch(
+            '/api/history/profile-picture?refresh_urls=true',
+            {
+              credentials: 'include',
+            }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const processedItems = data.items.map((item: any) => ({
+              ...item,
+              createdAt:
+                typeof item.createdAt === 'string'
+                  ? new Date(item.createdAt).getTime()
+                  : item.createdAt || Date.now(),
+            }));
+            // 确保按时间降序排列（最新的在前）
+            const sortedItems = processedItems.sort(
+              (a: ProfilePictureHistoryItem, b: ProfilePictureHistoryItem) =>
+                (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setProfilePictureHistory(sortedItems);
+            return;
+          }
+        }
+
+        // 未登录或加载失败：从本地存储加载
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as ProfilePictureHistoryItem[];
+          // 确保按时间降序排列（最新的在前）
+          const sortedItems = parsed.sort(
+            (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
+          );
+          setProfilePictureHistory(sortedItems);
+        }
+      } catch (error) {
+        console.error('Error loading profile picture history:', error);
+      }
+    };
+
+    loadHistory();
+  }, [currentUser, isMounted]);
+
+  // 历史记录操作函数
+  const pushHistory = useCallback(
+    async (item: ProfilePictureHistoryItem) => {
+      // 已登录：写入服务端
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/profile-picture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: item.asset_id, // 优先传asset_id
+              url: item.url, // 兼容旧数据
+              style: item.style,
+            }),
+          });
+          if (res.ok) {
+            const created = await res.json();
+            const createdItem: ProfilePictureHistoryItem = {
+              id: created.id,
+              asset_id: created.asset_id,
+              url: created.url,
+              style: created.style,
+              createdAt: created.createdAt
+                ? typeof created.createdAt === 'string'
+                  ? new Date(created.createdAt).getTime()
+                  : created.createdAt
+                : Date.now(),
+            };
+            setProfilePictureHistory((prev) => [createdItem, ...prev]);
+            return;
+          }
+        } catch {}
+      }
+
+      // 未登录：写入本地存储
+      setProfilePictureHistory((prev) => {
+        const newHistory = [item, ...prev];
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+        return newHistory;
+      });
+    },
+    [currentUser]
+  );
+
+  // 删除单个历史记录
+  const deleteHistoryItem = useCallback(
+    async (idx: number, item: ProfilePictureHistoryItem) => {
+      // 已登录：从服务端删除
+      if (currentUser && item.id) {
+        try {
+          await fetch(`/api/history/profile-picture/${item.id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+        } catch {}
+      }
+
+      // 更新本地状态和存储
+      setProfilePictureHistory((prev) => {
+        const newHistory = prev.filter((_, i) => i !== idx);
+        if (!currentUser) {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+        }
+        return newHistory;
+      });
+    },
+    [currentUser]
+  );
+
+  // 清空所有历史记录
+  const clearAllHistory = useCallback(async () => {
+    // 已登录：从服务端批量删除
+    if (currentUser) {
+      try {
+        await fetch('/api/history/profile-picture/batch-delete', {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      } catch {}
+    }
+
+    // 更新本地状态和存储
+    setProfilePictureHistory([]);
+    if (!currentUser) {
+      localStorage.removeItem(HISTORY_KEY);
+    }
+  }, [currentUser]);
 
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
@@ -269,11 +434,19 @@ export default function ProfilePictureMakerGenerator() {
         setGenerationProgress(100);
 
         // Show result after short delay
-        setTimeout(() => {
+        setTimeout(async () => {
           setGeneratedImageUrl(demo.resultUrl);
           setIsGenerating(false);
           setGenerationProgress(0);
           pendingGeneration.current = false;
+
+          // 保存到历史记录
+          const historyItem: ProfilePictureHistoryItem = {
+            url: demo.resultUrl,
+            style: selectedStyle,
+            createdAt: Date.now(),
+          };
+          await pushHistory(historyItem);
 
           // Simulate credits deduction
           creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
@@ -386,6 +559,15 @@ export default function ProfilePictureMakerGenerator() {
       if (result.success && result.data?.output_image_url) {
         setGeneratedImageUrl(result.data.output_image_url);
         setGenerationProgress(100);
+
+        // 保存到历史记录
+        const historyItem: ProfilePictureHistoryItem = {
+          asset_id: result.data.asset_id, // 使用API返回的asset_id
+          url: result.data.output_image_url,
+          style: selectedStyle,
+          createdAt: Date.now(),
+        };
+        await pushHistory(historyItem);
 
         // Update credits
         const currentCredits = creditsCache.get() || 0;
@@ -727,35 +909,112 @@ export default function ProfilePictureMakerGenerator() {
                 ) : (
                   /* Default state - show demo images */
                   <div className="flex flex-col gap-6 items-center justify-center w-full h-full">
-                    <div className="flex flex-col gap-4 items-center justify-center w-full">
-                      <div className="text-center text-[16px] text-black font-normal">
-                        <p>No image? Try one of these</p>
+                    {/* Demo images section only when no history */}
+                    {profilePictureHistory.length === 0 && (
+                      <div className="flex flex-col gap-4 items-center justify-center w-full">
+                        <div className="text-center text-[16px] text-black font-normal">
+                          <p>No image? Try one of these</p>
+                        </div>
+                        <div className="flex gap-4 items-center justify-center">
+                          {DEMO_IMAGES.map((demo) => (
+                            <button
+                              type="button"
+                              key={demo.id}
+                              onClick={() => handleDemoClick(demo)}
+                              className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
+                            >
+                              <Image
+                                src={demo.url}
+                                alt={demo.alt}
+                                width={82}
+                                height={82}
+                                className="w-full h-full object-cover rounded-2xl"
+                              />
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex gap-4 items-center justify-center">
-                        {DEMO_IMAGES.map((demo) => (
-                          <button
-                            type="button"
-                            key={demo.id}
-                            onClick={() => handleDemoClick(demo)}
-                            className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
-                          >
-                            <Image
-                              src={demo.url}
-                              alt={demo.alt}
-                              width={82}
-                              height={82}
-                              className="w-full h-full object-cover rounded-2xl"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Profile Picture History Section */}
+        {profilePictureHistory.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                Your Profile Picture History
+              </h3>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={() => setShowClearAllConfirmDialog(true)}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {profilePictureHistory.map((item, idx) => (
+                <div
+                  key={`${item.createdAt}-${idx}`}
+                  className="group relative"
+                >
+                  <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+                    <img
+                      src={item.url}
+                      alt={`Professional headshot ${idx + 1}`}
+                      className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                      onClick={() => {
+                        setPreviewImageUrl(item.url);
+                      }}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate max-w-[60%]">Profile Style</span>
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Download profile picture"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = item.url;
+                        link.download = `profile-picture-${item.style}-${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                    >
+                      <DownloadIcon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                      title="Remove profile picture"
+                      onClick={() => {
+                        setPendingDeleteItem({ idx, item });
+                        setShowDeleteConfirmDialog(true);
+                      }}
+                    >
+                      <XIcon className="h-4 w-4 text-gray-600" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Login Dialog */}
@@ -777,6 +1036,138 @@ export default function ProfilePictureMakerGenerator() {
         required={creditsError?.required || CREDITS_PER_IMAGE}
         current={creditsError?.current || 0}
       />
+
+      {/* Delete history item confirmation dialog */}
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onOpenChange={setShowDeleteConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Profile Picture?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this profile picture from your
+              history? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteConfirmDialog(false);
+                setPendingDeleteItem(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (pendingDeleteItem) {
+                  await deleteHistoryItem(
+                    pendingDeleteItem.idx,
+                    pendingDeleteItem.item
+                  );
+                  setShowDeleteConfirmDialog(false);
+                  setPendingDeleteItem(null);
+                  toast.success('Profile picture deleted');
+                }
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear all history confirmation dialog */}
+      <Dialog
+        open={showClearAllConfirmDialog}
+        onOpenChange={setShowClearAllConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clear All History?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete all profile picture history? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearAllConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                await clearAllHistory();
+                setShowClearAllConfirmDialog(false);
+                toast.success('All profile pictures deleted');
+              }}
+            >
+              Clear All
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Image Dialog */}
+      <Dialog
+        open={!!previewImageUrl}
+        onOpenChange={() => setPreviewImageUrl('')}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Profile Picture Preview</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center">
+            {previewImageUrl && (
+              <Image
+                src={previewImageUrl}
+                alt="Profile picture preview"
+                width={300}
+                height={300}
+                className="rounded-lg object-contain max-w-full max-h-96"
+              />
+            )}
+          </div>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => setPreviewImageUrl('')}>
+              Close
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!previewImageUrl) return;
+
+                try {
+                  const response = await fetch(previewImageUrl);
+                  const blob = await response.blob();
+                  const url = URL.createObjectURL(blob);
+
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `profile-picture-${Date.now()}.png`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+
+                  toast.success('Image downloaded successfully!');
+                } catch (error) {
+                  console.error('Download error:', error);
+                  toast.error('Failed to download image');
+                }
+              }}
+            >
+              <DownloadIcon className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
