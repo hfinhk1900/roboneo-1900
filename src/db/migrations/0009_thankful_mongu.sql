@@ -1,0 +1,1 @@
+ALTER TABLE "profile_picture_history" ADD COLUMN "aspect_ratio" text;

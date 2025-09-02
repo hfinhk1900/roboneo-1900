@@ -64,6 +64,13 @@
       "when": 1756838961829,
       "tag": "0008_freezing_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1756841265310,
+      "tag": "0009_thankful_mongu",
+      "breakpoints": true
     }
   ]
 }

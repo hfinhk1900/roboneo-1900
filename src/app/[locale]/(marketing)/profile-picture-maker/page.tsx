@@ -5,9 +5,9 @@ import type { Metadata } from 'next';
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const { locale } = params;
+  const { locale } = await params;
 
   return constructMetadata({
     title:

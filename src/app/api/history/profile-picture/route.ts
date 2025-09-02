@@ -55,10 +55,11 @@ export async function POST(request: NextRequest) {
 
     const db = await getDb();
     const body = await request.json();
-    const { url, style, asset_id } = body as {
+    const { url, style, asset_id, aspectRatio } = body as {
       url?: string;
       style?: string;
       asset_id?: string;
+      aspectRatio?: string;
     };
 
     if (!style) {
@@ -99,9 +100,10 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       url: finalUrl,
       style,
+      aspectRatio,
       createdAt,
     });
-    return NextResponse.json({ id, url: finalUrl, style, createdAt });
+    return NextResponse.json({ id, url: finalUrl, style, aspectRatio, createdAt });
   } catch (error) {
     console.error('Error creating profile picture history:', error);
     return NextResponse.json(

@@ -117,16 +117,16 @@ export default function StickerGenerator() {
     const loadHistory = async () => {
       try {
         if (currentUser) {
-          // 已登录：优先从服务端加载
-          const res = await fetch('/api/history/sticker', {
+          // 已登录：优先从服务端加载，并刷新过期的URLs
+          const res = await fetch('/api/history/sticker?refresh_urls=true', {
             credentials: 'include',
           });
           if (res.ok) {
             const result = await res.json();
-            if (result.success && result.data) {
+            if (result.items) {
               // 处理服务端历史记录
               const processedItems = await Promise.all(
-                result.data.map(
+                result.items.map(
                   async (it: any): Promise<StickerHistoryItem> => {
                     let finalUrl = it.url;
 

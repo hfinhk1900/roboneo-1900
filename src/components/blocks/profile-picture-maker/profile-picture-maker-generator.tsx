@@ -12,6 +12,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -27,6 +34,7 @@ import {
   LoaderIcon,
   SparklesIcon,
   SquareUserRound,
+  Trash2Icon,
   UploadIcon,
   XIcon,
 } from 'lucide-react';
@@ -82,7 +90,7 @@ const PROFILE_STYLES = [
     description: 'Classic corporate look with blue tones',
     image: '/protile-maker/woman-portrait02.png',
     prompt:
-      'Create a classic corporate portrait. Subject in light blue blazer with white shirt. Clean professional background. Polished, confident expression with even studio lighting. Traditional business professional style, high quality.',
+      "Transform the uploaded photo into a modern professional female headshot. Maintain the subject's core identity, but ensure she is wearing a stylish light gray blazer over a crisp white open-collared shirt. Replace the original background with a softly blurred, contemporary office interior, featuring indistinct modern furniture and subtle architectural elements. Adjust the lighting to simulate soft, even indoor studio light, illuminating the face clearly without harsh shadows. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a polished, approachable corporate professionalism.",
   },
   {
     value: 'woman-portrait03',
@@ -90,7 +98,7 @@ const PROFILE_STYLES = [
     description: 'Modern office environment professional',
     image: '/protile-maker/woman-portrait03.png',
     prompt:
-      'Transform to a modern office professional portrait. Subject in gray blazer, contemporary office setting background. Natural lighting with modern workplace elements. Professional yet approachable style.',
+      "Transform the uploaded photo into a modern professional female headshot. Maintain the subject's core identity, but ensure she is wearing a stylish light gray blazer. Replace the original background with a softly blurred, bright urban outdoor setting, featuring indistinct modern buildings and some green foliage. Adjust the lighting to simulate soft, even natural daylight, illuminating the face clearly without harsh shadows. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a polished, approachable professionalism.",
   },
   {
     value: 'woman-portrait04',
@@ -124,12 +132,44 @@ const DEMO_IMAGES = [
   },
 ];
 
+// Profile Picture Aspect ratio options configuration
+const PROFILE_ASPECT_OPTIONS: Array<{
+  id: string; // ratio id, e.g. '1:1'
+  label: string; // display label, e.g. 'Square'
+  icon: string; // icon path
+  description: string; // description for tooltip
+  ratioClass: string; // CSS class for aspect ratio
+}> = [
+  {
+    id: '1:1',
+    label: 'Square',
+    icon: '/icons/square.svg',
+    description: 'Perfect for social media profiles (LinkedIn, Twitter, etc.)',
+    ratioClass: 'aspect-[1/1]',
+  },
+  {
+    id: '2:3',
+    label: 'Portrait',
+    icon: '/icons/tall.svg',
+    description: 'Ideal for resumes and professional profiles',
+    ratioClass: 'aspect-[2/3]',
+  },
+  {
+    id: 'original',
+    label: 'Original',
+    icon: '/icons/original.svg',
+    description: 'Keep original image proportions',
+    ratioClass: 'aspect-auto',
+  },
+];
+
 // Profile Picture 历史记录接口
 interface ProfilePictureHistoryItem {
   id?: string;
   asset_id?: string; // 资产ID，用于R2存储
   url: string; // 图片URL
   style: string; // 选择的风格
+  aspectRatio?: string; // 输出宽高比
   createdAt: number;
 }
 
@@ -143,6 +183,7 @@ export default function ProfilePictureMakerGenerator() {
     null
   );
   const [selectedStyle, setSelectedStyle] = useState('man-portrait01');
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('1:1');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
@@ -246,6 +287,7 @@ export default function ProfilePictureMakerGenerator() {
               asset_id: item.asset_id, // 优先传asset_id
               url: item.url, // 兼容旧数据
               style: item.style,
+              aspectRatio: item.aspectRatio,
             }),
           });
           if (res.ok) {
@@ -255,6 +297,7 @@ export default function ProfilePictureMakerGenerator() {
               asset_id: created.asset_id,
               url: created.url,
               style: created.style,
+              aspectRatio: created.aspectRatio,
               createdAt: created.createdAt
                 ? typeof created.createdAt === 'string'
                   ? new Date(created.createdAt).getTime()
@@ -320,6 +363,138 @@ export default function ProfilePictureMakerGenerator() {
       localStorage.removeItem(HISTORY_KEY);
     }
   }, [currentUser]);
+
+  // Parse aspect ratio string to width/height object (copied from AI Background)
+  function parseAspectRatio(
+    aspect?: string
+  ): { w: number; h: number } | undefined {
+    if (!aspect || aspect === 'original') return undefined;
+    const parts = aspect.split(':');
+    if (parts.length !== 2) return undefined;
+    const w = Number.parseInt(parts[0]);
+    const h = Number.parseInt(parts[1]);
+    if (Number.isNaN(w) || Number.isNaN(h) || w <= 0 || h <= 0)
+      return undefined;
+    return { w, h };
+  }
+
+  // Convert File to base64 with aspect ratio processing (copied from AI Background)
+  const fileToBase64 = (
+    file: File,
+    targetAspect?: { w: number; h: number }
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Cannot get canvas context'));
+            return;
+          }
+
+          const sourceWidth = img.naturalWidth;
+          const sourceHeight = img.naturalHeight;
+          const maxSide = 1024;
+
+          let canvasW = 0;
+          let canvasH = 0;
+
+          if (targetAspect && targetAspect.w > 0 && targetAspect.h > 0) {
+            const targetRatio = targetAspect.w / targetAspect.h;
+
+            if (targetRatio >= 1) {
+              // Wide aspect ratio (1:1 or wider)
+              canvasW = 1024;
+              canvasH = Math.round(1024 / targetRatio);
+            } else {
+              // Tall aspect ratio (2:3)
+              canvasH = 1024;
+              canvasW = Math.round(1024 * targetRatio);
+            }
+
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+
+            // Fill with transparent background
+            ctx.clearRect(0, 0, canvasW, canvasH);
+
+            // Calculate how to fit the image within the target aspect ratio
+            const sourceRatio = sourceWidth / sourceHeight;
+            let drawW: number;
+            let drawH: number;
+            let drawX: number;
+            let drawY: number;
+
+            if (sourceRatio > targetRatio) {
+              // Source is wider than target - fit by height
+              drawH = canvasH;
+              drawW = drawH * sourceRatio;
+              drawX = (canvasW - drawW) / 2;
+              drawY = 0;
+            } else {
+              // Source is taller than target or same ratio - fit by width
+              drawW = canvasW;
+              drawH = drawW / sourceRatio;
+              drawX = 0;
+              drawY = (canvasH - drawH) / 2;
+            }
+
+            ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+            console.log(
+              `📐 Canvas size: ${canvasW}x${canvasH} for aspect ratio ${targetAspect.w}:${targetAspect.h}`
+            );
+          } else {
+            // Original logic: maintain aspect ratio, compress to maxSide
+            let width = sourceWidth;
+            let height = sourceHeight;
+            if (width > height) {
+              if (width > maxSide) {
+                height = Math.round((height * maxSide) / width);
+                width = maxSide;
+              }
+            } else {
+              if (height > maxSide) {
+                width = Math.round((width * maxSide) / height);
+                height = maxSide;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+          }
+
+          // Convert to base64
+          const base64 = canvas.toDataURL('image/png').split(',')[1];
+          resolve(base64);
+        };
+
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Convert aspect ratio format for API (copied from AI Background)
+  const convertAspectRatioToSize = (aspectRatio: string): string => {
+    switch (aspectRatio) {
+      case 'original':
+        return '1024x1024'; // Default size, will maintain original proportions
+      case '1:1':
+        return '1024x1024';
+      case '2:3':
+        return '683x1024'; // Portrait orientation
+      default:
+        return '1024x1024';
+    }
+  };
 
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
@@ -444,6 +619,7 @@ export default function ProfilePictureMakerGenerator() {
           const historyItem: ProfilePictureHistoryItem = {
             url: demo.resultUrl,
             style: selectedStyle,
+            aspectRatio: selectedAspectRatio,
             createdAt: Date.now(),
           };
           await pushHistory(historyItem);
@@ -496,17 +672,13 @@ export default function ProfilePictureMakerGenerator() {
     setGenerationProgress(0);
 
     try {
-      // Convert image to base64
-      const reader = new FileReader();
-      const imageBase64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => {
-          const result = reader.result as string;
-          const base64 = result.split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(selectedImage);
-      });
+      // Process uploaded image with aspect ratio handling (similar to AI Background)
+      console.log('📸 Processing image with aspect ratio handling...');
+      const imageBase64 = await fileToBase64(
+        selectedImage,
+        parseAspectRatio(selectedAspectRatio)
+      );
+      console.log(`✅ Image processed: ${imageBase64.length} characters`);
 
       const selectedStyleData = PROFILE_STYLES.find(
         (style) => style.value === selectedStyle
@@ -534,9 +706,15 @@ export default function ProfilePictureMakerGenerator() {
         prompt: selectedStyleData.prompt,
         quality: 'hd',
         steps: 50,
-        size: '1024x1024',
+        size: convertAspectRatioToSize(selectedAspectRatio),
         output_format: 'png',
       };
+
+      console.log('📐 Selected aspect ratio:', selectedAspectRatio);
+      console.log(
+        '📐 Converted size:',
+        convertAspectRatioToSize(selectedAspectRatio)
+      );
 
       // Use dedicated profile picture API
       const response = await fetch('/api/profile-picture/generate', {
@@ -565,6 +743,7 @@ export default function ProfilePictureMakerGenerator() {
           asset_id: result.data.asset_id, // 使用API返回的asset_id
           url: result.data.output_image_url,
           style: selectedStyle,
+          aspectRatio: selectedAspectRatio,
           createdAt: Date.now(),
         };
         await pushHistory(historyItem);
@@ -767,6 +946,76 @@ export default function ProfilePictureMakerGenerator() {
                   </div>
                 </div>
 
+                {/* Output Aspect Ratio - independent component */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">
+                    Output Aspect Ratio
+                  </Label>
+                  <Select
+                    value={selectedAspectRatio}
+                    onValueChange={(value) => setSelectedAspectRatio(value)}
+                  >
+                    <SelectTrigger
+                      className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                      style={{ height: '50px', padding: '0px 12px' }}
+                    >
+                      <SelectValue placeholder="Aspect Ratio (Default Square)">
+                        {PROFILE_ASPECT_OPTIONS.find(
+                          (o) => o.id === selectedAspectRatio
+                        ) ? (
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={
+                                PROFILE_ASPECT_OPTIONS.find(
+                                  (o) => o.id === selectedAspectRatio
+                                )?.icon
+                              }
+                              alt="aspect"
+                              className="w-6 h-6"
+                            />
+                            <div className="text-left">
+                              <div className="font-medium">
+                                {
+                                  PROFILE_ASPECT_OPTIONS.find(
+                                    (o) => o.id === selectedAspectRatio
+                                  )?.label
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Aspect Ratio (Default Square)
+                          </span>
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent
+                      align="start"
+                      className="w-full min-w-[--radix-select-trigger-width] bg-white border border-input rounded-2xl shadow-lg"
+                    >
+                      {PROFILE_ASPECT_OPTIONS.map((option) => (
+                        <SelectItem
+                          key={option.id}
+                          value={option.id}
+                          className="rounded-xl cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                        >
+                          <div className="flex items-center gap-3 py-2">
+                            <img
+                              src={option.icon}
+                              alt={option.label}
+                              className="w-6 h-6"
+                            />
+                            <div className="text-left">
+                              <div className="font-medium">{option.label}</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
@@ -847,7 +1096,19 @@ export default function ProfilePictureMakerGenerator() {
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     {/* Main image display */}
                     <div className="flex items-center justify-center w-full">
-                      <div className="relative w-full max-w-sm aspect-square">
+                      <div
+                        className={cn(
+                          'relative w-full max-w-sm',
+                          // 根据选择的宽高比动态调整容器样式
+                          selectedAspectRatio === '1:1'
+                            ? 'aspect-square' // 1:1 正方形
+                            : selectedAspectRatio === '2:3'
+                              ? 'aspect-[2/3]' // 2:3 竖向
+                              : selectedAspectRatio === 'original'
+                                ? 'aspect-square' // 原始比例默认正方形
+                                : 'aspect-square' // 默认正方形
+                        )}
+                      >
                         <Image
                           src={generatedImageUrl}
                           alt="Generated profile picture"
@@ -887,7 +1148,19 @@ export default function ProfilePictureMakerGenerator() {
                   <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                     {/* Main image display */}
                     <div className="flex items-center justify-center w-full">
-                      <div className="relative w-full max-w-sm aspect-square">
+                      <div
+                        className={cn(
+                          'relative w-full max-w-sm',
+                          // 根据选择的宽高比动态调整容器样式
+                          selectedAspectRatio === '1:1'
+                            ? 'aspect-square' // 1:1 正方形
+                            : selectedAspectRatio === '2:3'
+                              ? 'aspect-[2/3]' // 2:3 竖向
+                              : selectedAspectRatio === 'original'
+                                ? 'aspect-square' // 原始比例默认正方形
+                                : 'aspect-square' // 默认正方形
+                        )}
+                      >
                         <Image
                           src={previewUrl}
                           alt="Uploaded image preview"
@@ -909,32 +1182,30 @@ export default function ProfilePictureMakerGenerator() {
                 ) : (
                   /* Default state - show demo images */
                   <div className="flex flex-col gap-6 items-center justify-center w-full h-full">
-                    {/* Demo images section only when no history */}
-                    {profilePictureHistory.length === 0 && (
-                      <div className="flex flex-col gap-4 items-center justify-center w-full">
-                        <div className="text-center text-[16px] text-black font-normal">
-                          <p>No image? Try one of these</p>
-                        </div>
-                        <div className="flex gap-4 items-center justify-center">
-                          {DEMO_IMAGES.map((demo) => (
-                            <button
-                              type="button"
-                              key={demo.id}
-                              onClick={() => handleDemoClick(demo)}
-                              className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
-                            >
-                              <Image
-                                src={demo.url}
-                                alt={demo.alt}
-                                width={82}
-                                height={82}
-                                className="w-full h-full object-cover rounded-2xl"
-                              />
-                            </button>
-                          ))}
-                        </div>
+                    {/* Demo images section */}
+                    <div className="flex flex-col gap-4 items-center justify-center w-full">
+                      <div className="text-center text-[16px] text-black font-normal">
+                        <p>No image? Try one of these</p>
                       </div>
-                    )}
+                      <div className="flex gap-4 items-center justify-center">
+                        {DEMO_IMAGES.map((demo) => (
+                          <button
+                            type="button"
+                            key={demo.id}
+                            onClick={() => handleDemoClick(demo)}
+                            className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
+                          >
+                            <Image
+                              src={demo.url}
+                              alt={demo.alt}
+                              width={82}
+                              height={82}
+                              className="w-full h-full object-cover rounded-2xl"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1007,7 +1278,7 @@ export default function ProfilePictureMakerGenerator() {
                         setShowDeleteConfirmDialog(true);
                       }}
                     >
-                      <XIcon className="h-4 w-4 text-gray-600" />
+                      <Trash2Icon className="h-4 w-4 text-gray-600" />
                     </Button>
                   </div>
                 </div>
@@ -1119,52 +1390,105 @@ export default function ProfilePictureMakerGenerator() {
         open={!!previewImageUrl}
         onOpenChange={() => setPreviewImageUrl('')}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Profile Picture Preview</DialogTitle>
+        <DialogContent className="max-w-7xl w-[95vw] h-[85vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+          {/* Header */}
+          <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-yellow-400" />
+                  Profile Picture Preview
+                </DialogTitle>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl('')}
+                className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </div>
           </DialogHeader>
-          <div className="flex justify-center">
+
+          {/* Main image area */}
+          <div
+            className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+            onClick={() => setPreviewImageUrl('')}
+          >
             {previewImageUrl && (
-              <Image
-                src={previewImageUrl}
-                alt="Profile picture preview"
-                width={300}
-                height={300}
-                className="rounded-lg object-contain max-w-full max-h-96"
-              />
+              <div className="relative max-w-[95%] max-h-[90%] transition-transform duration-300 group-hover:scale-[1.02]">
+                <Image
+                  src={previewImageUrl}
+                  alt="Profile picture preview"
+                  width={1200}
+                  height={1200}
+                  className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                  quality={100}
+                  priority
+                  draggable={false}
+                />
+              </div>
             )}
           </div>
-          <div className="flex justify-center gap-3">
-            <Button variant="outline" onClick={() => setPreviewImageUrl('')}>
-              Close
-            </Button>
-            <Button
-              onClick={async () => {
-                if (!previewImageUrl) return;
 
-                try {
-                  const response = await fetch(previewImageUrl);
-                  const blob = await response.blob();
-                  const url = URL.createObjectURL(blob);
+          {/* Bottom controls */}
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!previewImageUrl) return;
 
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `profile-picture-${Date.now()}.png`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+                  try {
+                    const response = await fetch(previewImageUrl);
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
 
-                  toast.success('Image downloaded successfully!');
-                } catch (error) {
-                  console.error('Download error:', error);
-                  toast.error('Failed to download image');
-                }
-              }}
-            >
-              <DownloadIcon className="h-4 w-4 mr-2" />
-              Download
-            </Button>
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `profile-picture-${Date.now()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    toast.success('Image downloaded successfully!');
+                  } catch (error) {
+                    console.error('Download error:', error);
+                    toast.error('Failed to download image');
+                  }
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                size="lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Full Size
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreviewImageUrl('');
+                }}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                size="lg"
+              >
+                Close Preview
+              </Button>
+            </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="text-center mt-3 text-gray-400 text-xs">
+              Press{' '}
+              <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-white font-mono">
+                ESC
+              </kbd>{' '}
+              to close
+            </div>
           </div>
         </DialogContent>
       </Dialog>

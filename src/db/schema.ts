@@ -117,6 +117,7 @@ export const profilePictureHistory = pgTable("profile_picture_history", {
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
 	style: text('style').notNull(), // selected profile style (e.g., 'man-portrait01', 'woman-portrait02')
+	aspectRatio: text('aspect_ratio'), // output aspect ratio (e.g., '1:1', '2:3', 'original')
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
