@@ -106,18 +106,21 @@ const PROFILE_STYLES = [
 const DEMO_IMAGES = [
   {
     id: 'demo1',
-    url: '/protile-maker/man-portrait01.png',
-    alt: 'Professional Business Portrait Example',
+    url: '/protile-maker/portrait-demo01.png',
+    resultUrl: '/protile-maker/portrait-result-demo01.png',
+    alt: 'Professional Portrait Example 1',
   },
   {
     id: 'demo2',
-    url: '/protile-maker/woman-portrait02.png',
-    alt: 'Corporate Blue Portrait Example',
+    url: '/protile-maker/portrait-demo02.png',
+    resultUrl: '/protile-maker/portrait-result-demo02.png',
+    alt: 'Professional Portrait Example 2',
   },
   {
     id: 'demo3',
-    url: '/protile-maker/woman-portrait04.png',
-    alt: 'Minimalist Professional Portrait Example',
+    url: '/protile-maker/portrait-demo03.png',
+    resultUrl: '/protile-maker/portrait-result-demo03.png',
+    alt: 'Professional Portrait Example 3',
   },
 ];
 
@@ -215,6 +218,76 @@ export default function ProfilePictureMakerGenerator() {
       fileInputRef.current.value = '';
     }
   }, []);
+
+  // Handle demo image click - simulate generation process
+  const handleDemoClick = useCallback(async (demo: typeof DEMO_IMAGES[0]) => {
+    if (!currentUser) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // Check credits
+    const currentCredits = creditsCache.get() || 0;
+    if (currentCredits < CREDITS_PER_IMAGE) {
+      setCreditsError({
+        required: CREDITS_PER_IMAGE,
+        current: currentCredits,
+      });
+      setShowCreditsDialog(true);
+      return;
+    }
+
+    if (pendingGeneration.current) {
+      return;
+    }
+
+    // Set demo image as preview
+    setPreviewUrl(demo.url);
+    
+    // Start simulation
+    pendingGeneration.current = true;
+    setIsGenerating(true);
+    setGenerationProgress(0);
+
+    try {
+      // Simulate generation progress
+      const progressInterval = setInterval(() => {
+        setGenerationProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return 95;
+          }
+          return prev + 5;
+        });
+      }, 100);
+
+      // Simulate 2 second generation time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+      
+      // Show result after short delay
+      setTimeout(() => {
+        setGeneratedImageUrl(demo.resultUrl);
+        setIsGenerating(false);
+        setGenerationProgress(0);
+        pendingGeneration.current = false;
+        
+        // Simulate credits deduction
+        creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
+        
+        toast.success('Demo profile picture generated successfully!');
+      }, 300);
+      
+    } catch (error) {
+      console.error('Demo generation error:', error);
+      setIsGenerating(false);
+      setGenerationProgress(0);
+      pendingGeneration.current = false;
+      toast.error('Demo generation failed');
+    }
+  }, [currentUser]);
 
   // Generate profile picture
   const handleGenerate = useCallback(async () => {
@@ -656,6 +729,7 @@ export default function ProfilePictureMakerGenerator() {
                           <button
                             type="button"
                             key={demo.id}
+                            onClick={() => handleDemoClick(demo)}
                             className="bg-[#bcb3b3] overflow-hidden relative rounded-2xl shrink-0 size-[82px] hover:scale-105 transition-transform cursor-pointer"
                           >
                             <Image
