@@ -2048,9 +2048,9 @@ export function AIBackgroundGeneratorSection() {
                               }
                             }}
                             className={cn(
-                              'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
+                              'relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
                               selectedBackground === style.id
-                                ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                                ? 'ring-2 ring-primary scale-[1.01] bg-yellow-100/50'
                                 : 'hover:ring-1 hover:ring-primary/50'
                             )}
                             title={style.name}
@@ -2091,9 +2091,9 @@ export function AIBackgroundGeneratorSection() {
                               }
                             }}
                             className={cn(
-                              'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
+                              'relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all hover:scale-105 text-center aspect-square overflow-hidden',
                               selectedBackground === style.id
-                                ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                                ? 'ring-2 ring-primary scale-[1.01] bg-yellow-100/50'
                                 : 'hover:ring-1 hover:ring-primary/50'
                             )}
                             title={style.name}
@@ -2125,9 +2125,9 @@ export function AIBackgroundGeneratorSection() {
                             setShowBackgroundInput(true);
                           }}
                           className={cn(
-                            'relative flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all hover:scale-105 text-center aspect-[2/1] overflow-hidden col-span-2',
+                            'relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all hover:scale-105 text-center aspect-[2/1] overflow-hidden col-span-2',
                             selectedBackground === 'custom'
-                              ? 'ring-2 ring-primary scale-105 bg-primary/5'
+                              ? 'ring-2 ring-primary scale-[1.01] bg-yellow-100/50'
                               : 'hover:ring-1 hover:ring-primary/50'
                           )}
                           title="Custom Background"

@@ -12,14 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
@@ -44,36 +37,68 @@ import { toast } from 'sonner';
 // Profile picture styles with their corresponding prompts
 const PROFILE_STYLES = [
   {
-    value: 'professional',
-    label: 'Standard Professional',
-    description: 'Professional headshot with light gray background',
-    icon: '/profile-professional.webp', // You'll provide this
+    value: 'man-portrait01',
+    label: 'Professional Business',
+    description: 'Sharp business portrait with neutral background',
+    image: '/protile-maker/man-portrait01.png',
     prompt:
-      'From the uploaded image, create a professional headshot. Crop it to a chest-up view, remove the original background and replace with a solid light gray. Ensure subject is smiling warmly, with soft studio lighting. Photorealistic, high resolution.',
+      "Transform the uploaded photo into a powerful, modern corporate headshot. Maintain the subject's core identity, but ensure they are wearing a crisp, well-fitted white dress shirt (no blazer, no tie). Replace the original background with a view from a high-rise office window, showing a softly blurred cityscape. The lighting should be professional indoor lighting, with the subject's face clearly lit, while also capturing a subtle backlight from the window to define their silhouette. The subject's expression should be adjusted to be serious, intense, and confident, looking directly into the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a strong sense of authority and leadership.",
   },
   {
-    value: 'business',
-    label: 'Business Elite',
-    description: 'Corporate business portrait with office background',
-    icon: '/profile-business.webp', // You'll provide this
+    value: 'man-portrait02',
+    label: 'Outdoor Professional',
+    description: 'Modern professional with natural outdoor background',
+    image: '/protile-maker/man-portrait02.png',
     prompt:
-      "Transform the uploaded image into a corporate business portrait. Adjust the subject's attire to a sharp navy suit/blazer, keep a confident expression. Place against a subtly blurred modern office background. Cinematic quality, vibrant colors.",
+      "Transform the uploaded photo into a professional outdoor portrait. Keep the subject's core identity, but change their attire to a modern dark navy blazer over an open-collared white shirt (no tie). Replace the original background with a beautifully blurred green park path, filled with lush trees and foliage. Adjust the lighting to simulate soft, warm golden hour sunlight, creating a gentle glow on the face. The subject's expression should be adjusted to be confident and serious, looking directly at the camera. Crop to a chest-up view. The final image should be photorealistic, high-detail, and have a polished, professional feel.",
   },
   {
-    value: 'clean',
-    label: 'Clean Focus',
-    description: 'Minimalist portrait with clean off-white background',
-    icon: '/profile-clean.webp', // You'll provide this
+    value: 'man-portrait03',
+    label: 'Smart Casual',
+    description: 'Smart casual look with outdoor setting',
+    image: '/protile-maker/man-portrait03.png',
     prompt:
-      'Isolate the subject from the uploaded image. Replace the busy background with a clean, minimalist off-white wall. Enhance facial lighting to be bright and even, remove harsh shadows. Ensure a natural, approachable look. Studio photography style.',
+      "Transform the uploaded casual photo into a professional corporate headshot. Maintain the subject's gender and age, but ensure they are wearing a sharp dark navy suit, a light blue dress shirt, and a dark tie. The subject should have a serious and confident expression, looking directly at the camera. Apply soft, natural-looking urban lighting that highlights the face, with a subtly blurred downtown city street as the background. The background should feature soft lights and blurred buildings, reminiscent of late afternoon. Crop to a chest-up portrait. Photorealistic, high detail, professional grade.",
   },
   {
-    value: 'monochrome',
-    label: 'Classic Monochrome',
-    description: 'High-contrast black and white professional headshot',
-    icon: '/profile-monochrome.webp', // You'll provide this
+    value: 'man-portrait04',
+    label: 'Modern Office',
+    description: 'Contemporary office professional style',
+    image: '/protile-maker/man-portrait04.png',
     prompt:
-      'Convert the uploaded image to a high-contrast black and white professional headshot. Enhance facial contours and expression, making it look sharp and focused. Use a deep, solid black background. Timeless and powerful.',
+      'Transform the uploaded casual photo into a professional corporate headshot, suitable for a resume or LinkedIn. Remove the original background and replace it with a solid light gray. Ensure the subject is wearing a modern navy blue suit, a light blue dress shirt, and a dark tie. The subject should have a serious and confident expression, looking directly at the camera. Apply even, soft studio lighting to the face, removing any harsh shadows. Crop the image to a chest-up portrait. High detail, photorealistic, professional retouching.',
+  },
+  {
+    value: 'woman-portrait01',
+    label: 'Executive Professional',
+    description: 'Executive style with warm professional tones',
+    image: '/protile-maker/woman-portrait01.png',
+    prompt:
+      'Transform into an executive professional portrait. Subject wearing a warm brown/tan blazer with white blouse. Neutral professional background. Confident, warm expression with excellent studio lighting. High-end business portrait style.',
+  },
+  {
+    value: 'woman-portrait02',
+    label: 'Corporate Blue',
+    description: 'Classic corporate look with blue tones',
+    image: '/protile-maker/woman-portrait02.png',
+    prompt:
+      'Create a classic corporate portrait. Subject in light blue blazer with white shirt. Clean professional background. Polished, confident expression with even studio lighting. Traditional business professional style, high quality.',
+  },
+  {
+    value: 'woman-portrait03',
+    label: 'Modern Office',
+    description: 'Modern office environment professional',
+    image: '/protile-maker/woman-portrait03.png',
+    prompt:
+      'Transform to a modern office professional portrait. Subject in gray blazer, contemporary office setting background. Natural lighting with modern workplace elements. Professional yet approachable style.',
+  },
+  {
+    value: 'woman-portrait04',
+    label: 'Minimalist Professional',
+    description: 'Clean minimalist professional style',
+    image: '/protile-maker/woman-portrait04.png',
+    prompt:
+      'Create a minimalist professional portrait. Subject in gray turtleneck sweater. Clean, neutral background with soft lighting. Sophisticated, understated professional look. High quality, contemporary style.',
   },
 ];
 
@@ -105,7 +130,7 @@ export default function ProfilePictureMakerGenerator() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
   );
-  const [selectedStyle, setSelectedStyle] = useState('professional');
+  const [selectedStyle, setSelectedStyle] = useState('man-portrait01');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
@@ -425,14 +450,14 @@ export default function ProfilePictureMakerGenerator() {
                     ) : (
                       <div className="text-center space-y-3">
                         <div className="flex justify-center">
-                          <ImagePlusIcon className="h-12 w-12 text-muted-foreground" />
+                          <ImagePlusIcon className="h-10 w-10 transition-colors text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">
-                            Click to upload or drag and drop
+                          <p className="text-sm transition-colors text-muted-foreground text-center">
+                            Click or drag & drop to upload
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            PNG, JPG, JPEG up to 10MB
+                          <p className="text-xs text-muted-foreground text-center mt-1">
+                            (JPG, JPEG, PNG, WEBP)
                           </p>
                         </div>
                       </div>
@@ -448,57 +473,35 @@ export default function ProfilePictureMakerGenerator() {
                 </div>
 
                 {/* Style Selector */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <Label className="text-sm font-medium">Profile Style</Label>
-                  <Select
-                    value={selectedStyle}
-                    onValueChange={setSelectedStyle}
-                  >
-                    <SelectTrigger className="w-full bg-white border border-input rounded-lg h-auto p-3">
-                      <SelectValue>
-                        {selectedOption && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                              <SquareUserRound className="h-4 w-4 text-gray-600" />
-                            </div>
-                            <div className="text-left">
-                              <div className="font-medium text-sm">
-                                {selectedOption.label}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {selectedOption.description}
-                              </div>
-                            </div>
-                          </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {PROFILE_STYLES.map((style) => (
+                      <button
+                        type="button"
+                        key={style.value}
+                        className={cn(
+                          'relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all hover:scale-105 text-center overflow-hidden',
+                          selectedStyle === style.value
+                            ? 'ring-2 ring-primary scale-[1.01] bg-yellow-100/50'
+                            : 'hover:ring-1 hover:ring-primary/50'
                         )}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="w-full">
-                      <SelectGroup>
-                        {PROFILE_STYLES.map((style) => (
-                          <SelectItem
-                            key={style.value}
-                            value={style.value}
-                            className="p-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                <SquareUserRound className="h-4 w-4 text-gray-600" />
-                              </div>
-                              <div className="text-left">
-                                <div className="font-medium text-sm">
-                                  {style.label}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {style.description}
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                        onClick={() => setSelectedStyle(style.value)}
+                        title={style.label}
+                      >
+                        {/* Background image */}
+                        <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+                          <Image
+                            src={style.image}
+                            alt={style.label}
+                            fill
+                            sizes="(max-width: 768px) 25vw, 15vw"
+                            className="object-contain"
+                          />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Generate Button */}

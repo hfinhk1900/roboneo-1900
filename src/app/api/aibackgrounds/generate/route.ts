@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
       // Solid Color 模式：先去除背景，然后用户可以添加纯色背景
       finalPrompt =
         'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements';
-      console.log(`🎯 Solid Color mode: Using background removal prompt`);
+      console.log('🎯 Solid Color mode: Using background removal prompt');
     } else {
       // AI 生成背景模式
       const styleConfig = BACKGROUND_STYLES[backgroundType!];
