@@ -196,6 +196,7 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
   }
 
   // 尝试从URL解析asset_id（适用于签名URL）
+  // 通用字段：url
   if (item.url && typeof item.url === 'string') {
     try {
       if (item.url.startsWith('/api/assets/download')) {
@@ -204,6 +205,36 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
       }
     } catch (error) {
       console.warn('Failed to extract asset_id from URL:', item.url);
+    }
+  }
+
+  // 去水印历史字段：processedImageUrl
+  if (item.processedImageUrl && typeof item.processedImageUrl === 'string') {
+    try {
+      if (item.processedImageUrl.startsWith('/api/assets/download')) {
+        const urlObj = new URL(item.processedImageUrl, 'http://localhost');
+        return urlObj.searchParams.get('asset_id');
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to extract asset_id from processedImageUrl:',
+        item.processedImageUrl
+      );
+    }
+  }
+
+  // 兜底：originalImageUrl（通常不是资产，但保留解析能力）
+  if (item.originalImageUrl && typeof item.originalImageUrl === 'string') {
+    try {
+      if (item.originalImageUrl.startsWith('/api/assets/download')) {
+        const urlObj = new URL(item.originalImageUrl, 'http://localhost');
+        return urlObj.searchParams.get('asset_id');
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to extract asset_id from originalImageUrl:',
+        item.originalImageUrl
+      );
     }
   }
 

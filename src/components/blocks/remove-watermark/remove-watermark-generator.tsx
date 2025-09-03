@@ -247,27 +247,68 @@ export function RemoveWatermarkGeneratorSection() {
     setIsMounted(true);
   }, []);
 
-  // Load history
+  // Load history: logged-in → server (with refresh), otherwise local fallback
   useEffect(() => {
     if (!isMounted) return;
 
-    try {
-      const stored = localStorage.getItem(HISTORY_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setRemovalHistory(parsed);
-          console.log(
-            '📱 Local removal history loaded:',
-            parsed.length,
-            'items'
-          );
+    const loadHistory = async () => {
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/watermark?refresh_urls=true', {
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const items = Array.isArray(data.items) ? data.items : [];
+            const mapped = items
+              .map((it: any) => ({
+                id: it.id,
+                originalImage: it.originalImageUrl || it.originalImage,
+                processedImage: it.processedImageUrl || it.processedImage,
+                method: it.method || 'auto',
+                watermarkType: it.watermarkType || 'unknown',
+                quality: it.quality || 'balanced',
+                createdAt: it.createdAt
+                  ? typeof it.createdAt === 'string'
+                    ? new Date(it.createdAt).getTime()
+                    : it.createdAt
+                  : Date.now(),
+              }))
+              .sort(
+                (a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0)
+              );
+            setRemovalHistory(mapped);
+            return;
+          }
+        } catch (e) {
+          console.warn('Failed to load server watermark history:', e);
         }
       }
-    } catch (error) {
-      console.warn('Error loading removal history:', error);
-    }
-  }, [isMounted]);
+
+      // Local fallback
+      try {
+        const stored = localStorage.getItem(HISTORY_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const sorted = parsed.sort(
+              (a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0)
+            );
+            setRemovalHistory(sorted);
+            console.log(
+              '📱 Local removal history loaded:',
+              sorted.length,
+              'items'
+            );
+          }
+        }
+      } catch (error) {
+        console.warn('Error loading removal history:', error);
+      }
+    };
+
+    loadHistory();
+  }, [isMounted, currentUser]);
 
   // Save history
   const saveHistory = useCallback(
@@ -659,7 +700,36 @@ export function RemoveWatermarkGeneratorSection() {
   const handleDownload = useCallback(
     async (imageUrl: string, filename = 'watermark-removed.png') => {
       try {
-        const response = await fetch(imageUrl);
+        let finalUrl = imageUrl;
+        if (finalUrl.startsWith('/api/assets/download')) {
+          try {
+            const urlObj = new URL(finalUrl, window.location.origin);
+            const exp = urlObj.searchParams.get('exp');
+            const assetId = urlObj.searchParams.get('asset_id');
+            if (exp && assetId) {
+              const expiryTime = Number.parseInt(exp) * 1000;
+              const currentTime = Date.now();
+              if (expiryTime - currentTime <= 5 * 60 * 1000) {
+                const refreshRes = await fetch('/api/storage/sign-download', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    asset_id: assetId,
+                    display_mode: 'inline',
+                    expires_in: 3600,
+                  }),
+                });
+                if (refreshRes.ok) {
+                  const refreshData = await refreshRes.json();
+                  finalUrl = refreshData.url;
+                }
+              }
+            }
+          } catch {}
+        }
+
+        const response = await fetch(finalUrl);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
 

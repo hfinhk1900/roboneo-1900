@@ -3,9 +3,9 @@ import { getDb } from '@/db';
 import { assets, productshotHistory } from '@/db/schema';
 import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
-import { eq, desc } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { desc, eq } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const db = await getDb();
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
+    const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
     let query = db
       .select()
@@ -34,7 +35,45 @@ export async function GET(request: NextRequest) {
 
     const items = await query;
 
-    return NextResponse.json({ items });
+    // 如果需要刷新URL，检查并刷新过期的签名URL
+    const processedItems = refreshUrls
+      ? await Promise.all(
+          items.map(async (item: any) => {
+            if (item.url?.startsWith('/api/assets/download')) {
+              try {
+                const urlObj = new URL(item.url, 'http://localhost');
+                const assetId = urlObj.searchParams.get('asset_id');
+                if (assetId) {
+                  // 验证资产仍然属于用户
+                  const assetRows = await db
+                    .select()
+                    .from(assets)
+                    .where(eq(assets.id, assetId))
+                    .limit(1);
+
+                  if (assetRows[0]?.user_id === session.user.id) {
+                    // 生成新的签名URL
+                    const signed = generateSignedDownloadUrl(
+                      assetId,
+                      'inline',
+                      3600
+                    );
+                    return { ...item, url: signed.url, asset_id: assetId };
+                  }
+                }
+              } catch (error) {
+                console.error(
+                  'Failed to refresh URL for productshot item:',
+                  error
+                );
+              }
+            }
+            return item;
+          })
+        )
+      : items;
+
+    return NextResponse.json({ items: processedItems });
   } catch (error) {
     console.error('Error fetching productshot history:', error);
     return NextResponse.json(

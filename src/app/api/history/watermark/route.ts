@@ -1,10 +1,11 @@
 import { getDb } from '@/db';
-import { watermarkHistory } from '@/db/schema';
+import { assets, watermarkHistory } from '@/db/schema';
+import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
-import { eq, desc } from 'drizzle-orm';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { desc, eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,14 +18,59 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDb();
+    const { searchParams } = new URL(request.url);
+    const refreshUrls = searchParams.get('refresh_urls') === 'true';
+    const limit = Number.parseInt(searchParams.get('limit') || '50');
+
     const items = await db
       .select()
       .from(watermarkHistory)
       .where(eq(watermarkHistory.userId, session.user.id))
       .orderBy(desc(watermarkHistory.createdAt))
-      .limit(50); // 限制返回最近50条记录
+      .limit(Math.min(Math.max(limit, 1), 200));
 
-    return NextResponse.json({ items });
+    // 如果需要刷新URL，检查并刷新过期的签名URL
+    const processedItems = refreshUrls
+      ? await Promise.all(
+          items.map(async (item: any) => {
+            const urlToCheck = item.processedImageUrl || item.url;
+            if (urlToCheck?.startsWith('/api/assets/download')) {
+              try {
+                const urlObj = new URL(urlToCheck, 'http://localhost');
+                const assetId = urlObj.searchParams.get('asset_id');
+                if (assetId) {
+                  const assetRows = await db
+                    .select()
+                    .from(assets)
+                    .where(eq(assets.id, assetId))
+                    .limit(1);
+                  if (assetRows[0]?.user_id === session.user.id) {
+                    const signed = generateSignedDownloadUrl(
+                      assetId,
+                      'inline',
+                      3600
+                    );
+                    // watermarkHistory 使用 processedImageUrl 字段
+                    return {
+                      ...item,
+                      processedImageUrl: signed.url,
+                      asset_id: assetId,
+                    };
+                  }
+                }
+              } catch (error) {
+                console.error(
+                  'Failed to refresh URL for watermark item:',
+                  error
+                );
+              }
+            }
+            return item;
+          })
+        )
+      : items;
+
+    return NextResponse.json({ items: processedItems });
   } catch (error) {
     console.error('Error fetching watermark history:', error);
     return NextResponse.json(
@@ -57,7 +103,10 @@ export async function POST(request: NextRequest) {
     // 验证必需字段
     if (!originalImageUrl || !processedImageUrl || !method) {
       return NextResponse.json(
-        { error: 'Missing required fields: originalImageUrl, processedImageUrl, method' },
+        {
+          error:
+            'Missing required fields: originalImageUrl, processedImageUrl, method',
+        },
         { status: 400 }
       );
     }

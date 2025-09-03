@@ -169,10 +169,13 @@ export default function ProductShotGeneratorSection() {
       try {
         if (currentUser) {
           console.log('🔄 Loading server history for user:', currentUser.id);
-          const res = await fetch('/api/history/productshot', {
-            // 移除limit=24，获取所有历史记录
-            credentials: 'include',
-          });
+          const res = await fetch(
+            '/api/history/productshot?refresh_urls=true',
+            {
+              // 移除limit=24，获取所有历史记录
+              credentials: 'include',
+            }
+          );
           if (res.ok) {
             const data = await res.json();
             console.log('📦 Server history response:', data);

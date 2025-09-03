@@ -1,11 +1,11 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
-import { stickerHistory, assets } from '@/db/schema';
+import { assets, stickerHistory } from '@/db/schema';
+import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { and, desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
 
 // GET /api/history/sticker?limit=20&refresh_urls=true
 export async function GET(request: NextRequest) {
@@ -33,36 +33,37 @@ export async function GET(request: NextRequest) {
       ? await baseQuery.limit(Math.min(Math.max(Number(limitParam), 1), 1000))
       : await baseQuery;
 
-    // 如果需要刷新URL，检查metadata中的asset_id并生成新的签名URL
-    const items = refreshUrls ? await Promise.all(
-      rows.map(async (row: any) => {
-        // 检查是否有asset_id在metadata中
-        const assetId = row.metadata?.asset_id;
-        if (assetId) {
-          try {
-            // 验证资产仍然属于用户
-            const assetRows = await db
-              .select()
-              .from(assets)
-              .where(eq(assets.id, assetId))
-              .limit(1);
-
-            if (assetRows.length > 0 && assetRows[0].user_id === session.user.id) {
-              // 生成新的签名URL
-              const signed = generateSignedDownloadUrl(assetId, 'inline', 3600);
-              return {
-                ...row,
-                url: signed.url,
-                asset_id: assetId
-              };
+    // 如果需要刷新URL，从URL中解析asset_id并生成新的签名URL
+    const items = refreshUrls
+      ? await Promise.all(
+          rows.map(async (row: any) => {
+            try {
+              if (row.url?.startsWith('/api/assets/download')) {
+                const urlObj = new URL(row.url, 'http://localhost');
+                const assetId = urlObj.searchParams.get('asset_id');
+                if (assetId) {
+                  const assetRows = await db
+                    .select()
+                    .from(assets)
+                    .where(eq(assets.id, assetId))
+                    .limit(1);
+                  if (assetRows[0]?.user_id === session.user.id) {
+                    const signed = generateSignedDownloadUrl(
+                      assetId,
+                      'inline',
+                      3600
+                    );
+                    return { ...row, url: signed.url, asset_id: assetId };
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Failed to refresh URL for sticker item:', error);
             }
-          } catch (error) {
-            console.error(`Failed to refresh URL for asset ${assetId}:`, error);
-          }
-        }
-        return row;
-      })
-    ) : rows;
+            return row;
+          })
+        )
+      : rows;
 
     return NextResponse.json({ items });
   } catch (error) {
@@ -90,10 +91,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { asset_id, url, style } = body;
     if (!style) {
-      return NextResponse.json(
-        { error: 'Style is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Style is required' }, { status: 400 });
     }
 
     const db = await getDb();
@@ -131,25 +129,21 @@ export async function POST(request: NextRequest) {
     const id = randomUUID();
     const createdAt = new Date();
 
-    // 保存历史记录，包含asset_id以便后续查询
-    await db
-      .insert(stickerHistory)
-      .values({
-        id,
-        userId: session.user.id,
-        url: finalUrl,
-        style,
-        createdAt,
-        // 如果有asset_id，保存到metadata中以便后续使用
-        ...(finalAssetId && { metadata: { asset_id: finalAssetId } })
-      });
+    // 保存历史记录
+    await db.insert(stickerHistory).values({
+      id,
+      userId: session.user.id,
+      url: finalUrl,
+      style,
+      createdAt,
+    });
 
     return NextResponse.json({
       id,
       url: finalUrl,
       style,
       createdAt,
-      asset_id: finalAssetId
+      asset_id: finalAssetId,
     });
   } catch (error) {
     console.error('POST /api/history/sticker error:', error);
