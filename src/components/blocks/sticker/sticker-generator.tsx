@@ -604,7 +604,7 @@ export default function StickerGenerator() {
   }
 
   return (
-    <main className="relative bg-gradient-to-b from-gray-50 to-white min-h-screen overflow-hidden">
+    <main className="relative bg-[#F5F5F5] min-h-screen overflow-hidden">
       {/* Background decoration */}
       <div
         aria-hidden

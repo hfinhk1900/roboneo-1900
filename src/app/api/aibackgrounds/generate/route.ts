@@ -338,8 +338,7 @@ export async function POST(request: NextRequest) {
       backgroundMode === 'color'
         ? 'black-forest-labs/FLUX.1-schnell'
         : 'black-forest-labs/FLUX.1-Kontext-dev';
-    const selectedSteps =
-      steps ?? (backgroundMode === 'color' ? 20 : 30);
+    const selectedSteps = steps ?? (backgroundMode === 'color' ? 20 : 30);
     const generationParams = {
       prompt: finalPrompt,
       model: selectedModel,

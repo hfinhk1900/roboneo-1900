@@ -84,6 +84,25 @@ const ProfileIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const WatermarkRemovalIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
+    <path d="M22 21H7" />
+    <path d="m5 11 9 9" />
+  </svg>
+);
+
 interface ToolFeature {
   id: string;
   title: string;
@@ -141,6 +160,17 @@ const toolFeatures: ToolFeature[] = [
     demoImage: '/home/tool-list-prodile-pic-maker.png',
     demoImageAlt:
       'Profile Picture Maker demo showing professional headshot variations',
+  },
+  {
+    id: 'watermark-removal',
+    title: 'Watermark Removal',
+    description:
+      'Erase watermarks, timestamps, and light logos from images you own or are licensed to edit—no tedious manual retouching. Roboneo AI reconstructs underlying details with context-aware inpainting, preserving texture, edges, and lighting for clean, natural results. Use only on content you have permission to modify.',
+    buttonText: 'Remove Watermark',
+    buttonLink: '/remove-watermark',
+    icon: WatermarkRemovalIcon,
+    demoImage: '/home/tool-list-watermark-removal.png',
+    demoImageAlt: 'Watermark Removal demo showing before and after comparison',
   },
 ];
 
