@@ -6,8 +6,8 @@ import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
-import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { type NextRequest, NextResponse } from 'next/server';
 
 interface ProfilePictureRequest {
   // Required: Input image (base64 encoded)
@@ -167,8 +167,12 @@ export async function POST(request: NextRequest) {
     // 订阅检查：未订阅加水印
     let isSubscribed = false;
     try {
-      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
-      const sub = await getActiveSubscriptionAction({ userId: session.user.id });
+      const { getActiveSubscriptionAction } = await import(
+        '@/actions/get-active-subscription'
+      );
+      const sub = await getActiveSubscriptionAction({
+        userId: session.user.id,
+      });
       isSubscribed = !!sub?.data?.data;
     } catch {}
 

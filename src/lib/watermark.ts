@@ -41,7 +41,10 @@ export async function applyCornerWatermark(
     fontWeight = 700,
   } = options;
 
-  const fontSize = Math.max(10, Math.round(Math.min(width, height) * fontSizeRatio));
+  const fontSize = Math.max(
+    10,
+    Math.round(Math.min(width, height) * fontSizeRatio)
+  );
 
   const safeText = escapeXml(text);
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -65,5 +68,3 @@ export async function applyCornerWatermark(
 
   return composited;
 }
-
-

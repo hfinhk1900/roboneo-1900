@@ -7,12 +7,12 @@ import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
-import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { eq, sql } from 'drizzle-orm';
-import { checkRateLimit } from '@/lib/rate-limit';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { eq, sql } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // 产品尺寸映射 - 基于常见产品类型的合理尺寸
 const PRODUCT_SIZE_HINTS = {
@@ -385,8 +385,16 @@ export async function POST(request: NextRequest) {
     // Rate limit per user
     {
       const { generatePerUserPerMin } = getRateLimitConfig();
-      const rl = await checkRateLimit(`rl:productshot:${userId}`, generatePerUserPerMin, 60);
-      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      const rl = await checkRateLimit(
+        `rl:productshot:${userId}`,
+        generatePerUserPerMin,
+        60
+      );
+      if (!rl.allowed)
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429 }
+        );
     }
 
     // 2. 解析请求参数
@@ -405,7 +413,7 @@ export async function POST(request: NextRequest) {
       reference_image,
       additionalContext,
       productTypeHint,
-  } = body;
+    } = body;
 
     // 3. 验证必需参数 - 简化验证逻辑，允许空场景（双图模式）
     if (!image_input) {
@@ -421,7 +429,9 @@ export async function POST(request: NextRequest) {
         ? image_input.split(',')[1]
         : image_input;
       const approxBytes = Math.floor((base64Part.length * 3) / 4);
-      const limit = Number(process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024);
+      const limit = Number(
+        process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024
+      );
       if (approxBytes > limit) {
         return NextResponse.json(
           { error: 'Image too large', limitBytes: limit },
@@ -671,7 +681,9 @@ export async function POST(request: NextRequest) {
     // 检查订阅：无订阅则加右下角水印
     let isSubscribed = false;
     try {
-      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const { getActiveSubscriptionAction } = await import(
+        '@/actions/get-active-subscription'
+      );
       const sub = await getActiveSubscriptionAction({ userId });
       isSubscribed = !!sub?.data?.data;
     } catch {}

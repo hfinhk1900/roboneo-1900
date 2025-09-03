@@ -15,22 +15,22 @@ import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
-import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
-import { getLocalTimestr } from '@/lib/time-utils';
-import { uploadFile } from '@/storage';
-import { nanoid } from 'nanoid';
-import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { ensureProductionEnv } from '@/lib/config/validate-env';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import {
+  clearKey,
   getIdempotencyEntry,
   makeIdempotencyKey,
   setPending,
   setSuccess,
-  clearKey,
 } from '@/lib/idempotency';
+import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getLocalTimestr } from '@/lib/time-utils';
+import { uploadFile } from '@/storage';
+import { nanoid } from 'nanoid';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -232,11 +232,20 @@ export async function POST(req: NextRequest) {
     // Rate limit per user
     {
       const { generatePerUserPerMin } = getRateLimitConfig();
-      const rl = await checkRateLimit(`rl:sticker:${session.user.id}`, generatePerUserPerMin, 60);
-      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      const rl = await checkRateLimit(
+        `rl:sticker:${session.user.id}`,
+        generatePerUserPerMin,
+        60
+      );
+      if (!rl.allowed)
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429 }
+        );
     }
     // Idempotency-Key (best-effort) & Pre-deduct credits (skip in mock mode)
-    const idemKey = req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
+    const idemKey =
+      req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
     let idStoreKey: string | null = null;
     if (idemKey) {
       const userId = session.user.id;
@@ -246,7 +255,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(entry.response);
       }
       if (entry?.status === 'pending') {
-        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+        return NextResponse.json(
+          { error: 'Duplicate request' },
+          { status: 409 }
+        );
       }
       setPending(idStoreKey);
     }
@@ -376,8 +388,12 @@ export async function POST(req: NextRequest) {
     // 4.1 Subscription check
     let isSubscribed = false;
     try {
-      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
-      const sub = await getActiveSubscriptionAction({ userId: session.user.id });
+      const { getActiveSubscriptionAction } = await import(
+        '@/actions/get-active-subscription'
+      );
+      const sub = await getActiveSubscriptionAction({
+        userId: session.user.id,
+      });
       isSubscribed = !!sub?.data?.data;
     } catch {}
 
@@ -385,14 +401,18 @@ export async function POST(req: NextRequest) {
     if (!isSubscribed) {
       try {
         const { applyCornerWatermark } = await import('@/lib/watermark');
-        uploadBuffer = await applyCornerWatermark(stickerBuffer, 'ROBONEO.ART', {
-          fontSizeRatio: 0.05,
-          opacity: 0.9,
-          margin: 18,
-          fill: '#FFFFFF',
-          stroke: 'rgba(0,0,0,0.35)',
-          strokeWidth: 2,
-        });
+        uploadBuffer = await applyCornerWatermark(
+          stickerBuffer,
+          'ROBONEO.ART',
+          {
+            fontSizeRatio: 0.05,
+            opacity: 0.9,
+            margin: 18,
+            fill: '#FFFFFF',
+            stroke: 'rgba(0,0,0,0.35)',
+            strokeWidth: 2,
+          }
+        );
       } catch (wmError) {
         console.warn('Sticker watermark application failed:', wmError);
       }
@@ -482,7 +502,8 @@ export async function POST(req: NextRequest) {
     // Refund if pre-deducted
     try {
       const isMock =
-        process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true';
+        process.env.NODE_ENV === 'development' &&
+        process.env.MOCK_API === 'true';
       if (!isMock) {
         const { getDb } = await import('@/db');
         const { user, creditsTransaction } = await import('@/db/schema');

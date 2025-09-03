@@ -6,7 +6,8 @@ import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
-import { type NextRequest, NextResponse } from 'next/server';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import {
   clearKey,
@@ -15,10 +16,9 @@ import {
   setPending,
   setSuccess,
 } from '@/lib/idempotency';
-import { eq, sql } from 'drizzle-orm';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { getRateLimitConfig } from '@/lib/config/rate-limit';
-import { ensureProductionEnv } from '@/lib/config/validate-env';
+import { eq, sql } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // AI Background 预设颜色配置
 const PRESET_COLORS = [
@@ -123,12 +123,22 @@ export async function POST(request: NextRequest) {
     // Rate limit per user
     {
       const { generatePerUserPerMin } = getRateLimitConfig();
-      const rl = await checkRateLimit(`rl:aibg:${userId}`, generatePerUserPerMin, 60);
-      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      const rl = await checkRateLimit(
+        `rl:aibg:${userId}`,
+        generatePerUserPerMin,
+        60
+      );
+      if (!rl.allowed)
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429 }
+        );
     }
 
     // Idempotency-Key support (best-effort, in-memory)
-    const idemKey = request.headers.get('idempotency-key') || request.headers.get('Idempotency-Key');
+    const idemKey =
+      request.headers.get('idempotency-key') ||
+      request.headers.get('Idempotency-Key');
     let idStoreKey: string | null = null;
     if (idemKey) {
       idStoreKey = makeIdempotencyKey('aibg_generate', userId, idemKey);
@@ -137,7 +147,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(entry.response);
       }
       if (entry?.status === 'pending') {
-        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+        return NextResponse.json(
+          { error: 'Duplicate request' },
+          { status: 409 }
+        );
       }
       setPending(idStoreKey);
     }
@@ -172,7 +185,9 @@ export async function POST(request: NextRequest) {
         ? image_input.split(',')[1]
         : image_input;
       const approxBytes = Math.floor((base64Part.length * 3) / 4);
-      const limit = Number(process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024);
+      const limit = Number(
+        process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024
+      );
       if (approxBytes > limit) {
         return NextResponse.json(
           { error: 'Image too large', limitBytes: limit },
@@ -343,7 +358,9 @@ export async function POST(request: NextRequest) {
     // 订阅检查：未订阅加水印
     let isSubscribed = false;
     try {
-      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const { getActiveSubscriptionAction } = await import(
+        '@/actions/get-active-subscription'
+      );
       const sub = await getActiveSubscriptionAction({ userId });
       isSubscribed = !!sub?.data?.data;
     } catch {}
@@ -399,7 +416,10 @@ export async function POST(request: NextRequest) {
       await logAIOperation({
         userId,
         operation: 'aibg',
-        mode: backgroundMode === 'background' ? (backgroundType || 'style') : backgroundMode,
+        mode:
+          backgroundMode === 'background'
+            ? backgroundType || 'style'
+            : backgroundMode,
         creditsUsed: CREDITS_PER_IMAGE,
         status: 'success',
       });

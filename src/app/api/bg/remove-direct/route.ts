@@ -15,28 +15,7 @@ import {
   clearKey,
 } from '@/lib/idempotency';
 
-// 简单的内存速率限制（生产环境建议使用 Redis）
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const windowMs = 60 * 1000; // 1分钟窗口
-  const maxRequests = 10; // 每分钟最多10次请求
-
-  const record = rateLimitMap.get(ip);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-    return true;
-  }
-
-  if (record.count >= maxRequests) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
+// 使用全局速率限制工具 '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -193,11 +172,35 @@ export async function POST(req: NextRequest) {
     console.log(`⏱️ Processing time: ${result.processing_time}s`);
     console.log(`📐 Image size: ${result.image_size}`);
 
-    // 7. Already pre-deducted; no further deduction required
+    // 7. 对未订阅用户结果图加右下角水印（若返回的是data URL）
+    let watermarkedResult = result;
+    try {
+      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const sub = await getActiveSubscriptionAction({ userId });
+      const isSubscribed = !!sub?.data?.data;
+      if (!isSubscribed && result?.image && typeof result.image === 'string' && result.image.startsWith('data:image')) {
+        const { applyCornerWatermark } = await import('@/lib/watermark');
+        // 将 data URL 转为 Buffer
+        const base64Part = result.image.split(',')[1];
+        const buffer = Buffer.from(base64Part, 'base64');
+        const wmBuffer = await applyCornerWatermark(buffer, 'ROBONEO.ART', {
+          fontSizeRatio: 0.045,
+          opacity: 0.9,
+          margin: 18,
+          fill: '#FFFFFF',
+          stroke: 'rgba(0,0,0,0.35)',
+          strokeWidth: 2,
+        });
+        const wmDataUrl = `data:image/png;base64,${wmBuffer.toString('base64')}`;
+        watermarkedResult = { ...result, image: wmDataUrl };
+      }
+    } catch (wmErr) {
+      console.warn('BG remove watermark step skipped:', wmErr);
+    }
 
     // 返回结果
     const payload = {
-      ...result,
+      ...watermarkedResult,
       // 添加积分信息
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deduct?.data?.data?.remainingCredits || 0,
