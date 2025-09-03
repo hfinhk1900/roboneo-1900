@@ -334,12 +334,18 @@ export async function POST(request: NextRequest) {
     });
 
     // 7. 设置生成参数
+    const selectedModel =
+      backgroundMode === 'color'
+        ? 'black-forest-labs/FLUX.1-schnell'
+        : 'black-forest-labs/FLUX.1-Kontext-dev';
+    const selectedSteps =
+      steps ?? (backgroundMode === 'color' ? 20 : 30);
     const generationParams = {
       prompt: finalPrompt,
-      model: 'black-forest-labs/FLUX.1-Kontext-dev', // 使用相同的模型
+      model: selectedModel,
       size: size || '1024x1024',
       quality,
-      steps: steps || 30,
+      steps: selectedSteps,
       seed,
       guidance_scale: guidance_scale || 3.5,
       output_format: output_format || 'png',

@@ -30,7 +30,9 @@ export class SiliconFlowProvider {
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.requestTimeoutMs = Number(process.env.SILICONFLOW_REQUEST_TIMEOUT_MS || 60000);
+    this.requestTimeoutMs = Number(
+      process.env.SILICONFLOW_REQUEST_TIMEOUT_MS || 60000
+    );
   }
 
   async generateProductShot(params: {
