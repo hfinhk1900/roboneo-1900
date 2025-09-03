@@ -83,13 +83,16 @@ export const routesNotAllowedByLoggedInUsers = [Routes.Login, Routes.Register];
  * The routes that are protected and require authentication
  */
 export const protectedRoutes = [
-  Routes.Dashboard,
-  Routes.AdminUsers,
   Routes.SettingsProfile,
   Routes.SettingsBilling,
   Routes.SettingsSecurity,
   Routes.SettingsNotifications,
 ];
+
+/**
+ * The routes that require admin access only
+ */
+export const adminOnlyRoutes = [Routes.Dashboard, Routes.AdminUsers];
 
 /**
  * The default redirect path after logging in

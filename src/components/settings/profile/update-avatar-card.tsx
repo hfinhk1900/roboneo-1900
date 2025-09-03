@@ -28,11 +28,17 @@ interface UpdateAvatarCardProps {
  */
 export function UpdateAvatarCard({ className }: UpdateAvatarCardProps) {
   const t = useTranslations('Dashboard.settings.profile');
+  const [mounted, setMounted] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | undefined>('');
   const { data: session, refetch } = authClient.useSession();
   const [avatarUrl, setAvatarUrl] = useState('');
   const [tempAvatarUrl, setTempAvatarUrl] = useState('');
+
+  // Avoid hydration mismatch: render nothing until mounted on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.image) {
@@ -41,7 +47,7 @@ export function UpdateAvatarCard({ className }: UpdateAvatarCardProps) {
   }, [session]);
 
   const user = session?.user;
-  if (!user) {
+  if (!mounted || !user) {
     return null;
   }
 

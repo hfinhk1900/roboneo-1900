@@ -26,7 +26,7 @@ interface UserButtonProps {
 
 export function UserButtonMobile({ user }: UserButtonProps) {
   const t = useTranslations();
-  const avatarLinks = getAvatarLinks();
+  const avatarLinks = getAvatarLinks(user);
   const localeRouter = useLocaleRouter();
   const [open, setOpen] = useState(false);
   const { resetState } = usePaymentStore();
@@ -64,7 +64,7 @@ export function UserButtonMobile({ user }: UserButtonProps) {
       <DrawerPortal>
         <DrawerOverlay className="fixed inset-0 z-40 bg-background/50" />
         <DrawerContent
-          className="fixed inset-x-0 bottom-0 z-50 mt-24 
+          className="fixed inset-x-0 bottom-0 z-50 mt-24
             overflow-hidden rounded-t-[10px] border bg-background px-3 text-sm"
         >
           <DrawerHeader>

@@ -24,7 +24,7 @@ interface UserButtonProps {
 
 export function UserButton({ user }: UserButtonProps) {
   const t = useTranslations();
-  const avatarLinks = getAvatarLinks();
+  const avatarLinks = getAvatarLinks(user);
   const localeRouter = useLocaleRouter();
   const [open, setOpen] = useState(false);
   const { resetState } = usePaymentStore();

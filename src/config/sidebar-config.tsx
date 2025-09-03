@@ -36,6 +36,7 @@ export function getSidebarLinks(): NestedMenuItem[] {
       icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
       href: Routes.Dashboard,
       external: false,
+      authorizeOnly: ['admin'],
     },
     {
       title: t('admin.title'),

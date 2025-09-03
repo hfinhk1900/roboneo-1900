@@ -1,5 +1,7 @@
 'use client';
 
+import type { User } from '@/lib/auth-types';
+import { isAdmin } from '@/lib/auth-utils';
 import { Routes } from '@/routes';
 import type { MenuItem } from '@/types';
 import {
@@ -19,15 +21,10 @@ import { useTranslations } from 'next-intl';
  *
  * @returns The avatar config with translated titles
  */
-export function getAvatarLinks(): MenuItem[] {
+export function getAvatarLinks(user?: User | null): MenuItem[] {
   const t = useTranslations('Marketing.avatar');
 
-  return [
-    {
-      title: t('dashboard'),
-      href: Routes.Dashboard,
-      icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
-    },
+  const baseLinks: MenuItem[] = [
     {
       title: t('billing'),
       href: Routes.SettingsBilling,
@@ -39,4 +36,15 @@ export function getAvatarLinks(): MenuItem[] {
       icon: <Settings2Icon className="size-4 shrink-0" />,
     },
   ];
+
+  // Only add dashboard link for admin users
+  if (isAdmin(user)) {
+    baseLinks.unshift({
+      title: t('dashboard'),
+      href: Routes.Dashboard,
+      icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
+    });
+  }
+
+  return baseLinks;
 }

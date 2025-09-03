@@ -15,6 +15,7 @@ import {
 import { getSidebarLinks } from '@/config/sidebar-config';
 import { LocaleLink } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
+import { isAdmin } from '@/lib/auth-utils';
 import { Routes } from '@/routes';
 import { useTranslations } from 'next-intl';
 import type * as React from 'react';
@@ -38,6 +39,11 @@ export function DashboardSidebar({
   const sidebarLinks = getSidebarLinks();
   const filteredSidebarLinks = sidebarLinks.filter((link) => {
     if (link.authorizeOnly) {
+      // Check if user is admin for admin-only items
+      if (link.authorizeOnly.includes('admin')) {
+        return isAdmin(currentUser);
+      }
+      // For other authorization checks, use the original logic
       return link.authorizeOnly.includes(currentUser?.role || '');
     }
     return true;

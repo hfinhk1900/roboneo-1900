@@ -36,6 +36,7 @@ interface UpdateNameCardProps {
  */
 export function UpdateNameCard({ className }: UpdateNameCardProps) {
   const t = useTranslations('Dashboard.settings.profile');
+  const [mounted, setMounted] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | undefined>('');
   const { data: session, refetch } = authClient.useSession();
@@ -56,6 +57,11 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
     },
   });
 
+  // Avoid hydration mismatch: render nothing until mounted on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (session?.user?.name) {
       form.setValue('name', session.user.name);
@@ -64,7 +70,7 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
 
   // Check if user exists after all hooks are initialized
   const user = session?.user;
-  if (!user) {
+  if (!mounted || !user) {
     return null;
   }
 

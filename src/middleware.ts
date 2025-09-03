@@ -3,9 +3,11 @@ import createMiddleware from 'next-intl/middleware';
 import { type NextRequest, NextResponse } from 'next/server';
 import { LOCALES, routing } from './i18n/routing';
 import type { Session } from './lib/auth-types';
+import { getPostLoginRedirectUrl, isAdmin } from './lib/auth-utils';
 import { getBaseUrl } from './lib/urls/urls';
 import {
   DEFAULT_LOGIN_REDIRECT,
+  adminOnlyRoutes,
   protectedRoutes,
   routesNotAllowedByLoggedInUsers,
 } from './routes';
@@ -63,10 +65,41 @@ export default async function middleware(req: NextRequest) {
       new RegExp(`^${route}$`).test(pathnameWithoutLocale)
     );
     if (isNotAllowedRoute) {
+      const redirectUrl = getPostLoginRedirectUrl(session?.user);
       console.log(
-        '<< middleware end, not allowed route, already logged in, redirecting to dashboard'
+        '<< middleware end, not allowed route, already logged in, redirecting to',
+        redirectUrl
       );
-      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+      return NextResponse.redirect(new URL(redirectUrl, nextUrl));
+    }
+  }
+
+  // Check if the route is admin-only
+  const isAdminOnlyRoute = adminOnlyRoutes.some((route) =>
+    new RegExp(`^${route}$`).test(pathnameWithoutLocale)
+  );
+
+  // If trying to access admin route without being admin, redirect
+  if (isAdminOnlyRoute) {
+    if (!isLoggedIn) {
+      let callbackUrl = nextUrl.pathname;
+      if (nextUrl.search) {
+        callbackUrl += nextUrl.search;
+      }
+      const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+      console.log(
+        '<< middleware end, admin route, not logged in, redirecting to login'
+      );
+      return NextResponse.redirect(
+        new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+      );
+    }
+
+    if (!isAdmin(session?.user)) {
+      console.log(
+        '<< middleware end, admin route, not admin user, redirecting to home'
+      );
+      return NextResponse.redirect(new URL('/', nextUrl));
     }
   }
 
