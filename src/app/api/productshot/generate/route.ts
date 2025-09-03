@@ -668,6 +668,14 @@ export async function POST(request: NextRequest) {
       '🤖 Using model: black-forest-labs/FLUX.1-Kontext-dev for dual-image composition'
     );
 
+    // 检查订阅：无订阅则加右下角水印
+    let isSubscribed = false;
+    try {
+      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const sub = await getActiveSubscriptionAction({ userId });
+      isSubscribed = !!sub?.data?.data;
+    } catch {}
+
     const result = await provider.generateProductShot({
       prompt: finalPrompt,
       model: 'black-forest-labs/FLUX.1-Kontext-dev',
@@ -680,6 +688,7 @@ export async function POST(request: NextRequest) {
       output_format,
       image_input,
       reference_image, // 新增：传递reference_image参数
+      watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
     // 8. 已预扣费，无需再次扣费
@@ -706,6 +715,7 @@ export async function POST(request: NextRequest) {
         scene: sceneType || null,
         provider: result.provider,
         model: result.model,
+        watermarked: !isSubscribed,
       }),
     });
 

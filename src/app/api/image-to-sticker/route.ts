@@ -369,12 +369,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Upload to R2
+    // 4. Upload to R2 (with optional watermark for free users)
     console.log('☁️ Uploading sticker to R2...');
     const stickerBuffer = Buffer.from(stickerBase64, 'base64');
+
+    // 4.1 Subscription check
+    let isSubscribed = false;
+    try {
+      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const sub = await getActiveSubscriptionAction({ userId: session.user.id });
+      isSubscribed = !!sub?.data?.data;
+    } catch {}
+
+    let uploadBuffer = stickerBuffer;
+    if (!isSubscribed) {
+      try {
+        const { applyCornerWatermark } = await import('@/lib/watermark');
+        uploadBuffer = await applyCornerWatermark(stickerBuffer, 'ROBONEO.ART', {
+          fontSizeRatio: 0.05,
+          opacity: 0.9,
+          margin: 18,
+          fill: '#FFFFFF',
+          stroke: 'rgba(0,0,0,0.35)',
+          strokeWidth: 2,
+        });
+      } catch (wmError) {
+        console.warn('Sticker watermark application failed:', wmError);
+      }
+    }
     const filename = `${style}-${nanoid()}.png`;
     const uploadResult = await uploadFile(
-      stickerBuffer,
+      uploadBuffer,
       filename,
       'image/png',
       'stickers'
@@ -400,13 +425,14 @@ export async function POST(req: NextRequest) {
       key: storageKey,
       filename: fileName,
       content_type: 'image/png',
-      size: stickerBuffer.length,
+      size: uploadBuffer.length,
       user_id: session.user.id,
       metadata: JSON.stringify({
         source: 'image-to-sticker',
         style: style,
         original_size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         created_at: getLocalTimestr(),
+        watermarked: !isSubscribed,
       }),
     });
 

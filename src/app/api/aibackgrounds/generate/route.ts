@@ -340,9 +340,18 @@ export async function POST(request: NextRequest) {
     });
 
     // 8. 调用 AI 生成 - 使用专门的 aibackgrounds 存储文件夹
+    // 订阅检查：未订阅加水印
+    let isSubscribed = false;
+    try {
+      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const sub = await getActiveSubscriptionAction({ userId });
+      isSubscribed = !!sub?.data?.data;
+    } catch {}
+
     const result = await provider.generateProductShot({
       ...generationParams,
       storageFolder: 'aibackgrounds', // 使用专门的存储文件夹
+      watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
     // 9. 已预扣费，无需再次扣费
@@ -370,6 +379,7 @@ export async function POST(request: NextRequest) {
         backgroundType: backgroundType || null,
         provider: result.provider,
         model: result.model,
+        watermarked: !isSubscribed,
       }),
     });
 

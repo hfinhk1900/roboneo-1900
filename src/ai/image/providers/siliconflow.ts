@@ -44,6 +44,7 @@ export class SiliconFlowProvider {
     image_input?: string; // base64 encoded image for image-to-image
     reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
     storageFolder?: string; // NEW: custom storage folder (default: 'productshots')
+    watermarkText?: string; // NEW: apply bottom-right watermark text before upload
   }): Promise<ProductShotResult> {
     console.log('🎯 SiliconFlow ProductShot generation starting...');
 
@@ -76,6 +77,7 @@ export class SiliconFlowProvider {
     image_input: string; // base64 encoded image
     reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
     storageFolder?: string; // NEW: custom storage folder
+    watermarkText?: string;
   }): Promise<ProductShotResult> {
     console.log(
       '🎨 Using SiliconFlow image-to-image generation with FLUX.1-Kontext-dev'
@@ -257,6 +259,24 @@ export class SiliconFlowProvider {
         );
       }
 
+      // 可选：应用水印（右下角）
+      let uploadBuffer = Buffer.from(imageBuffer);
+      if (params.watermarkText) {
+        try {
+          const { applyCornerWatermark } = await import('@/lib/watermark');
+          uploadBuffer = await applyCornerWatermark(uploadBuffer, params.watermarkText, {
+            fontSizeRatio: 0.045,
+            opacity: 0.9,
+            margin: 20,
+            fill: '#FFFFFF',
+            stroke: 'rgba(0,0,0,0.35)',
+            strokeWidth: 2,
+          });
+        } catch (wmError) {
+          console.warn('Watermark application failed, uploading original buffer:', wmError);
+        }
+      }
+
       // 上传到 R2
       const storageFolder = params.storageFolder || 'productshots';
       console.log(`☁️ Uploading to R2 ${storageFolder} folder...`);
@@ -266,7 +286,7 @@ export class SiliconFlowProvider {
         const { uploadFile } = await import('@/storage');
         const filename = `${crypto.randomUUID()}.png`;
         const uploadResult = await uploadFile(
-          Buffer.from(imageBuffer),
+          uploadBuffer,
           filename,
           'image/png',
           storageFolder

@@ -164,9 +164,18 @@ export async function POST(request: NextRequest) {
     });
 
     // 7. 调用 AI 生成 - 使用专门的 profile-pictures 存储文件夹
+    // 订阅检查：未订阅加水印
+    let isSubscribed = false;
+    try {
+      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const sub = await getActiveSubscriptionAction({ userId: session.user.id });
+      isSubscribed = !!sub?.data?.data;
+    } catch {}
+
     const result = await provider.generateProductShot({
       ...generationParams,
       storageFolder: 'profile-pictures', // 使用专门的存储文件夹
+      watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
     // 8. 扣减 Credits - 成功生成后
@@ -209,6 +218,7 @@ export async function POST(request: NextRequest) {
         provider: result.provider,
         model: result.model,
         style: prompt.split(',')[0], // Extract style from prompt
+        watermarked: !isSubscribed,
       }),
     });
 
