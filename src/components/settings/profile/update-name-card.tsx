@@ -63,10 +63,12 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
   }, []);
 
   useEffect(() => {
-    if (session?.user?.name) {
-      form.setValue('name', session.user.name);
+    // When session loads or name changes, reset the form so it's pristine
+    // This prevents marking the form as dirty before the user edits it.
+    if (typeof session?.user?.name === 'string') {
+      form.reset({ name: session.user.name });
     }
-  }, [session, form]);
+  }, [session?.user?.name, form]);
 
   // Check if user exists after all hooks are initialized
   const user = session?.user;
@@ -151,7 +153,7 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
 
             <Button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || !form.formState.isDirty}
               className="cursor-pointer"
             >
               {isSaving ? t('name.saving') : t('name.save')}
