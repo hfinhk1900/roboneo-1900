@@ -63,6 +63,7 @@ export function UpdatePasswordCard({ className }: UpdatePasswordCardProps) {
   // Initialize the form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       currentPassword: '',
       newPassword: '',
@@ -223,7 +224,9 @@ export function UpdatePasswordCard({ className }: UpdatePasswordCardProps) {
 
             <Button
               type="submit"
-              disabled={isSaving}
+              disabled={
+                isSaving || !form.formState.isDirty || !form.formState.isValid
+              }
               className="cursor-pointer"
             >
               {isSaving ? t('saving') : t('save')}
