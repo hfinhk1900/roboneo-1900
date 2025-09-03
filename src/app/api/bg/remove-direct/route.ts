@@ -2,18 +2,18 @@
 // Vercel API 路由 - 代理到私有 HF Space
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
-import { getLocalTimestr } from '@/lib/time-utils';
-import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { checkRateLimit } from '@/lib/rate-limit';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import {
+  clearKey,
   getIdempotencyEntry,
   makeIdempotencyKey,
   setPending,
   setSuccess,
-  clearKey,
 } from '@/lib/idempotency';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getLocalTimestr } from '@/lib/time-utils';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // 使用全局速率限制工具 '@/lib/rate-limit'
 
@@ -22,7 +22,11 @@ export async function POST(req: NextRequest) {
     const csrf = enforceSameOriginCsrf(req);
     if (csrf) return csrf;
     // 速率限制检查（分布式/内存）
-    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || req.ip || 'unknown';
+    const ip =
+      req.headers.get('x-forwarded-for') ||
+      req.headers.get('x-real-ip') ||
+      req.ip ||
+      'unknown';
     const { bgRemovePerIpPerMin } = getRateLimitConfig();
     const rl = await checkRateLimit(`bg:remove:${ip}`, bgRemovePerIpPerMin, 60);
     if (!rl.allowed) {
@@ -46,7 +50,8 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id;
 
     // Idempotency-Key support (best-effort)
-    const idemKey = req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
+    const idemKey =
+      req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
     let idStoreKey: string | null = null;
     if (idemKey) {
       idStoreKey = makeIdempotencyKey('bg_remove_direct', userId, idemKey);
@@ -55,7 +60,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(entry.response);
       }
       if (entry?.status === 'pending') {
-        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+        return NextResponse.json(
+          { error: 'Duplicate request' },
+          { status: 409 }
+        );
       }
       setPending(idStoreKey);
     }
@@ -116,7 +124,9 @@ export async function POST(req: NextRequest) {
         ? imageData.split(',')[1]
         : imageData;
       const approxBytes = Math.floor((base64Part.length * 3) / 4);
-      const limit = Number(process.env.MAX_BG_REMOVE_IMAGE_BYTES || 5 * 1024 * 1024); // 5MB 默认
+      const limit = Number(
+        process.env.MAX_BG_REMOVE_IMAGE_BYTES || 5 * 1024 * 1024
+      ); // 5MB 默认
       if (approxBytes > limit) {
         console.warn('🚫 Image too large for bg remove:', {
           approxBytes,
@@ -175,10 +185,17 @@ export async function POST(req: NextRequest) {
     // 7. 对未订阅用户结果图加右下角水印（若返回的是data URL）
     let watermarkedResult = result;
     try {
-      const { getActiveSubscriptionAction } = await import('@/actions/get-active-subscription');
+      const { getActiveSubscriptionAction } = await import(
+        '@/actions/get-active-subscription'
+      );
       const sub = await getActiveSubscriptionAction({ userId });
       const isSubscribed = !!sub?.data?.data;
-      if (!isSubscribed && result?.image && typeof result.image === 'string' && result.image.startsWith('data:image')) {
+      if (
+        !isSubscribed &&
+        result?.image &&
+        typeof result.image === 'string' &&
+        result.image.startsWith('data:image')
+      ) {
         const { applyCornerWatermark } = await import('@/lib/watermark');
         // 将 data URL 转为 Buffer
         const base64Part = result.image.split(',')[1];
@@ -254,7 +271,10 @@ export async function POST(req: NextRequest) {
       const db = await getDb();
       await db
         .update(user)
-        .set({ credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`, updatedAt: new Date() })
+        .set({
+          credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+          updatedAt: new Date(),
+        })
         .where(eq(user.id, userId));
     } catch (e) {
       console.error('Failed to refund credits after error:', e);

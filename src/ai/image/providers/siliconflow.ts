@@ -19,6 +19,7 @@ export class SiliconFlowProvider {
   name = 'siliconflow';
   apiKey: string;
   baseUrl = 'https://api.siliconflow.com/v1';
+  private requestTimeoutMs: number;
 
   supportedStyles = [
     'product-photography',
@@ -29,6 +30,7 @@ export class SiliconFlowProvider {
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    this.requestTimeoutMs = Number(process.env.SILICONFLOW_REQUEST_TIMEOUT_MS || 60000);
   }
 
   async generateProductShot(params: {
@@ -129,7 +131,7 @@ export class SiliconFlowProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(30000), // 30秒超时
+        signal: AbortSignal.timeout(this.requestTimeoutMs),
       });
 
       console.log(
@@ -511,6 +513,7 @@ export class SiliconFlowProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(this.requestTimeoutMs),
       });
 
       if (!response.ok) {
