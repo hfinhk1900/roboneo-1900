@@ -6,6 +6,7 @@ import { getDb } from '@/db';
 import { payment, user } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 /**
  * API endpoint for resetting monthly credits
@@ -16,6 +17,8 @@ import { type NextRequest, NextResponse } from 'next/server';
  * Headers: { "Authorization": "Bearer your-api-key" }
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const csrf = enforceSameOriginCsrf(req);
+  if (csrf) return csrf;
   try {
     // In production, you should verify the API key here
     const authHeader = req.headers.get('authorization');

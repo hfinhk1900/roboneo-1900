@@ -348,10 +348,12 @@ export function useProductShot(): UseProductShotReturn {
       });
 
       console.log('🚀 Sending request to API...');
+      const { newIdempotencyKey } = await import('@/lib/idempotency-client');
       const response = await fetch('/api/productshot/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Idempotency-Key': newIdempotencyKey(),
         },
         credentials: 'include', // 确保包含认证 cookies
         body: JSON.stringify(requestData),

@@ -1,7 +1,8 @@
 'use server';
 
 import { getDb } from '@/db';
-import { user } from '@/db/schema';
+import { creditsTransaction, user } from '@/db/schema';
+import { randomUUID } from 'crypto';
 import { getSession } from '@/lib/server';
 import { eq, sql } from 'drizzle-orm';
 import { createSafeActionClient } from 'next-safe-action';
@@ -80,19 +81,25 @@ export const deductCreditsAction = actionClient
 
       const db = await getDb();
 
-      // Check current credits first
-      const currentUser = await db
-        .select({ credits: user.credits })
-        .from(user)
-        .where(eq(user.id, userId))
-        .limit(1);
+      // Atomic deduct: perform conditional update to prevent overdraft
+      const updated = await db
+        .update(user)
+        .set({
+          credits: sql`${user.credits} - ${amount}`,
+          updatedAt: new Date(),
+        })
+        .where(sql`${user.id} = ${userId} AND ${user.credits} >= ${amount}`)
+        .returning({ credits: user.credits });
 
-      if (!currentUser.length) {
-        return { success: false, error: 'User not found' };
-      }
+      if (!updated.length) {
+        // Fetch current credits to return a friendly error payload
+        const fallback = await db
+          .select({ credits: user.credits })
+          .from(user)
+          .where(eq(user.id, userId))
+          .limit(1);
 
-      const currentCredits = currentUser[0].credits;
-      if (currentCredits < amount) {
+        const currentCredits = fallback[0]?.credits ?? 0;
         return {
           success: false,
           error: 'Insufficient credits',
@@ -100,21 +107,29 @@ export const deductCreditsAction = actionClient
         };
       }
 
-      // Deduct credits
-      const result = await db
-        .update(user)
-        .set({
-          credits: sql`${user.credits} - ${amount}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, userId))
-        .returning({ credits: user.credits });
+      // Log credits transaction (usage)
+      try {
+        const remaining = updated[0].credits;
+        const before = remaining + amount;
+        await db.insert(creditsTransaction).values({
+          id: randomUUID(),
+          user_id: userId,
+          type: 'usage',
+          amount: -amount,
+          balance_before: before,
+          balance_after: remaining,
+          description: 'AI generation credit deduction',
+          reference_id: undefined,
+        });
+      } catch (e) {
+        console.warn('credits transaction log failed:', e);
+      }
 
       return {
         success: true,
         data: {
           creditsDeducted: amount,
-          remainingCredits: result[0].credits,
+          remainingCredits: updated[0].credits,
         },
       };
     } catch (error) {

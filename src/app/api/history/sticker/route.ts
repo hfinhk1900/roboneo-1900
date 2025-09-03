@@ -4,6 +4,7 @@ import { stickerHistory, assets } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { and, desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { generateSignedDownloadUrl } from '@/lib/asset-management';
 
 // GET /api/history/sticker?limit=20&refresh_urls=true
@@ -77,6 +78,8 @@ export async function GET(request: NextRequest) {
 // body: { asset_id: string; style: string } | { url: string; style: string } (兼容旧格式)
 export async function POST(request: NextRequest) {
   try {
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     const session = await auth.api.getSession({
       headers: request.headers as any,
     });

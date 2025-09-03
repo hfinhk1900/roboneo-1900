@@ -28,32 +28,26 @@ export default async function middleware(req: NextRequest) {
 
   // 暂时跳过 auth 检查来解决 fetch failed 问题
   // TODO: 修复 auth 配置后再启用
-  let session = null;
-  let isLoggedIn = false;
-
+  let session: Session | null = null;
   try {
-    // do not use getSession() here, it will cause error related to edge runtime
-    // const session = await getSession();
     const { data: sessionData } = await betterFetch<Session>(
       '/api/auth/get-session',
       {
         baseURL: getBaseUrl(),
         headers: {
-          cookie: req.headers.get('cookie') || '', // Forward the cookies from the request
+          cookie: req.headers.get('cookie') || '',
         },
       }
     );
     session = sessionData;
-    isLoggedIn = !!session;
   } catch (error) {
-    console.log(
-      'Auth check failed, proceeding without auth:',
+    console.error(
+      'Middleware auth check failed:',
       error instanceof Error ? error.message : String(error)
     );
-    // 继续执行，不阻塞请求
-    session = null;
-    isLoggedIn = false;
+    //
   }
+  const isLoggedIn = !!session;
 
   // console.log('middleware, isLoggedIn', isLoggedIn);
 
@@ -99,7 +93,42 @@ export default async function middleware(req: NextRequest) {
 
   // Apply intlMiddleware for all routes
   console.log('<< middleware end, applying intlMiddleware');
-  return intlMiddleware(req);
+  const res = intlMiddleware(req);
+
+  // Security headers (lightweight defaults)
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      res.headers.set(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains; preload'
+      );
+    }
+    res.headers.set('X-Frame-Options', 'DENY');
+    res.headers.set('X-Content-Type-Options', 'nosniff');
+    res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    // Keep CSP opt-in to avoid breaking existing assets; enable via env
+    if (process.env.ENABLE_CSP === 'true') {
+      const csp = [
+        "default-src 'self'",
+        "img-src 'self' data: https:",
+        "style-src 'self' 'unsafe-inline' https:",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+        "connect-src 'self' https:",
+        "font-src 'self' https: data:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "frame-ancestors 'none'",
+      ].join('; ');
+      res.headers.set('Content-Security-Policy', csp);
+    }
+    // Minimal Permissions-Policy to reduce surface
+    res.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()'
+    );
+  } catch {}
+
+  return res;
 }
 
 /**

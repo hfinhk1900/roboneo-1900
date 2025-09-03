@@ -1311,10 +1311,12 @@ export function AIBackgroundGeneratorSection() {
       });
 
       // Call AI Background API
+      const { newIdempotencyKey } = await import('@/lib/idempotency-client');
       const response = await fetch('/api/aibackgrounds/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Idempotency-Key': newIdempotencyKey(),
         },
         body: JSON.stringify(apiPayload),
       });

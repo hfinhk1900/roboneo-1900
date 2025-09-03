@@ -24,9 +24,11 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import type { FieldErrors } from 'react-hook-form';
 import * as z from 'zod';
 import { Captcha } from '../shared/captcha';
 import { SocialLoginButton } from './social-login-button';
+import { toast } from 'sonner';
 
 interface RegisterFormProps {
   callbackUrl?: string;
@@ -54,7 +56,10 @@ export const RegisterForm = ({
 
   // turnstile captcha schema
   const turnstileEnabled = websiteConfig.features.enableTurnstileCaptcha;
-  const captchaSchema = turnstileEnabled
+  const envSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const captchaActive =
+    turnstileEnabled && !!envSiteKey && envSiteKey !== 'YOUR_SITE_KEY_HERE';
+  const captchaSchema = captchaActive
     ? z.string().min(1, 'Please complete the captcha')
     : z.string().optional();
 
@@ -88,7 +93,13 @@ export const RegisterForm = ({
 
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     // Validate captcha token if turnstile is enabled
-    if (turnstileEnabled && values.captchaToken) {
+    if (captchaActive && !values.captchaToken) {
+      const msg = 'Please complete the captcha';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+    if (captchaActive && values.captchaToken) {
       const captchaResult = await validateCaptchaAction({
         captchaToken: values.captchaToken,
       });
@@ -97,6 +108,7 @@ export const RegisterForm = ({
         console.error('register, captcha invalid:', values.captchaToken);
         const errorMessage = captchaResult?.data?.error || t('captchaInvalid');
         setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
     }
@@ -105,43 +117,102 @@ export const RegisterForm = ({
     // the user will be redirected to the callbackURL after the email is verified.
     // 2. if requireEmailVerification is false, the user will not be redirected to the callbackURL,
     // we should redirect to the callbackURL manually in the onSuccess callback.
-    await authClient.signUp.email(
-      {
-        email: values.email,
-        password: values.password,
-        name: values.name,
-        callbackURL: callbackUrl,
-      },
-      {
-        onRequest: (ctx) => {
-          console.log('register, request:', ctx.url);
-          setIsPending(true);
-          setError('');
-          setSuccess('');
+    try {
+      await authClient.signUp.email(
+        {
+          email: values.email,
+          password: values.password,
+          name: values.name,
+          callbackURL: callbackUrl,
         },
-        onResponse: (ctx) => {
-          console.log('register, response:', ctx.response);
-          setIsPending(false);
-        },
-        onSuccess: (ctx) => {
-          // sign up success, user information stored in ctx.data
-          // console.log("register, success:", ctx.data);
-          setSuccess(t('checkEmail'));
+        {
+          onRequest: (ctx) => {
+            console.log('register, request:', ctx.url);
+            setIsPending(true);
+            setError('');
+            setSuccess('');
+          },
+          onResponse: (ctx) => {
+            console.log('register, response:', ctx.response);
+            setIsPending(false);
+          },
+          onSuccess: (ctx) => {
+            const msg = t('checkEmail');
+            setSuccess(msg);
+            toast.success(msg);
 
-          // add affonso affiliate
-          // https://affonso.io/app/affiliate-program/connect
-          if (websiteConfig.features.enableAffonsoAffiliate) {
-            console.log('register, affonso affiliate:', values.email);
-            window.Affonso.signup(values.email);
-          }
-        },
-        onError: (ctx) => {
-          // sign up fail, display the error message
-          console.error('register, error:', ctx.error);
-          setError(`${ctx.error.status}: ${ctx.error.message}`);
-        },
-      }
-    );
+            if (websiteConfig.features.enableAffonsoAffiliate) {
+              console.log('register, affonso affiliate:', values.email);
+              // @ts-ignore
+              window?.Affonso?.signup?.(values.email);
+            }
+          },
+          onError: (ctx) => {
+            // Graceful error mapping for duplicate email & generic errors
+            const anyErr: any = ctx?.error ?? {};
+            const resp: any = (ctx as any)?.response;
+            const status = anyErr.status ?? anyErr.code ?? anyErr.statusCode ?? resp?.status;
+            let message: string = anyErr.message ?? '';
+
+            // Try to decode common duplicate scenarios
+            const lower = String(message).toLowerCase();
+            if (!message || message === '[object Object]') {
+              if (status === 409) {
+                message = 'An account with this email already exists. Please sign in or reset your password.';
+              } else if (status === 400) {
+                message = 'Invalid registration data. Please check the fields and try again.';
+              } else if (status === 403) {
+                message = 'Request was forbidden. Please check your domain and try again.';
+              } else if (status === 429) {
+                message = 'Too many attempts. Please wait a moment and try again.';
+              } else {
+                message = 'Sign up failed. Please try again or use a different email.';
+              }
+            } else if (lower.includes('exist') || lower.includes('duplicate') || lower.includes('unique')) {
+              message = 'An account with this email already exists. Please sign in or reset your password.';
+            }
+
+            setError(message);
+            toast.error(message);
+
+            // Log a compact, useful error for debugging, but avoid noisy empty objects
+            try {
+              const parts: string[] = [];
+              if (status) parts.push(`status=${status}`);
+              if (resp?.url) parts.push(`url=${resp.url}`);
+              if (anyErr && Object.keys(anyErr).length) {
+                parts.push(`err=${JSON.stringify(anyErr)}`);
+              }
+              if (parts.length) {
+                console.error(`register error: ${parts.join(' ')}`);
+              } else {
+                console.warn('register error: no extra error details received');
+              }
+            } catch {}
+          },
+        }
+      );
+    } catch (e) {
+      const fallback = 'Sign up request failed. Please check your network and try again.';
+      console.error('register, unhandled error:', e);
+      setIsPending(false);
+      setError(fallback);
+      toast.error(fallback);
+    }
+  };
+
+  const onInvalid = (errors: FieldErrors<z.infer<typeof RegisterSchema>>) => {
+    // 提供一个顶部的可见错误提示，避免用户感觉“没有反应”
+    const firstError = Object.values(errors)[0];
+    const msg =
+      (firstError as any)?.message ||
+      form.formState.errors?.email?.message ||
+      form.formState.errors?.password?.message ||
+      form.formState.errors?.name?.message ||
+      (captchaActive && !captchaToken ? 'Please complete the captcha' : '') ||
+      'Please check the required fields';
+    setError(String(msg));
+    if (msg) toast.error(String(msg));
   };
 
   const togglePasswordVisibility = () => {
@@ -155,7 +226,10 @@ export const RegisterForm = ({
       bottomButtonHref={`${Routes.Login}`}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -229,14 +303,14 @@ export const RegisterForm = ({
           </div>
           <FormError message={error} />
           <FormSuccess message={success} />
-          {turnstileEnabled && (
+          {captchaActive && (
             <Captcha
               onSuccess={(token) => form.setValue('captchaToken', token)}
               validationError={form.formState.errors.captchaToken?.message}
             />
           )}
           <Button
-            disabled={isPending || (turnstileEnabled && !captchaToken)}
+            disabled={isPending}
             size="lg"
             type="submit"
             className="cursor-pointer w-full flex items-center justify-center gap-2"

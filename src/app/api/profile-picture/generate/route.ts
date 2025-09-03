@@ -7,6 +7,7 @@ import {
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 interface ProfilePictureRequest {
   // Required: Input image (base64 encoded)
@@ -26,6 +27,8 @@ interface ProfilePictureRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
     const session = await auth.api.getSession({

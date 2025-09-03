@@ -9,6 +9,7 @@ import {
   experimental_generateImage as generateImage,
 } from 'ai';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 /**
  * Intended to be slightly less than the maximum execution time allowed by the
@@ -65,6 +66,8 @@ const withTimeout = <T>(
 };
 
 export async function POST(req: NextRequest) {
+  const csrf = enforceSameOriginCsrf(req);
+  if (csrf) return csrf;
   const requestId = Math.random().toString(36).substring(7);
   const {
     prompt,

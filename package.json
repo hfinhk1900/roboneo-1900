@@ -1,7 +1,7 @@
 {
   "name": "roboneo art webapp",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",

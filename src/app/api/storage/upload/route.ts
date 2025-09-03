@@ -1,8 +1,11 @@
 import { uploadFile } from '@/storage';
 import { StorageError } from '@/storage/types';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
+  const csrf = enforceSameOriginCsrf(request);
+  if (csrf) return csrf;
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;

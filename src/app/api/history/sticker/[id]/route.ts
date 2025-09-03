@@ -3,6 +3,7 @@ import { stickerHistory } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { deleteAsset, extractAssetIdFromHistoryItem } from '@/lib/asset-deletion';
 import { and, eq } from 'drizzle-orm';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // DELETE /api/history/sticker/:id
@@ -10,6 +11,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const csrf = enforceSameOriginCsrf(request);
+  if (csrf) return csrf;
   const { id } = await params;
   try {
     const session = await auth.api.getSession({

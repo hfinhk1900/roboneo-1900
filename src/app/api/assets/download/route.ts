@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+import { createHmac, createHash } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { getAssetMetadata as getLocalAssetMetadata } from '@/lib/asset-management';
@@ -40,7 +40,14 @@ export async function GET(request: NextRequest) {
     }
 
     // 验证签名
-    const secret = process.env.URL_SIGNING_SECRET || 'default-secret-key';
+    const secret = process.env.URL_SIGNING_SECRET;
+    if (!secret) {
+      console.error('Asset download: URL_SIGNING_SECRET not configured');
+      return NextResponse.json(
+        { error: 'Server misconfiguration' },
+        { status: 500 }
+      );
+    }
     const dataToSign = `${asset_id}|${expiresAt}|${disp}`;
     const expectedSignature = createHmac('sha256', secret)
       .update(dataToSign)
@@ -59,11 +66,11 @@ export async function GET(request: NextRequest) {
       .where(eq(assets.id, asset_id))
       .limit(1);
 
-    // 如果数据库没有，尝试从本地元数据（临时方案）读取
+    // 如果数据库没有，尝试从本地元数据（仅开发环境兜底）读取
     let assetMetadata: any | null = assetRecord[0] || null;
     let r2Url: string | null = null;
 
-    if (!assetMetadata) {
+    if (!assetMetadata && process.env.NODE_ENV !== 'production') {
       const local = await getLocalAssetMetadata(asset_id);
       if (!local) {
         console.warn('Asset download: Asset not found (db and local)', {
@@ -157,9 +164,9 @@ export async function GET(request: NextRequest) {
       'private, max-age=120, stale-while-revalidate=30'
     );
 
-    // 设置ETag（基于文件内容）
-    const etag = `"${Buffer.from(fileBuffer).toString('base64').substring(0, 8)}"`;
-    downloadResponse.headers.set('ETag', etag);
+    // 设置ETag（基于内容的强校验）
+    const hash = createHash('sha256').update(Buffer.from(fileBuffer)).digest('hex');
+    downloadResponse.headers.set('ETag', `"${hash}"`);
 
     // 设置最后修改时间
     const lastModified = new Date(assetMetadata.created_at).toUTCString();
@@ -173,13 +180,18 @@ export async function GET(request: NextRequest) {
         : `inline; filename="${filename}"`;
     downloadResponse.headers.set('Content-Disposition', contentDisposition);
 
-    // 设置CORS头
-    downloadResponse.headers.set('Access-Control-Allow-Origin', '*');
-    downloadResponse.headers.set('Access-Control-Allow-Methods', 'GET');
-    downloadResponse.headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type'
-    );
+    // 设置CORS（仅允许白名单来源；缺省不开放通配符）
+    const origin = request.headers.get('origin') || '';
+    const allowed = (process.env.DOWNLOAD_ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (origin && allowed.includes(origin)) {
+      downloadResponse.headers.set('Access-Control-Allow-Origin', origin);
+      downloadResponse.headers.set('Vary', 'Origin');
+      downloadResponse.headers.set('Access-Control-Allow-Methods', 'GET');
+      downloadResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    }
 
     console.log('✅ Asset download successful:', {
       asset_id,
@@ -200,12 +212,25 @@ export async function GET(request: NextRequest) {
 
 // 支持OPTIONS请求（用于CORS预检）
 export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin') || '';
+  const allowed = (process.env.DOWNLOAD_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const headers: Record<string, string> = {};
+  if (origin && allowed.includes(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers['Vary'] = 'Origin';
+    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
+    headers['Access-Control-Allow-Headers'] = 'Content-Type';
+  }
+
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+    headers,
   });
 }
+
+// 支持OPTIONS请求（用于CORS预检）
+// (duplicate removed) legacy wildcard OPTIONS handler was removed in favor of whitelist handler above

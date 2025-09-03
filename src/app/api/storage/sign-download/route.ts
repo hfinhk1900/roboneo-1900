@@ -3,9 +3,14 @@ import {
   getAssetMetadata,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     // 验证用户身份
     const { auth } = await import('@/lib/auth');
     const session = await auth.api.getSession({
@@ -14,6 +19,13 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // 速率限制用户刷新行为
+    {
+      const { signPerUserPerMin } = getRateLimitConfig();
+      const rl = await checkRateLimit(`rl:sign:${session.user.id}`, signPerUserPerMin, 60);
+      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     const body = await request.json();

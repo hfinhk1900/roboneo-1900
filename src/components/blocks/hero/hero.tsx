@@ -620,9 +620,13 @@ export default function HeroSection() {
       formData.append('imageFile', selectedImage);
       formData.append('style', selectedStyle);
 
+      const { newIdempotencyKey } = await import('@/lib/idempotency-client');
       const stickerResponse = await fetch('/api/image-to-sticker', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Idempotency-Key': newIdempotencyKey(),
+        } as any,
       });
 
       console.log(

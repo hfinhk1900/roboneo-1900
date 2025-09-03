@@ -3,6 +3,7 @@ import { getLocalTimestr } from '@/lib/time-utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 const s3Client = new S3Client({
   region: process.env.STORAGE_REGION!,
@@ -14,6 +15,8 @@ const s3Client = new S3Client({
 });
 
 export async function POST(request: NextRequest) {
+  const csrf = enforceSameOriginCsrf(request);
+  if (csrf) return csrf;
   try {
     // 验证用户身份
     const session = await auth.api.getSession({

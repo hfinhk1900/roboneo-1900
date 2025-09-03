@@ -20,6 +20,17 @@ import { getLocalTimestr } from '@/lib/time-utils';
 import { uploadFile } from '@/storage';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { ensureProductionEnv } from '@/lib/config/validate-env';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import {
+  getIdempotencyEntry,
+  makeIdempotencyKey,
+  setPending,
+  setSuccess,
+  clearKey,
+} from '@/lib/idempotency';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
 export const STYLE_CONFIGS = {
@@ -177,6 +188,9 @@ async function gptStyleTransfer(
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
+    ensureProductionEnv();
+    const csrf = enforceSameOriginCsrf(req);
+    if (csrf) return csrf;
     console.log('🚀 Starting sticker generation...');
 
     // Development mode: return mock response to avoid API calls and authentication
@@ -215,37 +229,51 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check user credits (skip in mock mode)
-    if (
-      !(
-        process.env.NODE_ENV === 'development' &&
-        process.env.MOCK_API === 'true'
-      )
-    ) {
-      const { canGenerateStickerAction } = await import(
-        '@/actions/credits-actions'
-      );
-      const creditsCheck = await canGenerateStickerAction({
-        requiredCredits: CREDITS_PER_IMAGE,
-      });
+    // Rate limit per user
+    {
+      const { generatePerUserPerMin } = getRateLimitConfig();
+      const rl = await checkRateLimit(`rl:sticker:${session.user.id}`, generatePerUserPerMin, 60);
+      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+    // Idempotency-Key (best-effort) & Pre-deduct credits (skip in mock mode)
+    const idemKey = req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
+    let idStoreKey: string | null = null;
+    if (idemKey) {
+      const userId = session.user.id;
+      idStoreKey = makeIdempotencyKey('sticker_generate', userId, idemKey);
+      const entry = getIdempotencyEntry(idStoreKey);
+      if (entry?.status === 'success') {
+        return NextResponse.json(entry.response);
+      }
+      if (entry?.status === 'pending') {
+        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+      }
+      setPending(idStoreKey);
+    }
 
-      if (
-        !creditsCheck?.data?.success ||
-        !creditsCheck.data.data?.canGenerate
-      ) {
+    // Pre-deduct credits (skip in mock mode)
+    let preDeducted = false;
+    let remainingAfterDeduct: number | undefined = undefined;
+    const isMock =
+      process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true';
+    if (!isMock) {
+      const { deductCreditsAction } = await import('@/actions/credits-actions');
+      const deduct = await deductCreditsAction({
+        userId: session.user.id,
+        amount: CREDITS_PER_IMAGE,
+      });
+      if (!deduct?.data?.success) {
         return NextResponse.json(
           {
             error: 'Insufficient credits',
             required: CREDITS_PER_IMAGE,
-            current: creditsCheck?.data?.data?.currentCredits || 0,
+            current: deduct?.data?.data?.currentCredits ?? 0,
           },
           { status: 402 }
         );
       }
-
-      console.log(
-        `💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with generation...`
-      );
+      preDeducted = true;
+      remainingAfterDeduct = deduct?.data?.data?.remainingCredits;
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -355,22 +383,7 @@ export async function POST(req: NextRequest) {
     const storageKey = uploadResult.key || r2Url;
     console.log(`✅ Upload successful! URL: ${r2Url}`);
 
-    // 5. Deduct credits after successful generation
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deductResult = await deductCreditsAction({
-      userId: session.user.id,
-      amount: CREDITS_PER_IMAGE,
-    });
-
-    if (deductResult?.data?.success) {
-      console.log(
-        `💰 Deducted ${CREDITS_PER_IMAGE} credits. Remaining: ${deductResult.data.data?.remainingCredits}`
-      );
-    } else {
-      console.warn(
-        '⚠️ Failed to deduct credits, but sticker was generated successfully'
-      );
-    }
+    // 5. Already pre-deducted
 
     // 6. 创建资产记录
     if (!r2Url) {
@@ -413,7 +426,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 8. 返回结果（完全脱敏）
-    return NextResponse.json({
+    const payload = {
       success: true,
       asset_id: assetId,
       url: downloadUrl.url, // 前端使用的URL字段
@@ -422,12 +435,88 @@ export async function POST(req: NextRequest) {
       style: style,
       size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0, // 添加剩余积分
+      remaining_credits: remainingAfterDeduct ?? undefined,
       credits_sufficient: true,
       from_cache: false,
-    });
+    } as const;
+    if (typeof idStoreKey === 'string') setSuccess(idStoreKey, payload);
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId: session.user.id,
+        operation: 'sticker',
+        mode: style,
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'success',
+      });
+    } catch {}
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('❌ Sticker generation failed:', error);
+    // Refund if pre-deducted
+    try {
+      const isMock =
+        process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true';
+      if (!isMock) {
+        const { getDb } = await import('@/db');
+        const { user, creditsTransaction } = await import('@/db/schema');
+        const { eq, sql } = await import('drizzle-orm');
+        const db = await getDb();
+        const sess = await (await import('@/lib/auth')).auth.api.getSession({
+          headers: req.headers as any,
+        });
+        if (preDeducted && sess?.user?.id) {
+          await db
+            .update(user)
+            .set({
+              credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+              updatedAt: new Date(),
+            })
+            .where(eq(user.id, sess.user.id));
+          try {
+            const remainingRows = await db
+              .select({ credits: user.credits })
+              .from(user)
+              .where(eq(user.id, sess.user.id))
+              .limit(1);
+            const remaining = remainingRows[0]?.credits ?? undefined;
+            if (typeof remaining === 'number') {
+              const { randomUUID } = await import('crypto');
+              await db.insert(creditsTransaction).values({
+                id: randomUUID(),
+                user_id: sess.user.id,
+                type: 'refund',
+                amount: CREDITS_PER_IMAGE,
+                balance_before: remaining - CREDITS_PER_IMAGE,
+                balance_after: remaining,
+                description: 'AI generation refund (sticker)',
+              } as any);
+            }
+          } catch {}
+        }
+      }
+    } catch (e) {
+      console.error('Failed to refund credits after error:', e);
+    }
+
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      const sess = await (await import('@/lib/auth')).auth.api.getSession({
+        headers: req.headers as any,
+      });
+      if (sess?.user?.id) {
+        await logAIOperation({
+          userId: sess.user.id,
+          operation: 'sticker',
+          mode: 'style',
+          creditsUsed: CREDITS_PER_IMAGE,
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      }
+    } catch {}
+
+    if (typeof idStoreKey === 'string') clearKey(idStoreKey);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',

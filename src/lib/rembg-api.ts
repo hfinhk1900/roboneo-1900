@@ -66,9 +66,13 @@ export class RembgApiService {
       console.log('📤 Sending request to private HF Space...');
 
       // 调用 Vercel API 代理
+      const { newIdempotencyKey } = await import('./idempotency-client');
       const response = await fetch('/api/bg/remove-direct', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Idempotency-Key': newIdempotencyKey(),
+        } as any,
         signal: AbortSignal.timeout(options.timeout || 60000),
       });
 

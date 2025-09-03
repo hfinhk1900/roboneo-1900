@@ -7,6 +7,7 @@ import {
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 interface WatermarkRemoveRequest {
   // Required: Product image (base64 encoded)
@@ -22,6 +23,8 @@ interface WatermarkRemoveRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const csrf = enforceSameOriginCsrf(request);
+  if (csrf) return csrf;
   try {
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');

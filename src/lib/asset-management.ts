@@ -83,7 +83,17 @@ export function generateDownloadSignature(
   expiresAt: number,
   displayMode: 'inline' | 'attachment' = 'inline'
 ): string {
-  const secret = process.env.URL_SIGNING_SECRET || 'default-secret-key';
+  const secret = process.env.URL_SIGNING_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV !== 'production') {
+      // Dev fallback for local testing; strongly recommend setting real secret
+      console.warn('URL_SIGNING_SECRET is not set; using insecure dev fallback');
+      return createHmac('sha256', 'dev-insecure-secret')
+        .update(`${assetId}|${expiresAt}|${displayMode}`)
+        .digest('base64url');
+    }
+    throw new Error('URL_SIGNING_SECRET is not configured');
+  }
   const dataToSign = `${assetId}|${expiresAt}|${displayMode}`;
 
   return createHmac('sha256', secret).update(dataToSign).digest('base64url');

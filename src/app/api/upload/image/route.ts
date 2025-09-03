@@ -4,8 +4,11 @@ import { assets } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { uploadFile } from '@/storage';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
+  const csrf = enforceSameOriginCsrf(request);
+  if (csrf) return csrf;
   try {
     // 验证用户身份
     const session = await auth.api.getSession();

@@ -495,9 +495,13 @@ export default function StickerGenerator() {
       formData.append('imageFile', selectedImage);
       formData.append('style', selectedStyle);
 
+      const { newIdempotencyKey } = await import('@/lib/idempotency-client');
       const response = await fetch('/api/image-to-sticker', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Idempotency-Key': newIdempotencyKey(),
+        } as any,
       });
 
       clearInterval(progressInterval);

@@ -1,6 +1,6 @@
 'use server';
 
-import { validateTurnstileToken } from '@/lib/captcha';
+import { validateTurnstileTokenDetailed } from '@/lib/captcha';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 
@@ -19,11 +19,13 @@ export const validateCaptchaAction = actionClient
     const { captchaToken } = parsedInput;
 
     try {
-      const isValid = await validateTurnstileToken(captchaToken);
-
+      const result = await validateTurnstileTokenDetailed(captchaToken);
       return {
         success: true,
-        valid: isValid,
+        valid: result.valid,
+        error: result.message,
+        errorCodes: result.errorCodes,
+        hostname: result.hostname,
       };
     } catch (error) {
       console.error('Captcha validation error:', error);

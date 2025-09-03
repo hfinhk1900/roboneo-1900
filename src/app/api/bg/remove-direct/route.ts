@@ -4,6 +4,16 @@
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getLocalTimestr } from '@/lib/time-utils';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import {
+  getIdempotencyEntry,
+  makeIdempotencyKey,
+  setPending,
+  setSuccess,
+  clearKey,
+} from '@/lib/idempotency';
 
 // 简单的内存速率限制（生产环境建议使用 Redis）
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -30,17 +40,15 @@ function checkRateLimit(ip: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    // 速率限制检查
-    const ip =
-      req.headers.get('x-forwarded-for') ||
-      req.headers.get('x-real-ip') ||
-      'unknown';
-    if (!checkRateLimit(ip)) {
+    const csrf = enforceSameOriginCsrf(req);
+    if (csrf) return csrf;
+    // 速率限制检查（分布式/内存）
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || req.ip || 'unknown';
+    const { bgRemovePerIpPerMin } = getRateLimitConfig();
+    const rl = await checkRateLimit(`bg:remove:${ip}`, bgRemovePerIpPerMin, 60);
+    if (!rl.allowed) {
       console.warn(`🚫 Rate limit exceeded for IP: ${ip}`);
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     // 1. 验证用户身份
@@ -54,6 +62,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+    const userId = session.user.id;
+
+    // Idempotency-Key support (best-effort)
+    const idemKey = req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
+    let idStoreKey: string | null = null;
+    if (idemKey) {
+      idStoreKey = makeIdempotencyKey('bg_remove_direct', userId, idemKey);
+      const entry = getIdempotencyEntry(idStoreKey);
+      if (entry?.status === 'success') {
+        return NextResponse.json(entry.response);
+      }
+      if (entry?.status === 'pending') {
+        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+      }
+      setPending(idStoreKey);
+    }
+
+    // Pre-deduct credits (atomic); refund on failure later
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId,
+      amount: CREDITS_PER_IMAGE,
+    });
+    if (!deduct?.data?.success) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          required: CREDITS_PER_IMAGE,
+          current: deduct?.data?.data?.currentCredits ?? 0,
+        },
+        { status: 402 }
       );
     }
 
@@ -89,6 +130,25 @@ export async function POST(req: NextRequest) {
     console.log(
       `📊 Image data size: ${imageData ? imageData.length : 0} characters`
     );
+
+    // 限制图片大小（基于base64长度的近似计算）
+    if (imageData) {
+      const base64Part = imageData.includes(',')
+        ? imageData.split(',')[1]
+        : imageData;
+      const approxBytes = Math.floor((base64Part.length * 3) / 4);
+      const limit = Number(process.env.MAX_BG_REMOVE_IMAGE_BYTES || 5 * 1024 * 1024); // 5MB 默认
+      if (approxBytes > limit) {
+        console.warn('🚫 Image too large for bg remove:', {
+          approxBytes,
+          limit,
+        });
+        return NextResponse.json(
+          { error: 'Image too large', limitBytes: limit },
+          { status: 413 }
+        );
+      }
+    }
 
     // 转发到 HF Space (支持公有和私有)
     const headers: Record<string, string> = {
@@ -133,33 +193,30 @@ export async function POST(req: NextRequest) {
     console.log(`⏱️ Processing time: ${result.processing_time}s`);
     console.log(`📐 Image size: ${result.image_size}`);
 
-    // 7. 扣减 Credits - 成功生成后
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deductResult = await deductCreditsAction({
-      userId: session.user.id,
-      amount: CREDITS_PER_IMAGE,
-    });
-
-    if (deductResult?.data?.success) {
-      console.log(
-        `💰 Deducted ${CREDITS_PER_IMAGE} credits for Solid Color background removal. Remaining: ${deductResult.data.data?.remainingCredits}`
-      );
-    } else {
-      console.warn(
-        '⚠️ Failed to deduct credits, but background removal was successful'
-      );
-    }
+    // 7. Already pre-deducted; no further deduction required
 
     // 返回结果
-    return NextResponse.json({
+    const payload = {
       ...result,
       // 添加积分信息
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits || 0,
+      remaining_credits: deduct?.data?.data?.remainingCredits || 0,
       // 添加一些元数据
       proxy_timestamp: getLocalTimestr(),
       proxy_version: '1.0.0',
-    });
+    } as const;
+    if (typeof idStoreKey === 'string') setSuccess(idStoreKey, payload);
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'bgremove',
+        mode: 'remove-direct',
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'success',
+      });
+    } catch {}
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('❌ Vercel proxy error:', error);
 
@@ -186,6 +243,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Refund credits on failure
+    try {
+      const { getDb } = await import('@/db');
+      const { user } = await import('@/db/schema');
+      const { eq, sql } = await import('drizzle-orm');
+      const db = await getDb();
+      await db
+        .update(user)
+        .set({ credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`, updatedAt: new Date() })
+        .where(eq(user.id, userId));
+    } catch (e) {
+      console.error('Failed to refund credits after error:', e);
+    }
+
+    if (typeof idStoreKey === 'string') clearKey(idStoreKey);
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'bgremove',
+        mode: 'remove-direct',
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'failed',
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    } catch {}
     return NextResponse.json(
       {
         error: 'Internal server error',
@@ -198,11 +281,14 @@ export async function POST(req: NextRequest) {
 
 // 可选：添加 GET 方法用于健康检查
 export async function GET() {
-  return NextResponse.json({
+  const base: Record<string, any> = {
     status: 'healthy',
     service: 'Background Removal Proxy',
     timestamp: getLocalTimestr(),
-    hf_space_configured: !!process.env.HF_SPACE_URL,
-    hf_space_private: !!process.env.HF_SPACE_TOKEN,
-  });
+  };
+  if (process.env.NODE_ENV !== 'production') {
+    base.hf_space_configured = !!process.env.HF_SPACE_URL;
+    base.hf_space_private = !!process.env.HF_SPACE_TOKEN;
+  }
+  return NextResponse.json(base);
 }

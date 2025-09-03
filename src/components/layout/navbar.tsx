@@ -2,6 +2,7 @@
 
 import { getUserCreditsAction } from '@/actions/credits-actions';
 import { LoginWrapper } from '@/components/auth/login-wrapper';
+import { RegisterWrapper } from '@/components/auth/register-wrapper';
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
 import { ModeSwitcher } from '@/components/layout/mode-switcher';
@@ -179,6 +180,12 @@ export function Navbar({ scroll }: NavBarProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
+
+      // Do not close menus if a link or a button is clicked, as they have their own actions.
+      if (target.closest('button') || target.closest('[href]')) {
+        return;
+      }
+
       // Only close if clicking outside the navigation menu
       if (!target.closest('[data-navbar-menu]')) {
         closeAllMenus();
@@ -598,7 +605,10 @@ export function Navbar({ scroll }: NavBarProps) {
                 <UserButton user={currentUser} />
               </div>
             ) : (
-              <div className="flex items-center gap-x-4">
+              <div
+                className="flex items-center gap-x-4"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <LoginWrapper mode="modal" asChild>
                   <Button
                     variant="outline"
@@ -609,17 +619,15 @@ export function Navbar({ scroll }: NavBarProps) {
                   </Button>
                 </LoginWrapper>
 
-                <LocaleLink
-                  href={Routes.Register}
-                  className={cn(
-                    buttonVariants({
-                      variant: 'default',
-                      size: 'sm',
-                    })
-                  )}
-                >
-                  {t('Common.signUp')}
-                </LocaleLink>
+                <RegisterWrapper mode="modal" asChild>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="cursor-pointer"
+                  >
+                    {t('Common.signUp')}
+                  </Button>
+                </RegisterWrapper>
               </div>
             )}
 

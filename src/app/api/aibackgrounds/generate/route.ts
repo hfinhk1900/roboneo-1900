@@ -1,12 +1,24 @@
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
-import { assets } from '@/db/schema';
+import { assets, user } from '@/db/schema';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import {
+  clearKey,
+  getIdempotencyEntry,
+  makeIdempotencyKey,
+  setPending,
+  setSuccess,
+} from '@/lib/idempotency';
+import { eq, sql } from 'drizzle-orm';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { ensureProductionEnv } from '@/lib/config/validate-env';
 
 // AI Background 预设颜色配置
 const PRESET_COLORS = [
@@ -94,6 +106,9 @@ interface AIBackgroundRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    ensureProductionEnv();
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
     const session = await auth.api.getSession({
@@ -102,6 +117,29 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
+    // Rate limit per user
+    {
+      const { generatePerUserPerMin } = getRateLimitConfig();
+      const rl = await checkRateLimit(`rl:aibg:${userId}`, generatePerUserPerMin, 60);
+      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
+    // Idempotency-Key support (best-effort, in-memory)
+    const idemKey = request.headers.get('idempotency-key') || request.headers.get('Idempotency-Key');
+    let idStoreKey: string | null = null;
+    if (idemKey) {
+      idStoreKey = makeIdempotencyKey('aibg_generate', userId, idemKey);
+      const entry = getIdempotencyEntry(idStoreKey);
+      if (entry?.status === 'success') {
+        return NextResponse.json(entry.response);
+      }
+      if (entry?.status === 'pending') {
+        return NextResponse.json({ error: 'Duplicate request' }, { status: 409 });
+      }
+      setPending(idStoreKey);
     }
 
     // 2. 解析请求参数
@@ -127,6 +165,21 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 3.1 限制 base64 图片大小（近似计算）
+    try {
+      const base64Part = image_input.includes(',')
+        ? image_input.split(',')[1]
+        : image_input;
+      const approxBytes = Math.floor((base64Part.length * 3) / 4);
+      const limit = Number(process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024);
+      if (approxBytes > limit) {
+        return NextResponse.json(
+          { error: 'Image too large', limitBytes: limit },
+          { status: 413 }
+        );
+      }
+    } catch {}
 
     if (
       !backgroundMode ||
@@ -172,28 +225,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. 检查用户 Credits
-    const { canGenerateStickerAction } = await import(
-      '@/actions/credits-actions'
-    );
-    const creditsCheck = await canGenerateStickerAction({
-      requiredCredits: CREDITS_PER_IMAGE,
+    // 4. 预扣费（原子），失败则直接返回402
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId,
+      amount: CREDITS_PER_IMAGE,
     });
-
-    if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
+    if (!deduct?.data?.success) {
       return NextResponse.json(
         {
           error: 'Insufficient credits',
           required: CREDITS_PER_IMAGE,
-          current: creditsCheck?.data?.data?.currentCredits || 0,
+          current: deduct?.data?.data?.currentCredits ?? 0,
         },
         { status: 402 }
       );
     }
-
-    console.log(
-      `💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with AI Background generation...`
-    );
 
     // 5. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
@@ -206,6 +253,24 @@ export async function POST(request: NextRequest) {
     }
 
     const provider = new SiliconFlowProvider(apiKey);
+
+    // 校验存储配置（提前失败）
+    try {
+      const required = [
+        'STORAGE_REGION',
+        'STORAGE_ENDPOINT',
+        'STORAGE_ACCESS_KEY_ID',
+        'STORAGE_SECRET_ACCESS_KEY',
+        'STORAGE_BUCKET_NAME',
+      ];
+      const missing = required.filter((k) => !process.env[k]);
+      if (missing.length && process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { error: 'Storage not configured', missing },
+          { status: 500 }
+        );
+      }
+    } catch {}
 
     // 6. 构建提示词
     let finalPrompt: string;
@@ -280,22 +345,7 @@ export async function POST(request: NextRequest) {
       storageFolder: 'aibackgrounds', // 使用专门的存储文件夹
     });
 
-    // 9. 扣减 Credits - 成功生成后
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deductResult = await deductCreditsAction({
-      userId: session.user.id,
-      amount: CREDITS_PER_IMAGE,
-    });
-
-    if (deductResult?.data?.success) {
-      console.log(
-        `💰 Deducted ${CREDITS_PER_IMAGE} credits for AI Background. Remaining: ${deductResult.data.data?.remainingCredits}`
-      );
-    } else {
-      console.warn(
-        '⚠️ Failed to deduct credits, but AI Background was generated successfully'
-      );
-    }
+    // 9. 已预扣费，无需再次扣费
 
     // 10. 创建资产记录
     if (!result.resultUrl) {
@@ -328,13 +378,25 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ AI Background asset created:', {
       asset_id: assetId,
-      user_id: session.user.id,
+      user_id: userId,
       file_name: fileName,
       expires_at: downloadUrl.expires_at,
     });
 
+    // Log AI operation success
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'aibg',
+        mode: backgroundMode === 'background' ? (backgroundType || 'style') : backgroundMode,
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'success',
+      });
+    } catch {}
+
     // 12. 返回结果（完全脱敏）
-    return NextResponse.json({
+    const payload = {
       success: true,
       asset_id: assetId,
       download_url: downloadUrl.url,
@@ -344,10 +406,12 @@ export async function POST(request: NextRequest) {
       backgroundType: backgroundType || null,
       backgroundColor: backgroundColor || null,
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0, // 添加剩余积分
+      remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
       credits_sufficient: true,
       from_cache: false,
-    });
+    } as const;
+    if (idStoreKey) setSuccess(idStoreKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('AI Background generation error:', error);
 
@@ -372,6 +436,55 @@ export async function POST(request: NextRequest) {
       userMessage = '网络连接问题，请检查网络后重试';
     }
 
+    // 失败：回滚预扣费
+    try {
+      const db = await getDb();
+      const updated = await db
+        .update(user)
+        .set({
+          credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+      try {
+        const remainingRows = await db
+          .select({ credits: user.credits })
+          .from(user)
+          .where(eq(user.id, userId))
+          .limit(1);
+        const remaining = remainingRows[0]?.credits ?? undefined;
+        if (typeof remaining === 'number') {
+          const { creditsTransaction } = await import('@/db/schema');
+          const { randomUUID } = await import('crypto');
+          await db.insert(creditsTransaction).values({
+            id: randomUUID(),
+            user_id: userId,
+            type: 'refund',
+            amount: CREDITS_PER_IMAGE,
+            balance_before: remaining - CREDITS_PER_IMAGE,
+            balance_after: remaining,
+            description: 'AI generation refund (aibg)',
+          } as any);
+        }
+      } catch {}
+    } catch (e) {
+      console.error('Failed to refund credits after error:', e);
+    }
+
+    // Log AI operation failure
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'aibg',
+        mode: backgroundMode,
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'failed',
+        errorMessage: errorMessage,
+      });
+    } catch {}
+
+    if (typeof idStoreKey === 'string') clearKey(idStoreKey);
     return NextResponse.json(
       {
         error: userMessage,

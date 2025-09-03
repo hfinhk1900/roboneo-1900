@@ -2,12 +2,17 @@
 import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
-import { assets } from '@/db/schema';
+import { assets, user } from '@/db/schema';
 import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { eq, sql } from 'drizzle-orm';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { ensureProductionEnv } from '@/lib/config/validate-env';
 
 // 产品尺寸映射 - 基于常见产品类型的合理尺寸
 const PRODUCT_SIZE_HINTS = {
@@ -363,6 +368,9 @@ interface ProductShotRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    ensureProductionEnv();
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
     const session = await auth.api.getSession({
@@ -371,6 +379,14 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
+    // Rate limit per user
+    {
+      const { generatePerUserPerMin } = getRateLimitConfig();
+      const rl = await checkRateLimit(`rl:productshot:${userId}`, generatePerUserPerMin, 60);
+      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     // 2. 解析请求参数
@@ -389,7 +405,7 @@ export async function POST(request: NextRequest) {
       reference_image,
       additionalContext,
       productTypeHint,
-    } = body;
+  } = body;
 
     // 3. 验证必需参数 - 简化验证逻辑，允许空场景（双图模式）
     if (!image_input) {
@@ -398,6 +414,21 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 3.1 限制 base64 图片大小（近似计算）
+    try {
+      const base64Part = image_input.includes(',')
+        ? image_input.split(',')[1]
+        : image_input;
+      const approxBytes = Math.floor((base64Part.length * 3) / 4);
+      const limit = Number(process.env.MAX_GENERATE_IMAGE_BYTES || 5 * 1024 * 1024);
+      if (approxBytes > limit) {
+        return NextResponse.json(
+          { error: 'Image too large', limitBytes: limit },
+          { status: 413 }
+        );
+      }
+    } catch {}
 
     // 场景验证：允许空场景（双图模式），但如果提供了场景必须有效
     if (sceneType && !SCENE_PRESETS[sceneType]) {
@@ -418,28 +449,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. 检查用户 Credits
-    const { canGenerateStickerAction } = await import(
-      '@/actions/credits-actions'
-    );
-    const creditsCheck = await canGenerateStickerAction({
-      requiredCredits: CREDITS_PER_IMAGE,
+    // 4. 预扣费（原子），失败则直接返回402
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId,
+      amount: CREDITS_PER_IMAGE,
     });
-
-    if (!creditsCheck?.data?.success || !creditsCheck.data.data?.canGenerate) {
+    if (!deduct?.data?.success) {
       return NextResponse.json(
         {
           error: 'Insufficient credits',
           required: CREDITS_PER_IMAGE,
-          current: creditsCheck?.data?.data?.currentCredits || 0,
+          current: deduct?.data?.data?.currentCredits ?? 0,
         },
         { status: 402 }
       );
     }
-
-    console.log(
-      `💳 User ${session.user.id} has ${creditsCheck.data.data.currentCredits} credits, proceeding with ProductShot generation...`
-    );
 
     // 5. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
@@ -452,6 +477,24 @@ export async function POST(request: NextRequest) {
     }
 
     const provider = new SiliconFlowProvider(apiKey);
+
+    // 校验存储配置（提前失败，避免生成成功后上传失败）
+    try {
+      const required = [
+        'STORAGE_REGION',
+        'STORAGE_ENDPOINT',
+        'STORAGE_ACCESS_KEY_ID',
+        'STORAGE_SECRET_ACCESS_KEY',
+        'STORAGE_BUCKET_NAME',
+      ];
+      const missing = required.filter((k) => !process.env[k]);
+      if (missing.length && process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { error: 'Storage not configured', missing },
+          { status: 500 }
+        );
+      }
+    } catch {}
 
     // 6. 构建提示词 - 处理有场景和无场景两种情况
     let basePrompt: string;
@@ -639,22 +682,7 @@ export async function POST(request: NextRequest) {
       reference_image, // 新增：传递reference_image参数
     });
 
-    // 8. 扣减 Credits - 成功生成后
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deductResult = await deductCreditsAction({
-      userId: session.user.id,
-      amount: CREDITS_PER_IMAGE,
-    });
-
-    if (deductResult?.data?.success) {
-      console.log(
-        `💰 Deducted ${CREDITS_PER_IMAGE} credits for ProductShot. Remaining: ${deductResult.data.data?.remainingCredits}`
-      );
-    } else {
-      console.warn(
-        '⚠️ Failed to deduct credits, but ProductShot was generated successfully'
-      );
-    }
+    // 8. 已预扣费，无需再次扣费
 
     // 9. 创建资产记录
     if (!result.resultUrl) {
@@ -686,13 +714,13 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ ProductShot asset created:', {
       asset_id: assetId,
-      user_id: session.user.id,
+      user_id: userId,
       file_name: fileName,
       expires_at: downloadUrl.expires_at,
     });
 
     // 11. 返回结果（完全脱敏）
-    return NextResponse.json({
+    const payload = {
       success: true,
       asset_id: assetId,
       download_url: downloadUrl.url,
@@ -701,10 +729,25 @@ export async function POST(request: NextRequest) {
         ? SCENE_PRESETS[sceneType].name
         : 'Reference Image Guided',
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0, // 添加剩余积分
+      remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
       credits_sufficient: true,
       from_cache: false,
-    });
+    } as const;
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'productshot',
+        mode: sceneType || 'custom',
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'success',
+      });
+    } catch {}
+    if (typeof idStoreKey === 'string') {
+      const { setSuccess } = await import('@/lib/idempotency');
+      setSuccess(idStoreKey, payload);
+    }
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('ProductShot generation error:', error);
 
@@ -729,6 +772,56 @@ export async function POST(request: NextRequest) {
       userMessage = '网络连接问题，请检查网络后重试';
     }
 
+    // 回滚预扣费
+    try {
+      const db = await getDb();
+      await db
+        .update(user)
+        .set({
+          credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+      try {
+        const remainingRows = await db
+          .select({ credits: user.credits })
+          .from(user)
+          .where(eq(user.id, userId))
+          .limit(1);
+        const remaining = remainingRows[0]?.credits ?? undefined;
+        if (typeof remaining === 'number') {
+          const { creditsTransaction } = await import('@/db/schema');
+          const { randomUUID } = await import('crypto');
+          await db.insert(creditsTransaction).values({
+            id: randomUUID(),
+            user_id: userId,
+            type: 'refund',
+            amount: CREDITS_PER_IMAGE,
+            balance_before: remaining - CREDITS_PER_IMAGE,
+            balance_after: remaining,
+            description: 'AI generation refund (productshot)',
+          } as any);
+        }
+      } catch {}
+    } catch (e) {
+      console.error('Failed to refund credits after error:', e);
+    }
+
+    if (typeof idStoreKey === 'string') {
+      const { clearKey } = await import('@/lib/idempotency');
+      clearKey(idStoreKey);
+    }
+    try {
+      const { logAIOperation } = await import('@/lib/ai-log');
+      await logAIOperation({
+        userId,
+        operation: 'productshot',
+        mode: sceneType || 'custom',
+        creditsUsed: CREDITS_PER_IMAGE,
+        status: 'failed',
+        errorMessage: errorMessage,
+      });
+    } catch {}
     return NextResponse.json(
       {
         error: userMessage,

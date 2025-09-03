@@ -5,6 +5,7 @@ import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { eq, desc } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function GET(request: NextRequest) {
   try {
@@ -81,6 +82,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const csrf = enforceSameOriginCsrf(request);
+    if (csrf) return csrf;
     const session = await auth.api.getSession({
       headers: request.headers as any,
     });
@@ -145,8 +148,6 @@ export async function POST(request: NextRequest) {
       mode,
       style,
       createdAt,
-      // 如果有asset_id，保存到metadata中以便后续使用
-      ...(finalAssetId && { metadata: { asset_id: finalAssetId } })
     });
 
     return NextResponse.json({
