@@ -985,6 +985,23 @@ export function RemoveWatermarkGeneratorSection() {
                       </Button>
                     </div>
                   </div>
+                ) : imagePreview ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    {/* Preview before processing */}
+                    <div className="relative w-full max-w-sm aspect-square">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview before removal"
+                        fill
+                        sizes="(max-width: 768px) 80vw, 400px"
+                        className="object-contain rounded-lg transition-all duration-300 ease-out relative z-10"
+                      />
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                      Image ready. Click "Remove Watermark" to process.
+                    </div>
+                  </div>
                 ) : (
                   /* Default state - show demo images */
                   <div className="flex flex-col gap-6 items-center justify-center w-full h-full">
