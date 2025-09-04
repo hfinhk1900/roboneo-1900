@@ -2,7 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { LocaleLink } from '@/i18n/navigation';
 
 interface ToolCard {
   title: string;
@@ -67,7 +67,7 @@ export default function ExploreMoreToolsSection() {
         {/* Tool Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
           {tools.map((tool, index) => (
-            <Link
+            <LocaleLink
               key={index}
               href={tool.href}
               className="group bg-gray-50 rounded-3xl overflow-hidden w-full min-h-[400px] sm:min-h-[420px] lg:min-h-[460px] relative hover:shadow-lg transition-all duration-300 flex flex-col"
@@ -105,7 +105,7 @@ export default function ExploreMoreToolsSection() {
                   <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
                 </div>
               </div>
-            </Link>
+            </LocaleLink>
           ))}
         </div>
       </div>
