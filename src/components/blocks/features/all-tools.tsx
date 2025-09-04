@@ -53,7 +53,7 @@ const tools: ToolCard[] = [
 
 export default function AllToolsSection() {
   return (
-    <section className="py-16 bg-white">
+    <section id="all-tools" className="py-16 bg-white">
       <div className="mx-auto max-w-7xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
