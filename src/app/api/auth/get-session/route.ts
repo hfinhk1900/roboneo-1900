@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     id: raw.user.id,
     name: raw.user.name,
     email: (raw.user as any).email,
-    image: raw.user.image,
+    image: raw.user.image ? `/api/avatar/${raw.user.id}` : undefined,
     emailVerified: Boolean(raw.user.emailVerified),
     role: (raw.user as any).role,
     credits: (raw.user as any).credits,
