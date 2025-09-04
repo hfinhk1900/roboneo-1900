@@ -1,4 +1,4 @@
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
+import { generateSignedDownloadUrl, getAssetMetadata } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -40,18 +40,37 @@ export async function POST(request: NextRequest) {
 
     // 优先从数据库读取资产信息
     const db = await getDb();
-    const rows = await db.select().from(assets).where(eq(assets.id, asset_id)).limit(1);
+    const rows = await db
+      .select()
+      .from(assets)
+      .where(eq(assets.id, asset_id))
+      .limit(1);
     const record = rows[0];
+
     if (!record) {
-      return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
-    }
-    if (record.user_id !== session.user.id) {
-      console.warn('Unauthorized asset access attempt:', {
-        user_id: session.user.id,
-        asset_user_id: record.user_id,
-        asset_id,
-      });
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      // Fallback for legacy assets stored only in local metadata (dev/older records)
+      const legacy = await getAssetMetadata(asset_id);
+      if (!legacy) {
+        return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+      }
+      if (legacy.user_id !== session.user.id) {
+        console.warn('Unauthorized legacy asset access attempt:', {
+          user_id: session.user.id,
+          asset_user_id: legacy.user_id,
+          asset_id,
+        });
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+      // Proceed to sign URL using legacy path (assets/download route will use local metadata fallback)
+    } else {
+      if (record.user_id !== session.user.id) {
+        console.warn('Unauthorized asset access attempt:', {
+          user_id: session.user.id,
+          asset_user_id: record.user_id,
+          asset_id,
+        });
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
     }
 
     // 生成新的签名下载URL
