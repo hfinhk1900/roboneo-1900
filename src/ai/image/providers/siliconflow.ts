@@ -30,9 +30,35 @@ export class SiliconFlowProvider {
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    // Increase default timeout to 120s to avoid premature AbortError during peak load
     this.requestTimeoutMs = Number(
-      process.env.SILICONFLOW_REQUEST_TIMEOUT_MS || 60000
+      process.env.SILICONFLOW_REQUEST_TIMEOUT_MS || 120000
     );
+  }
+
+  private async fetchWithTimeoutRetry(
+    url: string,
+    init: RequestInit & { signal?: AbortSignal },
+    timeoutMs: number,
+    retries = 1
+  ): Promise<Response> {
+    try {
+      const controller = AbortSignal.timeout(timeoutMs);
+      const res = await fetch(url, { ...init, signal: controller });
+      return res;
+    } catch (err) {
+      const isAbort = (err as any)?.name === 'TimeoutError' ||
+        (err as any)?.name === 'AbortError' ||
+        String(err).includes('timeout');
+      if (isAbort && retries > 0) {
+        const nextTimeout = Math.round(timeoutMs * 1.5);
+        console.warn(
+          `SiliconFlow request timed out, retrying once with ${nextTimeout}ms...`
+        );
+        return this.fetchWithTimeoutRetry(url, init, nextTimeout, retries - 1);
+      }
+      throw err;
+    }
   }
 
   async generateProductShot(params: {
@@ -126,15 +152,19 @@ export class SiliconFlowProvider {
       });
 
       // 添加请求超时和重试机制
-      const response = await fetch(`${this.baseUrl}/image/generations`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+      const response = await this.fetchWithTimeoutRetry(
+        `${this.baseUrl}/image/generations`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
         },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(this.requestTimeoutMs),
-      });
+        this.requestTimeoutMs,
+        1
+      );
 
       console.log(
         `📡 SiliconFlow API Response: ${response.status} ${response.statusText}`
@@ -508,15 +538,19 @@ export class SiliconFlowProvider {
     });
 
     try {
-      const response = await fetch(`${this.baseUrl}/images/generations`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+      const response = await this.fetchWithTimeoutRetry(
+        `${this.baseUrl}/images/generations`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
         },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(this.requestTimeoutMs),
-      });
+        this.requestTimeoutMs,
+        1
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
