@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import React from 'react';
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 
 import { RemoveWatermarkGeneratorSection } from '@/components/blocks/remove-watermark/remove-watermark-generator';
 
@@ -27,6 +28,7 @@ export default function RemoveWatermarkPage() {
   return (
     <main className="min-h-screen bg-[#F5F5F5]">
       <RemoveWatermarkGeneratorSection />
+      <ExploreMoreToolsSection />
     </main>
   );
 }

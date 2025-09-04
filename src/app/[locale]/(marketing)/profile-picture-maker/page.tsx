@@ -1,5 +1,6 @@
 import ProfilePictureMakerGenerator from '@/components/blocks/profile-picture-maker/profile-picture-maker-generator';
 import { constructMetadata } from '@/lib/metadata';
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -36,6 +37,7 @@ export default function ProfilePictureMakerPage() {
   return (
     <main className="min-h-screen bg-[#F5F5F5]">
       <ProfilePictureMakerGenerator />
+      <ExploreMoreToolsSection />
     </main>
   );
 }

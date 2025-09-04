@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import React from 'react';
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 
 import { AIBackgroundGeneratorSection } from '@/components/blocks/aibg/aibg-generator';
 
@@ -27,6 +28,7 @@ export default function AIBackgroundPage() {
   return (
     <main className="min-h-screen bg-[#F5F5F5]">
       <AIBackgroundGeneratorSection />
+      <ExploreMoreToolsSection />
     </main>
   );
 }
