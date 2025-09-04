@@ -1,6 +1,7 @@
 import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
 import { StructuredData } from '@/components/seo/structured-data';
 import PhotostockGallery from '@/components/shared/photostock-gallery';
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -38,7 +39,8 @@ export default function ProductShotPage() {
         {/* Showcase Gallery */}
         <PhotostockGallery />
 
-        {/* Removed More AI Tools section per request */}
+        {/* Explore More Tools (copied from Image to Sticker section) */}
+        <ExploreMoreToolsSection />
       </div>
     </>
   );
