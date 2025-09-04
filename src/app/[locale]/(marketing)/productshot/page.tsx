@@ -1,5 +1,4 @@
 import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
-import MoreAITools from '@/components/more-ai-tools';
 import { StructuredData } from '@/components/seo/structured-data';
 import PhotostockGallery from '@/components/shared/photostock-gallery';
 import type { Metadata } from 'next';
@@ -39,8 +38,7 @@ export default function ProductShotPage() {
         {/* Showcase Gallery */}
         <PhotostockGallery />
 
-        {/* More AI Tools */}
-        <MoreAITools />
+        {/* Removed More AI Tools section per request */}
       </div>
     </>
   );
