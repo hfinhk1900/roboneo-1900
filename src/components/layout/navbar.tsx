@@ -217,7 +217,7 @@ export function Navbar({ scroll }: NavBarProps) {
           {/* logo and name */}
           <div className="flex items-center">
             <LocaleLink
-              href="/"
+              href={Routes.Root}
               className="flex items-center space-x-2"
               aria-label="RoboNeo – AI Image Generator"
             >
