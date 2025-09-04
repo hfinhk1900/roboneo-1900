@@ -1,3 +1,4 @@
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
 import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
 import StickerGenerator from '@/components/blocks/sticker/sticker-generator';
@@ -52,6 +53,9 @@ export default async function StickerPage(props: StickerPageProps) {
 
         {/* Image Gallery & AI Features Section */}
         <ImageShowcaseSection />
+
+        {/* Explore More AI Tools Section */}
+        <ExploreMoreToolsSection />
       </div>
     </>
   );
