@@ -61,7 +61,7 @@ export default function HomeHeroSection() {
               size="lg"
               className="rounded-full text-base px-8 h-[50px]"
             >
-              <Link href="/">Create Sticker</Link>
+              <Link href="/sticker">Create Sticker</Link>
             </Button>
 
             <Button
