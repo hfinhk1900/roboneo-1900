@@ -107,7 +107,7 @@ async function testStickerPrompts() {
 
       if (response.ok && result.image) {
         console.log(`✅ 成功生成! 耗时: ${elapsed}ms`);
-        console.log(`响应信息:`, {
+        console.log('响应信息:', {
           provider: result.provider,
           width: result.width,
           height: result.height,
@@ -137,7 +137,7 @@ async function testStickerPrompts() {
           console.log(`💾 贴纸已保存: public/${filename}`);
         }
       } else {
-        console.log(`❌ 生成失败:`, result.error || '未知错误');
+        console.log('❌ 生成失败:', result.error || '未知错误');
         results.push({
           style: testCase.style,
           subject: testCase.subject,
@@ -147,7 +147,7 @@ async function testStickerPrompts() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
       results.push({
@@ -160,7 +160,7 @@ async function testStickerPrompts() {
 
     // 等待3秒避免频率限制
     if (testCases.indexOf(testCase) < testCases.length - 1) {
-      console.log(`⏳ 等待3秒以避免频率限制...`);
+      console.log('⏳ 等待3秒以避免频率限制...');
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }

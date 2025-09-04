@@ -99,7 +99,7 @@ async function testCostComparison() {
 
       if (response.ok && result.image) {
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应信息:`, {
+        console.log('响应信息:', {
           provider: result.provider,
           width: result.width,
           height: result.height,
@@ -129,7 +129,7 @@ async function testCostComparison() {
           console.log(`💾 已保存: public/${filename}`);
         }
       } else {
-        console.log(`❌ 失败:`, result.error || '未知错误');
+        console.log('❌ 失败:', result.error || '未知错误');
         results.push({
           model: testCase.model,
           size: testCase.size,
@@ -140,7 +140,7 @@ async function testCostComparison() {
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
       results.push({
@@ -154,7 +154,7 @@ async function testCostComparison() {
 
     // 等待2秒避免频率限制
     if (testCases.indexOf(testCase) < testCases.length - 1) {
-      console.log(`⏳ 等待2秒...`);
+      console.log('⏳ 等待2秒...');
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }

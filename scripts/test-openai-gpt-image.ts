@@ -53,7 +53,7 @@ async function testGptImage1() {
 
   for (const testCase of testCases) {
     console.log(`\n📝 ${testCase.name}`);
-    console.log(`请求参数:`, JSON.stringify(testCase.request, null, 2));
+    console.log('请求参数:', JSON.stringify(testCase.request, null, 2));
 
     const startTime = Date.now();
 
@@ -71,7 +71,7 @@ async function testGptImage1() {
 
       if (response.ok && result.image) {
         console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-        console.log(`响应信息:`, {
+        console.log('响应信息:', {
           provider: result.provider,
           width: result.width,
           height: result.height,
@@ -93,17 +93,17 @@ async function testGptImage1() {
           console.log(`💾 贴纸已保存: public/${filename}`);
         }
       } else {
-        console.log(`❌ 失败:`, result.error || '未知错误');
+        console.log('❌ 失败:', result.error || '未知错误');
       }
     } catch (error) {
       console.log(
-        `💥 请求异常:`,
+        '💥 请求异常:',
         error instanceof Error ? error.message : error
       );
     }
 
     // 等待2秒避免频率限制，节省费用
-    console.log(`⏳ 等待2秒以避免频率限制...`);
+    console.log('⏳ 等待2秒以避免频率限制...');
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 

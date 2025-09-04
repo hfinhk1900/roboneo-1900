@@ -1,10 +1,6 @@
-import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
-import FaqSection from '@/components/blocks/faqs/faqs';
 import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
 import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
-import PricingSection from '@/components/blocks/pricing/pricing';
 import StickerGenerator from '@/components/blocks/sticker/sticker-generator';
-import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
 import { getUrlWithLocale } from '@/lib/urls/urls';
@@ -47,7 +43,6 @@ export default async function StickerPage(props: StickerPageProps) {
   return (
     <>
       <StructuredData type="website" />
-      <StructuredData type="faq" />
       <div className="flex flex-col">
         {/* Main Sticker Generator Section */}
         <StickerGenerator />
@@ -57,18 +52,6 @@ export default async function StickerPage(props: StickerPageProps) {
 
         {/* Image Gallery & AI Features Section */}
         <ImageShowcaseSection />
-
-        {/* Pricing Section */}
-        <PricingSection />
-
-        {/* FAQ Section */}
-        <FaqSection />
-
-        {/* Call to Action Section */}
-        <CallToActionSection />
-
-        {/* Testimonials Section */}
-        <TestimonialsSection />
       </div>
     </>
   );

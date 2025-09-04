@@ -1,6 +1,5 @@
 'use client';
 
-import AIMagicFeatures from '@/components/ai-magic-features';
 // import MoreAITools from '@/components/more-ai-tools'; // Removed
 import { KeyBenefits } from '@/components/shared/key-benefits';
 import { ShowcaseGallery } from '@/components/shared/showcase-gallery';
@@ -17,8 +16,8 @@ export default function ImageShowcaseSection() {
       {/* More AI Tools Section - Removed */}
       {/* <MoreAITools /> */}
 
-      {/* AI Magic Features Section */}
-      <AIMagicFeatures />
+      {/* AI Magic Features Section - Removed */}
+      {/* <AIMagicFeatures /> */}
     </div>
   );
 }
