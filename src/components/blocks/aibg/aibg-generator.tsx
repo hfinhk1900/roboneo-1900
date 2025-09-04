@@ -1268,9 +1268,19 @@ export function AIBackgroundGeneratorSection() {
           // Clear progress interval on error
           clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
-          toast.error(
-            'Background removal service is temporarily unavailable. Please try again later.'
-          );
+          // Handle insufficient credits explicitly in Solid Color flow
+          const message = error instanceof Error ? error.message : String(error);
+          if (message.toLowerCase().includes('insufficient credits')) {
+            try {
+              const current = creditsCache.get() ?? 0;
+              setCreditsError({ required: CREDITS_PER_IMAGE, current });
+              setShowCreditsDialog(true);
+            } catch {}
+          } else {
+            toast.error(
+              'Background removal service is temporarily unavailable. Please try again later.'
+            );
+          }
           setProcessingProgress(0);
           setGenerationProgress(0);
           setIsProcessing(false);
