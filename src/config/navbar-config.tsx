@@ -69,13 +69,6 @@ export function getNavbarLinks(): NestedMenuItem[] {
       title: 'AI Tools',
       items: [
         {
-          title: 'Text to Image',
-          description: 'Generate stunning images from text descriptions',
-          icon: '/text-to-image00.webp',
-          href: Routes.TextToImage,
-          external: false,
-        },
-        {
           title: 'Product Shots',
           description: 'Generate photo-real ads',
           icon: '/text-to-image01.webp',
