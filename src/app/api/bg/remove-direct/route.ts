@@ -271,30 +271,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('❌ Vercel proxy error:', error);
 
-    // 区分不同类型的错误
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        return NextResponse.json(
-          {
-            error: 'Request timeout',
-            details: 'Background removal took too long',
-          },
-          { status: 408 }
-        );
-      }
-
-      if (error.message.includes('fetch')) {
-        return NextResponse.json(
-          {
-            error: 'Network error',
-            details: 'Failed to connect to background removal service',
-          },
-          { status: 503 }
-        );
-      }
-    }
-
-    // Refund credits on failure
+    // Always refund credits on any failure path
     try {
       const { getDb } = await import('@/db');
       const { user } = await import('@/db/schema');
@@ -323,6 +300,25 @@ export async function POST(req: NextRequest) {
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     } catch {}
+
+    // Classify error AFTER refund to ensure user is not charged
+    if (error instanceof Error) {
+      const name = error.name || '';
+      const msg = error.message || '';
+      if (name === 'AbortError' || name === 'TimeoutError' || msg.includes('timeout')) {
+        return NextResponse.json(
+          { error: 'Request timeout', details: 'Background removal took too long' },
+          { status: 408 }
+        );
+      }
+      if (msg.includes('fetch') || msg.toLowerCase().includes('network')) {
+        return NextResponse.json(
+          { error: 'Network error', details: 'Failed to connect to background removal service' },
+          { status: 503 }
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         error: 'Internal server error',
