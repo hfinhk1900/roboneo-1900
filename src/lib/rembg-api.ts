@@ -67,14 +67,47 @@ export class RembgApiService {
 
       // 调用 Vercel API 代理
       const { newIdempotencyKey } = await import('./idempotency-client');
-      const response = await fetch('/api/bg/remove-direct', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Idempotency-Key': newIdempotencyKey(),
-        } as any,
-        signal: AbortSignal.timeout(options.timeout || 60000),
-      });
+
+      // Helper: fetch with timeout and one retry on TimeoutError
+      async function fetchWithTimeoutRetry(
+        url: string,
+        init: RequestInit,
+        timeoutMs: number,
+        retries = 1
+      ): Promise<Response> {
+        try {
+          const signal = AbortSignal.timeout(timeoutMs);
+          return await fetch(url, { ...init, signal });
+        } catch (e) {
+          const msg = String(e?.toString?.() || e);
+          const isTimeout =
+            (e as any)?.name === 'TimeoutError' ||
+            (e as any)?.name === 'AbortError' ||
+            msg.includes('timeout');
+          if (isTimeout && retries > 0) {
+            const next = Math.round(timeoutMs * 1.5);
+            console.warn(
+              `Rembg request timed out, retrying once with ${next}ms...`
+            );
+            return fetchWithTimeoutRetry(url, init, next, retries - 1);
+          }
+          throw e;
+        }
+      }
+
+      const response = await fetchWithTimeoutRetry(
+        '/api/bg/remove-direct',
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Idempotency-Key': newIdempotencyKey(),
+          } as any,
+        },
+        // Default 120s unless explicitly overridden by caller
+        options.timeout || 120000,
+        1
+      );
 
       if (!response.ok) {
         const errorData = await response

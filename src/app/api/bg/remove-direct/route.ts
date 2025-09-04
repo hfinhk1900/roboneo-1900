@@ -152,13 +152,44 @@ export async function POST(req: NextRequest) {
       console.log('🌐 Using public HF Space without authentication');
     }
 
-    const response = await fetch(`${HF_SPACE_URL}/remove-bg-direct`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      // 设置超时时间
-      signal: AbortSignal.timeout(60000), // 60秒超时
-    });
+    const TIMEOUT_MS = Number(process.env.BG_REMOVE_REQUEST_TIMEOUT_MS || 120000);
+
+    async function fetchWithTimeoutRetry(
+      url: string,
+      init: RequestInit,
+      timeoutMs: number,
+      retries = 1
+    ): Promise<Response> {
+      try {
+        const signal = AbortSignal.timeout(timeoutMs);
+        return await fetch(url, { ...init, signal });
+      } catch (e) {
+        const msg = String(e?.toString?.() || e);
+        const isTimeout =
+          (e as any)?.name === 'TimeoutError' ||
+          (e as any)?.name === 'AbortError' ||
+          msg.includes('timeout');
+        if (isTimeout && retries > 0) {
+          const next = Math.round(timeoutMs * 1.5);
+          console.warn(
+            `HF remove-bg-direct timed out, retrying once with ${next}ms...`
+          );
+          return fetchWithTimeoutRetry(url, init, next, retries - 1);
+        }
+        throw e;
+      }
+    }
+
+    const response = await fetchWithTimeoutRetry(
+      `${HF_SPACE_URL}/remove-bg-direct`,
+      {
+        method: 'POST',
+        headers,
+        body: formData,
+      },
+      TIMEOUT_MS,
+      1
+    );
 
     // 检查响应状态
     if (!response.ok) {

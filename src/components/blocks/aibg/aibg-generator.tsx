@@ -1109,7 +1109,8 @@ export function AIBackgroundGeneratorSection() {
           // 优先使用rembg API - 不传递背景颜色，让API生成透明背景
           const result = await rembgApiService.removeBackground(imageBase64, {
             backgroundColor: 'transparent', // 固定为透明，让API生成透明背景
-            timeout: 30000,
+            // Extend timeout to 90s to accommodate heavier images / busy backend
+            timeout: 90000,
             aspectRatio: parseAspectRatio(selectedAspect), // 传递尺寸信息
           } as RembgApiOptions);
 
