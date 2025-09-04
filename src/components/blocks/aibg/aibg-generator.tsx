@@ -449,7 +449,7 @@ export function AIBackgroundGeneratorSection() {
 
       // 检查并刷新过期的URL
       let finalUrl = url;
-      if (url.startsWith('/api/assets/download')) {
+      if (url.startsWith('/api/assets/')) {
         try {
           const urlObj = new URL(url, window.location.origin);
           const exp = urlObj.searchParams.get('exp');
@@ -495,7 +495,7 @@ export function AIBackgroundGeneratorSection() {
         }
       }
 
-      if (finalUrl.startsWith('/api/assets/download')) {
+      if (finalUrl.startsWith('/api/assets/')) {
         // 新资产管理系统
         const link = document.createElement('a');
         link.href = finalUrl;
@@ -836,12 +836,11 @@ export function AIBackgroundGeneratorSection() {
 
             if (uploadResponse.ok) {
               const uploadResult = await uploadResponse.json();
-              // 使用公共 URL 用于显示，下载 URL 用于下载
-              finalImageUrl =
-                uploadResult.publicUrl || uploadResult.downloadUrl;
+              // 使用稳定查看URL用于显示，若不存在则回退到下载URL
+              finalImageUrl = uploadResult.viewUrl || uploadResult.downloadUrl;
               console.log(
-                '✅ Custom color image uploaded to R2:',
-                uploadResult.publicUrl
+                '✅ Custom color image saved:',
+                finalImageUrl
               );
             } else {
               console.warn('⚠️ Failed to upload to R2, using base64 fallback');
@@ -1205,13 +1204,9 @@ export function AIBackgroundGeneratorSection() {
 
                 if (uploadResponse.ok) {
                   const uploadResult = await uploadResponse.json();
-                  // 使用公共 URL 用于显示，下载 URL 用于下载
-                  finalImageUrl =
-                    uploadResult.publicUrl || uploadResult.downloadUrl;
-                  console.log(
-                    '✅ Solid Color image uploaded to R2:',
-                    uploadResult.publicUrl
-                  );
+                  // 使用稳定查看URL用于显示，若不存在则回退到下载URL
+                  finalImageUrl = uploadResult.viewUrl || uploadResult.downloadUrl;
+                  console.log('✅ Solid Color image saved:', finalImageUrl);
                 } else {
                   console.warn(
                     '⚠️ Failed to upload to R2, using base64 fallback'
@@ -1583,21 +1578,41 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
-    // 如果是资产下载URL（新的格式），直接使用
-    if (imageToDownload.startsWith('/api/assets/download')) {
-      // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
-      const link = document.createElement('a');
-      link.href = imageToDownload;
-      link.download = 'ai-background-result.png';
-      link.target = '_blank';
-
-      // 触发下载
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast.success('Image downloaded successfully');
-      return;
+    // 如果是稳定查看URL（新的格式），签名后下载
+    if (imageToDownload.startsWith('/api/assets/')) {
+      try {
+        const assetId = imageToDownload.split('/').pop();
+        if (assetId) {
+          fetch('/api/storage/sign-download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ asset_id: assetId, display_mode: 'inline', expires_in: 3600 }),
+          })
+            .then((res) => res.ok ? res.json() : Promise.reject(new Error('Failed to sign download')))
+            .then((data) => {
+              const link = document.createElement('a');
+              link.href = data.url;
+              link.download = 'ai-background-result.png';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast.success('Image downloaded successfully');
+            })
+            .catch((e) => {
+              console.error('Failed to download signed asset:', e);
+              const link = document.createElement('a');
+              link.href = imageToDownload;
+              link.download = 'ai-background-result.png';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            });
+          return;
+        }
+      } catch (e) {
+        console.error('Failed to prepare stable asset download:', e);
+      }
     }
 
     // 如果是URL（如R2存储的图片），下载图片

@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
     // 上传到 R2 使用现有的存储系统
     let uploadResult;
     let storageKey;
-    let r2PublicUrl;
     
     try {
       uploadResult = await uploadFile(
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
 
       // 使用上传结果中的信息
       storageKey = uploadResult.key; // 使用上传后的存储键
-      r2PublicUrl = uploadResult.url; // 使用上传后的公共 URL
+      // Do not expose public R2 URL in API response
       
       console.log('✅ File uploaded successfully:', uploadResult);
     } catch (error) {
@@ -97,12 +96,13 @@ export async function POST(request: NextRequest) {
       .digest('base64url');
 
     const downloadUrl = `/api/assets/download?asset_id=${assetId}&exp=${expiresAt}&sig=${signature}&disp=inline`;
+    const viewUrl = `/api/assets/${assetId}`;
 
     return NextResponse.json({
       success: true,
       assetId,
-      publicUrl: r2PublicUrl, // R2 公共 URL，用于显示
-      downloadUrl, // 签名下载 URL，用于下载
+      viewUrl, // 稳定查看URL（推荐用于显示）
+      downloadUrl, // 签名下载 URL（用于下载）
       key: storageKey, // 使用上传后的存储键
       size: imageBuffer.length,
     });

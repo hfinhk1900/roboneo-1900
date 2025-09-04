@@ -1444,35 +1444,26 @@ export default function ProfilePictureMakerGenerator() {
 
                   try {
                     let finalUrl = previewImageUrl;
-                    if (finalUrl.startsWith('/api/assets/download')) {
+                    if (finalUrl.startsWith('/api/assets/')) {
                       try {
-                        const urlObj = new URL(
-                          finalUrl,
-                          window.location.origin
-                        );
-                        const exp = urlObj.searchParams.get('exp');
-                        const assetId = urlObj.searchParams.get('asset_id');
-                        if (exp && assetId) {
-                          const expiryTime = Number.parseInt(exp) * 1000;
-                          const currentTime = Date.now();
-                          if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                            const refreshRes = await fetch(
-                              '/api/storage/sign-download',
-                              {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                credentials: 'include',
-                                body: JSON.stringify({
-                                  asset_id: assetId,
-                                  display_mode: 'inline',
-                                  expires_in: 3600,
-                                }),
-                              }
-                            );
-                            if (refreshRes.ok) {
-                              const refreshData = await refreshRes.json();
-                              finalUrl = refreshData.url;
+                        const assetId = finalUrl.split('/').pop();
+                        if (assetId) {
+                          const refreshRes = await fetch(
+                            '/api/storage/sign-download',
+                            {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({
+                                asset_id: assetId,
+                                display_mode: 'inline',
+                                expires_in: 3600,
+                              }),
                             }
+                          );
+                          if (refreshRes.ok) {
+                            const refreshData = await refreshRes.json();
+                            finalUrl = refreshData.url;
                           }
                         }
                       } catch {}

@@ -30,45 +30,34 @@ export async function GET(request: NextRequest) {
       .limit(Math.min(Math.max(limit, 1), 200));
 
     // 如果需要刷新URL，检查并刷新过期的签名URL
-    const processedItems = refreshUrls
-      ? await Promise.all(
-          items.map(async (item: any) => {
-            const urlToCheck = item.processedImageUrl || item.url;
-            if (urlToCheck?.startsWith('/api/assets/download')) {
-              try {
-                const urlObj = new URL(urlToCheck, 'http://localhost');
-                const assetId = urlObj.searchParams.get('asset_id');
-                if (assetId) {
-                  const assetRows = await db
-                    .select()
-                    .from(assets)
-                    .where(eq(assets.id, assetId))
-                    .limit(1);
-                  if (assetRows[0]?.user_id === session.user.id) {
-                    const signed = generateSignedDownloadUrl(
-                      assetId,
-                      'inline',
-                      3600
-                    );
-                    // watermarkHistory 使用 processedImageUrl 字段
-                    return {
-                      ...item,
-                      processedImageUrl: signed.url,
-                      asset_id: assetId,
-                    };
-                  }
-                }
-              } catch (error) {
-                console.error(
-                  'Failed to refresh URL for watermark item:',
-                  error
-                );
+    const processedItems = await Promise.all(
+      items.map(async (item: any) => {
+        const urlToCheck = item.processedImageUrl || item.url;
+        if (urlToCheck?.startsWith('/api/assets/download')) {
+          try {
+            const urlObj = new URL(urlToCheck, 'http://localhost');
+            const assetId = urlObj.searchParams.get('asset_id');
+            if (assetId) {
+              const assetRows = await db
+                .select()
+                .from(assets)
+                .where(eq(assets.id, assetId))
+                .limit(1);
+              if (assetRows[0]?.user_id === session.user.id) {
+                return {
+                  ...item,
+                  processedImageUrl: `/api/assets/${assetId}`,
+                  asset_id: assetId,
+                };
               }
             }
-            return item;
-          })
-        )
-      : items;
+          } catch (error) {
+            console.error('Failed to convert URL for watermark item:', error);
+          }
+        }
+        return item;
+      })
+    );
 
     return NextResponse.json({ items: processedItems });
   } catch (error) {

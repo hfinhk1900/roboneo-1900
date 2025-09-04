@@ -1,11 +1,11 @@
-import {
-  generateSignedDownloadUrl,
-  getAssetMetadata,
-} from '@/lib/asset-management';
+import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { getDb } from '@/db';
+import { assets } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,17 +38,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 获取资产元数据
-    const assetMetadata = await getAssetMetadata(asset_id);
-    if (!assetMetadata) {
+    // 优先从数据库读取资产信息
+    const db = await getDb();
+    const rows = await db.select().from(assets).where(eq(assets.id, asset_id)).limit(1);
+    const record = rows[0];
+    if (!record) {
       return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
     }
-
-    // 验证用户权限（只能访问自己的资产）
-    if (assetMetadata.user_id !== session.user.id) {
+    if (record.user_id !== session.user.id) {
       console.warn('Unauthorized asset access attempt:', {
         user_id: session.user.id,
-        asset_user_id: assetMetadata.user_id,
+        asset_user_id: record.user_id,
         asset_id,
       });
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });

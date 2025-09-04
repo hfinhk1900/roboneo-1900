@@ -184,9 +184,12 @@ export default function ProductShotGeneratorSection() {
             const processedItems = await Promise.all(
               (data.items || []).map(async (it: any) => {
                 let finalUrl = it.url;
+                if (it.asset_id) {
+                  finalUrl = `/api/assets/${it.asset_id}`;
+                }
 
                 // 如果是资产下载URL，检查是否过期
-                if (it.url.startsWith('/api/assets/download')) {
+                if (it.url.startsWith('/api/assets/')) {
                   try {
                     const urlObj = new URL(it.url, window.location.origin);
                     const exp = urlObj.searchParams.get('exp');
@@ -268,9 +271,12 @@ export default function ProductShotGeneratorSection() {
             const processedItems = await Promise.all(
               parsed.map(async (item) => {
                 let finalUrl = item.url;
+                if ((item as any).asset_id) {
+                  finalUrl = `/api/assets/${(item as any).asset_id}`;
+                }
 
                 // 如果是资产下载URL，检查是否过期
-                if (item.url.startsWith('/api/assets/download')) {
+                if (item.url.startsWith('/api/assets/')) {
                   try {
                     const urlObj = new URL(item.url, window.location.origin);
                     const exp = urlObj.searchParams.get('exp');
@@ -509,7 +515,7 @@ export default function ProductShotGeneratorSection() {
 
     // 检查并刷新过期的URL
     let finalUrl = url;
-    if (url.startsWith('/api/assets/download')) {
+    if (url.startsWith('/api/assets/')) {
       try {
         const urlObj = new URL(url, window.location.origin);
         const exp = urlObj.searchParams.get('exp');
@@ -552,7 +558,7 @@ export default function ProductShotGeneratorSection() {
       }
     }
 
-    if (finalUrl.startsWith('/api/assets/download')) {
+    if (finalUrl.startsWith('/api/assets/')) {
       // 新资产管理系统
       const link = document.createElement('a');
       link.href = finalUrl;
@@ -839,26 +845,29 @@ export default function ProductShotGeneratorSection() {
   };
 
   const handleDownload = async () => {
-    if (!result?.download_url) return;
+    if (!result?.download_url && !result?.asset_id) return;
 
     const filename = `productshot-${selectedSceneConfig?.name}-${Date.now()}.png`;
-    await downloadImage(result.download_url, filename);
+    const viewUrl = result?.asset_id ? `/api/assets/${result.asset_id}` : undefined;
+    await downloadImage(viewUrl || result!.download_url, filename);
   };
 
   const handleImageClick = () => {
-    if (result?.download_url) {
-      setPreviewImageUrl(result.download_url);
+    if (result?.asset_id || result?.download_url) {
+      setPreviewImageUrl(
+        result.asset_id ? `/api/assets/${result.asset_id}` : result.download_url
+      );
       setShowImagePreview(true);
     }
   };
 
   // 新增：监听 result 变化，自动添加到历史记录
   useEffect(() => {
-    if (result?.download_url && isMounted) {
+    if ((result?.download_url || result?.asset_id) && isMounted) {
       console.log('🎉 ProductShot generated, adding to history:', result);
       const historyItem: ProductshotHistoryItem = {
         asset_id: result.asset_id, // 保存资产ID
-        url: result.download_url,
+        url: result.asset_id ? `/api/assets/${result.asset_id}` : result.download_url,
         scene: selectedScene || 'custom',
         createdAt: Date.now(),
       };

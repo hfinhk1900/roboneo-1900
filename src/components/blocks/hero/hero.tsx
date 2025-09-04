@@ -161,9 +161,13 @@ export default function HeroSection() {
             const processedItems = await Promise.all(
               (data.items || []).map(async (it: any) => {
                 let finalUrl = it.url;
+                // Prefer stable view URL if asset_id is present
+                if (it.asset_id) {
+                  finalUrl = `/api/assets/${it.asset_id}`;
+                }
 
                 // 如果是资产下载URL，检查是否过期
-                if (it.url.startsWith('/api/assets/download')) {
+                if (it.url.startsWith('/api/assets/')) {
                   try {
                     const urlObj = new URL(it.url, window.location.origin);
                     const exp = urlObj.searchParams.get('exp');
@@ -246,9 +250,12 @@ export default function HeroSection() {
             const processedItems = await Promise.all(
               parsed.map(async (item) => {
                 let finalUrl = item.url;
+                if ((item as any).asset_id) {
+                  finalUrl = `/api/assets/${(item as any).asset_id}`;
+                }
 
                 // 如果是资产下载URL，检查是否过期
-                if (item.url.startsWith('/api/assets/download')) {
+                if (item.url.startsWith('/api/assets/')) {
                   try {
                     const urlObj = new URL(item.url, window.location.origin);
                     const exp = urlObj.searchParams.get('exp');
@@ -508,7 +515,7 @@ export default function HeroSection() {
 
     // 检查并刷新过期的URL
     let finalUrl = url;
-    if (url.startsWith('/api/assets/download')) {
+    if (url.startsWith('/api/assets/')) {
       try {
         const urlObj = new URL(url, window.location.origin);
         const exp = urlObj.searchParams.get('exp');
@@ -551,8 +558,39 @@ export default function HeroSection() {
       }
     }
 
-    if (finalUrl.startsWith('/api/assets/download')) {
-      // 新资产管理系统
+    if (finalUrl.startsWith('/api/assets/')) {
+      // Stable view URL: fetch a fresh signed download URL first
+      try {
+        const assetId = finalUrl.split('/').pop();
+        if (assetId) {
+          const refreshRes = await fetch('/api/storage/sign-download', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: assetId,
+              display_mode: 'inline',
+              expires_in: 3600,
+            }),
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            const link = document.createElement('a');
+            link.href = refreshData.url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create signed download for stable URL:', error);
+      }
+      // Fallback: open inline
       const link = document.createElement('a');
       link.href = finalUrl;
       link.download = filename;
@@ -668,8 +706,12 @@ export default function HeroSection() {
       setGenerationStep('Your sticker is ready!');
       setGenerationProgress(100);
 
-      // Store both URL and asset_id for proper asset management
-      setGeneratedImageUrl(stickerData.url || stickerData.download_url);
+      // Store both URL and asset_id for proper asset management; prefer stable view URL
+      setGeneratedImageUrl(
+        stickerData.asset_id
+          ? `/api/assets/${stickerData.asset_id}`
+          : stickerData.url || stickerData.download_url
+      );
       // Store asset_id in a ref or state if needed for future operations
       const assetId = stickerData.asset_id;
 
@@ -683,7 +725,9 @@ export default function HeroSection() {
 
       // 添加到历史记录，使用asset_id
       pushHistory({
-        url: stickerData.url || stickerData.download_url,
+        url: stickerData.asset_id
+          ? `/api/assets/${stickerData.asset_id}`
+          : stickerData.url || stickerData.download_url,
         style: selectedStyle,
         createdAt: Date.now(),
         asset_id: assetId, // 添加asset_id
@@ -823,7 +867,7 @@ export default function HeroSection() {
 
     try {
       // 如果是资产下载URL（新的格式），直接使用
-      if (generatedImageUrl.startsWith('/api/assets/download')) {
+      if (generatedImageUrl.startsWith('/api/assets/')) {
         // 直接使用资产下载URL，它已经包含了正确的Content-Disposition
         const link = document.createElement('a');
         link.href = generatedImageUrl;

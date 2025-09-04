@@ -129,9 +129,12 @@ export default function StickerGenerator() {
                 result.items.map(
                   async (it: any): Promise<StickerHistoryItem> => {
                     let finalUrl = it.url;
+                    if (it.asset_id) {
+                      finalUrl = `/api/assets/${it.asset_id}`;
+                    }
 
                     // 如果是资产下载URL，检查是否过期
-                    if (it.url?.startsWith('/api/assets/download')) {
+                    if (it.url?.startsWith('/api/assets/')) {
                       try {
                         const urlObj = new URL(it.url, window.location.origin);
                         const exp = urlObj.searchParams.get('exp');
@@ -345,30 +348,26 @@ export default function StickerGenerator() {
     const filename = `sticker-${style}-${Date.now()}.png`;
 
     // 如果是签名下载URL，检查是否临近过期，必要时刷新
-    if (url.startsWith('/api/assets/download')) {
+    if (url.startsWith('/api/assets/')) {
       let finalUrl = url;
       try {
-        const urlObj = new URL(url, window.location.origin);
-        const exp = urlObj.searchParams.get('exp');
-        const assetId = urlObj.searchParams.get('asset_id');
-        if (exp && assetId) {
-          const expiryTime = Number.parseInt(exp) * 1000;
-          const currentTime = Date.now();
-          if (expiryTime - currentTime <= 5 * 60 * 1000) {
-            const refreshRes = await fetch('/api/storage/sign-download', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
-                asset_id: assetId,
-                display_mode: 'inline',
-                expires_in: 3600,
-              }),
-            });
-            if (refreshRes.ok) {
-              const refreshData = await refreshRes.json();
-              finalUrl = refreshData.url;
-            }
+        // For stable view URLs, derive asset_id from path and request a fresh signed download link
+        const pathParts = url.split('/');
+        const assetId = pathParts[pathParts.length - 1];
+        if (assetId) {
+          const refreshRes = await fetch('/api/storage/sign-download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: assetId,
+              display_mode: 'inline',
+              expires_in: 3600,
+            }),
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            finalUrl = refreshData.url;
           }
         }
       } catch {}

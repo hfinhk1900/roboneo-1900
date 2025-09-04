@@ -169,4 +169,22 @@ export class S3Provider implements StorageProvider {
       throw new StorageError(message);
     }
   }
+
+  /**
+   * Read a file from S3 and return its content as Buffer
+   */
+  public async getFile(key: string): Promise<Buffer> {
+    try {
+      const s3 = this.getS3Client();
+      const arrayBuffer = await s3.getObjectArrayBuffer(key);
+      return Buffer.from(arrayBuffer);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unknown error occurred during file read';
+      console.error('getFile, error', message);
+      throw new StorageError(message);
+    }
+  }
 }

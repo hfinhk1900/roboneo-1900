@@ -701,7 +701,7 @@ export function RemoveWatermarkGeneratorSection() {
     async (imageUrl: string, filename = 'watermark-removed.png') => {
       try {
         let finalUrl = imageUrl;
-        if (finalUrl.startsWith('/api/assets/download')) {
+        if (finalUrl.startsWith('/api/assets/')) {
           try {
             const urlObj = new URL(finalUrl, window.location.origin);
             const exp = urlObj.searchParams.get('exp');

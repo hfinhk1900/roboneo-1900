@@ -486,6 +486,35 @@ export function useProductShot(): UseProductShotReturn {
         return;
       }
 
+      // 稳定查看URL：先换取签名下载链接
+      if (url.startsWith('/api/assets/')) {
+        try {
+          const assetId = url.split('/').pop();
+          if (assetId) {
+            const res = await fetch('/api/storage/sign-download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ asset_id: assetId, display_mode: 'inline', expires_in: 3600 }),
+            });
+            if (res.ok) {
+              const { url: signedUrl } = await res.json();
+              const link = document.createElement('a');
+              link.href = signedUrl;
+              link.download = downloadFilename;
+              link.style.display = 'none';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast.success('Image download started!');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to sign stable view URL for download:', e);
+        }
+      }
+
       // 检查是否是base64数据
       if (url.startsWith('data:')) {
         console.log('📊 Using base64 data download');

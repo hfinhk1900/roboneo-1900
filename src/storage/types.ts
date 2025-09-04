@@ -71,4 +71,9 @@ export interface StorageProvider {
    * Get the provider's name
    */
   getProviderName(): string;
+
+  /**
+   * Read a file from storage and return its binary content as Buffer
+   */
+  getFile(key: string): Promise<Buffer>;
 }

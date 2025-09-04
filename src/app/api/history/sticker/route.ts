@@ -34,36 +34,30 @@ export async function GET(request: NextRequest) {
       : await baseQuery;
 
     // 如果需要刷新URL，从URL中解析asset_id并生成新的签名URL
-    const items = refreshUrls
-      ? await Promise.all(
-          rows.map(async (row: any) => {
-            try {
-              if (row.url?.startsWith('/api/assets/download')) {
-                const urlObj = new URL(row.url, 'http://localhost');
-                const assetId = urlObj.searchParams.get('asset_id');
-                if (assetId) {
-                  const assetRows = await db
-                    .select()
-                    .from(assets)
-                    .where(eq(assets.id, assetId))
-                    .limit(1);
-                  if (assetRows[0]?.user_id === session.user.id) {
-                    const signed = generateSignedDownloadUrl(
-                      assetId,
-                      'inline',
-                      3600
-                    );
-                    return { ...row, url: signed.url, asset_id: assetId };
-                  }
-                }
+    const items = await Promise.all(
+      rows.map(async (row: any) => {
+        try {
+          // Convert any legacy signed URL to stable view URL
+          if (row.url?.startsWith('/api/assets/download')) {
+            const urlObj = new URL(row.url, 'http://localhost');
+            const assetId = urlObj.searchParams.get('asset_id');
+            if (assetId) {
+              const assetRows = await db
+                .select()
+                .from(assets)
+                .where(eq(assets.id, assetId))
+                .limit(1);
+              if (assetRows[0]?.user_id === session.user.id) {
+                return { ...row, url: `/api/assets/${assetId}`, asset_id: assetId };
               }
-            } catch (error) {
-              console.error('Failed to refresh URL for sticker item:', error);
             }
-            return row;
-          })
-        )
-      : rows;
+          }
+        } catch (error) {
+          console.error('Failed to convert URL for sticker item:', error);
+        }
+        return row;
+      })
+    );
 
     return NextResponse.json({ items });
   } catch (error) {

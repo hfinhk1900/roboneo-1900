@@ -34,45 +34,33 @@ export async function GET(request: NextRequest) {
 
     const items = await query;
 
-    // 如果需要刷新URL，检查并刷新过期的签名URL
-    const processedItems = refreshUrls
-      ? await Promise.all(
-          items.map(async (item: any) => {
-            if (item.url?.startsWith('/api/assets/download')) {
-              try {
-                const urlObj = new URL(item.url, 'http://localhost');
-                const assetId = urlObj.searchParams.get('asset_id');
-                if (assetId) {
-                  // 验证资产仍然属于用户
-                  const assetRows = await db
-                    .select()
-                    .from(assets)
-                    .where(eq(assets.id, assetId))
-                    .limit(1);
+    // 将旧的签名URL转换为稳定的查看URL
+    const stableItems = await Promise.all(
+      items.map(async (item: any) => {
+        if (item.url?.startsWith('/api/assets/download')) {
+          try {
+            const urlObj = new URL(item.url, 'http://localhost');
+            const assetId = urlObj.searchParams.get('asset_id');
+            if (assetId) {
+              const assetRows = await db
+                .select()
+                .from(assets)
+                .where(eq(assets.id, assetId))
+                .limit(1);
 
-                  if (assetRows[0]?.user_id === session.user.id) {
-                    // 生成新的签名URL
-                    const signed = generateSignedDownloadUrl(
-                      assetId,
-                      'inline',
-                      3600
-                    );
-                    return { ...item, url: signed.url, asset_id: assetId };
-                  }
-                }
-              } catch (error) {
-                console.error(
-                  'Failed to refresh URL for profile picture item:',
-                  error
-                );
+              if (assetRows[0]?.user_id === session.user.id) {
+                return { ...item, url: `/api/assets/${assetId}`, asset_id: assetId };
               }
             }
-            return item;
-          })
-        )
-      : items;
+          } catch (error) {
+            console.error('Failed to convert URL for profile picture item:', error);
+          }
+        }
+        return item;
+      })
+    );
 
-    return NextResponse.json({ items: processedItems });
+    return NextResponse.json({ items: stableItems });
   } catch (error) {
     console.error('Error fetching profile picture history:', error);
     return NextResponse.json(

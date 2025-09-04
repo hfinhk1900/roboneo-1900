@@ -1,7 +1,11 @@
 import { websiteConfig } from '@/config/website';
 import { storageConfig } from './config/storage-config';
 import { S3Provider } from './provider/s3';
-import type { StorageConfig, StorageProvider, UploadFileResult } from './types';
+import type {
+  StorageConfig,
+  StorageProvider,
+  UploadFileResult,
+} from './types';
 
 /**
  * Default storage configuration
@@ -70,4 +74,15 @@ export const uploadFile = async (
 export const deleteFile = async (key: string): Promise<void> => {
   const provider = getStorageProvider();
   return provider.deleteFile(key);
+};
+
+/**
+ * Reads a file's content from the storage provider by key
+ *
+ * @param key - The storage key of the file
+ * @returns Promise with file Buffer
+ */
+export const getFile = async (key: string): Promise<Buffer> => {
+  const provider = getStorageProvider();
+  return provider.getFile(key);
 };

@@ -195,13 +195,17 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
     return item.asset_id;
   }
 
-  // 尝试从URL解析asset_id（适用于签名URL）
+  // 尝试从URL解析asset_id（适用于签名URL或稳定查看URL）
   // 通用字段：url
   if (item.url && typeof item.url === 'string') {
     try {
       if (item.url.startsWith('/api/assets/download')) {
         const urlObj = new URL(item.url, 'http://localhost');
         return urlObj.searchParams.get('asset_id');
+      }
+      if (item.url.startsWith('/api/assets/')) {
+        const parts = item.url.split('/');
+        return parts[parts.length - 1] || null;
       }
     } catch (error) {
       console.warn('Failed to extract asset_id from URL:', item.url);
@@ -214,6 +218,10 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
       if (item.processedImageUrl.startsWith('/api/assets/download')) {
         const urlObj = new URL(item.processedImageUrl, 'http://localhost');
         return urlObj.searchParams.get('asset_id');
+      }
+      if (item.processedImageUrl.startsWith('/api/assets/')) {
+        const parts = item.processedImageUrl.split('/');
+        return parts[parts.length - 1] || null;
       }
     } catch (error) {
       console.warn(
@@ -229,6 +237,10 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
       if (item.originalImageUrl.startsWith('/api/assets/download')) {
         const urlObj = new URL(item.originalImageUrl, 'http://localhost');
         return urlObj.searchParams.get('asset_id');
+      }
+      if (item.originalImageUrl.startsWith('/api/assets/')) {
+        const parts = item.originalImageUrl.split('/');
+        return parts[parts.length - 1] || null;
       }
     } catch (error) {
       console.warn(
