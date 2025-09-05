@@ -433,20 +433,7 @@ export function RemoveWatermarkGeneratorSection() {
       // Set the processed result
       setProcessedImage(demoImage.afterSrc);
 
-      // Add to history
-      const newHistoryItem: RemovalHistoryItem = {
-        id: Date.now().toString(),
-        originalImage: demoImage.beforeSrc,
-        processedImage: demoImage.afterSrc,
-        method: 'demo',
-        watermarkType: 'unknown',
-        quality: 'balanced',
-        createdAt: Date.now(),
-      };
-
-      const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)]; // Keep last 20
-      setRemovalHistory(newHistory);
-      saveHistory(newHistory);
+      // Demo result should NOT be saved to My Library/history
 
       toast.success('Watermark removed successfully! ✨');
     } catch (error) {

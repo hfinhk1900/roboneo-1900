@@ -681,14 +681,7 @@ export default function ProfilePictureMakerGenerator() {
           setGenerationProgress(0);
           pendingGeneration.current = false;
 
-          // 保存到历史记录
-          const historyItem: ProfilePictureHistoryItem = {
-            url: demo.resultUrl,
-            style: selectedStyle,
-            aspectRatio: selectedAspectRatio,
-            createdAt: Date.now(),
-          };
-          await pushHistory(historyItem);
+          // Demo result should NOT be saved to My Library/history
 
           // Simulate credits deduction
           creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
