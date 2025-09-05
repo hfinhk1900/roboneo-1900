@@ -43,6 +43,10 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { LocaleLink } from '@/i18n/navigation';
+import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 // Preset color configuration
 const PRESET_COLORS = [
@@ -316,6 +320,7 @@ export function AIBackgroundGeneratorSection() {
   // 历史记录操作函数
   const pushHistory = useCallback(
     async (item: AibgHistoryItem) => {
+      const db = IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -345,6 +350,28 @@ export function AIBackgroundGeneratorSection() {
                 : Date.now(),
             };
             setAibgHistory((prev) => [createdItem, ...prev]);
+            // 保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: createdItem.id || `aibackground_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'aibackground',
+                toolParams: { mode: createdItem.mode, style: createdItem.style },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: createdItem.id ? 'synced' : 'local',
+                serverId: createdItem.id,
+              } as any);
+            } catch {}
             return;
           }
         } catch {}
@@ -359,6 +386,29 @@ export function AIBackgroundGeneratorSection() {
           };
           const next = [itemWithTime, ...prev];
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+          // 保存到本地图片库（IndexedDB）
+          (async () => {
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(itemWithTime.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: `aibackground_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: itemWithTime.url,
+                blob,
+                thumbnail,
+                toolType: 'aibackground',
+                toolParams: { mode: itemWithTime.mode, style: itemWithTime.style },
+                createdAt: itemWithTime.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: 'local',
+              } as any);
+            } catch {}
+          })();
           return next;
         });
       } catch {}
@@ -587,6 +637,24 @@ export function AIBackgroundGeneratorSection() {
     required: number;
     current: number;
   } | null>(null);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
 
   // 移除模式切换确认对话框状态（因为历史记录已自动保存）
 
@@ -838,10 +906,7 @@ export function AIBackgroundGeneratorSection() {
               const uploadResult = await uploadResponse.json();
               // 使用稳定查看URL用于显示，若不存在则回退到下载URL
               finalImageUrl = uploadResult.viewUrl || uploadResult.downloadUrl;
-              console.log(
-                '✅ Custom color image saved:',
-                finalImageUrl
-              );
+              console.log('✅ Custom color image saved:', finalImageUrl);
             } else {
               console.warn('⚠️ Failed to upload to R2, using base64 fallback');
             }
@@ -1067,6 +1132,22 @@ export function AIBackgroundGeneratorSection() {
       return;
     }
 
+    // Require login before any processing to avoid unnecessary API calls/costs
+    if (!currentUser) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // Check credits before any processing
+    try {
+      const current = creditsCache.get() ?? 0;
+      if (current < CREDITS_PER_IMAGE) {
+        setCreditsError({ required: CREDITS_PER_IMAGE, current });
+        setShowCreditsDialog(true);
+        return;
+      }
+    } catch {}
+
     // Prevent multiple simultaneous processing
     if (isProcessing) {
       return;
@@ -1206,7 +1287,8 @@ export function AIBackgroundGeneratorSection() {
                 if (uploadResponse.ok) {
                   const uploadResult = await uploadResponse.json();
                   // 使用稳定查看URL用于显示，若不存在则回退到下载URL
-                  finalImageUrl = uploadResult.viewUrl || uploadResult.downloadUrl;
+                  finalImageUrl =
+                    uploadResult.viewUrl || uploadResult.downloadUrl;
                   console.log('✅ Solid Color image saved:', finalImageUrl);
                 } else {
                   console.warn(
@@ -1270,7 +1352,8 @@ export function AIBackgroundGeneratorSection() {
           clearInterval(progressInterval);
           console.error('❌ Rembg API failed:', error);
           // Handle insufficient credits explicitly in Solid Color flow
-          const message = error instanceof Error ? error.message : String(error);
+          const message =
+            error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes('insufficient credits')) {
             try {
               const current = creditsCache.get() ?? 0;
@@ -1598,9 +1681,17 @@ export function AIBackgroundGeneratorSection() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ asset_id: assetId, display_mode: 'inline', expires_in: 3600 }),
+            body: JSON.stringify({
+              asset_id: assetId,
+              display_mode: 'inline',
+              expires_in: 3600,
+            }),
           })
-            .then((res) => res.ok ? res.json() : Promise.reject(new Error('Failed to sign download')))
+            .then((res) =>
+              res.ok
+                ? res.json()
+                : Promise.reject(new Error('Failed to sign download'))
+            )
             .then((data) => {
               const link = document.createElement('a');
               link.href = data.url;
@@ -2297,6 +2388,11 @@ export function AIBackgroundGeneratorSection() {
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                       Processing...
                     </>
+                  ) : !currentUser ? (
+                    <>
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      Log in to generate
+                    </>
                   ) : backgroundMode === 'color' && processedImage ? (
                     <>
                       <SparklesIcon className="mr-2 h-5 w-5" />
@@ -2305,7 +2401,7 @@ export function AIBackgroundGeneratorSection() {
                   ) : (
                     <>
                       <SparklesIcon className="mr-2 h-5 w-5" />
-                      Process Image (10 credits)
+                      Process Image ({CREDITS_PER_IMAGE} credits)
                     </>
                   )}
                 </Button>
@@ -2600,23 +2696,30 @@ export function AIBackgroundGeneratorSection() {
         </div>
 
         {/* AI Backgrounds History Section */}
-        {aibgHistory.length > 0 && (
-          <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                Your AI Backgrounds History
-              </h3>
-              <div className="flex items-center gap-2">
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Your AI Backgrounds History</h3>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
+                <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  View All Images
+                </LocaleLink>
+              </Button>
+              {aibgHistory.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="cursor-pointer"
                   onClick={clearHistory}
+                  type="button"
                 >
                   Clear All
                 </Button>
-              </div>
+              )}
             </div>
+          </div>
+          {aibgHistory.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {aibgHistory.map((item, idx) => (
                 <div
@@ -2667,8 +2770,10 @@ export function AIBackgroundGeneratorSection() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-sm text-gray-500">No history yet.</div>
+          )}
+        </div>
 
         {/* 模式切换确认对话框已移除 - 历史记录会自动保存所有生成的图片 */}
 
@@ -2702,6 +2807,33 @@ export function AIBackgroundGeneratorSection() {
           </DialogContent>
         </Dialog>
 
+        {/* Login Required Dialog */}
+        <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
+              <DialogDescription>
+                {authMode === 'login'
+                  ? 'Please sign in to use AI Background.'
+                  : 'Sign up to start using AI Background.'}
+              </DialogDescription>
+            </DialogHeader>
+            {authMode === 'login' ? (
+              <LoginForm
+                callbackUrl={
+                  typeof window !== 'undefined' ? window.location.pathname : '/'
+                }
+              />
+            ) : (
+              <RegisterForm
+                callbackUrl={
+                  typeof window !== 'undefined' ? window.location.pathname : '/'
+                }
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Clear all history confirmation dialog */}
         <Dialog
           open={showClearAllConfirmDialog}
@@ -2719,10 +2851,11 @@ export function AIBackgroundGeneratorSection() {
               <Button
                 variant="outline"
                 onClick={() => setShowClearAllConfirmDialog(false)}
+                type="button"
               >
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={confirmClearAllHistory}>
+              <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
                 Clear All
               </Button>
             </div>

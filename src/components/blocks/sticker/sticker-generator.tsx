@@ -1,6 +1,7 @@
 'use client';
 
 import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
 import { OptimizedImage } from '@/components/seo/optimized-image';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,8 @@ import {
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { LocaleLink } from '@/i18n/navigation';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.webp' },
@@ -59,10 +62,32 @@ interface StickerHistoryItem {
 
 const HISTORY_KEY = 'sticker_history';
 
+// 生成唯一ID用于本地库
+function generateLocalId(prefix: string) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export default function StickerGenerator() {
   const currentUser = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const pendingGeneration = useRef(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -229,6 +254,7 @@ export default function StickerGenerator() {
   // 写入历史（最多保留 24 条，最新在前）
   const pushHistory = useCallback(
     async (item: StickerHistoryItem) => {
+      const db = IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -254,6 +280,28 @@ export default function StickerGenerator() {
                 : Date.now(),
             };
             setStickerHistory((prev) => [createdItem, ...prev]);
+            // 同步保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: createdItem.id || generateLocalId('sticker'),
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'sticker',
+                toolParams: { style: createdItem.style },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: createdItem.id ? 'synced' : 'local',
+                serverId: createdItem.id,
+              } as any);
+            } catch {}
             return;
           }
         } catch {}
@@ -267,6 +315,27 @@ export default function StickerGenerator() {
         const next = [itemWithTime, ...stickerHistory].slice(0, 24);
         setStickerHistory(next);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+        // 保存到本地图片库（IndexedDB）
+        try {
+          let blob: Blob | undefined;
+          try {
+            const resp = await fetch(itemWithTime.url);
+            if (resp.ok) blob = await resp.blob();
+          } catch {}
+          const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+          await db.saveImage({
+            id: generateLocalId('sticker'),
+            url: itemWithTime.url,
+            blob,
+            thumbnail,
+            toolType: 'sticker',
+            toolParams: { style: itemWithTime.style },
+            createdAt: itemWithTime.createdAt,
+            lastAccessedAt: Date.now(),
+            fileSize: blob?.size,
+            syncStatus: 'local',
+          } as any);
+        } catch {}
       } catch {}
     },
     [stickerHistory, currentUser]
@@ -821,7 +890,7 @@ export default function StickerGenerator() {
                         : !isMounted
                           ? 'Generate Sticker'
                           : !currentUser
-                            ? 'Login to Generate Sticker'
+                            ? 'Log in to generate'
                             : generatedImageUrl
                               ? `Regenerate (${CREDITS_PER_IMAGE} credits)`
                               : `Generate My Sticker (${CREDITS_PER_IMAGE} credits)`}
@@ -1008,16 +1077,25 @@ export default function StickerGenerator() {
 
       {/* Login Dialog */}
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-        <DialogContent className="sm:max-w-[400px] p-0">
+        <DialogContent className="sm:max-w-[420px] p-0">
           <DialogHeader className="hidden">
-            <DialogTitle>Login</DialogTitle>
+            <DialogTitle />
           </DialogHeader>
-          <LoginForm
-            callbackUrl={
-              typeof window !== 'undefined' ? window.location.pathname : '/'
-            }
-            className="border-none"
-          />
+          {authMode === 'login' ? (
+            <LoginForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+              className="border-none"
+            />
+          ) : (
+            <RegisterForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+              className="border-none"
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1068,10 +1146,11 @@ export default function StickerGenerator() {
             <Button
               variant="outline"
               onClick={() => setShowClearAllConfirmDialog(false)}
+              type="button"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory}>
+            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
               Clear All
             </Button>
           </div>
@@ -1080,21 +1159,30 @@ export default function StickerGenerator() {
 
       {/* 历史记录区块 */}
 
-      {stickerHistory.length > 0 && (
-        <div className="mx-auto max-w-7xl px-6 mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Your Sticker History</h3>
-            <div className="flex items-center gap-2">
+      <div className="mx-auto max-w-7xl px-6 mt-10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Your Sticker History</h3>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
+              <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
+                <ImageIcon className="h-4 w-4 mr-2" />
+                View All Images
+              </LocaleLink>
+            </Button>
+            {stickerHistory.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 className="cursor-pointer"
                 onClick={clearHistory}
+                type="button"
               >
                 Clear All
               </Button>
-            </div>
+            )}
           </div>
+        </div>
+        {stickerHistory.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {stickerHistory.map((item, idx) => (
               <div key={`${item.createdAt}-${idx}`} className="group relative">
@@ -1136,8 +1224,10 @@ export default function StickerGenerator() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-sm text-gray-500">No history yet.</div>
+        )}
+      </div>
 
       {/* 图片预览弹窗 */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>

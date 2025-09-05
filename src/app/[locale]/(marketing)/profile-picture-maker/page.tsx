@@ -1,6 +1,6 @@
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import ProfilePictureMakerGenerator from '@/components/blocks/profile-picture-maker/profile-picture-maker-generator';
 import { constructMetadata } from '@/lib/metadata';
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({

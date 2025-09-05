@@ -1,8 +1,8 @@
 'use client';
 
+import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { LocaleLink } from '@/i18n/navigation';
 
 interface ToolCard {
   title: string;
@@ -17,7 +17,7 @@ const tools: ToolCard[] = [
     title: 'Image to Sticker',
     description:
       'Turn any photo into a crisp sticker with precise cutouts and a transparent background.',
-    image: '/sticker/Explore01.png',
+    image: '/sticker/Explore01.webp',
     imageAlt: 'Image to Sticker demo',
     href: '/sticker',
   },
@@ -25,7 +25,7 @@ const tools: ToolCard[] = [
     title: 'Product Shots',
     description:
       'Generate studio-quality product photos with on-brand backgrounds, lighting, and shadows, no shoot needed.',
-    image: '/sticker/Explore02.png',
+    image: '/sticker/Explore02.webp',
     imageAlt: 'Product Shots demo',
     href: '/productshot',
   },
@@ -33,7 +33,7 @@ const tools: ToolCard[] = [
     title: 'AI Backgrounds',
     description:
       "Generate realistic AI backgrounds that match your scene's lighting and perspective in seconds.",
-    image: '/sticker/Explore03.png',
+    image: '/sticker/Explore03.webp',
     imageAlt: 'AI Backgrounds demo',
     href: '/aibackgrounds',
   },
@@ -41,7 +41,7 @@ const tools: ToolCard[] = [
     title: 'Remove Watermark',
     description:
       'Remove watermarks and timestamps from licensed images with clean, natural inpainting.',
-    image: '/sticker/Explore04.png',
+    image: '/sticker/Explore04.webp',
     imageAlt: 'Remove Watermark demo',
     href: '/remove-watermark',
   },
@@ -49,13 +49,19 @@ const tools: ToolCard[] = [
     title: 'Profile Picture Maker',
     description:
       'Create polished, on-brand profile photos with subtle retouching and platform-ready crops.',
-    image: '/sticker/Explore05.png',
+    image: '/sticker/Explore05.webp',
     imageAlt: 'Profile Picture Maker demo',
     href: '/profile-picture-maker',
   },
 ];
 
 export default function ExploreMoreToolsSection() {
+  const pathname = useLocalePathname();
+  // Filter out the current tool based on pathname (locale-agnostic)
+  const filtered = tools.filter((tool) => {
+    return !(pathname === tool.href || pathname.startsWith(`${tool.href}/`));
+  });
+
   return (
     <section className="py-16 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -66,7 +72,7 @@ export default function ExploreMoreToolsSection() {
 
         {/* Tool Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
-          {tools.map((tool, index) => (
+          {(filtered.length ? filtered : tools).map((tool, index) => (
             <LocaleLink
               key={index}
               href={tool.href}
@@ -88,6 +94,11 @@ export default function ExploreMoreToolsSection() {
                     width={166}
                     height={166}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    quality={85}
+                    placeholder="blur"
+                    blurDataURL="data:image/webp;base64,UklGRpoAAABXRUJQVlA4WAoAAAAQAAAADwAABwAAQUxQSDIAAAARL0AmbZurmr57yyIiqE8oiG0bejIYEQTgqiDA9vqnsUSI6H+oAERp2HZ65qP/VIAWAFZQOCBCAAAA8AEAnQEqEAAIAAVAfCWkAALp8sF8rgRgAP7o9FDvMCkMde9PK7euH5M1m6VWoDXf2FkP3BqV0ZYbO6NA/VFIAAAA"
+                    sizes="(max-width: 640px) 128px, (max-width: 1024px) 160px, 166px"
                   />
                 </div>
               </div>

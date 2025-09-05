@@ -40,6 +40,10 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { LocaleLink } from '@/i18n/navigation';
+import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 // Watermark removal method configuration
 const REMOVAL_METHODS = [
@@ -215,6 +219,23 @@ export function RemoveWatermarkGeneratorSection() {
 
   // Dialog states
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] =
     useState(false);
@@ -616,6 +637,29 @@ export function RemoveWatermarkGeneratorSection() {
         const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)];
         setRemovalHistory(newHistory);
         saveHistory(newHistory);
+        // 保存到本地图片库（IndexedDB）
+        try {
+          const db = IndexedDBManager.getInstance();
+          let blob: Blob | undefined;
+          try {
+            const resp = await fetch(newHistoryItem.processedImage);
+            if (resp.ok) blob = await resp.blob();
+          } catch {}
+          const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+          await db.saveImage({
+            id: newHistoryItem.id || `watermark-removal_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+            url: newHistoryItem.processedImage,
+            blob,
+            thumbnail,
+            toolType: 'watermark-removal',
+            toolParams: { method: newHistoryItem.method },
+            createdAt: newHistoryItem.createdAt,
+            lastAccessedAt: Date.now(),
+            fileSize: blob?.size,
+            syncStatus: newHistoryItem.id ? 'synced' : 'local',
+            serverId: newHistoryItem.id,
+          } as any);
+        } catch {}
 
         toast.success(
           `Watermark removed successfully! ${result.credits_used} credits used. ${result.remaining_credits} credits remaining.`
@@ -876,6 +920,11 @@ export function RemoveWatermarkGeneratorSection() {
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                       Removing Watermark...
                     </>
+                  ) : !currentUser ? (
+                    <>
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      Log in to generate
+                    </>
                   ) : (
                     <>
                       <SparklesIcon className="mr-2 h-5 w-5" />
@@ -1036,23 +1085,30 @@ export function RemoveWatermarkGeneratorSection() {
         </div>
 
         {/* Watermark Removal History Section */}
-        {removalHistory.length > 0 && (
-          <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                Your Watermark Removal History
-              </h3>
-              <div className="flex items-center gap-2">
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Your Watermark Removal History</h3>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
+                <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  View All Images
+                </LocaleLink>
+              </Button>
+              {removalHistory.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="cursor-pointer"
                   onClick={() => setShowClearAllConfirmDialog(true)}
+                  type="button"
                 >
                   Clear All
                 </Button>
-              </div>
+              )}
             </div>
+          </div>
+          {removalHistory.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {removalHistory.slice(0, 12).map((item, idx) => (
                 <div
@@ -1105,32 +1161,39 @@ export function RemoveWatermarkGeneratorSection() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-sm text-gray-500">No history yet.</div>
+          )}
+        </div>
       </div>
 
       {/* Dialogs */}
       {/* Login Dialog */}
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Sign in Required</DialogTitle>
+            <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
             <DialogDescription>
-              Please sign in to use the watermark removal feature.
+              {authMode === 'login'
+                ? 'Please sign in to use the watermark removal feature.'
+                : 'Sign up to start using the watermark removal feature.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowLoginDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                window.location.href = '/auth/signin';
-              }}
-            >
-              Sign In
-            </Button>
-          </div>
+          {authMode === 'login' ? (
+            <LoginForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+              className="border-none"
+            />
+          ) : (
+            <RegisterForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+              className="border-none"
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1269,6 +1332,7 @@ export function RemoveWatermarkGeneratorSection() {
             <Button
               variant="outline"
               onClick={() => setShowClearAllConfirmDialog(false)}
+              type="button"
             >
               Cancel
             </Button>
@@ -1278,6 +1342,7 @@ export function RemoveWatermarkGeneratorSection() {
                 clearAllHistory();
                 setShowClearAllConfirmDialog(false);
               }}
+              type="button"
             >
               Clear All
             </Button>

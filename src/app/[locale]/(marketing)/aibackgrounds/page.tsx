@@ -1,6 +1,6 @@
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import type { Metadata } from 'next';
 import React from 'react';
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 
 import { AIBackgroundGeneratorSection } from '@/components/blocks/aibg/aibg-generator';
 

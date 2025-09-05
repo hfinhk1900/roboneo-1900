@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
 import { buttonVariants } from '@/components/ui/button';
 import { LocaleLink } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
+import { Routes } from '@/routes';
 
 interface BottomLinkProps {
   href: string;
@@ -10,14 +11,45 @@ interface BottomLinkProps {
 }
 
 export const BottomLink = ({ href, label }: BottomLinkProps) => {
+  const className = cn(
+    buttonVariants({ variant: 'link', size: 'sm' }),
+    'font-normal w-full text-muted-foreground hover:underline underline-offset-4 hover:text-primary'
+  );
+  // Dispatch global events to switch within current modal context
+  if (href === Routes.Register) {
+    return (
+      <span
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+          try {
+            window.dispatchEvent(new CustomEvent('auth:switch-to-register'));
+          } catch {}
+        }}
+      >
+        {label}
+      </span>
+    );
+  }
+  if (href === Routes.Login) {
+    return (
+      <span
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+          try {
+            window.dispatchEvent(new CustomEvent('auth:switch-to-login'));
+          } catch {}
+        }}
+      >
+        {label}
+      </span>
+    );
+  }
+
+  // Fallback to link navigation for other routes
   return (
-    <LocaleLink
-      href={href}
-      className={cn(
-        buttonVariants({ variant: 'link', size: 'sm' }),
-        'font-normal w-full text-muted-foreground hover:underline underline-offset-4 hover:text-primary'
-      )}
-    >
+    <LocaleLink href={href} className={className}>
       {label}
     </LocaleLink>
   );

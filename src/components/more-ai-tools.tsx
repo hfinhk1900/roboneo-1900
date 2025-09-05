@@ -1,8 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 
 export default function MoreAITools() {
+  const pathname = useLocalePathname();
+  const isCurrent = (href: string) =>
+    href !== '#' && (pathname === href || pathname.startsWith(`${href}/`));
   return (
     <section className="py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
       <div className="mx-auto max-w-6xl space-y-12 px-6">
@@ -51,13 +54,13 @@ export default function MoreAITools() {
                     className="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
                     size="lg"
                   >
-                    <Link
+                    <LocaleLink
                       href="#"
                       className="flex items-center justify-center gap-2"
                     >
                       <span>Generate Image</span>
                       <ChevronRight className="w-4 h-4" />
-                    </Link>
+                    </LocaleLink>
                   </Button>
                 </div>
               </div>
@@ -98,20 +101,21 @@ export default function MoreAITools() {
                     className="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
                     size="lg"
                   >
-                    <Link
+                    <LocaleLink
                       href="#"
                       className="flex items-center justify-center gap-2"
                     >
                       <span>Transform Image</span>
                       <ChevronRight className="w-4 h-4" />
-                    </Link>
+                    </LocaleLink>
                   </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Remove Watermark Card */}
+          {/* Remove Watermark Card (hide when on remove-watermark page) */}
+          {!isCurrent('/remove-watermark') && (
           <div className="relative overflow-hidden rounded-3xl shadow-2xl">
             {/* Background Image */}
             <div
@@ -165,7 +169,7 @@ export default function MoreAITools() {
 
               {/* CTA Button */}
               <div className="mt-8">
-                <Link href="/remove-watermark">
+                <LocaleLink href="/remove-watermark">
                   <Button
                     variant="secondary"
                     size="lg"
@@ -176,10 +180,11 @@ export default function MoreAITools() {
                     Try Remove Watermark
                     <ChevronRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
-                </Link>
+                </LocaleLink>
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </section>

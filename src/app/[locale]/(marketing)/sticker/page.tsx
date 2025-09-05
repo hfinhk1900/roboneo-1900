@@ -1,4 +1,4 @@
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
 import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
 import StickerGenerator from '@/components/blocks/sticker/sticker-generator';

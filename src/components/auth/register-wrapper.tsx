@@ -33,6 +33,20 @@ export const RegisterWrapper = ({
     setMounted(true);
   }, []);
 
+  // Close this register modal when switching to login modal
+  useEffect(() => {
+    const closeRegister = () => setIsModalOpen(false);
+    window.addEventListener('auth:switch-to-login', closeRegister);
+    return () => window.removeEventListener('auth:switch-to-login', closeRegister);
+  }, []);
+
+  // Open this register modal on switch-to-register
+  useEffect(() => {
+    const openRegister = () => setIsModalOpen(true);
+    window.addEventListener('auth:switch-to-register', openRegister);
+    return () => window.removeEventListener('auth:switch-to-register', openRegister);
+  }, []);
+
   const handleRegister = () => {
     // append callbackUrl as a query parameter if provided
     const registerPath = callbackUrl

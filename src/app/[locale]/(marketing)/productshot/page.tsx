@@ -1,7 +1,7 @@
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
 import { StructuredData } from '@/components/seo/structured-data';
 import PhotostockGallery from '@/components/shared/photostock-gallery';
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

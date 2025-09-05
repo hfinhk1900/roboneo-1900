@@ -1,10 +1,33 @@
-import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
-import FaqSection from '@/components/blocks/faqs/faqs';
 import AISuperchargeToolsSection from '@/components/blocks/features/ai-supercharge-tools';
 import AllToolsSection from '@/components/blocks/features/all-tools';
 import HomeHeroSection from '@/components/blocks/hero/home-hero';
-import PricingSection from '@/components/blocks/pricing/pricing';
-import TestimonialsSection from '@/components/blocks/testimonials/testimonials';
+import dynamic from 'next/dynamic';
+
+// 懒加载非首屏组件
+const CallToActionSection = dynamic(
+  () => import('@/components/blocks/calltoaction/calltoaction'),
+  {
+    loading: () => <div className="h-64 bg-gray-50 animate-pulse" />,
+  }
+);
+
+const FaqSection = dynamic(() => import('@/components/blocks/faqs/faqs'), {
+  loading: () => <div className="h-96 bg-white animate-pulse" />,
+});
+
+const PricingSection = dynamic(
+  () => import('@/components/blocks/pricing/pricing'),
+  {
+    loading: () => <div className="h-screen bg-gray-50 animate-pulse" />,
+  }
+);
+
+const TestimonialsSection = dynamic(
+  () => import('@/components/blocks/testimonials/testimonials'),
+  {
+    loading: () => <div className="h-64 bg-white animate-pulse" />,
+  }
+);
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
 import { getUrlWithLocale } from '@/lib/urls/urls';

@@ -56,6 +56,23 @@ export default function HeroSection() {
   const currentUser = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const pendingGeneration = useRef(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -393,6 +410,7 @@ export default function HeroSection() {
   // 写入历史（最多保留 24 条，最新在前）
   const pushHistory = useCallback(
     async (item: StickerHistoryItem) => {
+      const db = (await import('@/lib/image-library/indexeddb-manager')).IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -418,6 +436,28 @@ export default function HeroSection() {
                 : Date.now(),
             };
             setStickerHistory((prev) => [createdItem, ...prev]); // 移除24条限制，永久保存所有历史记录
+            // 保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: createdItem.id || `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'sticker',
+                toolParams: { style: createdItem.style },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: createdItem.id ? 'synced' : 'local',
+                serverId: createdItem.id,
+              } as any);
+            } catch {}
             return;
           }
         } catch {}
@@ -432,6 +472,27 @@ export default function HeroSection() {
         const next = [itemWithTime, ...stickerHistory]; // 移除24条限制，永久保存所有历史记录
         setStickerHistory(next);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+        // 保存到本地图片库（IndexedDB）
+        try {
+          let blob: Blob | undefined;
+          try {
+            const resp = await fetch(itemWithTime.url);
+            if (resp.ok) blob = await resp.blob();
+          } catch {}
+          const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+          await db.saveImage({
+            id: `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+            url: itemWithTime.url,
+            blob,
+            thumbnail,
+            toolType: 'sticker',
+            toolParams: { style: itemWithTime.style },
+            createdAt: itemWithTime.createdAt,
+            lastAccessedAt: Date.now(),
+            fileSize: blob?.size,
+            syncStatus: 'local',
+          } as any);
+        } catch {}
       } catch {}
     },
     [stickerHistory, currentUser]
@@ -1406,10 +1467,11 @@ export default function HeroSection() {
             <Button
               variant="outline"
               onClick={() => setShowClearAllConfirmDialog(false)}
+              type="button"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory}>
+            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
               Clear All
             </Button>
           </div>
@@ -1427,6 +1489,7 @@ export default function HeroSection() {
                 size="sm"
                 className="cursor-pointer"
                 onClick={clearHistory}
+                type="button"
               >
                 Clear All
               </Button>

@@ -26,6 +26,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { cn } from '@/lib/utils';
+import { LocaleLink } from '@/i18n/navigation';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
+import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
 import {
   BoxIcon,
   CameraIcon,
@@ -76,6 +80,24 @@ export default function ProductShotGeneratorSection() {
     required: number;
     current: number;
   } | null>(null);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
 
   // 新增：生成进度状态
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -385,6 +407,7 @@ export default function ProductShotGeneratorSection() {
   // 写入历史（永久保存所有历史记录）
   const pushHistory = useCallback(
     async (item: ProductshotHistoryItem) => {
+      const db = IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -411,6 +434,28 @@ export default function ProductShotGeneratorSection() {
             setProductshotHistory(
               (prev) => [createdItem, ...prev] // 永久保存所有历史记录
             );
+            // 保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: createdItem.id || `productshot_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'productshot',
+                toolParams: { scene: createdItem.scene },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: createdItem.id ? 'synced' : 'local',
+                serverId: createdItem.id,
+              } as any);
+            } catch {}
             return;
           }
         } catch {}
@@ -425,6 +470,29 @@ export default function ProductShotGeneratorSection() {
           };
           const next = [itemWithTime, ...prev]; // 永久保存所有历史记录
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+          // 保存到本地图片库（IndexedDB）
+          (async () => {
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(itemWithTime.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: `productshot_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: itemWithTime.url,
+                blob,
+                thumbnail,
+                toolType: 'productshot',
+                toolParams: { scene: itemWithTime.scene },
+                createdAt: itemWithTime.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: 'local',
+              } as any);
+            } catch {}
+          })();
           return next;
         });
       } catch {}
@@ -777,6 +845,22 @@ export default function ProductShotGeneratorSection() {
       return;
     }
 
+    // Require login before generation to avoid calling API anonymously
+    if (!currentUser) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    // Check credits before generation
+    try {
+      const current = creditsCache.get() ?? 0;
+      if (current < CREDITS_PER_IMAGE) {
+        setCreditsError({ required: CREDITS_PER_IMAGE, current });
+        setShowCreditsDialog(true);
+        return;
+      }
+    } catch {}
+
     // 双图模式：如果有参考图片，不需要选择Scene
     // 单图模式：必须选择Scene
     if (!referenceImage && !selectedScene) {
@@ -848,7 +932,9 @@ export default function ProductShotGeneratorSection() {
     if (!result?.download_url && !result?.asset_id) return;
 
     const filename = `productshot-${selectedSceneConfig?.name}-${Date.now()}.png`;
-    const viewUrl = result?.asset_id ? `/api/assets/${result.asset_id}` : undefined;
+    const viewUrl = result?.asset_id
+      ? `/api/assets/${result.asset_id}`
+      : undefined;
     await downloadImage(viewUrl || result!.download_url, filename);
   };
 
@@ -867,7 +953,9 @@ export default function ProductShotGeneratorSection() {
       console.log('🎉 ProductShot generated, adding to history:', result);
       const historyItem: ProductshotHistoryItem = {
         asset_id: result.asset_id, // 保存资产ID
-        url: result.asset_id ? `/api/assets/${result.asset_id}` : result.download_url,
+        url: result.asset_id
+          ? `/api/assets/${result.asset_id}`
+          : result.download_url,
         scene: selectedScene || 'custom',
         createdAt: Date.now(),
       };
@@ -1248,7 +1336,9 @@ export default function ProductShotGeneratorSection() {
                     )}
                     {isLoading
                       ? 'Generating Product Scene...'
-                      : `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`}
+                      : !currentUser
+                        ? 'Log in to generate'
+                        : `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`}
                   </Button>
                 </div>
               </CardContent>
@@ -1422,6 +1512,33 @@ export default function ProductShotGeneratorSection() {
         />
       )}
 
+      {/* Login Required Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
+            <DialogDescription>
+              {authMode === 'login'
+                ? 'Please sign in to generate product shots.'
+                : 'Sign up to start generating product shots.'}
+            </DialogDescription>
+          </DialogHeader>
+          {authMode === 'login' ? (
+            <LoginForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+            />
+          ) : (
+            <RegisterForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Image Preview Modal */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
         <DialogContent className="max-w-7xl w-[95vw] h-[85vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
@@ -1563,10 +1680,11 @@ export default function ProductShotGeneratorSection() {
             <Button
               variant="outline"
               onClick={() => setShowClearAllConfirmDialog(false)}
+              type="button"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory}>
+            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
               Clear All
             </Button>
           </div>
@@ -1574,21 +1692,30 @@ export default function ProductShotGeneratorSection() {
       </Dialog>
 
       {/* 历史记录区块 */}
-      {productshotHistory.length > 0 && (
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Your ProductShot History</h3>
-            <div className="flex items-center gap-2">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Your ProductShot History</h3>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
+              <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
+                <ImageIcon className="h-4 w-4 mr-2" />
+                View All Images
+              </LocaleLink>
+            </Button>
+            {productshotHistory.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 className="cursor-pointer"
                 onClick={clearHistory}
+                type="button"
               >
                 Clear All
               </Button>
-            </div>
+            )}
           </div>
+        </div>
+        {productshotHistory.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {productshotHistory.map((item, idx) => (
               <div key={`${item.createdAt}-${idx}`} className="group relative">
@@ -1633,8 +1760,10 @@ export default function ProductShotGeneratorSection() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-sm text-gray-500">No history yet.</div>
+        )}
+      </div>
     </section>
   );
 }

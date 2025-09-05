@@ -1,6 +1,6 @@
+import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import type { Metadata } from 'next';
 import React from 'react';
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools';
 
 import { RemoveWatermarkGeneratorSection } from '@/components/blocks/remove-watermark/remove-watermark-generator';
 

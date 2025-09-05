@@ -933,5 +933,11 @@
     "title": "AI Audio",
     "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
     "content": "Working in progress"
+  },
+  "MyImageLibrary": {
+    "metadata": {
+      "title": "My Image Library - RoboNeo AI",
+      "description": "View and manage all your AI-generated images in one place"
+    }
   }
 }

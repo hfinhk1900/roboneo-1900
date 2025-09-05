@@ -1,6 +1,7 @@
 'use client';
 
 import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,6 +42,8 @@ import {
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { LocaleLink } from '@/i18n/navigation';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 // Profile picture styles with their corresponding prompts
 const PROFILE_STYLES = [
@@ -177,6 +180,23 @@ export default function ProfilePictureMakerGenerator() {
   const currentUser = useCurrentUser();
   const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const switchToRegister = () => {
+      setAuthMode('register');
+      setShowLoginDialog(true);
+    };
+    const switchToLogin = () => {
+      setAuthMode('login');
+      setShowLoginDialog(true);
+    };
+    window.addEventListener('auth:switch-to-register', switchToRegister);
+    window.addEventListener('auth:switch-to-login', switchToLogin);
+    return () => {
+      window.removeEventListener('auth:switch-to-register', switchToRegister);
+      window.removeEventListener('auth:switch-to-login', switchToLogin);
+    };
+  }, []);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
@@ -276,6 +296,7 @@ export default function ProfilePictureMakerGenerator() {
   // 历史记录操作函数
   const pushHistory = useCallback(
     async (item: ProfilePictureHistoryItem) => {
+      const db = IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -305,6 +326,28 @@ export default function ProfilePictureMakerGenerator() {
                 : Date.now(),
             };
             setProfilePictureHistory((prev) => [createdItem, ...prev]);
+            // 保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              await db.saveImage({
+                id: createdItem.id || `profile-picture_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'profile-picture',
+                toolParams: { style: createdItem.style },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                fileSize: blob?.size,
+                syncStatus: createdItem.id ? 'synced' : 'local',
+                serverId: createdItem.id,
+              } as any);
+            } catch {}
             return;
           }
         } catch {}
@@ -314,6 +357,29 @@ export default function ProfilePictureMakerGenerator() {
       setProfilePictureHistory((prev) => {
         const newHistory = [item, ...prev];
         localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+        // 保存到本地图片库（IndexedDB）
+        (async () => {
+          try {
+            let blob: Blob | undefined;
+            try {
+              const resp = await fetch(item.url);
+              if (resp.ok) blob = await resp.blob();
+            } catch {}
+            const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+            await db.saveImage({
+              id: `profile-picture_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+              url: item.url,
+              blob,
+              thumbnail,
+              toolType: 'profile-picture',
+              toolParams: { style: item.style },
+              createdAt: item.createdAt || Date.now(),
+              lastAccessedAt: Date.now(),
+              fileSize: blob?.size,
+              syncStatus: 'local',
+            } as any);
+          } catch {}
+        })();
         return newHistory;
       });
     },
@@ -1027,10 +1093,15 @@ export default function ProfilePictureMakerGenerator() {
                       <LoaderIcon className="h-5 w-5 mr-2 animate-spin" />
                       Generating...
                     </>
+                  ) : !currentUser ? (
+                    <>
+                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      Log in to generate
+                    </>
                   ) : (
                     <>
                       <SparklesIcon className="h-5 w-5 mr-2" />
-                      Generate Profile Picture (10 credits)
+                      Generate Profile Picture ({CREDITS_PER_IMAGE} credits)
                     </>
                   )}
                 </Button>
@@ -1214,23 +1285,30 @@ export default function ProfilePictureMakerGenerator() {
         </div>
 
         {/* Profile Picture History Section */}
-        {profilePictureHistory.length > 0 && (
-          <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                Your Profile Picture History
-              </h3>
-              <div className="flex items-center gap-2">
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Your Profile Picture History</h3>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
+                <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  View All Images
+                </LocaleLink>
+              </Button>
+              {profilePictureHistory.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="cursor-pointer"
                   onClick={() => setShowClearAllConfirmDialog(true)}
+                  type="button"
                 >
                   Clear All
                 </Button>
-              </div>
+              )}
             </div>
+          </div>
+          {profilePictureHistory.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {profilePictureHistory.map((item, idx) => (
                 <div
@@ -1284,20 +1362,36 @@ export default function ProfilePictureMakerGenerator() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-sm text-gray-500">No history yet.</div>
+          )}
+        </div>
       </div>
 
       {/* Login Dialog */}
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Sign in Required</DialogTitle>
+            <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
             <DialogDescription>
-              Please sign in to generate professional profile pictures.
+              {authMode === 'login'
+                ? 'Please sign in to generate professional profile pictures.'
+                : 'Sign up to start generating professional profile pictures.'}
             </DialogDescription>
           </DialogHeader>
-          <LoginForm />
+          {authMode === 'login' ? (
+            <LoginForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+            />
+          ) : (
+            <RegisterForm
+              callbackUrl={
+                typeof window !== 'undefined' ? window.location.pathname : '/'
+              }
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -1368,6 +1462,7 @@ export default function ProfilePictureMakerGenerator() {
             <Button
               variant="outline"
               onClick={() => setShowClearAllConfirmDialog(false)}
+              type="button"
             >
               Cancel
             </Button>
@@ -1378,6 +1473,7 @@ export default function ProfilePictureMakerGenerator() {
                 setShowClearAllConfirmDialog(false);
                 toast.success('All profile pictures deleted');
               }}
+              type="button"
             >
               Clear All
             </Button>

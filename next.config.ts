@@ -29,7 +29,11 @@ const nextConfig: NextConfig = {
     // https://vercel.com/docs/image-optimization/managing-image-optimization-costs#minimizing-image-optimization-costs
     // https://nextjs.org/docs/app/api-reference/components/image#unoptimized
     // vercel has limits on image optimization, 1000 images per month
-    unoptimized: process.env.DISABLE_IMAGE_OPTIMIZATION === 'true',
+    // 为了节省 Vercel 带宽，My Image Library 功能禁用图片优化代理
+    unoptimized: true,
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
