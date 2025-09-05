@@ -682,9 +682,7 @@ export default function ProfilePictureMakerGenerator() {
           pendingGeneration.current = false;
 
           // Demo result should NOT be saved to My Library/history
-
-          // Simulate credits deduction
-          creditsCache.set(Math.max(0, currentCredits - CREDITS_PER_IMAGE));
+          // Demo should NOT deduct credits
 
           toast.success('Demo profile picture generated successfully!');
         }, 300);
