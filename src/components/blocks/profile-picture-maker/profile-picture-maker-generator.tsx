@@ -628,21 +628,7 @@ export default function ProfilePictureMakerGenerator() {
   // Handle demo image click - simulate generation process
   const handleDemoClick = useCallback(
     async (demo: (typeof DEMO_IMAGES)[0]) => {
-      if (!currentUser) {
-        setShowLoginDialog(true);
-        return;
-      }
-
-      // Check credits
-      const currentCredits = creditsCache.get() || 0;
-      if (currentCredits < CREDITS_PER_IMAGE) {
-        setCreditsError({
-          required: CREDITS_PER_IMAGE,
-          current: currentCredits,
-        });
-        setShowCreditsDialog(true);
-        return;
-      }
+      // Allow demo click even when not logged in; do not check credits for demo
 
       if (pendingGeneration.current) {
         return;
