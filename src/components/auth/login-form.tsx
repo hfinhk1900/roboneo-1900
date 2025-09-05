@@ -29,6 +29,7 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { SocialLoginButton } from './social-login-button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface LoginFormProps {
   className?: string;
@@ -236,15 +237,22 @@ export const LoginForm = ({
               validationError={form.formState.errors.captchaToken?.message}
             />
           )}
-          <Button
-            disabled={isPending || (captchaActive && !captchaToken)}
-            size="lg"
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 cursor-pointer"
-          >
-            {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
-            <span>{t('signIn')}</span>
-          </Button>
+          <Tooltip open={captchaActive && !captchaToken ? undefined : false}>
+            <TooltipTrigger asChild>
+              <Button
+                disabled={isPending || (captchaActive && !captchaToken)}
+                size="lg"
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                <span>{t('signIn')}</span>
+              </Button>
+            </TooltipTrigger>
+            {captchaActive && !captchaToken && (
+              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+            )}
+          </Tooltip>
         </form>
       </Form>
       <div className="mt-4">

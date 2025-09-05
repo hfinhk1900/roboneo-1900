@@ -12,6 +12,7 @@ import { Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SocialLoginButtonProps {
   callbackUrl?: string;
@@ -97,7 +98,9 @@ export const SocialLoginButton = ({
     <div className="w-full flex flex-col gap-4">
       <DividerWithText text={t('or')} />
       {websiteConfig.auth.enableGoogleLogin && (
-        <Button
+        <Tooltip open={disabled ? undefined : false}>
+          <TooltipTrigger asChild>
+            <Button
           size="lg"
           className="w-full cursor-pointer"
           variant="outline"
@@ -110,10 +113,17 @@ export const SocialLoginButton = ({
             <GoogleIcon className="size-4 mr-2" />
           )}
           <span>{t('signInWithGoogle')}</span>
-        </Button>
+            </Button>
+          </TooltipTrigger>
+          {disabled && (
+            <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+          )}
+        </Tooltip>
       )}
       {websiteConfig.auth.enableGithubLogin && (
-        <Button
+        <Tooltip open={disabled ? undefined : false}>
+          <TooltipTrigger asChild>
+            <Button
           size="lg"
           className="w-full cursor-pointer"
           variant="outline"
@@ -126,7 +136,12 @@ export const SocialLoginButton = ({
             <GitHubIcon className="size-4 mr-2" />
           )}
           <span>{t('signInWithGitHub')}</span>
-        </Button>
+            </Button>
+          </TooltipTrigger>
+          {disabled && (
+            <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+          )}
+        </Tooltip>
       )}
     </div>
   );

@@ -309,15 +309,22 @@ export const RegisterForm = ({
               validationError={form.formState.errors.captchaToken?.message}
             />
           )}
-          <Button
-            disabled={isPending || (captchaActive && !captchaToken)}
-            size="lg"
-            type="submit"
-            className="cursor-pointer w-full flex items-center justify-center gap-2"
-          >
-            {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
-            <span>{t('signUp')}</span>
-          </Button>
+          <Tooltip open={captchaActive && !captchaToken ? undefined : false}>
+            <TooltipTrigger asChild>
+              <Button
+                disabled={isPending || (captchaActive && !captchaToken)}
+                size="lg"
+                type="submit"
+                className="cursor-pointer w-full flex items-center justify-center gap-2"
+              >
+                {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                <span>{t('signUp')}</span>
+              </Button>
+            </TooltipTrigger>
+            {captchaActive && !captchaToken && (
+              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+            )}
+          </Tooltip>
         </form>
       </Form>
       <div className="mt-4">
