@@ -410,7 +410,9 @@ export default function HeroSection() {
   // 写入历史（最多保留 24 条，最新在前）
   const pushHistory = useCallback(
     async (item: StickerHistoryItem) => {
-      const db = (await import('@/lib/image-library/indexeddb-manager')).IndexedDBManager.getInstance();
+      const db = (
+        await import('@/lib/image-library/indexeddb-manager')
+      ).IndexedDBManager.getInstance();
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -443,9 +445,13 @@ export default function HeroSection() {
                 const resp = await fetch(createdItem.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
-                id: createdItem.id || `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                id:
+                  createdItem.id ||
+                  `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: createdItem.url,
                 blob,
                 thumbnail,
@@ -649,7 +655,10 @@ export default function HeroSection() {
           }
         }
       } catch (error) {
-        console.error('Failed to create signed download for stable URL:', error);
+        console.error(
+          'Failed to create signed download for stable URL:',
+          error
+        );
       }
       // Fallback: open inline
       const link = document.createElement('a');
@@ -1471,7 +1480,11 @@ export default function HeroSection() {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
+            <Button
+              variant="destructive"
+              onClick={confirmClearAllHistory}
+              type="button"
+            >
               Clear All
             </Button>
           </div>
@@ -1481,13 +1494,13 @@ export default function HeroSection() {
       {/* 历史记录区块 */}
       {stickerHistory.length > 0 && (
         <div className="mx-auto max-w-7xl px-6 mt-10">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 className="text-lg font-semibold">Your Sticker History</h3>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="cursor-pointer"
+                className="cursor-pointer flex-shrink-0"
                 onClick={clearHistory}
                 type="button"
               >

@@ -28,6 +28,10 @@ import { cn } from '@/lib/utils';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
+import { LocaleLink } from '@/i18n/navigation';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { type RembgApiOptions, rembgApiService } from '@/lib/rembg-api';
 import {
   CpuIcon,
@@ -43,10 +47,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { LocaleLink } from '@/i18n/navigation';
-import { LoginForm } from '@/components/auth/login-form';
-import { RegisterForm } from '@/components/auth/register-form';
-import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 // Preset color configuration
 const PRESET_COLORS = [
@@ -358,14 +358,21 @@ export function AIBackgroundGeneratorSection() {
                 const resp = await fetch(createdItem.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
-                id: createdItem.id || `aibackground_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                id:
+                  createdItem.id ||
+                  `aibackground_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: createdItem.url,
                 blob,
                 thumbnail,
                 toolType: 'aibackground',
-                toolParams: { mode: createdItem.mode, style: createdItem.style },
+                toolParams: {
+                  mode: createdItem.mode,
+                  style: createdItem.style,
+                },
                 createdAt: createdItem.createdAt,
                 lastAccessedAt: Date.now(),
                 fileSize: blob?.size,
@@ -395,14 +402,19 @@ export function AIBackgroundGeneratorSection() {
                 const resp = await fetch(itemWithTime.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
                 id: `aibackground_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: itemWithTime.url,
                 blob,
                 thumbnail,
                 toolType: 'aibackground',
-                toolParams: { mode: itemWithTime.mode, style: itemWithTime.style },
+                toolParams: {
+                  mode: itemWithTime.mode,
+                  style: itemWithTime.style,
+                },
                 createdAt: itemWithTime.createdAt,
                 lastAccessedAt: Date.now(),
                 fileSize: blob?.size,
@@ -2703,20 +2715,33 @@ export function AIBackgroundGeneratorSection() {
 
         {/* AI Backgrounds History Section */}
         <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Your AI Backgrounds History</h3>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
-                <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
-                  <ImageIcon className="h-4 w-4 mr-2" />
-                  View All Images
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-semibold">
+              Your AI Backgrounds History
+            </h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="cursor-pointer flex-shrink-0"
+                type="button"
+              >
+                <LocaleLink
+                  href="/my-library"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">View All Images</span>
+                  <span className="sm:hidden">View All</span>
                 </LocaleLink>
               </Button>
               {aibgHistory.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="cursor-pointer"
+                  className="cursor-pointer flex-shrink-0"
                   onClick={clearHistory}
                   type="button"
                 >
@@ -2817,7 +2842,11 @@ export function AIBackgroundGeneratorSection() {
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
+              <DialogTitle>
+                {authMode === 'login'
+                  ? 'Sign in Required'
+                  : 'Create Your Account'}
+              </DialogTitle>
               <DialogDescription>
                 {authMode === 'login'
                   ? 'Please sign in to use AI Background.'
@@ -2861,7 +2890,11 @@ export function AIBackgroundGeneratorSection() {
               >
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
+              <Button
+                variant="destructive"
+                onClick={confirmClearAllHistory}
+                type="button"
+              >
                 Clear All
               </Button>
             </div>

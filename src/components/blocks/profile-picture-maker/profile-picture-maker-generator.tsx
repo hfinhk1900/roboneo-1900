@@ -23,7 +23,9 @@ import {
 
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { LocaleLink } from '@/i18n/navigation';
 import { creditsCache } from '@/lib/credits-cache';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { validateImageFile } from '@/lib/image-validation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -42,8 +44,6 @@ import {
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { LocaleLink } from '@/i18n/navigation';
-import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 // Profile picture styles with their corresponding prompts
 const PROFILE_STYLES = [
@@ -333,9 +333,13 @@ export default function ProfilePictureMakerGenerator() {
                 const resp = await fetch(createdItem.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
-                id: createdItem.id || `profile-picture_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                id:
+                  createdItem.id ||
+                  `profile-picture_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: createdItem.url,
                 blob,
                 thumbnail,
@@ -365,7 +369,9 @@ export default function ProfilePictureMakerGenerator() {
               const resp = await fetch(item.url);
               if (resp.ok) blob = await resp.blob();
             } catch {}
-            const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+            const thumbnail = blob
+              ? await db.generateThumbnail(blob)
+              : undefined;
             await db.saveImage({
               id: `profile-picture_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
               url: item.url,
@@ -1268,20 +1274,33 @@ export default function ProfilePictureMakerGenerator() {
 
         {/* Profile Picture History Section */}
         <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Your Profile Picture History</h3>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
-                <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
-                  <ImageIcon className="h-4 w-4 mr-2" />
-                  View All Images
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-semibold">
+              Your Profile Picture History
+            </h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="cursor-pointer flex-shrink-0"
+                type="button"
+              >
+                <LocaleLink
+                  href="/my-library"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">View All Images</span>
+                  <span className="sm:hidden">View All</span>
                 </LocaleLink>
               </Button>
               {profilePictureHistory.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="cursor-pointer"
+                  className="cursor-pointer flex-shrink-0"
                   onClick={() => setShowClearAllConfirmDialog(true)}
                   type="button"
                 >
@@ -1354,7 +1373,11 @@ export default function ProfilePictureMakerGenerator() {
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
+            <DialogTitle>
+              {authMode === 'login'
+                ? 'Sign in Required'
+                : 'Create Your Account'}
+            </DialogTitle>
             <DialogDescription>
               {authMode === 'login'
                 ? 'Please sign in to generate professional profile pictures.'

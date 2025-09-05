@@ -27,6 +27,7 @@ import {
   ImageIcon,
   RefreshCwIcon,
   SearchIcon,
+  Trash2Icon,
   TrashIcon,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -91,6 +92,7 @@ export default function MyImageLibrary() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [showPreview, setShowPreview] = useState(false);
   const [previewImage, setPreviewImage] = useState<ImageRecord | null>(null);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   // Storage and SW status UI removed from public page
 
@@ -140,7 +142,6 @@ export default function MyImageLibrary() {
     initializeLibrary();
   }, []);
 
-
   // 监听筛选和排序变化
   useEffect(() => {
     loadImages(true);
@@ -164,7 +165,10 @@ export default function MyImageLibrary() {
       setMigrationStatus(migrationProgress);
 
       // 如果需要迁移且有数据，静默迁移一次，避免空列表
-      if (migrationProgress.totalCount > 0 && (migrationProgress.migratedCount === 0 || !migrationProgress.isComplete)) {
+      if (
+        migrationProgress.totalCount > 0 &&
+        (migrationProgress.migratedCount === 0 || !migrationProgress.isComplete)
+      ) {
         analytics.track('migration_auto_started', {
           total_count: migrationProgress.totalCount,
         });
@@ -380,6 +384,7 @@ export default function MyImageLibrary() {
 
       // 使用缓存获取完整图片
       const cachedUrl = await getCachedFullImageUrl(imageRecord);
+
       if (cachedUrl) {
         analytics.trackCacheHit('full_image', imageRecord.id);
         setPreviewImage({ ...imageRecord, url: cachedUrl });
@@ -388,6 +393,7 @@ export default function MyImageLibrary() {
         // 回退到原 URL
         setPreviewImage(imageRecord);
       }
+
       setShowPreview(true);
 
       // 记录预览成功
@@ -447,6 +453,33 @@ export default function MyImageLibrary() {
         error_message: error instanceof Error ? error.message : 'Unknown error',
       });
       toast.error('Failed to download image');
+    }
+  };
+
+  /**
+   * 删除单个图片
+   */
+  const handleDelete = async (imageRecord: ImageRecord) => {
+    try {
+      await dbManager.deleteImages([imageRecord.id]);
+
+      setImages((prev) => prev.filter((img) => img.id !== imageRecord.id));
+      setSelectedImages((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(imageRecord.id);
+        return newSet;
+      });
+
+      // 记录删除操作
+      analytics.track('image_deleted', {
+        image_id: imageRecord.id,
+        tool_type: imageRecord.toolType,
+      });
+
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      toast.error('Failed to delete image');
     }
   };
 
@@ -591,13 +624,7 @@ export default function MyImageLibrary() {
    * 格式化日期
    */
   const formatDate = (timestamp: number): string => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return new Date(timestamp).toLocaleDateString();
   };
 
   // 渲染筛选栏
@@ -622,7 +649,7 @@ export default function MyImageLibrary() {
         </div>
 
         {/* 工具类型筛选 */}
-        <div className="min-w-[150px]">
+        <div className="w-48">
           <Label className="text-sm font-medium text-gray-700">Tool Type</Label>
           <Select
             value={filters.toolType || 'all'}
@@ -633,7 +660,7 @@ export default function MyImageLibrary() {
               }))
             }
           >
-            <SelectTrigger className="mt-1">
+            <SelectTrigger className="mt-1 w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -648,13 +675,13 @@ export default function MyImageLibrary() {
         </div>
 
         {/* 排序选项 */}
-        <div className="min-w-[150px]">
+        <div className="w-48">
           <Label className="text-sm font-medium text-gray-700">Sort By</Label>
           <Select
             value={sortOption}
             onValueChange={(value) => setSortOption(value as SortOption)}
           >
-            <SelectTrigger className="mt-1">
+            <SelectTrigger className="mt-1 w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -675,8 +702,8 @@ export default function MyImageLibrary() {
   // 渲染操作栏
   const renderActionBar = () => (
     <div className="bg-white rounded-lg p-4 shadow-sm">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="text-sm text-gray-600">
             {totalCount} images total
             {selectedImages.size > 0 && `, ${selectedImages.size} selected`}
@@ -691,31 +718,38 @@ export default function MyImageLibrary() {
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           {selectedImages.size > 0 && (
             <>
-              <div className="flex items-center space-x-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBatchDownload('individual')}
-                  disabled={isDownloading}
-                >
-                  <DownloadIcon className="h-4 w-4 mr-2" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleBatchDownload('individual')}
+                disabled={isDownloading}
+                className="flex-shrink-0"
+              >
+                <DownloadIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">
                   {isDownloading
                     ? 'Downloading...'
                     : `Download ${selectedImages.size}`}
-                </Button>
-                {/* Removed ZIP download option for multi-select */}
-              </div>
+                </span>
+                <span className="sm:hidden">
+                  {isDownloading ? 'Downloading...' : `Download`}
+                </span>
+              </Button>
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isDownloading}
+                className="flex-shrink-0"
               >
-                <TrashIcon className="h-4 w-4 mr-2" />
-                Delete ({selectedImages.size})
+                <TrashIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">
+                  Delete ({selectedImages.size})
+                </span>
+                <span className="sm:hidden">Delete</span>
               </Button>
             </>
           )}
@@ -759,76 +793,82 @@ export default function MyImageLibrary() {
     }, [image]);
 
     return (
-      <Card className="group cursor-pointer hover:shadow-lg transition-shadow">
-        <CardContent className="p-2">
-          <div className="relative aspect-square mb-2">
-            {isLoading ? (
-              <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center animate-pulse">
-                <ImageIcon className="h-8 w-8 text-gray-300" />
-              </div>
-            ) : thumbnailUrl ? (
-              <Image
-                src={thumbnailUrl}
-                alt={`${image.toolType} image`}
-                width={200}
-                height={200}
-                className="w-full h-full object-cover rounded-md"
-                unoptimized
-                onClick={() => handleImagePreview(image)}
-              />
-            ) : (
-              <div
-                className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center"
-                onClick={() => handleImagePreview(image)}
-              >
-                <ImageIcon className="h-8 w-8 text-gray-400" />
-              </div>
-            )}
-
-            {/* 选择框 */}
-            <input
-              type="checkbox"
-              checked={selectedImages.has(image.id)}
-              onChange={() => toggleImageSelection(image.id)}
-              className="absolute top-2 left-2 w-4 h-4"
-              onClick={(e) => e.stopPropagation()}
+      <div className="group relative">
+        <div className="relative w-full aspect-square bg-white border rounded-lg overflow-hidden">
+          {isLoading ? (
+            <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center animate-pulse">
+              <ImageIcon className="h-8 w-8 text-gray-300" />
+            </div>
+          ) : thumbnailUrl ? (
+            <Image
+              src={thumbnailUrl}
+              alt={`${image.toolType} image`}
+              width={200}
+              height={200}
+              className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+              unoptimized
+              onClick={(e) => {
+                e.stopPropagation();
+                handleImagePreview(image);
+              }}
             />
-
-            {/* 工具类型标签 */}
-            <Badge
-              variant="secondary"
-              className="absolute top-2 right-2 text-xs"
-            >
-              {TOOL_LABELS[image.toolType]}
-            </Badge>
-
-            {/* 悬停操作 */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <div className="flex space-x-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(image);
-                  }}
-                >
-                  <DownloadIcon className="h-4 w-4" />
-                </Button>
-              </div>
+          ) : (
+            <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-gray-400" />
             </div>
-          </div>
+          )}
 
-          <div className="space-y-1">
-            <div className="text-xs text-gray-600 truncate">
-              {formatDate(image.createdAt)}
-            </div>
-            <div className="text-xs text-gray-500">
-              {formatFileSize(image.fileSize)}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          {/* 选择框 */}
+          <input
+            type="checkbox"
+            checked={selectedImages.has(image.id)}
+            onChange={() => toggleImageSelection(image.id)}
+            className="absolute top-2 left-2 w-4 h-4"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* 工具类型标签 */}
+          <Badge variant="secondary" className="absolute top-2 right-2 text-xs">
+            {TOOL_LABELS[image.toolType]}
+          </Badge>
+        </div>
+
+        {/* 信息行 */}
+        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="truncate max-w-[60%]">
+            {TOOL_LABELS[image.toolType]}
+          </span>
+          <span>{formatDate(image.createdAt)}</span>
+        </div>
+
+        {/* 按钮行 */}
+        <div className="mt-2 flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+            title="Download image"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload(image);
+            }}
+          >
+            <DownloadIcon className="h-4 w-4 text-gray-600" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+            title="Delete image"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(image);
+            }}
+          >
+            <Trash2Icon className="h-4 w-4 text-gray-600" />
+          </Button>
+        </div>
+      </div>
     );
   };
 

@@ -24,7 +24,9 @@ import {
 } from '@/components/ui/select';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { LocaleLink } from '@/i18n/navigation';
 import { creditsCache } from '@/lib/credits-cache';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { validateImageFile } from '@/lib/image-validation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -41,8 +43,6 @@ import {
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { LocaleLink } from '@/i18n/navigation';
-import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 
 const styleOptions = [
   { value: 'ios', label: 'iOS Sticker Style', icon: '/ios-style.webp' },
@@ -287,7 +287,9 @@ export default function StickerGenerator() {
                 const resp = await fetch(createdItem.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
                 id: createdItem.id || generateLocalId('sticker'),
                 url: createdItem.url,
@@ -1150,7 +1152,11 @@ export default function StickerGenerator() {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
+            <Button
+              variant="destructive"
+              onClick={confirmClearAllHistory}
+              type="button"
+            >
               Clear All
             </Button>
           </div>
@@ -1160,20 +1166,31 @@ export default function StickerGenerator() {
       {/* 历史记录区块 */}
 
       <div className="mx-auto max-w-7xl px-6 mt-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h3 className="text-lg font-semibold">Your Sticker History</h3>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
-              <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
-                <ImageIcon className="h-4 w-4 mr-2" />
-                View All Images
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="cursor-pointer flex-shrink-0"
+              type="button"
+            >
+              <LocaleLink
+                href="/my-library"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">View All Images</span>
+                <span className="sm:hidden">View All</span>
               </LocaleLink>
             </Button>
             {stickerHistory.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
-                className="cursor-pointer"
+                className="cursor-pointer flex-shrink-0"
                 onClick={clearHistory}
                 type="button"
               >

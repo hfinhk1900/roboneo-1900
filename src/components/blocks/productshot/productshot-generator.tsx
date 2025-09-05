@@ -1,5 +1,7 @@
 'use client';
 
+import { LoginForm } from '@/components/auth/login-form';
+import { RegisterForm } from '@/components/auth/register-form';
 import { CreditsDisplay } from '@/components/shared/credits-display';
 import { GalleryImage } from '@/components/shared/gallery-image';
 import { InsufficientCreditsDialog } from '@/components/shared/insufficient-credits-dialog';
@@ -25,11 +27,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { cn } from '@/lib/utils';
 import { LocaleLink } from '@/i18n/navigation';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
-import { LoginForm } from '@/components/auth/login-form';
-import { RegisterForm } from '@/components/auth/register-form';
+import { cn } from '@/lib/utils';
 import {
   BoxIcon,
   CameraIcon,
@@ -441,9 +441,13 @@ export default function ProductShotGeneratorSection() {
                 const resp = await fetch(createdItem.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
-                id: createdItem.id || `productshot_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                id:
+                  createdItem.id ||
+                  `productshot_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: createdItem.url,
                 blob,
                 thumbnail,
@@ -478,7 +482,9 @@ export default function ProductShotGeneratorSection() {
                 const resp = await fetch(itemWithTime.url);
                 if (resp.ok) blob = await resp.blob();
               } catch {}
-              const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
               await db.saveImage({
                 id: `productshot_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
                 url: itemWithTime.url,
@@ -1518,7 +1524,11 @@ export default function ProductShotGeneratorSection() {
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{authMode === 'login' ? 'Sign in Required' : 'Create Your Account'}</DialogTitle>
+            <DialogTitle>
+              {authMode === 'login'
+                ? 'Sign in Required'
+                : 'Create Your Account'}
+            </DialogTitle>
             <DialogDescription>
               {authMode === 'login'
                 ? 'Please sign in to generate product shots.'
@@ -1686,7 +1696,11 @@ export default function ProductShotGeneratorSection() {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmClearAllHistory} type="button">
+            <Button
+              variant="destructive"
+              onClick={confirmClearAllHistory}
+              type="button"
+            >
               Clear All
             </Button>
           </div>
@@ -1695,20 +1709,31 @@ export default function ProductShotGeneratorSection() {
 
       {/* 历史记录区块 */}
       <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h3 className="text-lg font-semibold">Your ProductShot History</h3>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="cursor-pointer" type="button">
-              <LocaleLink href="/my-library" target="_blank" rel="noopener noreferrer">
-                <ImageIcon className="h-4 w-4 mr-2" />
-                View All Images
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="cursor-pointer flex-shrink-0"
+              type="button"
+            >
+              <LocaleLink
+                href="/my-library"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">View All Images</span>
+                <span className="sm:hidden">View All</span>
               </LocaleLink>
             </Button>
             {productshotHistory.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
-                className="cursor-pointer"
+                className="cursor-pointer flex-shrink-0"
                 onClick={clearHistory}
                 type="button"
               >
