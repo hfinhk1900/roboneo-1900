@@ -310,7 +310,7 @@ export const RegisterForm = ({
             />
           )}
           <Button
-            disabled={isPending}
+            disabled={isPending || (captchaActive && !captchaToken)}
             size="lg"
             type="submit"
             className="cursor-pointer w-full flex items-center justify-center gap-2"
@@ -321,7 +321,10 @@ export const RegisterForm = ({
         </form>
       </Form>
       <div className="mt-4">
-        <SocialLoginButton callbackUrl={callbackUrl} />
+        <SocialLoginButton
+          callbackUrl={callbackUrl}
+          disabled={captchaActive && !captchaToken}
+        />
       </div>
     </AuthCard>
   );

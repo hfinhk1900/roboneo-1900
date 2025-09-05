@@ -237,7 +237,7 @@ export const LoginForm = ({
             />
           )}
           <Button
-            disabled={isPending}
+            disabled={isPending || (captchaActive && !captchaToken)}
             size="lg"
             type="submit"
             className="w-full flex items-center justify-center gap-2 cursor-pointer"
@@ -248,7 +248,10 @@ export const LoginForm = ({
         </form>
       </Form>
       <div className="mt-4">
-        <SocialLoginButton callbackUrl={callbackUrl} />
+        <SocialLoginButton
+          callbackUrl={callbackUrl}
+          disabled={captchaActive && !captchaToken}
+        />
       </div>
     </AuthCard>
   );

@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 interface SocialLoginButtonProps {
   callbackUrl?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ interface SocialLoginButtonProps {
  */
 export const SocialLoginButton = ({
   callbackUrl: propCallbackUrl,
+  disabled = false,
 }: SocialLoginButtonProps) => {
   if (
     !websiteConfig.auth.enableGoogleLogin &&
@@ -100,7 +102,7 @@ export const SocialLoginButton = ({
           className="w-full cursor-pointer"
           variant="outline"
           onClick={() => onClick('google')}
-          disabled={isLoading === 'google'}
+          disabled={disabled || isLoading === 'google'}
         >
           {isLoading === 'google' ? (
             <Loader2Icon className="mr-2 size-4 animate-spin" />
@@ -116,7 +118,7 @@ export const SocialLoginButton = ({
           className="w-full cursor-pointer"
           variant="outline"
           onClick={() => onClick('github')}
-          disabled={isLoading === 'github'}
+          disabled={disabled || isLoading === 'github'}
         >
           {isLoading === 'github' ? (
             <Loader2Icon className="mr-2 size-4 animate-spin" />
