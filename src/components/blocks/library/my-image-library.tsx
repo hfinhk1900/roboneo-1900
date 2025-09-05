@@ -24,9 +24,7 @@ import {
   DownloadIcon,
   FilterIcon,
   FolderIcon,
-  GridIcon,
   ImageIcon,
-  ListIcon,
   RefreshCwIcon,
   SearchIcon,
   TrashIcon,
@@ -80,7 +78,7 @@ export default function MyImageLibrary() {
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  // Removed view mode toggle to simplify UI
 
   // 筛选和排序状态
   const [filters, setFilters] = useState<FilterOptions>({
@@ -669,23 +667,7 @@ export default function MyImageLibrary() {
           </Select>
         </div>
 
-        {/* 视图模式切换 */}
-        <div className="flex space-x-1">
-          <Button
-            variant={viewMode === 'grid' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('grid')}
-          >
-            <GridIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <ListIcon className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* 视图模式切换已移除 */}
       </div>
     </div>
   );
