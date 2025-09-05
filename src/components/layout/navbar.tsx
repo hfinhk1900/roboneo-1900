@@ -60,11 +60,14 @@ function HeaderCreditsDisplay() {
   const fetchCredits = async () => {
     try {
       setLoading(true);
-      const result = await getUserCreditsAction({});
-      if (result?.data?.success) {
-        const newCredits = result.data.data?.credits || 0;
-        creditsCache.set(newCredits);
-        setCredits(newCredits);
+      const res = await fetch('/api/credits/me', { credentials: 'include' });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.success) {
+          const newCredits: number = json?.data?.credits ?? 0;
+          creditsCache.set(newCredits);
+          setCredits(newCredits);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch credits:', error);

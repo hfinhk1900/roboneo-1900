@@ -2,7 +2,12 @@
 class CreditsCache {
   private data: number | null = null;
   private timestamp = 0;
-  private readonly ttl: number = 30 * 1000; // 30秒缓存时间
+  // TTL can be configured via NEXT_PUBLIC_CREDITS_CACHE_TTL_MS (defaults to 2 minutes)
+  private readonly ttl: number = (() => {
+    const raw = process.env.NEXT_PUBLIC_CREDITS_CACHE_TTL_MS;
+    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 2 * 60 * 1000;
+  })();
   private readonly storageKey = 'user_credits';
   private listeners: Set<() => void> = new Set();
 
