@@ -1336,9 +1336,11 @@ export default function ProductShotGeneratorSection() {
                     )}
                     {isLoading
                       ? 'Generating Product Scene...'
-                      : !currentUser
-                        ? 'Log in to generate'
-                        : `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`}
+                      : !isMounted
+                        ? `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`
+                        : !currentUser
+                          ? 'Log in to generate'
+                          : `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`}
                   </Button>
                 </div>
               </CardContent>

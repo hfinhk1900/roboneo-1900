@@ -241,6 +241,7 @@ export function AIBackgroundGeneratorSection() {
 
   // Add custom CSS for shimmer animation
   useEffect(() => {
+    setIsMounted(true);
     const style = document.createElement('style');
     style.textContent = `
       @keyframes shimmer {
@@ -2387,6 +2388,11 @@ export function AIBackgroundGeneratorSection() {
                     <>
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                       Processing...
+                    </>
+                  ) : !isMounted ? (
+                    <>
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      Process Image ({CREDITS_PER_IMAGE} credits)
                     </>
                   ) : !currentUser ? (
                     <>

@@ -907,6 +907,11 @@ export function RemoveWatermarkGeneratorSection() {
                       <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
                       Removing Watermark...
                     </>
+                  ) : !isMounted ? (
+                    <>
+                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      Remove Watermark ({CREDITS_PER_IMAGE} credits)
+                    </>
                   ) : !currentUser ? (
                     <>
                       <SparklesIcon className="mr-2 h-5 w-5" />

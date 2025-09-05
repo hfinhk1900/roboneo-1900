@@ -1070,6 +1070,11 @@ export default function ProfilePictureMakerGenerator() {
                       <LoaderIcon className="h-5 w-5 mr-2 animate-spin" />
                       Generating...
                     </>
+                  ) : !isMounted ? (
+                    <>
+                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      Generate Profile Picture ({CREDITS_PER_IMAGE} credits)
+                    </>
                   ) : !currentUser ? (
                     <>
                       <SparklesIcon className="h-5 w-5 mr-2" />
