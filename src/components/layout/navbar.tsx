@@ -51,6 +51,7 @@ const customNavigationMenuTriggerStyle = cn(
 );
 
 function HeaderCreditsDisplay() {
+  const { data: session } = authClient.useSession();
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -75,10 +76,33 @@ function HeaderCreditsDisplay() {
   useEffect(() => {
     setMounted(true);
 
-    const cachedCredits = creditsCache.get();
-    if (cachedCredits !== null) {
-      setCredits(cachedCredits);
+    // 1) Prefer session.user.credits for instant display
+    const sessionCredits = session?.user?.credits as unknown as number | undefined;
+    if (typeof sessionCredits === 'number') {
+      creditsCache.set(sessionCredits);
+      setCredits(sessionCredits);
       setLoading(false);
+    } else {
+      // 2) Fall back to local cache
+      const cachedCredits = creditsCache.get();
+      if (cachedCredits !== null) {
+        setCredits(cachedCredits);
+        setLoading(false);
+      }
+      // 3) If still null, fetch lazily
+      if (cachedCredits === null) {
+        // fetch after idle to avoid blocking first paint
+        const id = window.requestIdleCallback
+          ? window.requestIdleCallback(fetchCredits)
+          : window.setTimeout(fetchCredits, 0);
+        return () => {
+          if (window.cancelIdleCallback && typeof id === 'number') {
+            window.cancelIdleCallback(id as any);
+          } else {
+            window.clearTimeout(id as any);
+          }
+        };
+      }
     }
 
     const unsubscribe = creditsCache.addListener(() => {
@@ -86,17 +110,10 @@ function HeaderCreditsDisplay() {
       if (newCredits !== null) {
         setCredits(newCredits);
         setLoading(false);
-      } else {
-        fetchCredits();
       }
     });
-
-    if (cachedCredits === null) {
-      fetchCredits();
-    }
-
     return unsubscribe;
-  }, []);
+  }, [session]);
 
   if (!mounted || loading) {
     return (
