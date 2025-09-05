@@ -474,7 +474,8 @@
     "avatar": {
       "dashboard": "工作台",
       "billing": "账单",
-      "settings": "设置"
+      "settings": "设置",
+      "viewMyGallery": "我的图库"
     }
   },
   "Dashboard": {

@@ -474,7 +474,8 @@
     "avatar": {
       "dashboard": "Dashboard",
       "billing": "Billing",
-      "settings": "Settings"
+      "settings": "Settings",
+      "viewMyGallery": "View My Gallery"
     }
   },
   "Dashboard": {

@@ -8,6 +8,7 @@ import {
   CreditCardIcon,
   LayoutDashboardIcon,
   Settings2Icon,
+  ImageIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -25,6 +26,11 @@ export function getAvatarLinks(user?: User | null): MenuItem[] {
   const t = useTranslations('Marketing.avatar');
 
   const baseLinks: MenuItem[] = [
+    {
+      title: t('viewMyGallery') || 'View My Gallery',
+      href: '/my-library',
+      icon: <ImageIcon className="size-4 shrink-0" />,
+    },
     {
       title: t('billing'),
       href: Routes.SettingsBilling,
