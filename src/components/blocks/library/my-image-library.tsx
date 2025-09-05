@@ -706,16 +706,7 @@ export default function MyImageLibrary() {
                     ? 'Downloading...'
                     : `Download ${selectedImages.size}`}
                 </Button>
-                {selectedImages.size > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleBatchDownload('zip')}
-                    disabled={isDownloading}
-                  >
-                    📦 ZIP
-                  </Button>
-                )}
+                {/* Removed ZIP download option for multi-select */}
               </div>
               <Button
                 variant="destructive"
