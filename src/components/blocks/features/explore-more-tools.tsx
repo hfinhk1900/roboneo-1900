@@ -62,6 +62,24 @@ export default function ExploreMoreToolsSection() {
     return !(pathname === tool.href || pathname.startsWith(`${tool.href}/`));
   });
 
+  const displayTools = filtered.length ? filtered : tools;
+  const toolCount = displayTools.length;
+
+  // 根据工具数量动态调整网格布局
+  const getGridClasses = (count: number) => {
+    if (count <= 2) {
+      return 'grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 max-w-2xl mx-auto';
+    }
+    if (count === 3) {
+      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto';
+    }
+    if (count === 4) {
+      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6';
+    }
+    // 5个或更多工具时，使用弹性布局避免空缺
+    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-6';
+  };
+
   return (
     <section className="py-16 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -71,8 +89,8 @@ export default function ExploreMoreToolsSection() {
         </h2>
 
         {/* Tool Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
-          {(filtered.length ? filtered : tools).map((tool, index) => (
+        <div className={getGridClasses(toolCount)}>
+          {displayTools.map((tool, index) => (
             <LocaleLink
               key={index}
               href={tool.href}
