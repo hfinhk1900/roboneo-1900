@@ -25,12 +25,26 @@ import { useTranslations } from 'next-intl';
 export function getAvatarLinks(user?: User | null): MenuItem[] {
   const t = useTranslations('Marketing.avatar');
 
-  const baseLinks: MenuItem[] = [
+  // Always keep "View My Gallery" at the top
+  const links: MenuItem[] = [
     {
-      title: t('viewMyGallery') || 'View My Gallery',
+      title: t('viewMyGallery'),
       href: '/my-library',
       icon: <ImageIcon className="size-4 shrink-0" />,
     },
+  ];
+
+  // Add admin dashboard after gallery when applicable
+  if (isAdmin(user)) {
+    links.push({
+      title: t('dashboard'),
+      href: Routes.Dashboard,
+      icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
+    });
+  }
+
+  // Then the rest
+  links.push(
     {
       title: t('billing'),
       href: Routes.SettingsBilling,
@@ -40,17 +54,8 @@ export function getAvatarLinks(user?: User | null): MenuItem[] {
       title: t('settings'),
       href: Routes.SettingsProfile,
       icon: <Settings2Icon className="size-4 shrink-0" />,
-    },
-  ];
+    }
+  );
 
-  // Only add dashboard link for admin users
-  if (isAdmin(user)) {
-    baseLinks.unshift({
-      title: t('dashboard'),
-      href: Routes.Dashboard,
-      icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
-    });
-  }
-
-  return baseLinks;
+  return links;
 }
