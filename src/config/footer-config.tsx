@@ -81,11 +81,6 @@ export function getFooterLinks(): NestedMenuItem[] {
           href: Routes.Contact,
           external: false,
         },
-        {
-          title: t('company.items.waitlist'),
-          href: Routes.Waitlist,
-          external: false,
-        },
       ],
     },
     {
