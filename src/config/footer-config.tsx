@@ -19,21 +19,26 @@ export function getFooterLinks(): NestedMenuItem[] {
 
   return [
     {
-      title: t('product.title'),
+      title: 'Tools',
       items: [
         {
-          title: t('product.items.features'),
-          href: Routes.Features,
+          title: 'Image to Sticker',
+          href: Routes.AISticker,
           external: false,
         },
         {
-          title: t('product.items.pricing'),
-          href: Routes.Pricing,
+          title: 'Product Shots',
+          href: Routes.ProductShot,
           external: false,
         },
         {
-          title: t('product.items.faq'),
-          href: Routes.FAQ,
+          title: 'AI Backgrounds',
+          href: Routes.AIBackground,
+          external: false,
+        },
+        {
+          title: 'Remove Watermark',
+          href: Routes.RemoveWatermark,
           external: false,
         },
       ],
