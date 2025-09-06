@@ -6,8 +6,8 @@
 
 ## 修复的功能模块
 
-### 1. Image to Sticker (Hero Section)
-**文件**: `src/components/blocks/hero/hero.tsx`
+### 1. Image to Sticker
+**文件**: `src/components/blocks/sticker/sticker-generator.tsx`
 
 **修复内容**:
 - ✅ 弹窗尺寸从 `max-w-6xl w-[90vw] h-[70vh]` 升级为 `max-w-7xl w-[95vw] h-[85vh]`

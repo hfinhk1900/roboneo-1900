@@ -105,7 +105,7 @@ const res = await fetch('/api/history/productshot', { // 移除limit=24，获取
 
 1. **前端组件**：
    - `src/components/blocks/productshot/productshot-generator.tsx`
-   - `src/components/blocks/hero/hero.tsx`
+   - `src/components/blocks/sticker/sticker-generator.tsx`
 
 2. **后端 API**：
    - `src/app/api/history/productshot/route.ts`

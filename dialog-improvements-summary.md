@@ -8,8 +8,8 @@
 
 ## 修复的功能模块
 
-### 1. Image to Sticker (Hero Section)
-**文件**: `src/components/blocks/hero/hero.tsx`
+### 1. Image to Sticker
+**文件**: `src/components/blocks/sticker/sticker-generator.tsx`
 
 **修复内容**:
 - ✅ 标题字体: `text-xl` → `text-base` (16px)

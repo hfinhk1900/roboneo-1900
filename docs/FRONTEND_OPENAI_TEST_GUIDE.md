@@ -12,7 +12,7 @@
 - **存储**: R2 Cloud Storage 已配置 ✅
 
 ### 2. 前端组件 ✅
-- **Hero 组件**: `src/components/blocks/hero/hero.tsx`
+- **Sticker 生成器**: `src/components/blocks/sticker/sticker-generator.tsx`
 - **API 调用**: 正确使用 `/api/image-to-sticker`
 - **界面**: 已优化（删除绿色提示框）
 
@@ -35,7 +35,7 @@
    - 使用您的账户登录 (需要认证才能使用 API)
 
 3. **测试贴纸生成**:
-   - 在 Hero 区域上传图片
+   - 在 Sticker 页面生成器区域上传图片
    - 选择风格：iOS, Pixel Art, LEGO, Snoopy
    - 点击 "Generate Sticker" 按钮
    - 等待约 30-40 秒

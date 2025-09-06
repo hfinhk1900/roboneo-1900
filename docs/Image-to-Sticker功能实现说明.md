@@ -229,10 +229,10 @@ export class ProviderManager {
 
 ## 前端交互流程
 
-### 🎨 Hero组件集成
+### 🎨 Sticker 生成器集成
 
 ```typescript
-// src/components/blocks/hero/hero.tsx (更新现有组件)
+// src/components/blocks/sticker/sticker-generator.tsx (更新现有组件)
 export default function HeroSection() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<StickerStyle>(StickerStyle.IOS_STICKER);
