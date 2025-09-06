@@ -100,6 +100,7 @@ export default function StickerGenerator() {
   const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const pendingGeneration = useRef(false);
 
   // Get selected style option
@@ -109,6 +110,40 @@ export default function StickerGenerator() {
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  // Expose hooks for Gallery -> Hero interaction
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const heroStyleSelect = (style: string) => {
+      // only accept known styles
+      const exists = styleOptions.some((o) => o.value === style);
+      setSelectedStyle(exists ? style : 'ios');
+    };
+    const heroScrollToHero = () => {
+      const el = sectionRef.current || document.getElementById('generator');
+      if (el && 'scrollIntoView' in el) {
+        try {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch {
+          // fallback
+          el.scrollIntoView();
+        }
+      }
+    };
+
+    // attach to window for ShowcaseGallery to call
+    (window as any).heroStyleSelect = heroStyleSelect;
+    (window as any).heroScrollToHero = heroScrollToHero;
+
+    return () => {
+      // cleanup on unmount
+      try {
+        delete (window as any).heroStyleSelect;
+        delete (window as any).heroScrollToHero;
+      } catch {}
+    };
   }, []);
 
   useEffect(() => {
@@ -405,7 +440,7 @@ export default function StickerGenerator() {
   }
 
   return (
-    <section id="generator" className="py-24 bg-[#F5F5F5]">
+    <section ref={sectionRef} id="generator" className="py-24 bg-[#F5F5F5]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center sm:mx-auto lg:mr-auto mb-12">
