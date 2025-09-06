@@ -574,7 +574,10 @@ export default function StickerGenerator() {
                     value={selectedStyle}
                     onValueChange={setSelectedStyle}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                      style={{ height: '50px', padding: '0px 12px' }}
+                    >
                       <SelectValue placeholder="Choose a style">
                         {selectedOption && (
                           <div className="flex items-center gap-2">
@@ -592,7 +595,11 @@ export default function StickerGenerator() {
                     </SelectTrigger>
                     <SelectContent>
                       {styleOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem
+                          key={option.value}
+                          value={option.value}
+                          className="cursor-pointer py-3 px-3 hover:bg-muted/50 focus:bg-muted/50 data-[highlighted]:bg-muted/50"
+                        >
                           <div className="flex items-center gap-2">
                             <Image
                               src={option.icon}
