@@ -3,7 +3,15 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { SectionCards } from '@/components/dashboard/section-cards';
 import { getTranslations } from 'next-intl/server';
 import { getDb } from '@/db';
-import { ailogHistory, creditsTransaction, user } from '@/db/schema';
+import {
+  aibgHistory,
+  productshotHistory,
+  stickerHistory,
+  watermarkHistory,
+  profilePictureHistory,
+  creditsTransaction,
+  user,
+} from '@/db/schema';
 import { sql } from 'drizzle-orm';
 // Removed demo table data as it is unrelated to dashboard metrics
 
@@ -57,31 +65,96 @@ export default async function DashboardPage() {
     } catch {}
 
     try {
-      // generations total in last 30 days
-      const gens = await db
-        .select({ gens: sql<number>`count(*)` })
-        .from(ailogHistory)
-        .where(
-          sql`${ailogHistory.created_at} >= ${d30.toISOString()} AND ${ailogHistory.status} = 'success'`
-        );
-      gens30d = gens?.[0]?.gens ?? 0;
+      // generations total in last 30 days — sum across feature tables
+      const [cntAibg] = await db
+        .select({ c: sql<number>`count(*)` })
+        .from(aibgHistory)
+        .where(sql`${aibgHistory.createdAt} >= ${d30.toISOString()}`);
+      const [cntProduct] = await db
+        .select({ c: sql<number>`count(*)` })
+        .from(productshotHistory)
+        .where(sql`${productshotHistory.createdAt} >= ${d30.toISOString()}`);
+      const [cntSticker] = await db
+        .select({ c: sql<number>`count(*)` })
+        .from(stickerHistory)
+        .where(sql`${stickerHistory.createdAt} >= ${d30.toISOString()}`);
+      const [cntWatermark] = await db
+        .select({ c: sql<number>`count(*)` })
+        .from(watermarkHistory)
+        .where(sql`${watermarkHistory.createdAt} >= ${d30.toISOString()}`);
+      const [cntProfile] = await db
+        .select({ c: sql<number>`count(*)` })
+        .from(profilePictureHistory)
+        .where(sql`${profilePictureHistory.createdAt} >= ${d30.toISOString()}`);
+      gens30d =
+        (cntAibg?.c ?? 0) +
+        (cntProduct?.c ?? 0) +
+        (cntSticker?.c ?? 0) +
+        (cntWatermark?.c ?? 0) +
+        (cntProfile?.c ?? 0);
     } catch {}
 
     try {
-      // daily generation counts for chart (90d to support filters)
-      const daily = await db
+      // daily generation counts for chart (90d) — merge across feature tables
+      const merge = new Map<string, number>();
+
+      const dailyAibg = await db
         .select({
-          day: sql<string>`to_char(date_trunc('day', ${ailogHistory.created_at}), 'YYYY-MM-DD')`,
+          day: sql<string>`to_char(date_trunc('day', ${aibgHistory.createdAt}), 'YYYY-MM-DD')`,
           cnt: sql<number>`count(*)`,
         })
-        .from(ailogHistory)
-        .where(
-          sql`${ailogHistory.created_at} >= ${d90.toISOString()} AND ${ailogHistory.status} = 'success'`
-        )
-        .groupBy(sql`date_trunc('day', ${ailogHistory.created_at})`)
-        .orderBy(sql`date_trunc('day', ${ailogHistory.created_at})`);
+        .from(aibgHistory)
+        .where(sql`${aibgHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${aibgHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${aibgHistory.createdAt})`);
+      for (const r of dailyAibg as any) merge.set(r.day, (merge.get(r.day) || 0) + (r.cnt || 0));
 
-      chartPoints = daily.map((r) => ({ date: r.day, generations: r.cnt }));
+      const dailyProduct = await db
+        .select({
+          day: sql<string>`to_char(date_trunc('day', ${productshotHistory.createdAt}), 'YYYY-MM-DD')`,
+          cnt: sql<number>`count(*)`,
+        })
+        .from(productshotHistory)
+        .where(sql`${productshotHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${productshotHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${productshotHistory.createdAt})`);
+      for (const r of dailyProduct as any) merge.set(r.day, (merge.get(r.day) || 0) + (r.cnt || 0));
+
+      const dailySticker = await db
+        .select({
+          day: sql<string>`to_char(date_trunc('day', ${stickerHistory.createdAt}), 'YYYY-MM-DD')`,
+          cnt: sql<number>`count(*)`,
+        })
+        .from(stickerHistory)
+        .where(sql`${stickerHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${stickerHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${stickerHistory.createdAt})`);
+      for (const r of dailySticker as any) merge.set(r.day, (merge.get(r.day) || 0) + (r.cnt || 0));
+
+      const dailyWatermark = await db
+        .select({
+          day: sql<string>`to_char(date_trunc('day', ${watermarkHistory.createdAt}), 'YYYY-MM-DD')`,
+          cnt: sql<number>`count(*)`,
+        })
+        .from(watermarkHistory)
+        .where(sql`${watermarkHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${watermarkHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${watermarkHistory.createdAt})`);
+      for (const r of dailyWatermark as any) merge.set(r.day, (merge.get(r.day) || 0) + (r.cnt || 0));
+
+      const dailyProfile = await db
+        .select({
+          day: sql<string>`to_char(date_trunc('day', ${profilePictureHistory.createdAt}), 'YYYY-MM-DD')`,
+          cnt: sql<number>`count(*)`,
+        })
+        .from(profilePictureHistory)
+        .where(sql`${profilePictureHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${profilePictureHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${profilePictureHistory.createdAt})`);
+      for (const r of dailyProfile as any) merge.set(r.day, (merge.get(r.day) || 0) + (r.cnt || 0));
+
+      const days = Array.from(merge.keys()).sort();
+      chartPoints = days.map((day) => ({ date: day, generations: merge.get(day) || 0 }));
     } catch {}
   } catch (error) {
     // Gracefully degrade on any server/DB failure to keep the page renderable
