@@ -136,7 +136,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartAreaInteractive() {
+type Point = { date: string; desktop: number; mobile: number };
+
+export function ChartAreaInteractive({ data }: { data?: Point[] }) {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('90d');
 
@@ -146,7 +148,8 @@ export function ChartAreaInteractive() {
     }
   }, [isMobile]);
 
-  const filteredData = chartData.filter((item) => {
+  const base = data && data.length ? data : chartData;
+  const filteredData = base.filter((item) => {
     const date = new Date(item.date);
     const referenceDate = new Date('2024-06-30');
     let daysToSubtract = 90;
