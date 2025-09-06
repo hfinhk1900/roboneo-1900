@@ -1,9 +1,9 @@
 import type { Session, User } from './auth-types';
 
 /**
- * Admin email address
+ * Admin email address (configurable via env ADMIN_EMAIL)
  */
-const ADMIN_EMAIL = 'hfinhk1900@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hfinhk1900@gmail.com';
 
 /**
  * Check if a user is an admin based on email address

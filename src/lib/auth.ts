@@ -15,7 +15,13 @@ import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls/urls';
 
 // Initialize database connection synchronously
 const connectionString = process.env.DATABASE_URL!;
-const client = postgres(connectionString, { prepare: false });
+// Ensure SSL for Neon and similar providers; postgres.js doesn't honor sslmode in URL
+const needsSSL =
+  process.env.DATABASE_SSL === 'true' || /neon\.tech/i.test(connectionString);
+const client = postgres(connectionString, {
+  prepare: false,
+  ssl: needsSSL ? 'require' : undefined,
+});
 const db = drizzle(client, { schema });
 
 /**

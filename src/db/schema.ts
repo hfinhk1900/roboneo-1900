@@ -153,8 +153,9 @@ export const creditsTransaction = pgTable("credits_transaction", {
 	amount: integer('amount').notNull(), // positive for credit addition, negative for usage
 	balance_before: integer('balance_before').notNull(),
 	balance_after: integer('balance_after').notNull(),
-	description: text('description'),
-	reference_id: text('reference_id'), // payment_id, operation_id, etc.
+	// DB column names differ: use existing columns 'reason' and 'related_task_id'
+	description: text('reason'),
+	reference_id: text('related_task_id'), // payment_id, operation_id, etc.
 	created_at: timestamp("created_at").notNull().defaultNow(),
 });
 

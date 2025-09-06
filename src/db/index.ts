@@ -11,7 +11,14 @@ let db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (db) return db;
   const connectionString = process.env.DATABASE_URL!;
-  const client = postgres(connectionString, { prepare: false });
+  // Enforce TLS for Neon and similar managed Postgres providers
+  // postgres.js doesn't read `sslmode=require` from URL, so set `ssl: 'require'` explicitly
+  const needsSSL =
+    process.env.DATABASE_SSL === 'true' || /neon\.tech/i.test(connectionString);
+  const client = postgres(connectionString, {
+    prepare: false,
+    ssl: needsSSL ? 'require' : undefined,
+  });
   db = drizzle(client, { schema });
   return db;
 }
