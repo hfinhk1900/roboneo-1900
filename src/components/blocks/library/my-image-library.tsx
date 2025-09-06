@@ -735,7 +735,7 @@ export default function MyImageLibrary() {
                     : `Download ${selectedImages.size}`}
                 </span>
                 <span className="sm:hidden">
-                  {isDownloading ? 'Downloading...' : `Download`}
+                  {isDownloading ? 'Downloading...' : 'Download'}
                 </span>
               </Button>
               <Button

@@ -1707,29 +1707,29 @@ export default function ProductShotGeneratorSection() {
         </DialogContent>
       </Dialog>
 
-      {/* 历史记录区块 */}
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <h3 className="text-lg font-semibold">Your ProductShot History</h3>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="cursor-pointer flex-shrink-0"
-              type="button"
-            >
-              <LocaleLink
-                href="/my-library"
-                target="_blank"
-                rel="noopener noreferrer"
+      {/* 历史记录区块 - 只在有历史记录时显示 */}
+      {productshotHistory.length > 0 && (
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-semibold">Your ProductShot History</h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="cursor-pointer flex-shrink-0"
+                type="button"
               >
-                <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">View All Images</span>
-                <span className="sm:hidden">View All</span>
-              </LocaleLink>
-            </Button>
-            {productshotHistory.length > 0 && (
+                <LocaleLink
+                  href="/my-library"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">View All Images</span>
+                  <span className="sm:hidden">View All</span>
+                </LocaleLink>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -1739,10 +1739,8 @@ export default function ProductShotGeneratorSection() {
               >
                 Clear All
               </Button>
-            )}
+            </div>
           </div>
-        </div>
-        {productshotHistory.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {productshotHistory.map((item, idx) => (
               <div key={`${item.createdAt}-${idx}`} className="group relative">
@@ -1787,10 +1785,8 @@ export default function ProductShotGeneratorSection() {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="text-sm text-gray-500">No history yet.</div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

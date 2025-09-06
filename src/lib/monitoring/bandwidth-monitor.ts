@@ -141,18 +141,19 @@ export class BandwidthMonitor {
           typeof input === 'string'
             ? input
             : input instanceof URL
-            ? String(input)
-            : (input as Request)?.url || '';
+              ? String(input)
+              : (input as Request)?.url || '';
 
         let acceptHeader: string | null = null;
         const headers = init?.headers as any;
         if (headers instanceof Headers) {
           acceptHeader = headers.get('Accept');
         } else if (headers && typeof headers === 'object') {
-          acceptHeader = headers['Accept'] || headers['accept'] || null;
+          acceptHeader = headers.Accept || headers.accept || null;
         }
 
-        const isServerAction = url === '' || (acceptHeader?.startsWith('text/x-component') ?? false);
+        const isServerAction =
+          url === '' || (acceptHeader?.startsWith('text/x-component') ?? false);
         if (isServerAction) {
           return Reflect.apply(target, window, args);
         }
@@ -161,7 +162,9 @@ export class BandwidthMonitor {
 
         // 方法与请求体大小估算
         const method =
-          init?.method || (typeof input === 'object' && (input as Request).method) || 'GET';
+          init?.method ||
+          (typeof input === 'object' && (input as Request).method) ||
+          'GET';
         let requestSize = 0;
         const body: any = init?.body;
         if (typeof body === 'string') {
@@ -178,11 +181,17 @@ export class BandwidthMonitor {
           const duration = endTime - startTime;
 
           const contentLength = response.headers.get('content-length');
-          const responseSize = contentLength ? Number.parseInt(contentLength, 10) : 0;
+          const responseSize = contentLength
+            ? Number.parseInt(contentLength, 10)
+            : 0;
 
           const age = response.headers.get('age');
-          const fromCache = !!(age && Number.parseInt(age, 10) > 0) || response.headers.get('x-cache') === 'HIT';
-          const cdnHit = response.headers.get('x-vercel-cache') === 'HIT' || response.headers.get('cf-cache-status') === 'HIT';
+          const fromCache =
+            !!(age && Number.parseInt(age, 10) > 0) ||
+            response.headers.get('x-cache') === 'HIT';
+          const cdnHit =
+            response.headers.get('x-vercel-cache') === 'HIT' ||
+            response.headers.get('cf-cache-status') === 'HIT';
 
           const metric: BandwidthMetric = {
             url,
@@ -191,7 +200,10 @@ export class BandwidthMonitor {
             requestSize,
             duration,
             status: response.status,
-            resourceType: BandwidthMonitor.instance!.getResourceType(url, response),
+            resourceType: BandwidthMonitor.instance!.getResourceType(
+              url,
+              response
+            ),
             timestamp: Date.now(),
             fromCache,
             cdnHit,
