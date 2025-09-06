@@ -2772,7 +2772,7 @@ export function AIBackgroundGeneratorSection() {
                         ? 'Background Style'
                         : 'Solid Color'}
                     </span>
-                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button

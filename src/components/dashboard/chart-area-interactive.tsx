@@ -248,10 +248,11 @@ export function ChartAreaInteractive({ data }: { data?: Point[] }) {
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
+                return new Intl.DateTimeFormat('en-US', {
                   month: 'short',
                   day: 'numeric',
-                });
+                  timeZone: 'UTC',
+                }).format(date);
               }}
             />
             <ChartTooltip
@@ -259,12 +260,13 @@ export function ChartAreaInteractive({ data }: { data?: Point[] }) {
               defaultIndex={isMobile ? -1 : 10}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
+                  labelFormatter={(value) =>
+                    new Intl.DateTimeFormat('en-US', {
                       month: 'short',
                       day: 'numeric',
-                    });
-                  }}
+                      timeZone: 'UTC',
+                    }).format(new Date(value))
+                  }
                   indicator="dot"
                 />
               }

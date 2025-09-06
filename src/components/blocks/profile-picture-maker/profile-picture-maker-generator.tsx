@@ -1326,7 +1326,7 @@ export default function ProfilePictureMakerGenerator() {
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="truncate max-w-[60%]">Profile Style</span>
-                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button

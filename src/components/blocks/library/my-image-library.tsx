@@ -624,7 +624,12 @@ export default function MyImageLibrary() {
    * 格式化日期
    */
   const formatDate = (timestamp: number): string => {
-    return new Date(timestamp).toLocaleDateString();
+    try {
+      const iso = new Date(timestamp).toISOString();
+      return iso.slice(0, 10) + ' ' + iso.slice(11, 16) + ' UTC';
+    } catch {
+      return '';
+    }
   };
 
   // 渲染筛选栏
