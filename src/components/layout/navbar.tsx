@@ -299,68 +299,16 @@ export function Navbar({ scroll }: NavBarProps) {
                           {item.title.includes('AI Tools') ||
                           item.title.includes('AI 工具') ? (
                             <div className="p-6 flex flex-col gap-6">
-                              {/* Row 1: Main AI Tools item */}
-                              {item.items?.[0] && (
-                                <LocaleLink
-                                  href={item.items[0].href || '#'}
-                                  target={
-                                    item.items[0].external
-                                      ? '_blank'
-                                      : undefined
-                                  }
-                                  rel={
-                                    item.items[0].external
-                                      ? 'noopener noreferrer'
-                                      : undefined
-                                  }
-                                  onClick={() => closeAllMenus()}
-                                  className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
-                                >
-                                  {/* Image */}
-                                  <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                    {item.items[0].icon &&
-                                    typeof item.items[0].icon === 'string' ? (
-                                      <Image
-                                        src={item.items[0].icon}
-                                        alt=""
-                                        width={70}
-                                        height={70}
-                                        className="size-full object-cover"
-                                      />
-                                    ) : (
-                                      item.items[0].icon
-                                    )}
-                                  </div>
-
-                                  {/* Text content */}
-                                  <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                    <div className="font-bold leading-normal">
-                                      {item.items[0].title}
-                                    </div>
-                                    {item.items[0].description && (
-                                      <div className="font-normal leading-normal text-gray-600">
-                                        {item.items[0].description}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Arrow */}
-                                  <div className="shrink-0 size-6">
-                                    <ArrowUpRightIcon className="size-6 text-gray-600" />
-                                  </div>
-                                </LocaleLink>
-                              )}
-
-                              {/* Row 2: Two columns layout for remaining items */}
+                              {/* Two columns layout for 4 tools (no top standalone row) */}
                               <div className="flex gap-6 w-full">
                                 {/* Left Column */}
                                 <div className="flex flex-col gap-6 w-[378px]">
                                   {item.items
-                                    ?.slice(1, 3)
+                                    ?.slice(0, 2)
                                     .map((subItem, subIndex) => {
                                       return (
                                         <LocaleLink
-                                          key={subIndex + 1}
+                                          key={subIndex}
                                           href={subItem.href || '#'}
                                           target={
                                             subItem.external
@@ -412,11 +360,11 @@ export function Navbar({ scroll }: NavBarProps) {
                                 {/* Right Column */}
                                 <div className="flex flex-col gap-6 w-[378px]">
                                   {item.items
-                                    ?.slice(3, 5)
+                                    ?.slice(2, 4)
                                     .map((subItem, subIndex) => {
                                       return (
                                         <LocaleLink
-                                          key={subIndex + 3}
+                                          key={subIndex + 2}
                                           href={subItem.href || '#'}
                                           target={
                                             subItem.external
