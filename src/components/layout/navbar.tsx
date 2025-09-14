@@ -60,14 +60,12 @@ function HeaderCreditsDisplay() {
   const fetchCredits = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/credits/me', { credentials: 'include' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json?.success) {
-          const newCredits: number = json?.data?.credits ?? 0;
-          creditsCache.set(newCredits);
-          setCredits(newCredits);
-        }
+      // Use safe-action to fetch latest credits from DB
+      const result = await getUserCreditsAction({});
+      if (result?.data?.success) {
+        const newCredits: number = result.data.data?.credits ?? 0;
+        creditsCache.set(newCredits);
+        setCredits(newCredits);
       }
     } catch (error) {
       console.error('Failed to fetch credits:', error);
@@ -79,33 +77,31 @@ function HeaderCreditsDisplay() {
   useEffect(() => {
     setMounted(true);
 
-    // 1) Prefer session.user.credits for instant display
-    const sessionCredits = session?.user?.credits as unknown as number | undefined;
-    if (typeof sessionCredits === 'number') {
-      creditsCache.set(sessionCredits);
-      setCredits(sessionCredits);
+    // Prefer local cache for immediate, non-stale display
+    const cachedCredits = creditsCache.get();
+    if (cachedCredits !== null) {
+      setCredits(cachedCredits);
       setLoading(false);
     } else {
-      // 2) Fall back to local cache
-      const cachedCredits = creditsCache.get();
-      if (cachedCredits !== null) {
-        setCredits(cachedCredits);
+      // Fallback to session snapshot just for initial UI, do NOT override cache
+      const sessionCredits = session?.user?.credits as
+        | number
+        | undefined;
+      if (typeof sessionCredits === 'number') {
+        setCredits(sessionCredits);
         setLoading(false);
       }
-      // 3) If still null, fetch lazily
-      if (cachedCredits === null) {
-        // fetch after idle to avoid blocking first paint
-        const id = window.requestIdleCallback
-          ? window.requestIdleCallback(fetchCredits)
-          : window.setTimeout(fetchCredits, 0);
-        return () => {
-          if (window.cancelIdleCallback && typeof id === 'number') {
-            window.cancelIdleCallback(id as any);
-          } else {
-            window.clearTimeout(id as any);
-          }
-        };
-      }
+      // Always fetch latest from server asynchronously
+      const id = window.requestIdleCallback
+        ? window.requestIdleCallback(fetchCredits)
+        : window.setTimeout(fetchCredits, 0);
+      return () => {
+        if (window.cancelIdleCallback && typeof id === 'number') {
+          (window as any).cancelIdleCallback(id);
+        } else {
+          window.clearTimeout(id as any);
+        }
+      };
     }
 
     const unsubscribe = creditsCache.addListener(() => {

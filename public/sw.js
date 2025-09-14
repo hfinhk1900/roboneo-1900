@@ -156,6 +156,10 @@ function shouldSkipRequest(request) {
   // 跳过 Chrome 扩展等
   if (!url.protocol.startsWith('http')) return true;
 
+  // 跳过认证相关路由，避免影响登录/重定向流程
+  if (url.pathname.startsWith('/auth')) return true;
+  if (url.pathname.startsWith('/api/auth')) return true;
+
   return false;
 }
 
@@ -256,16 +260,14 @@ async function networkFirstStrategy(request, maxAge) {
   try {
     const networkResponse = await fetch(request);
 
-    if (networkResponse.ok) {
+    // 始终将网络响应返回给浏览器（包括 3xx/4xx/5xx），
+    // 让浏览器正确处理重定向/错误。仅在成功时写入缓存。
+    if (networkResponse && networkResponse.ok) {
       console.log('[SW] Network success:', request.url);
-
-      // 克隆响应用于缓存，避免 body 被锁定
       const responseClone = networkResponse.clone();
-
-      // 直接缓存克隆的响应
       cache.put(request, responseClone);
-      return networkResponse;
     }
+    return networkResponse;
   } catch (error) {
     console.log('[SW] Network failed, trying cache:', request.url);
   }

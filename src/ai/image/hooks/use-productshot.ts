@@ -57,6 +57,8 @@ export interface ProductShotResult {
   credits_used: number;
   credits_sufficient: boolean; // 更新：是否积分充足
   from_cache: boolean; // 新增：是否来自缓存
+  // Optional remaining credits returned by API
+  remaining_credits?: number;
 }
 
 export interface UseProductShotReturn {
@@ -396,6 +398,31 @@ export function useProductShot(): UseProductShotReturn {
       toast.success(
         `Product shot generated successfully! (${data.credits_used} credits used)`
       );
+
+      // Update credits cache for consistent UI
+      try {
+        const { creditsCache } = await import('@/lib/credits-cache');
+        const { CREDITS_PER_IMAGE } = await import('@/config/credits-config');
+        if (typeof data.remaining_credits === 'number') {
+          creditsCache.set(data.remaining_credits);
+        } else {
+          const current = creditsCache.get();
+          if (current !== null) {
+            creditsCache.set(Math.max(0, current - CREDITS_PER_IMAGE));
+          } else {
+            // As a fallback, fetch latest from server
+            const { getUserCreditsAction } = await import(
+              '@/actions/credits-actions'
+            );
+            const res = await getUserCreditsAction({});
+            if (res?.data?.success) {
+              creditsCache.set(res.data.data?.credits ?? 0);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to update credits cache after productshot:', e);
+      }
     } catch (err) {
       console.error('ProductShot generation error:', err);
       let errorMessage = 'Unknown error occurred';

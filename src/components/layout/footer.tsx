@@ -3,24 +3,24 @@
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
 import { ModeSwitcherHorizontal } from '@/components/layout/mode-switcher-horizontal';
-import BuiltWithButton from '@/components/shared/built-with-button';
 import { getFooterLinks } from '@/config/footer-config';
 import { getSocialLinks } from '@/config/social-config';
-import { LocaleLink } from '@/i18n/navigation';
+import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type React from 'react';
-import { ThemeSelector } from './theme-selector';
+// removed unused ThemeSelector/BuiltWithButton imports for MVP cleanup
 
 export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   const t = useTranslations();
   const footerLinks = getFooterLinks();
   const socialLinks = getSocialLinks();
+  const pathname = useLocalePathname();
 
   return (
-    <footer className={cn('border-t', className)}>
+    <footer role="contentinfo" className={cn('border-t', className)}>
       <Container className="px-4">
-        <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 py-16">
           <div className="flex flex-col items-start col-span-full md:col-span-2">
             <div className="space-y-4">
               {/* logo and name */}
@@ -44,7 +44,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       key={link.title}
                       href={link.href || '#'}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       aria-label={link.title}
                       className="border border-border inline-flex h-8 w-8 items-center
                           justify-center rounded-full hover:bg-accent hover:text-accent-foreground"
@@ -68,20 +68,33 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 {section.title}
               </span>
               <ul className="mt-4 list-inside space-y-3">
-                {section.items?.map(
-                  (item) =>
-                    item.href && (
-                      <li key={item.title}>
-                        <LocaleLink
-                          href={item.href || '#'}
-                          target={item.external ? '_blank' : undefined}
-                          className="text-sm text-muted-foreground hover:text-primary"
-                        >
-                          {item.title}
-                        </LocaleLink>
-                      </li>
-                    )
-                )}
+                {section.items?.map((item) => {
+                  if (!item.href) return null;
+                  const normalize = (s: string) =>
+                    s && s !== '/' ? s.replace(/\/$/, '') : s || '/';
+                  const current = normalize(pathname);
+                  const href = normalize(item.href);
+                  const isActive =
+                    current === href || current.endsWith(href as string);
+                  return (
+                    <li key={item.title}>
+                      <LocaleLink
+                        href={item.href}
+                        target={item.external ? '_blank' : undefined}
+                        rel={item.external ? 'noopener noreferrer' : undefined}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={cn(
+                          'text-sm hover:text-primary',
+                          isActive
+                            ? 'text-foreground font-medium'
+                            : 'text-muted-foreground'
+                        )}
+                      >
+                        {item.title}
+                      </LocaleLink>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

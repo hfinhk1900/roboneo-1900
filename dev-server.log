@@ -2,963 +2,1052 @@
 > roboneo art webapp@0.1.0 dev
 > next dev -p 3000
 
-[MDX] updated map file in 19.40212500000007ms
+[MDX] updated map file in 14.588342999999895ms
 [MDX] started dev server
    ▲ Next.js 15.2.1
    - Local:        http://localhost:3000
    - Network:      http://192.168.1.77:3000
-   - Environments: .env.local, .env.development, .env
+   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 2.2s
- ○ Compiling /api/ping ...
- ✓ Compiled /api/ping in 1484ms (408 modules)
- GET /api/ping 200 in 1729ms
- ○ Compiling /api/image-to-sticker-ai ...
- ✓ Compiled /api/image-to-sticker-ai in 2.9s (1175 modules)
- GET /api/image-to-sticker-ai?taskId=task_EO2rAgpasq4d49X-YdM0J 404 in 3084ms
- ✓ Compiled /api/kie-ai-callback in 433ms (1175 modules)
- HEAD /api/kie-ai-callback 200 in 527ms
- HEAD /api/kie-ai-callback 200 in 11ms
- ✓ Compiled in 331ms (896 modules)
- ✓ Compiled in 19ms
- ○ Compiling /api/image-to-sticker-ai ...
- ✓ Compiled /api/image-to-sticker-ai in 844ms (895 modules)
-🚀 Starting AI image-to-sticker generation...
-🧪 [TEST MODE] Using test token authentication
-🧪 [TEST MODE] Applying cost optimization settings for user test-user-123
-🎨 [STYLE] Applied ios style: iOS Sticker
-🧪 [COST OPTIMIZATION] Settings applied: {
-  style: 'ios',
-  size: '1:1',
-  nVariants: 1,
-  isEnhance: false,
-  enableFallback: false,
-  inputImages: 1,
-  promptApplied: true
-}
-📝 Created task task_yVbZ5UyzcZ7k8YPgM0BDj for user test-user-123
-🔄 Processing task task_yVbZ5UyzcZ7k8YPgM0BDj...
-🤖 Calling real KIE AI API for task task_yVbZ5UyzcZ7k8YPgM0BDj...
-🎨 Style: ios
-🔗 Setting callback URL: https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback
-🚀 Calling KIE AI API with: {
-  "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
-  "filesUrl": [
-    "https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=400"
-  ],
-  "size": "1:1",
-  "nVariants": 1,
-  "callBackUrl": "https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback",
-  "isEnhance": false,
-  "uploadCn": false,
-  "enableFallback": false,
-  "fallbackModel": "FLUX_MAX"
-}
-🧪 [TEST MODE] Skipping credit deduction for task task_yVbZ5UyzcZ7k8YPgM0BDj
- POST /api/image-to-sticker-ai 200 in 1011ms
-✅ KIE AI API response: {
-  code: 200,
-  msg: 'success',
-  data: { taskId: 'b0bc9d404d64178ea365a0c9962adecc' }
-}
-✅ KIE AI task created: b0bc9d404d64178ea365a0c9962adecc
-🚀 Using callback mode - no polling needed! Will receive notification at callback URL.
-💾 Stored KIE AI task ID b0bc9d404d64178ea365a0c9962adecc for local task task_yVbZ5UyzcZ7k8YPgM0BDj
-✅ KIE AI task created successfully: b0bc9d404d64178ea365a0c9962adecc
-🚀 Using callback mode - results will be delivered via callback URL
-⏳ Task task_yVbZ5UyzcZ7k8YPgM0BDj is now waiting for KIE AI callback...
-⏳ Task task_yVbZ5UyzcZ7k8YPgM0BDj is now PROCESSING, waiting for KIE AI callback...
- GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 200 in 39ms
- GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 200 in 15ms
- ✓ Compiled in 505ms (895 modules)
- GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 404 in 68ms
- ✓ Compiled /api/kie-ai-callback in 287ms (897 modules)
-📞 收到 KIE AI 回调通知
-📋 回调数据: {
-  "code": 200,
-  "data": {
-    "info": {
-      "result_urls": [
-        "https://tempfile.aiquickdraw.com/s/b0bc9d404d64178ea365a0c9962adecc_0_1754691386_1525.png"
-      ]
-    },
-    "taskId": "b0bc9d404d64178ea365a0c9962adecc"
-  },
-  "msg": "Gpt4o-image generated successfully."
-}
-⚠️ 未找到对应的本地任务: b0bc9d404d64178ea365a0c9962adecc
- POST /api/kie-ai-callback 200 in 357ms
-📞 收到 KIE AI 回调通知
-📋 回调数据: {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "taskId": "b0bc9d404d64178ea365a0c9962adecc",
-    "info": {
-      "result_urls": [
-        "https://tempfile.aiquickdraw.com/s/b0bc9d404d64178ea365a0c9962adecc_0_1754691386_1525.png"
-      ]
-    }
-  }
-}
-⚠️ 未找到对应的本地任务: b0bc9d404d64178ea365a0c9962adecc
- POST /api/kie-ai-callback 200 in 23ms
- GET /api/image-to-sticker-ai?taskId=task_yVbZ5UyzcZ7k8YPgM0BDj 404 in 21ms
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 8.4s (2585 modules)
- POST /api/test-download-save 404 in 10680ms
- ○ Compiling /api/storage/upload ...
- ✓ Compiled /api/storage/upload in 3.2s (2606 modules)
-uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png
-uploadFile, result {
-  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png',
-  key: 'image-to-sticker-kie ai/980553d6-599b-4155-89b8-33373af0ffa9.png'
-}
- POST /api/storage/upload 200 in 4780ms
- ✓ Compiled in 1015ms (636 modules)
- ✓ Compiled in 973ms (636 modules)
- ✓ Compiled in 564ms (636 modules)
- ✓ Compiled in 1031ms (636 modules)
- ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 3s (2968 modules)
- GET /step-showcase3.png 404 in 3859ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
- GET /magic02.png 404 in 2167ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
- GET /magic03.png 404 in 2172ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
- GET /step-showcase2.png 404 in 4396ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled in 783ms (811 modules)
- ✓ Compiled in 1555ms (811 modules)
- ✓ Compiled in 815ms (811 modules)
- ✓ Compiled in 957ms (811 modules)
- ✓ Compiled in 599ms (811 modules)
- ✓ Compiled in 616ms (811 modules)
- ✓ Compiled in 949ms (811 modules)
- ✓ Compiled in 818ms (811 modules)
- ✓ Compiled in 752ms (811 modules)
- ○ Compiling /api/storage/upload ...
- ✓ Compiled /api/storage/upload in 518ms (141 modules)
-uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp
-uploadFile, result {
-  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp',
-  key: '88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp'
-}
- POST /api/storage/upload 200 in 1428ms
- ○ Compiling /api/image-to-sticker-ai ...
- ✓ Compiled /api/image-to-sticker-ai in 2.6s (897 modules)
-🚀 Starting AI image-to-sticker generation...
-🧪 [TEST MODE] Using test token authentication
-🧪 [TEST MODE] Applying cost optimization settings for user test-user-123
-🎨 [STYLE] Applied ios style: iOS Sticker
-🧪 [COST OPTIMIZATION] Settings applied: {
-  style: 'ios',
-  size: '1:1',
-  nVariants: 1,
-  isEnhance: false,
-  enableFallback: false,
-  inputImages: 1,
-  promptApplied: true
-}
-📝 Created task task_q9eFXI0SdAfzUTbmI4cmS for user test-user-123
-🔄 Processing task task_q9eFXI0SdAfzUTbmI4cmS...
-🤖 Calling real KIE AI API for task task_q9eFXI0SdAfzUTbmI4cmS...
-🎨 Style: ios
-🔗 Setting callback URL: https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback
-🚀 Calling KIE AI API with: {
-  "prompt": "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
-  "filesUrl": [
-    "https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/88e2ffcf-3107-409f-b1ad-5b073ff6e071.webp"
-  ],
-  "size": "1:1",
-  "nVariants": 1,
-  "callBackUrl": "https://d30fc0c7a26b.ngrok-free.app/api/kie-ai-callback",
-  "isEnhance": false,
-  "uploadCn": false,
-  "enableFallback": false,
-  "fallbackModel": "FLUX_MAX"
-}
-🧪 [TEST MODE] Skipping credit deduction for task task_q9eFXI0SdAfzUTbmI4cmS
- POST /api/image-to-sticker-ai 200 in 2664ms
-✅ KIE AI API response: {
-  code: 200,
-  msg: 'success',
-  data: { taskId: '6eb3ba8afe948648a9d4976af4fc547f' }
-}
-✅ KIE AI task created: 6eb3ba8afe948648a9d4976af4fc547f
-🚀 Using callback mode - no polling needed! Will receive notification at callback URL.
-💾 Stored KIE AI task ID 6eb3ba8afe948648a9d4976af4fc547f for local task task_q9eFXI0SdAfzUTbmI4cmS
-✅ KIE AI task created successfully: 6eb3ba8afe948648a9d4976af4fc547f
-🚀 Using callback mode - results will be delivered via callback URL
-⏳ Task task_q9eFXI0SdAfzUTbmI4cmS is now waiting for KIE AI callback...
-⏳ Task task_q9eFXI0SdAfzUTbmI4cmS is now PROCESSING, waiting for KIE AI callback...
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 6ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 9ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 9ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 14ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 13ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 22ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 10ms
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 200 in 16ms
- ✓ Compiled /middleware in 368ms (183 modules)
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'turbopack'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ✓ Ready in 3s
+ ✓ Compiled /middleware in 439ms (184 modules)
 >> middleware start, pathname /
- ○ Compiling /api/auth/[...all] ...
- ✓ Compiled /api/auth/[...all] in 1472ms (1711 modules)
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 404 in 1232ms
- GET /api/auth/get-session 200 in 4891ms
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 2.5s (1068 modules)
+ GET /api/auth/get-session 200 in 3178ms
 << middleware end, applying intlMiddleware
  ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 4.5s (2895 modules)
- GET /api/image-to-sticker-ai?taskId=task_q9eFXI0SdAfzUTbmI4cmS 404 in 4228ms
- GET / 200 in 7036ms
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 607ms (2898 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1581ms
- GET /step-showcase1.png 404 in 1770ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
- GET /ios-style.png 404 in 1720ms
- ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
- GET /showcase01.png 404 in 1689ms
- ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
- GET /showcase02.png 404 in 1673ms
- ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
- GET /magic01.png 404 in 1441ms
- ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /showcase03.png 404 in 169ms
- ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
- GET /showcase04.png 404 in 179ms
- ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /magic02.png 404 in 169ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
- GET /magic03.png 404 in 179ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /[locale] in 12s (4406 modules)
+ ✓ Compiled in 914ms (1255 modules)
+ GET / 200 in 14966ms
 >> middleware start, pathname /
- ✓ Compiled /manifest.webmanifest in 1752ms (3699 modules)
- GET /manifest.webmanifest 200 in 2380ms
- GET /pixel-style.png 404 in 1208ms
- ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
- GET /snoopy-style.png 404 in 962ms
- ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /lego-style.png 404 in 1089ms
- ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /api/auth/get-session 200 in 1942ms
+ GET /api/auth/get-session 200 in 375ms
+ GET /api/auth/get-session 200 in 27ms
 << middleware end, applying intlMiddleware
- GET /api/auth/get-session 200 in 2786ms
- GET /step-showcase2.png 404 in 85ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- POST / 200 in 2037ms
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 26ms
-<< middleware end, applying intlMiddleware
- POST / 200 in 38ms
+ GET / 200 in 234ms
+ GET /api/auth/get-session 200 in 21ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 21ms
 << middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 244ms
- GET /step-showcase3.png 404 in 64ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase1.png 404 in 288ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ○ Compiling /api/kie-ai-callback ...
- ✓ Compiled /api/kie-ai-callback in 1052ms (2893 modules)
-📞 收到 KIE AI 回调通知
-📋 回调数据: {
-  "code": 400,
-  "data": {
-    "taskId": "6eb3ba8afe948648a9d4976af4fc547f"
-  },
-  "msg": "Your content was flagged by OpenAI as violating content policies."
-}
-⚠️ 未找到对应的本地任务: 6eb3ba8afe948648a9d4976af4fc547f
- POST /api/kie-ai-callback 200 in 1280ms
->> middleware start, pathname /
- ○ Compiling /api/auth/[...all] ...
- ✓ Compiled /api/auth/[...all] in 589ms (2896 modules)
- GET /api/auth/get-session 200 in 1550ms
+ GET /api/auth/get-session 200 in 28ms
+ GET / 200 in 270ms
+>> middleware start, pathname /aibackgrounds
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 2.2s (4396 modules)
+ GET /api/auth/get-session 200 in 2439ms
+ GET /api/auth/get-session 200 in 2536ms
+ GET /manifest.webmanifest 200 in 2600ms
 << middleware end, applying intlMiddleware
- GET /step-showcase3.png 404 in 306ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET / 200 in 351ms
- GET /showcase01.png 404 in 118ms
- ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
- GET /showcase02.png 404 in 122ms
- ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled /manifest.webmanifest in 432ms (2900 modules)
->> middleware start, pathname /
- ✓ Compiled in 0ms (2900 modules)
- ✓ Compiled in 0ms (2900 modules)
- ✓ Compiled in 0ms (2900 modules)
- GET /manifest.webmanifest 200 in 2951ms
- GET /showcase03.png 404 in 3191ms
- ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
- GET /showcase04.png 404 in 3197ms
- ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
- GET /magic01.png 404 in 3188ms
- ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
- GET /magic02.png 404 in 3194ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
- GET /magic03.png 404 in 3189ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /api/auth/get-session 200 in 3451ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 108ms
- GET /manifest.webmanifest 200 in 37ms
- GET /step-showcase2.png 404 in 100ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled in 1207ms (811 modules)
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 70ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 52ms
- GET /manifest.webmanifest 200 in 26ms
- ✓ Compiled in 631ms (811 modules)
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 11ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 51ms
- GET /manifest.webmanifest 200 in 22ms
- GET /step-showcase1.png 404 in 76ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase3.png 404 in 125ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 16ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 529ms
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 1509ms (2892 modules)
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2221ms
- GET /showcase01.png 404 in 2530ms
- ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
- GET /showcase02.png 404 in 2536ms
- ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
- GET /magic01.png 404 in 2543ms
- ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
- GET /ios-style.png 404 in 1965ms
- ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
- GET /showcase03.png 404 in 1402ms
- ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
- GET /showcase04.png 404 in 1383ms
- ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /manifest.webmanifest 200 in 164ms
- GET /api/auth/get-session 200 in 436ms
->> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
  GET /api/auth/get-session 200 in 15ms
 << middleware end, applying intlMiddleware
- POST / 200 in 1272ms
+ ○ Compiling /[locale]/aibackgrounds ...
 >> middleware start, pathname /
- GET /api/auth/get-session 200 in 11ms
+ ✓ Compiled /[locale]/aibackgrounds in 2.5s (4482 modules)
+ GET /api/auth/get-session 200 in 919ms
 << middleware end, applying intlMiddleware
- POST / 200 in 18ms
->> middleware start, pathname /
+ GET /api/auth/get-session 200 in 31ms
+ GET / 200 in 727ms
+ GET /aibackgrounds 200 in 3978ms
+ GET /manifest.webmanifest 200 in 24ms
+ GET /api/auth/get-session 200 in 8ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /api/auth/get-session 200 in 16ms
+>> middleware start, pathname /my-library
  GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/my-library ...
+ ✓ Compiled /[locale]/my-library in 1187ms (4540 modules)
+ GET /my-library 200 in 1669ms
+ GET /api/auth/get-session 200 in 152ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 107ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /api/auth/get-session 200 in 17ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/remove-watermark ...
+ ✓ Compiled /[locale]/remove-watermark in 1033ms (4552 modules)
+ GET /remove-watermark 200 in 1981ms
+ GET /api/auth/get-session 200 in 126ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 153ms
+ GET /manifest.webmanifest 200 in 22ms
+ GET /api/auth/get-session 200 in 16ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 17ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 27ms
+ GET /aibackgrounds 200 in 395ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /api/auth/get-session 200 in 50ms
+ ✓ Compiled in 4.3s (3935 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /remove-watermark
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 686ms (3236 modules)
+ GET /api/auth/get-session 200 in 1706ms
+ GET /api/auth/get-session 200 in 1704ms
+ GET /api/auth/get-session 200 in 1702ms
+ GET /api/auth/get-session 200 in 1708ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /
+ GET /my-library 200 in 910ms
+ GET /aibackgrounds 200 in 914ms
+ GET /remove-watermark 200 in 915ms
+ GET / 200 in 970ms
+ ✓ Compiled /manifest.webmanifest in 2s (4562 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /aibackgrounds
+ ✓ Compiled (4566 modules)
+ GET /manifest.webmanifest 200 in 1657ms
+ GET /api/auth/get-session 200 in 1159ms
+ GET /api/auth/get-session 200 in 1159ms
+ GET /api/auth/get-session 200 in 1159ms
+ GET /api/auth/get-session 200 in 2292ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 20ms
+ GET /manifest.webmanifest 200 in 273ms
+>> middleware start, pathname /
+ GET /aibackgrounds 200 in 337ms
+ GET /remove-watermark 200 in 359ms
+ GET /my-library 200 in 375ms
+ GET /manifest.webmanifest 200 in 84ms
+ GET / 200 in 399ms
+ GET /api/auth/get-session 200 in 111ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /
+ GET /manifest.webmanifest 200 in 32ms
+ GET / 200 in 151ms
+ GET /api/auth/get-session 200 in 40ms
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 48ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET / 200 in 70ms
+ GET /manifest.webmanifest 200 in 37ms
+ GET /manifest.webmanifest 200 in 18ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 47ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 27ms
+ GET / 200 in 727ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /api/auth/get-session 200 in 13ms
+ ✓ Compiled in 2.6s (4566 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 457ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 475ms
+ GET /api/auth/get-session 200 in 474ms
+ GET /api/auth/get-session 200 in 474ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /
+ GET /remove-watermark 200 in 475ms
+ GET /aibackgrounds 200 in 467ms
+ GET /api/auth/get-session 200 in 54ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 491ms
+ GET / 200 in 493ms
+ GET /manifest.webmanifest 200 in 40ms
+ GET / 200 in 169ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /manifest.webmanifest 200 in 11ms
+ ✓ Compiled in 3s (3935 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /my-library
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 695ms (3236 modules)
+ GET /api/auth/get-session 200 in 1443ms
+ GET /api/auth/get-session 200 in 1443ms
+ GET /api/auth/get-session 200 in 1440ms
+ GET /api/auth/get-session 200 in 1445ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /
+ GET /remove-watermark 200 in 366ms
+ GET /aibackgrounds 200 in 378ms
+ GET /my-library 200 in 382ms
+ GET /api/auth/get-session 200 in 33ms
+ GET / 200 in 392ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 154ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 846ms (3240 modules)
+ GET /manifest.webmanifest 200 in 1174ms
+ GET /manifest.webmanifest 200 in 233ms
+ GET /manifest.webmanifest 200 in 41ms
+ GET /manifest.webmanifest 200 in 28ms
+ GET /manifest.webmanifest 200 in 28ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 307ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/sticker ...
+ ✓ Compiled /[locale]/sticker in 3.9s (4584 modules)
+ GET /sticker 200 in 5446ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 852ms (3261 modules)
+ GET /manifest.webmanifest 200 in 1156ms
+ ✓ Compiled in 3.2s (3971 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /sticker
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 796ms (3257 modules)
+ GET /api/auth/get-session 200 in 1516ms
+ GET /api/auth/get-session 200 in 1514ms
+ GET /api/auth/get-session 200 in 1512ms
+ GET /api/auth/get-session 200 in 1510ms
+ GET /api/auth/get-session 200 in 1518ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 438ms
+ GET /aibackgrounds 200 in 439ms
+ GET /remove-watermark 200 in 451ms
+ GET /sticker 200 in 452ms
+ GET /my-library 200 in 457ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 774ms (3261 modules)
+ GET /manifest.webmanifest 200 in 1456ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 543ms
+ GET /manifest.webmanifest 200 in 43ms
+ ✓ Compiled in 1356ms (4602 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /sticker
+ ✓ Compiled in 0ms (3261 modules)
+ GET /manifest.webmanifest 200 in 1381ms
+ GET /api/auth/get-session 200 in 1479ms
+ GET /api/auth/get-session 200 in 1477ms
+ GET /api/auth/get-session 200 in 1475ms
+ GET /api/auth/get-session 200 in 1473ms
+ GET /api/auth/get-session 200 in 1480ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 398ms
+ GET /remove-watermark 200 in 456ms
+ GET /aibackgrounds 200 in 457ms
+ GET /sticker 200 in 461ms
+ GET / 200 in 469ms
+ GET /manifest.webmanifest 200 in 17ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 20ms
+ GET /manifest.webmanifest 200 in 18ms
+ GET /manifest.webmanifest 200 in 7ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 19ms
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 31ms
+ GET /manifest.webmanifest 200 in 16ms
+ ○ Compiling /api/auth/[...all] ...
+ ✓ Compiled /api/auth/[...all] in 3.3s (4591 modules)
+ POST /api/auth/sign-in/social 200 in 7591ms
+ GET /api/auth/get-session 200 in 19ms
+ GET /api/auth/callback/google?state=Zkkxx4XkOtiEhAjYFpPujrmYFSv2icBX&code=4%2F0AVGzR1DxnLQHKk09TwqPtWN0ck7_ukA9QEifI9BWsdMVwneuJ-DX1fOvzKdm4NROeyneiw&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=none 302 in 1104ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 22ms
+ GET /aibackgrounds 200 in 548ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /api/auth/get-session 200 in 11ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 384ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 9ms
 << middleware end, applying intlMiddleware
 Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 166ms
- GET /step-showcase2.png 404 in 83ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ○ Compiling /api/storage/upload ...
- ✓ Compiled /api/storage/upload in 846ms (2899 modules)
-uploadFile, public url https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/6064786a-01d0-4e11-895a-7a12b6ba82b4.webp
-uploadFile, result {
-  url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/6064786a-01d0-4e11-895a-7a12b6ba82b4.webp',
-  key: '6064786a-01d0-4e11-895a-7a12b6ba82b4.webp'
-}
- POST /api/storage/upload 200 in 1481ms
- ○ Compiling /api/image-to-sticker-ai ...
- ✓ Compiled /api/image-to-sticker-ai in 1066ms (2904 modules)
-🚀 Starting AI image-to-sticker generation...
- POST /api/image-to-sticker-ai 401 in 1163ms
- POST /api/auth/sign-in/social 200 in 1131ms
- GET /api/auth/get-session 200 in 30ms
->> middleware start, pathname /
+ POST /aibackgrounds 200 in 694ms
+ ○ Compiling /api/avatar/[id] ...
+ ✓ Compiled /api/avatar/[id] in 3.7s (4601 modules)
+ GET /api/avatar/4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY 304 in 5425ms
+ GET /api/history/aibgs?refresh_urls=true 200 in 5557ms
+ ○ Compiling /api/assets/[id] ...
+ ✓ Compiled /api/assets/[id] in 1279ms (4609 modules)
+ GET /api/assets/RsQUIm-cR-ngfAgXIUbkgZ6mWEcNN8MI 200 in 3530ms
+ GET /api/assets/gZ4jj8LjWzTdVr-4ie8XHZqcZz-9QjmG 304 in 3644ms
+ GET /manifest.webmanifest 200 in 31ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 4.9s (3978 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 6544ms
+>> middleware start, pathname /aibackgrounds
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 745ms (3264 modules)
+ GET /api/auth/get-session 200 in 1293ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 27ms
+ GET /aibackgrounds 200 in 519ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 107ms
+ GET /manifest.webmanifest 200 in 21ms
+ GET /api/auth/get-session 200 in 14ms
+>> middleware start, pathname /aibackgrounds
  GET /api/auth/get-session 200 in 13ms
 << middleware end, applying intlMiddleware
- POST / 200 in 488ms
+ POST /aibackgrounds 200 in 475ms
+>> middleware start, pathname /aibackgrounds
+ ○ Compiling /api/avatar/[id] ...
+ ✓ Compiled /api/avatar/[id] in 740ms (3272 modules)
+ ✓ Compiled (3274 modules)
+ GET /api/auth/get-session 200 in 1713ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /aibackgrounds 200 in 1056ms
+ GET /api/avatar/4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY 200 in 2929ms
+ GET /api/avatar/4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY 200 in 267ms
+ GET /api/history/aibgs?refresh_urls=true 200 in 3523ms
+ ○ Compiling /api/assets/[id] ...
+ ✓ Compiled /api/assets/[id] in 1898ms (3282 modules)
+ GET /api/assets/gZ4jj8LjWzTdVr-4ie8XHZqcZz-9QjmG 200 in 2923ms
+ GET /api/assets/RsQUIm-cR-ngfAgXIUbkgZ6mWEcNN8MI 200 in 2969ms
+ GET /api/assets/gZ4jj8LjWzTdVr-4ie8XHZqcZz-9QjmG 401 in 27ms
+ GET /api/assets/RsQUIm-cR-ngfAgXIUbkgZ6mWEcNN8MI 401 in 13ms
+ ○ Compiling /api/bg/remove-direct ...
+ ✓ Compiled /api/bg/remove-direct in 3.1s (4830 modules)
+ GET /api/assets/gZ4jj8LjWzTdVr-4ie8XHZqcZz-9QjmG 401 in 447ms
+ GET /api/assets/RsQUIm-cR-ngfAgXIUbkgZ6mWEcNN8MI 401 in 417ms
+🔄 Proxying request to private HF Space...
+📤 Processing image, max_side: 1600, aspect_ratio: null
+📊 Image data size: 106855 characters
+🔐 Using private HF Space with authentication
+ POST /api/bg/remove-direct 200 in 90994ms
+🔄 Proxying request to private HF Space...
+📤 Processing image, max_side: 1600, aspect_ratio: null
+📊 Image data size: 106855 characters
+🔐 Using private HF Space with authentication
+✅ Background removal successful
+⏱️ Processing time: 23.22s
+📐 Image size: 768,1024
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+logAIOperation failed: [Error [PostgresError]: relation "ailog_history" does not exist] {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '13',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+✅ Background removal successful
+⏱️ Processing time: 27.62s
+📐 Image size: 768,1024
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+logAIOperation failed: [Error [PostgresError]: relation "ailog_history" does not exist] {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '13',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+ POST /api/bg/remove-direct 200 in 33839ms
+ ○ Compiling /api/upload/image ...
+ ✓ Compiled /api/upload/image in 3.2s (4813 modules)
+Image upload error: [Error [BetterCallAPIError]: API Error: BAD_REQUEST Headers are required] {
+  status: 'BAD_REQUEST',
+  headers: Headers {},
+  body: [Object],
+  [cause]: [Object]
+}
+ POST /api/upload/image 500 in 3740ms
+>> middleware start, pathname /my-library
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+ ○ Compiling /api/history/aibgs ...
+ ✓ Compiled /api/history/aibgs in 620ms (3488 modules)
+ ✓ Compiled (3494 modules)
+ GET /api/auth/get-session 200 in 1533ms
+ GET /api/auth/get-session 200 in 1533ms
+ GET /api/auth/get-session 200 in 1533ms
+ GET /api/auth/get-session 200 in 1532ms
+ GET /api/auth/get-session 200 in 1537ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 275ms
+ GET /aibackgrounds 200 in 275ms
+ GET /my-library 200 in 279ms
+ GET /remove-watermark 200 in 279ms
+ GET / 200 in 281ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 811ms (3498 modules)
+ GET /manifest.webmanifest 200 in 571ms
+ GET /manifest.webmanifest 200 in 988ms
+ POST /api/history/aibgs 200 in 2958ms
+ GET /manifest.webmanifest 200 in 10ms
+ GET /manifest.webmanifest 200 in 10ms
+ GET /manifest.webmanifest 200 in 9ms
+ ○ Compiling /api/assets/[id] ...
+ ✓ Compiled /api/assets/[id] in 1150ms (3500 modules)
+ GET /api/assets/gZ4jj8LjWzTdVr-4ie8XHZqcZz-9QjmG 200 in 2173ms
+ GET /api/assets/RsQUIm-cR-ngfAgXIUbkgZ6mWEcNN8MI 200 in 2182ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 33ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 566ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 18ms
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 142ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 281ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 164ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 47ms
+ GET /my-library 200 in 223ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 52ms
+ GET /my-library 200 in 246ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 27ms
+ GET /aibackgrounds 200 in 217ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 146ms
+ GET /manifest.webmanifest 200 in 24ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 34ms
+ GET /aibackgrounds 200 in 220ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 26ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 14ms
+ GET / 200 in 391ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /api/auth/get-session 200 in 24ms
+ ○ Compiling /api/auth/[...all] ...
+ ✓ Compiled /api/auth/[...all] in 3s (3264 modules)
+ POST /api/auth/sign-in/social 200 in 4774ms
+ GET /api/auth/get-session 200 in 22ms
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 1070ms
+[2m2025-09-14T19:18:23.491Z[0m [31mERROR[0m [1m[Better Auth]:[0m State Mismatch. Verification not found { state: 'Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA' }
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 151ms
+[2m2025-09-14T19:18:26.535Z[0m [31mERROR[0m [1m[Better Auth]:[0m State Mismatch. Verification not found { state: 'Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA' }
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 146ms
+[2m2025-09-14T19:18:26.890Z[0m [31mERROR[0m [1m[Better Auth]:[0m State Mismatch. Verification not found { state: 'Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA' }
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 150ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 20ms
 << middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 702ms
- GET /api/auth/callback/google?state=qTe87jG8KqtTnKKBL92muJkbEn4RxOZM&code=4%2F0AVMBsJjNiDNz-ct1Qq21VoX_HgzKn4s0jW2369MDOEJK-seCk-TCTaJhIJcekHEnMv9eKA&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 1650ms
+ GET /api/auth/get-session 200 in 28ms
+ GET / 200 in 676ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /api/auth/get-session 200 in 7ms
+ POST /api/auth/sign-in/social 200 in 143ms
+ GET /api/auth/get-session 200 in 28ms
+ GET /api/auth/callback/google?state=-r1n0eiSxMxhibS0yUFnaCbZ7e_8ImDb&code=4%2F0AVGzR1C5nO6V_PE4nNj5k2bxiaOtvJSbd4Wu57ah2XgruisXsgNMv56ZPrkIB067t2-HAQ&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid&authuser=0&prompt=none 302 in 1030ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 20ms
+ GET / 200 in 254ms
+ GET /manifest.webmanifest 200 in 8ms
+ GET /api/auth/get-session 200 in 12ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 10ms
 << middleware end, applying intlMiddleware
- GET / 200 in 554ms
- GET /step-showcase1.png 404 in 283ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 291ms
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /manifest.webmanifest 200 in 27ms
+ POST / 200 in 393ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /api/avatar/[id] ...
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ ✓ Compiled /api/avatar/[id] in 2.3s (3267 modules)
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST / 200 in 2518ms
+ GET /api/avatar/XVNacBsOrOroQkIZih2PTG7yZh0ABhP7 304 in 3116ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 210ms
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 75ms
+ ○ Compiling /api/history/aibgs ...
+ ✓ Compiled /api/history/aibgs in 780ms (3274 modules)
+ GET /manifest.webmanifest 200 in 1538ms
+ GET /api/history/aibgs?refresh_urls=true 200 in 3849ms
+ ○ Compiling /api/bg/remove-direct ...
+ ✓ Compiled /api/bg/remove-direct in 2.8s (3495 modules)
+[2m2025-09-14T19:19:47.678Z[0m [31mERROR[0m [1m[Better Auth]:[0m State Mismatch. Verification not found { state: 'Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA' }
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 883ms
+🔄 Proxying request to private HF Space...
+📤 Processing image, max_side: 1600, aspect_ratio: null
+📊 Image data size: 198019 characters
+🔐 Using private HF Space with authentication
+✅ Background removal successful
+⏱️ Processing time: 10.91s
+📐 Image size: 1024,768
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+logAIOperation failed: [Error [PostgresError]: relation "ailog_history" does not exist] {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '13',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+ POST /api/bg/remove-direct 200 in 17525ms
+ ○ Compiling /api/upload/image ...
+ ✓ Compiled /api/upload/image in 1470ms (3503 modules)
+Image upload error: [Error [BetterCallAPIError]: API Error: BAD_REQUEST Headers are required] {
+  status: 'BAD_REQUEST',
+  headers: Headers {},
+  body: [Object],
+  [cause]: [Object]
+}
+ POST /api/upload/image 500 in 1714ms
+ POST /api/history/aibgs 200 in 1103ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 16ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 17ms
+ GET /my-library 200 in 437ms
+ GET /manifest.webmanifest 200 in 17ms
+ GET /api/auth/get-session 200 in 29ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 434ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 812ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 17ms
+ GET /my-library 200 in 134ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /api/auth/get-session 200 in 10ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 12ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 281ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 31ms
+ GET /my-library 200 in 164ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /api/auth/get-session 200 in 14ms
+>> middleware start, pathname /my-library
  GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 14ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 270ms
+ ✓ Compiled in 4.5s (1341 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 47ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 66ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 143ms
+ GET /aibackgrounds 200 in 115ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 16ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 43ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 37ms
+ GET /api/auth/get-session 200 in 911ms
+ GET /api/auth/get-session 200 in 914ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 1336ms
+ GET /api/auth/get-session 200 in 1382ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 299ms
+>> middleware start, pathname /aibackgrounds
+ GET /remove-watermark 200 in 1021ms
+ GET / 200 in 1025ms
+ GET /aibackgrounds 200 in 251ms
+ GET /my-library 200 in 254ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 23ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /api/auth/get-session 200 in 299ms
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 43ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 58ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 16ms
+ GET /my-library 200 in 144ms
+ GET /manifest.webmanifest 200 in 17ms
+ GET /api/auth/get-session 200 in 13ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 20ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 278ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 23ms
+ GET /my-library 200 in 131ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /api/auth/get-session 200 in 13ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 12ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 275ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 23ms
+ GET /my-library 200 in 137ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /api/auth/get-session 200 in 14ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 11ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+No subscriptions found in database, trying to find customer ID for user XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+no subscriptions found for userId: XVNacBsOrOroQkIZih2PTG7yZh0ABhP7
+ POST /my-library 200 in 275ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 36ms
+ GET /manifest.webmanifest 200 in 15ms
+ ✓ Compiled in 1739ms (1341 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 33ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 70ms
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 100ms
+ GET / 200 in 131ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /api/auth/get-session 200 in 332ms
+ GET /api/auth/get-session 200 in 332ms
+ GET /api/auth/get-session 200 in 338ms
+ GET /api/auth/get-session 200 in 340ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 105ms
+ GET /remove-watermark 200 in 152ms
+ GET /aibackgrounds 200 in 161ms
+ GET /my-library 200 in 163ms
+ GET / 200 in 181ms
+ GET /manifest.webmanifest 200 in 68ms
+ GET /manifest.webmanifest 200 in 34ms
+ GET /manifest.webmanifest 200 in 18ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /api/auth/get-session 200 in 883ms
+<< middleware end, applying intlMiddleware
+ GET /aibackgrounds 200 in 41ms
+ GET /manifest.webmanifest 200 in 15ms
+ ○ Compiling /[locale]/[...rest] ...
+ ✓ Compiled /[locale]/[...rest] in 3.4s (3264 modules)
+ POST /api/analytics/batch 404 in 4359ms
+ ○ Compiling /api/auth/[...all] ...
+ ✓ Compiled /api/auth/[...all] in 1541ms (3246 modules)
+>> middleware start, pathname /
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 601ms (3260 modules)
+[2m2025-09-14T19:24:24.234Z[0m [31mERROR[0m [1m[Better Auth]:[0m State Mismatch. Verification not found { state: 'Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA' }
+ GET /api/auth/callback/google?state=Xyi6Zhs1g-h0Kvwq1STcgE6KwC_od5MA&code=4%2F0AVMBsJgP50AcaJp5HMOiKF8UBPOhVE7B9tpO4pD93TKAEjE9isTiUPa6nnaW1PIGOHCm_Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none 302 in 3244ms
+ GET /api/auth/get-session 200 in 948ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 18ms
+ GET / 200 in 637ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 726ms (3264 modules)
+ GET /manifest.webmanifest 200 in 1593ms
+ GET /api/auth/get-session 200 in 1632ms
+>> middleware start, pathname /
+ ○ Compiling /api/avatar/[id] ...
+>> middleware start, pathname /
+ ✓ Compiled /api/avatar/[id] in 2.7s (3267 modules)
+ GET /api/auth/get-session 200 in 2774ms
+ GET /api/auth/get-session 200 in 3603ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ POST / 200 in 1265ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 26ms
+ GET / 200 in 1304ms
+ GET /api/auth/get-session 200 in 17ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST / 200 in 855ms
+ GET /api/avatar/40bTczqxmEACb9iyd6pP6kKnrNE6MWCX 200 in 6182ms
+ POST /api/auth/sign-in/social 200 in 694ms
+ GET /api/auth/get-session 200 in 278ms
+ ○ Compiling /api/history/aibgs ...
+>> middleware start, pathname /aibackgrounds
+ ✓ Compiled /api/history/aibgs in 1268ms (3274 modules)
+ GET /api/auth/callback/google?state=aC4cLqTd9L4T7ibjOZwrrqIzWbk61Dny&code=4%2F0AVMBsJg4iBkqZm7QQdwWQXYs3sqoC_7lJWTdSfn48nh_B4RG6gABCRvfcZH-V0ikSVfd2Q&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=0&prompt=none 302 in 2849ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 30ms
+<< middleware end, applying intlMiddleware
+ GET /api/avatar/4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY 200 in 3231ms
+ GET /api/history/aibgs?refresh_urls=true 200 in 3293ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 46ms
+ GET /api/auth/get-session 200 in 58ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 616ms
+ GET /api/auth/get-session 200 in 2814ms
+<< middleware end, applying intlMiddleware
+ GET /manifest.webmanifest 200 in 13ms
+ GET /api/auth/get-session 200 in 27ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 346ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 27ms
+<< middleware end, applying intlMiddleware
+ GET /api/avatar/4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY 200 in 317ms
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST / 200 in 711ms
+>> middleware start, pathname /dashboard
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/dashboard ...
+ ✓ Compiled /[locale]/dashboard in 6.5s (5867 modules)
+>> middleware start, pathname /settings/profile
+ GET /api/auth/get-session 200 in 377ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/settings/profile ...
+ ✓ Compiled /[locale]/settings/profile in 2.9s (5885 modules)
+ GET /settings/profile 200 in 4640ms
+ GET /manifest.webmanifest 200 in 60ms
+>> middleware start, pathname /settings/profile
+ GET /api/auth/get-session 200 in 248ms
+<< middleware end, applying intlMiddleware
+ POST /settings/profile 200 in 444ms
+>> middleware start, pathname /settings/profile
+ GET /api/auth/get-session 200 in 15ms
+<< middleware end, applying intlMiddleware
+Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
+ POST /settings/profile 200 in 686ms
+>> middleware start, pathname /admin/users
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/admin/users ...
+ ✓ Compiled /[locale]/admin/users in 4.5s (7606 modules)
+ GET /dashboard 200 in 21383ms
+>> middleware start, pathname /admin/users
+ GET /admin/users 200 in 5919ms
+ GET /api/auth/get-session 200 in 23ms
+<< middleware end, applying intlMiddleware
+ GET /admin/users 200 in 26ms
+ GET /manifest.webmanifest 200 in 51ms
+>> middleware start, pathname /admin/users
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /admin/users 200 in 1015ms
+>> middleware start, pathname /admin/users
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /admin/users 200 in 148ms
+>> middleware start, pathname /admin/users
+ GET /api/auth/get-session 200 in 123ms
+<< middleware end, applying intlMiddleware
+ POST /admin/users 200 in 174ms
+>> middleware start, pathname /admin/users
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /admin/users 200 in 155ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 16ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 23ms
+ GET / 200 in 651ms
+ GET /manifest.webmanifest 200 in 18ms
+ GET /api/auth/get-session 200 in 15ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 28ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 12ms
 << middleware end, applying intlMiddleware
- POST / 200 in 14ms
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST / 200 in 310ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 33ms
+ GET / 200 in 272ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /api/auth/get-session 200 in 13ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 9ms
 << middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 144ms
- GET /magic02.png 404 in 58ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /magic03.png 404 in 122ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /manifest.webmanifest 200 in 58ms
- GET /pixel-style.png 404 in 69ms
- ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /lego-style.png 404 in 160ms
- ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
- GET /snoopy-style.png 404 in 166ms
- ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
+ POST / 200 in 18ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST / 200 in 276ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 29ms
+ GET / 200 in 301ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /api/auth/get-session 200 in 14ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 13ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST / 200 in 275ms
+ POST /api/auth/sign-out 200 in 717ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 28ms
+ GET /api/auth/get-session 200 in 7ms
+ GET /manifest.webmanifest 200 in 11ms
+ POST /api/auth/sign-in/social 200 in 149ms
+ GET /api/auth/get-session 200 in 13ms
+ GET /api/auth/callback/google?state=H2LXd4uJAFDN_LpoRmLZDNHupNf1XlhT&code=4%2F0AVGzR1B1wt-k3_plRbrvx_JXWUF4eS0bpTjdL-wyJ-BLsaX5YcxPTNyw9BDNnWwkHoCLdA&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=none 302 in 1039ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 14ms
 << middleware end, applying intlMiddleware
- GET / 200 in 298ms
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 133ms
- GET /manifest.webmanifest 200 in 7ms
+ GET /api/auth/get-session 200 in 25ms
+ GET / 200 in 282ms
+ GET /manifest.webmanifest 200 in 9ms
  GET /api/auth/get-session 200 in 15ms
 >> middleware start, pathname /
  GET /api/auth/get-session 200 in 9ms
 << middleware end, applying intlMiddleware
- POST / 200 in 14ms
+ POST / 200 in 15ms
 >> middleware start, pathname /
- GET /api/auth/get-session 200 in 10ms
+ GET /api/auth/get-session 200 in 26ms
 << middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 157ms
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 29ms
-<< middleware end, applying intlMiddleware
- GET /manifest.webmanifest 200 in 19ms
- POST / 200 in 198ms
- GET /step-showcase3.png 404 in 74ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase2.png 404 in 63ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
->> middleware start, pathname /
- ✓ Compiled in 3.5s (3703 modules)
- GET /api/auth/get-session 200 in 2760ms
-<< middleware end, applying intlMiddleware
- GET /ios-style.png 404 in 3231ms
- ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
- GET /pixel-style.png 404 in 3208ms
- ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
- GET /lego-style.png 404 in 3162ms
- ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
- GET /snoopy-style.png 404 in 3170ms
- ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase1.png 404 in 61ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- POST / 200 in 1587ms
->> middleware start, pathname /
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST / 200 in 281ms
+>> middleware start, pathname /settings/security
  GET /api/auth/get-session 200 in 18ms
 << middleware end, applying intlMiddleware
- GET / 200 in 66ms
- GET /showcase01.png 404 in 148ms
- ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
- GET /showcase02.png 404 in 155ms
- ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /manifest.webmanifest 200 in 30ms
- GET /showcase03.png 404 in 181ms
- ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
- GET /showcase04.png 404 in 186ms
- ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
- GET /magic01.png 404 in 171ms
- ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /magic02.png 404 in 295ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
- GET /magic03.png 404 in 292ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled in 1392ms (3700 modules)
+ ○ Compiling /[locale]/settings/security ...
+ ✓ Compiled /[locale]/settings/security in 5.4s (6973 modules)
+ GET /settings/security 200 in 6462ms
+ GET /manifest.webmanifest 200 in 27ms
+ GET /api/auth/list-accounts 200 in 974ms
+ GET /api/auth/list-accounts 200 in 158ms
+ ✓ Compiled in 5.2s (6987 modules)
+>> middleware start, pathname /my-library
 >> middleware start, pathname /
- GET /api/auth/get-session 200 in 343ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 126ms
- GET /manifest.webmanifest 200 in 32ms
- ✓ Compiled in 2.6s (3700 modules)
+>> middleware start, pathname /remove-watermark
 >> middleware start, pathname /
- GET /api/auth/get-session 200 in 207ms
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /settings/security
+ GET /api/auth/get-session 200 in 329ms
 << middleware end, applying intlMiddleware
- GET / 200 in 159ms
+ GET /api/auth/get-session 200 in 342ms
+ GET /api/auth/get-session 200 in 341ms
+ GET /api/auth/get-session 200 in 340ms
+ GET /api/auth/get-session 200 in 337ms
+ GET /api/auth/get-session 200 in 333ms
+ GET /api/auth/get-session 200 in 330ms
+ GET /api/auth/get-session 200 in 331ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 511ms
+ GET /my-library 200 in 482ms
+ GET /my-library 200 in 484ms
+ GET /remove-watermark 200 in 522ms
+ GET /aibackgrounds 200 in 536ms
+ GET / 200 in 582ms
+ GET / 200 in 582ms
+ GET /settings/security 200 in 583ms
+ GET /manifest.webmanifest 200 in 25ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /manifest.webmanifest 200 in 20ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /manifest.webmanifest 200 in 12ms
+ GET /manifest.webmanifest 200 in 37ms
+ ✓ Compiled in 1685ms (2825 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 43ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 89ms
+ GET /api/auth/get-session 200 in 87ms
+ GET /api/auth/get-session 200 in 86ms
+ GET /api/auth/get-session 200 in 86ms
+ GET /api/auth/get-session 200 in 87ms
+ GET /api/auth/get-session 200 in 87ms
+ GET /api/auth/get-session 200 in 106ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 381ms
+ GET /aibackgrounds 200 in 457ms
+ GET /my-library 200 in 461ms
+ GET /my-library 200 in 462ms
+ GET / 200 in 469ms
+ GET / 200 in 472ms
+ GET / 200 in 472ms
+ GET /manifest.webmanifest 200 in 60ms
+ GET /settings/security 200 in 483ms
+ GET /manifest.webmanifest 200 in 12ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 25ms
  GET /manifest.webmanifest 200 in 31ms
- ✓ Compiled in 1041ms (3700 modules)
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 187ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 112ms
- GET /manifest.webmanifest 200 in 33ms
- GET /step-showcase3.png 404 in 79ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase2.png 404 in 136ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled in 1081ms (3700 modules)
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 198ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 127ms
- GET /manifest.webmanifest 200 in 23ms
- ✓ Compiled in 1549ms (3700 modules)
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 205ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 231ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 18ms
  GET /manifest.webmanifest 200 in 24ms
- GET /step-showcase1.png 404 in 182ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 16ms
-<< middleware end, applying intlMiddleware
- HEAD / 200 in 716ms
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 38ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 711ms
- ○ Compiling /[locale]/[...rest] ...
- ✓ Compiled /[locale]/[...rest] in 2.6s (2892 modules)
->> middleware start, pathname /
- ✓ Compiled in 0ms (2892 modules)
- ✓ Compiled in 3ms (2892 modules)
- ✓ Compiled in 0ms (2892 modules)
- GET /showcase01.png 404 in 7170ms
- ⨯ The requested resource isn't a valid image for /showcase01.png received text/html; charset=utf-8
- GET /showcase02.png 404 in 7144ms
- ⨯ The requested resource isn't a valid image for /showcase02.png received text/html; charset=utf-8
- GET /magic01.png 404 in 7136ms
- ⨯ The requested resource isn't a valid image for /magic01.png received text/html; charset=utf-8
- GET /ios-style.png 404 in 5343ms
- ⨯ The requested resource isn't a valid image for /ios-style.png received text/html; charset=utf-8
- GET /showcase03.png 404 in 5175ms
- ⨯ The requested resource isn't a valid image for /showcase03.png received text/html; charset=utf-8
- GET /showcase04.png 404 in 5169ms
- ⨯ The requested resource isn't a valid image for /showcase04.png received text/html; charset=utf-8
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 7414ms
->> middleware start, pathname /
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- ✓ Compiled in 1ms (2892 modules)
- GET /api/auth/get-session 200 in 5516ms
-<< middleware end, applying intlMiddleware
- ✓ Compiled in 1ms (2892 modules)
- GET /manifest.webmanifest 200 in 5159ms
- ✓ Compiled in 0ms (2892 modules)
- GET /api/auth/get-session 200 in 5574ms
- GET /api/auth/get-session 200 in 2582ms
-<< middleware end, applying intlMiddleware
- GET /magic03.png 404 in 3373ms
- ⨯ The requested resource isn't a valid image for /magic03.png received text/html; charset=utf-8
- GET /pixel-style.png 404 in 3364ms
- ⨯ The requested resource isn't a valid image for /pixel-style.png received text/html; charset=utf-8
- GET /lego-style.png 404 in 3341ms
- ⨯ The requested resource isn't a valid image for /lego-style.png received text/html; charset=utf-8
- GET /snoopy-style.png 404 in 3352ms
- ⨯ The requested resource isn't a valid image for /snoopy-style.png received text/html; charset=utf-8
- GET /magic02.png 404 in 3994ms
- ⨯ The requested resource isn't a valid image for /magic02.png received text/html; charset=utf-8
- POST / 200 in 1605ms
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
->> middleware start, pathname /
- ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '3485663598' }
- GET /.well-known/appspecific/com.chrome.devtools.json 404 in 798ms
- GET /api/auth/get-session 200 in 486ms
-<< middleware end, applying intlMiddleware
- GET / 200 in 4806ms
- GET /manifest.webmanifest 200 in 42ms
- GET /api/auth/get-session 200 in 27ms
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 13ms
-<< middleware end, applying intlMiddleware
- POST / 200 in 843ms
->> middleware start, pathname /
+>> middleware start, pathname /sticker
  GET /api/auth/get-session 200 in 17ms
 << middleware end, applying intlMiddleware
-Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
-DEBUGGING: All subscriptions found: [
-  {
-    "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-    "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.633Z"
-  },
-  {
-    "id": "sub_1Rq18B51DiSYNsnGcgoo3c7J",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-    "status": "active",
-    "type": "subscription",
-    "interval": "month",
-    "currentPeriodStart": "2025-07-29T00:10:59.000Z",
-    "currentPeriodEnd": "2025-08-29T00:10:59.000Z",
-    "cancelAtPeriodEnd": true,
-    "createdAt": "2025-07-29T00:40:17.503Z"
-  },
-  {
-    "id": "sub_1Rq1Da51DiSYNsnGPHnIbaMG",
-    "customerId": "cus_SlXXgVndnUTJDU",
-    "priceId": "price_1Rq05q51DiSYNsnGaNSxEWxi",
-    "status": "active",
-    "type": "subscription",
-    "interval": "year",
-    "currentPeriodStart": "2025-07-29T00:16:34.000Z",
-    "currentPeriodEnd": "2025-08-29T00:16:34.000Z",
-    "cancelAtPeriodEnd": false,
-    "createdAt": "2025-07-29T00:40:17.369Z"
-  }
-]
-DEBUGGING: Active subscription found: {
-  "id": "sub_1Rq0xA51DiSYNsnGCJnoInnG",
-  "customerId": "cus_SlXXgVndnUTJDU",
-  "priceId": "price_1RpypQ51DiSYNsnGiKkRXeva",
-  "status": "active",
-  "type": "subscription",
-  "interval": "month",
-  "currentPeriodStart": "2025-07-28T23:59:36.000Z",
-  "currentPeriodEnd": "2025-08-28T23:59:36.000Z",
-  "cancelAtPeriodEnd": true,
-  "createdAt": "2025-07-29T00:40:17.633Z"
-}
- POST / 200 in 730ms
->> middleware start, pathname /
- GET /api/auth/get-session 200 in 27ms
-<< middleware end, applying intlMiddleware
- POST / 200 in 148ms
- GET /step-showcase2.png 404 in 67ms
- ⨯ The requested resource isn't a valid image for /step-showcase2.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase3.png 404 in 60ms
- ⨯ The requested resource isn't a valid image for /step-showcase3.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
- GET /step-showcase1.png 404 in 78ms
- ⨯ The requested resource isn't a valid image for /step-showcase1.png received text/html; charset=utf-8
-[Error: The requested resource isn't a valid image.] { statusCode: 400 }
-[?25h
-[MDX] closing dev server
+ ○ Compiling /[locale]/sticker ...
+ ✓ Compiled /[locale]/sticker in 1674ms (3316 modules)
+ GET /sticker 200 in 1863ms
+ ○ Compiling /api/history/sticker ...
+ ✓ Compiled /api/history/sticker in 6.1s (6135 modules)
+ GET /manifest.webmanifest 200 in 5637ms
+ GET /api/history/sticker?refresh_urls=true 200 in 7283ms
+ ○ Compiling /api/assets/[id] ...
+ ✓ Compiled /api/assets/[id] in 1716ms (3332 modules)
+ GET /api/assets/XhHFAejk-5KHAe3IrcJRe2V6Q5PuNXO- 200 in 3226ms

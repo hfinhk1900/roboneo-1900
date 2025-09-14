@@ -41,41 +41,17 @@ export function getFooterLinks(): NestedMenuItem[] {
           href: Routes.RemoveWatermark,
           external: false,
         },
-      ],
-    },
-    {
-      title: t('resources.title'),
-      items: [
         {
-          title: t('resources.items.blog'),
-          href: Routes.Blog,
+          title: 'Profile Picture Maker',
+          href: Routes.ProfilePictureMaker,
           external: false,
-        },
-        {
-          title: t('resources.items.docs'),
-          href: Routes.Docs,
-          external: false,
-        },
-        {
-          title: t('resources.items.changelog'),
-          href: Routes.Changelog,
-          external: false,
-        },
-        {
-          title: t('resources.items.roadmap'),
-          href: Routes.Roadmap,
-          external: true,
         },
       ],
     },
+    // Resources section removed for MVP
     {
       title: t('company.title'),
       items: [
-        {
-          title: t('company.items.about'),
-          href: Routes.About,
-          external: false,
-        },
         {
           title: t('company.items.contact'),
           href: Routes.Contact,
@@ -86,11 +62,6 @@ export function getFooterLinks(): NestedMenuItem[] {
     {
       title: t('legal.title'),
       items: [
-        {
-          title: t('legal.items.cookiePolicy'),
-          href: Routes.CookiePolicy,
-          external: false,
-        },
         {
           title: t('legal.items.privacyPolicy'),
           href: Routes.PrivacyPolicy,
