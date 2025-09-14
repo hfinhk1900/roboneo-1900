@@ -1,8 +1,7 @@
 'use client';
 
-import { getUserCreditsAction } from '@/actions/credits-actions';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { creditsCache } from '@/lib/credits-cache';
+import { useCredits } from '@/hooks/use-credits';
 import { CoinsIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -26,57 +25,23 @@ export function CreditsDisplay({
   actionLabel = 'Generate',
 }: CreditsDisplayProps) {
   const currentUser = useCurrentUser();
-  const [credits, setCredits] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { credits, loading, refresh } = useCredits();
   const [mounted, setMounted] = useState(false);
-
-  // 提取获取 credits 的函数
-  const fetchCredits = async () => {
-    try {
-      setLoading(true);
-      const result = await getUserCreditsAction({});
-      if (result?.data?.success) {
-        const newCredits = result.data.data?.credits || 0;
-        creditsCache.set(newCredits); // 这会自动触发监听器更新状态
-        setCredits(newCredits);
-      }
-    } catch (error) {
-      console.error('Failed to fetch credits:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     setMounted(true);
-
-    // 只在客户端挂载后才读取缓存
-    const cachedCredits = creditsCache.get();
-    if (cachedCredits !== null) {
-      setCredits(cachedCredits);
-      setLoading(false);
-    }
-
-    // 监听 credits 更新
-    const unsubscribe = creditsCache.addListener(() => {
-      const newCredits = creditsCache.get();
-      if (newCredits !== null) {
-        setCredits(newCredits);
-        setLoading(false);
+    // ensure latest after mount
+    const id = window.requestIdleCallback
+      ? window.requestIdleCallback(() => void refresh())
+      : window.setTimeout(() => void refresh(), 0);
+    return () => {
+      if ((window as any).cancelIdleCallback && typeof id === 'number') {
+        (window as any).cancelIdleCallback(id);
       } else {
-        // 缓存被清空，重新获取最新数据
-        fetchCredits();
+        window.clearTimeout(id as any);
       }
-    });
-
-    // 如果没有缓存数据，则获取最新数据
-    if (cachedCredits === null) {
-      fetchCredits();
-    }
-
-    // 清理监听器
-    return unsubscribe;
-  }, []);
+    };
+  }, [refresh]);
 
   // 在客户端挂载前始终显示 loading 状态，避免 hydration 不匹配
   if (!mounted) {

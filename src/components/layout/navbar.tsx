@@ -26,6 +26,7 @@ import { useScroll } from '@/hooks/use-scroll';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
 import { creditsCache } from '@/lib/credits-cache';
+import { useCredits } from '@/hooks/use-credits';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { CoinsIcon } from 'lucide-react';
@@ -52,67 +53,23 @@ const customNavigationMenuTriggerStyle = cn(
 
 function HeaderCreditsDisplay() {
   const { data: session } = authClient.useSession();
-  const [credits, setCredits] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { credits, loading, refresh } = useCredits();
   const [mounted, setMounted] = useState(false);
-
-  // 提取获取 credits 的函数
-  const fetchCredits = async () => {
-    try {
-      setLoading(true);
-      // Use safe-action to fetch latest credits from DB
-      const result = await getUserCreditsAction({});
-      if (result?.data?.success) {
-        const newCredits: number = result.data.data?.credits ?? 0;
-        creditsCache.set(newCredits);
-        setCredits(newCredits);
-      }
-    } catch (error) {
-      console.error('Failed to fetch credits:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     setMounted(true);
-
-    // Prefer local cache for immediate, non-stale display
-    const cachedCredits = creditsCache.get();
-    if (cachedCredits !== null) {
-      setCredits(cachedCredits);
-      setLoading(false);
-    } else {
-      // Fallback to session snapshot just for initial UI, do NOT override cache
-      const sessionCredits = session?.user?.credits as
-        | number
-        | undefined;
-      if (typeof sessionCredits === 'number') {
-        setCredits(sessionCredits);
-        setLoading(false);
+    // on mount, trigger a refresh in background to ensure latest
+    const id = window.requestIdleCallback
+      ? window.requestIdleCallback(() => void refresh())
+      : window.setTimeout(() => void refresh(), 0);
+    return () => {
+      if ((window as any).cancelIdleCallback && typeof id === 'number') {
+        (window as any).cancelIdleCallback(id);
+      } else {
+        window.clearTimeout(id as any);
       }
-      // Always fetch latest from server asynchronously
-      const id = window.requestIdleCallback
-        ? window.requestIdleCallback(fetchCredits)
-        : window.setTimeout(fetchCredits, 0);
-      return () => {
-        if (window.cancelIdleCallback && typeof id === 'number') {
-          (window as any).cancelIdleCallback(id);
-        } else {
-          window.clearTimeout(id as any);
-        }
-      };
-    }
-
-    const unsubscribe = creditsCache.addListener(() => {
-      const newCredits = creditsCache.get();
-      if (newCredits !== null) {
-        setCredits(newCredits);
-        setLoading(false);
-      }
-    });
-    return unsubscribe;
-  }, [session]);
+    };
+  }, [session, refresh]);
 
   if (!mounted || loading) {
     return (
