@@ -399,29 +399,17 @@ export function useProductShot(): UseProductShotReturn {
         `Product shot generated successfully! (${data.credits_used} credits used)`
       );
 
-      // Update credits cache for consistent UI
+      // Unified credits update
       try {
-        const { creditsCache } = await import('@/lib/credits-cache');
+        const { spendCredits } = await import('@/lib/credits-utils');
         const { CREDITS_PER_IMAGE } = await import('@/config/credits-config');
-        if (typeof data.remaining_credits === 'number') {
-          creditsCache.set(data.remaining_credits);
-        } else {
-          const current = creditsCache.get();
-          if (current !== null) {
-            creditsCache.set(Math.max(0, current - CREDITS_PER_IMAGE));
-          } else {
-            // As a fallback, fetch latest from server
-            const { getUserCreditsAction } = await import(
-              '@/actions/credits-actions'
-            );
-            const res = await getUserCreditsAction({});
-            if (res?.data?.success) {
-              creditsCache.set(res.data.data?.credits ?? 0);
-            }
-          }
-        }
+        await spendCredits({
+          remainingFromServer: data.remaining_credits,
+          amount: CREDITS_PER_IMAGE,
+          fetchFallback: true,
+        });
       } catch (e) {
-        console.warn('Failed to update credits cache after productshot:', e);
+        console.warn('Failed to update credits after productshot:', e);
       }
     } catch (err) {
       console.error('ProductShot generation error:', err);

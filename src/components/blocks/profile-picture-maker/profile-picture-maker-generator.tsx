@@ -797,9 +797,11 @@ export default function ProfilePictureMakerGenerator() {
         };
         await pushHistory(historyItem);
 
-        // Update credits
-        const currentCredits = creditsCache.get() || 0;
-        creditsCache.set(currentCredits - CREDITS_PER_IMAGE);
+        // Update credits (unified)
+        try {
+          const { spendCredits } = await import('@/lib/credits-utils');
+          await spendCredits({ amount: CREDITS_PER_IMAGE, fetchFallback: true });
+        } catch {}
 
         toast.success('Profile picture generated successfully!');
       } else {

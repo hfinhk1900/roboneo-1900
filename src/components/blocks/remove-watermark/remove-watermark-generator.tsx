@@ -579,10 +579,16 @@ export function RemoveWatermarkGeneratorSection() {
 
         setProcessedImage(result.public_url);
 
-        // Update credits cache
-        if (result.remaining_credits !== undefined) {
-          creditsCache.set(result.remaining_credits);
-        }
+        // Update credits (unified)
+        try {
+          const { spendCredits } = await import('@/lib/credits-utils');
+          const { CREDITS_PER_IMAGE } = await import('@/config/credits-config');
+          await spendCredits({
+            remainingFromServer: result.remaining_credits,
+            amount: CREDITS_PER_IMAGE,
+            fetchFallback: true,
+          });
+        } catch {}
 
         // Save to server history
         try {

@@ -1492,3 +1492,327 @@ no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
  GET /manifest.webmanifest 200 in 35ms
  GET /manifest.webmanifest 200 in 44ms
  GET /manifest.webmanifest 200 in 36ms
+ ✓ Compiled in 6.8s (5514 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /sticker
+ ○ Compiling /api/auth/get-session ...
+ ✓ Compiled /api/auth/get-session in 2.1s (6141 modules)
+ GET /api/auth/get-session 200 in 3345ms
+ GET /api/auth/get-session 200 in 3339ms
+ GET /api/auth/get-session 200 in 3333ms
+ GET /api/auth/get-session 200 in 2897ms
+ GET /api/auth/get-session 200 in 2889ms
+ GET /api/auth/get-session 200 in 2888ms
+ GET /api/auth/get-session 200 in 2885ms
+ GET /api/auth/get-session 200 in 3366ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /remove-watermark
+ GET /remove-watermark 200 in 433ms
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+ GET /aibackgrounds 200 in 453ms
+ GET /my-library 200 in 459ms
+ GET /my-library 200 in 462ms
+ GET /sticker 200 in 464ms
+>> middleware start, pathname /
+ GET / 200 in 478ms
+ GET /api/auth/get-session 200 in 52ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 495ms
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /my-library
+ GET /settings/security 200 in 503ms
+ GET /api/auth/get-session 200 in 58ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /settings/security
+ GET /api/auth/get-session 200 in 82ms
+ GET /api/auth/get-session 200 in 83ms
+ GET /api/auth/get-session 200 in 64ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 68ms
+ GET /api/auth/get-session 200 in 68ms
+ GET /api/auth/get-session 200 in 61ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 281ms
+ GET / 200 in 414ms
+ GET /my-library 200 in 389ms
+ GET /sticker 200 in 511ms
+ GET /aibackgrounds 200 in 484ms
+ GET / 200 in 537ms
+ GET /my-library 200 in 491ms
+ GET /settings/security 200 in 582ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 1215ms (3318 modules)
+ GET /manifest.webmanifest 200 in 1283ms
+ GET /manifest.webmanifest 200 in 1198ms
+ GET /manifest.webmanifest 200 in 652ms
+ GET /manifest.webmanifest 200 in 1489ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 10ms
+ GET /manifest.webmanifest 200 in 12ms
+ ✓ Compiled in 4.4s (6145 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 364ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 387ms
+ GET /api/auth/get-session 200 in 388ms
+ GET /api/auth/get-session 200 in 389ms
+ GET /api/auth/get-session 200 in 390ms
+ GET /api/auth/get-session 200 in 391ms
+ GET /api/auth/get-session 200 in 391ms
+ GET /api/auth/get-session 200 in 392ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 747ms
+ GET /remove-watermark 200 in 731ms
+ GET /aibackgrounds 200 in 747ms
+ GET /my-library 200 in 748ms
+ GET /sticker 200 in 750ms
+ GET /my-library 200 in 751ms
+ GET / 200 in 767ms
+ GET /settings/security 200 in 770ms
+ GET /manifest.webmanifest 200 in 110ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 34ms
+ GET /manifest.webmanifest 200 in 42ms
+ GET /manifest.webmanifest 200 in 27ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 8ms
+ ✓ Compiled in 2.6s (6145 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 216ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 241ms
+ GET /api/auth/get-session 200 in 241ms
+ GET /api/auth/get-session 200 in 240ms
+ GET /api/auth/get-session 200 in 241ms
+ GET /api/auth/get-session 200 in 243ms
+ GET /api/auth/get-session 200 in 244ms
+ GET /api/auth/get-session 200 in 245ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 893ms
+ GET /my-library 200 in 843ms
+ GET /my-library 200 in 846ms
+ GET /remove-watermark 200 in 857ms
+ GET /aibackgrounds 200 in 858ms
+ GET /sticker 200 in 870ms
+ GET / 200 in 891ms
+ GET /settings/security 200 in 896ms
+ GET /manifest.webmanifest 200 in 25ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 47ms
+ GET /manifest.webmanifest 200 in 31ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 23ms
+ ✓ Compiled in 4.9s (6145 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 217ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 237ms
+ GET /api/auth/get-session 200 in 235ms
+ GET /api/auth/get-session 200 in 234ms
+ GET /api/auth/get-session 200 in 231ms
+ GET /api/auth/get-session 200 in 230ms
+ GET /api/auth/get-session 200 in 228ms
+ GET /api/auth/get-session 200 in 229ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 534ms
+ GET /my-library 200 in 559ms
+ GET /my-library 200 in 561ms
+ GET /aibackgrounds 200 in 598ms
+ GET /sticker 200 in 612ms
+ GET / 200 in 649ms
+ GET / 200 in 652ms
+ GET /manifest.webmanifest 200 in 128ms
+ GET /settings/security 200 in 666ms
+ GET /manifest.webmanifest 200 in 21ms
+ GET /manifest.webmanifest 200 in 42ms
+ GET /manifest.webmanifest 200 in 24ms
+ GET /manifest.webmanifest 200 in 82ms
+ GET /manifest.webmanifest 200 in 867ms
+ GET /manifest.webmanifest 200 in 851ms
+ GET /manifest.webmanifest 200 in 78ms
+ ✓ Compiled in 1283ms (2827 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 28ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 59ms
+ GET /api/auth/get-session 200 in 59ms
+ GET /api/auth/get-session 200 in 60ms
+ GET /api/auth/get-session 200 in 61ms
+ GET /api/auth/get-session 200 in 62ms
+ GET /api/auth/get-session 200 in 63ms
+ GET /api/auth/get-session 200 in 64ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 384ms
+ GET /aibackgrounds 200 in 406ms
+ GET /my-library 200 in 411ms
+ GET /my-library 200 in 413ms
+ GET /sticker 200 in 413ms
+ GET / 200 in 417ms
+ GET / 200 in 420ms
+ GET /settings/security 200 in 422ms
+ GET /manifest.webmanifest 200 in 24ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /manifest.webmanifest 200 in 22ms
+ GET /manifest.webmanifest 200 in 27ms
+ GET /manifest.webmanifest 200 in 18ms
+ GET /manifest.webmanifest 200 in 18ms
+ GET /manifest.webmanifest 200 in 18ms
+ ✓ Compiled in 870ms (2827 modules)
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 44ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 66ms
+ GET /api/auth/get-session 200 in 62ms
+ GET /api/auth/get-session 200 in 61ms
+ GET /api/auth/get-session 200 in 59ms
+ GET /api/auth/get-session 200 in 58ms
+ GET /api/auth/get-session 200 in 57ms
+ GET /api/auth/get-session 200 in 59ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 369ms
+ GET /my-library 200 in 459ms
+ GET /my-library 200 in 464ms
+ GET /aibackgrounds 200 in 464ms
+ GET / 200 in 479ms
+ GET /sticker 200 in 478ms
+ GET / 200 in 480ms
+ GET /manifest.webmanifest 200 in 125ms
+ GET /settings/security 200 in 488ms
+ GET /manifest.webmanifest 200 in 13ms
+ GET /manifest.webmanifest 200 in 48ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 32ms
+ GET /manifest.webmanifest 200 in 33ms
+ GET /manifest.webmanifest 200 in 41ms
+ GET /manifest.webmanifest 200 in 16ms
+ ✓ Compiled in 5.4s (6148 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /sticker
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 207ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 225ms
+ GET /api/auth/get-session 200 in 231ms
+ GET /api/auth/get-session 200 in 224ms
+ GET /api/auth/get-session 200 in 222ms
+ GET /api/auth/get-session 200 in 221ms
+ GET /api/auth/get-session 200 in 221ms
+ GET /api/auth/get-session 200 in 220ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 622ms
+ GET /my-library 200 in 743ms
+ GET /remove-watermark 200 in 4014ms
+ GET /sticker 200 in 4595ms
+>> middleware start, pathname /my-library
+ GET /aibackgrounds 200 in 4959ms
+ GET / 200 in 4965ms
+>> middleware start, pathname /sticker
+>> middleware start, pathname /
+ GET / 200 in 4983ms
+ GET /manifest.webmanifest 200 in 1695ms
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+ GET /settings/security 200 in 5067ms
+ ○ Compiling /[locale]/[...rest] ...
+>> middleware start, pathname /aibackgrounds

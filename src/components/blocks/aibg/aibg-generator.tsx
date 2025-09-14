@@ -1323,29 +1323,14 @@ export function AIBackgroundGeneratorSection() {
             };
             await pushHistory(historyItem);
 
-            // 更新积分缓存 - 使用API返回的积分信息（API已经扣除了积分）
+            // 更新积分（统一工具）
             try {
-              // result对象来自rembg API，它转发了bg/remove-direct的响应
-              // 注意：bg/remove-direct API返回的是remaining_credits
-              if (result.remaining_credits !== undefined) {
-                creditsCache.set(result.remaining_credits);
-                console.log(
-                  `💰 Updated credits cache from API: ${result.remaining_credits} credits`
-                );
-              } else {
-                // 如果API没有返回积分信息，手动更新缓存（fallback）
-                const currentCredits = creditsCache.get();
-                if (currentCredits !== null) {
-                  const newCredits = Math.max(
-                    0,
-                    currentCredits - CREDITS_PER_IMAGE
-                  );
-                  creditsCache.set(newCredits);
-                  console.log(
-                    `💰 Updated credits cache manually (fallback): ${currentCredits} → ${newCredits}`
-                  );
-                }
-              }
+              const { spendCredits } = await import('@/lib/credits-utils');
+              await spendCredits({
+                remainingFromServer: result.remaining_credits,
+                amount: CREDITS_PER_IMAGE,
+                fetchFallback: true,
+              });
             } catch (error) {
               console.warn('Failed to update credits cache:', error);
             }
@@ -1498,24 +1483,14 @@ export function AIBackgroundGeneratorSection() {
       };
       await pushHistory(historyItem);
 
-      // 更新积分缓存 - 使用API返回的积分信息
+      // 更新积分（统一工具）
       try {
-        if (result.remaining_credits !== undefined) {
-          creditsCache.set(result.remaining_credits);
-          console.log(
-            `💰 Updated credits cache from API: ${result.remaining_credits} credits`
-          );
-        } else {
-          // 如果API没有返回积分信息，手动扣除
-          const currentCredits = creditsCache.get();
-          if (currentCredits !== null) {
-            const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
-            creditsCache.set(newCredits);
-            console.log(
-              `💰 Updated credits cache manually: ${currentCredits} → ${newCredits}`
-            );
-          }
-        }
+        const { spendCredits } = await import('@/lib/credits-utils');
+        await spendCredits({
+          remainingFromServer: result.remaining_credits,
+          amount: CREDITS_PER_IMAGE,
+          fetchFallback: true,
+        });
       } catch (error) {
         console.warn('Failed to update credits cache:', error);
       }
