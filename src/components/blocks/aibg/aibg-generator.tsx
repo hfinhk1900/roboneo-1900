@@ -2774,7 +2774,6 @@ export function AIBackgroundGeneratorSection() {
                 </div>
               ))}
             </div>
-            )}
           </div>
         )}
 
