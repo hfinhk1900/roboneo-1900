@@ -1435,3 +1435,60 @@ no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
 << middleware end, applying intlMiddleware
 << middleware end, applying intlMiddleware
 << middleware end, applying intlMiddleware
+ GET / 200 in 807ms
+ GET /aibackgrounds 200 in 892ms
+ GET /remove-watermark 200 in 897ms
+ GET /my-library 200 in 900ms
+ GET /my-library 200 in 936ms
+ GET /sticker 200 in 940ms
+ GET / 200 in 959ms
+ GET /settings/security 200 in 973ms
+ GET /manifest.webmanifest 200 in 114ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 17ms
+ GET /manifest.webmanifest 200 in 16ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /manifest.webmanifest 200 in 10ms
+ ✓ Compiled in 4.3s (6145 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 344ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 362ms
+ GET /api/auth/get-session 200 in 359ms
+ GET /api/auth/get-session 200 in 357ms
+ GET /api/auth/get-session 200 in 353ms
+ GET /api/auth/get-session 200 in 352ms
+ GET /api/auth/get-session 200 in 351ms
+ GET /api/auth/get-session 200 in 352ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 635ms
+ GET /my-library 200 in 601ms
+ GET /my-library 200 in 605ms
+ GET /remove-watermark 200 in 617ms
+ GET /aibackgrounds 200 in 618ms
+ GET /sticker 200 in 625ms
+ GET / 200 in 640ms
+ GET /settings/security 200 in 642ms
+ GET /manifest.webmanifest 200 in 32ms
+ GET /manifest.webmanifest 200 in 26ms
+ GET /manifest.webmanifest 200 in 36ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 35ms
+ GET /manifest.webmanifest 200 in 44ms
+ GET /manifest.webmanifest 200 in 36ms

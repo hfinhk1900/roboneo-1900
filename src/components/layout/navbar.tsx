@@ -1,6 +1,4 @@
 'use client';
-
-import { getUserCreditsAction } from '@/actions/credits-actions';
 import { LoginWrapper } from '@/components/auth/login-wrapper';
 import { RegisterWrapper } from '@/components/auth/register-wrapper';
 import Container from '@/components/layout/container';
@@ -25,7 +23,6 @@ import { useCurrentUser } from '@/hooks/use-current-user';
 import { useScroll } from '@/hooks/use-scroll';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
-import { creditsCache } from '@/lib/credits-cache';
 import { useCredits } from '@/hooks/use-credits';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
