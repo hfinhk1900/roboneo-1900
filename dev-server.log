@@ -1174,3 +1174,264 @@ no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
  GET /manifest.webmanifest 200 in 16ms
  GET /manifest.webmanifest 200 in 13ms
  GET /manifest.webmanifest 200 in 18ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 32ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 1679ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 148ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 448ms
+ GET /api/auth/get-session 200 in 20ms
+ GET /sticker 200 in 451ms
+ GET /manifest.webmanifest 200 in 10ms
+ GET /api/auth/get-session 200 in 8ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 13ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+Found 0 payment records in database for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+No subscriptions found in database, trying to find customer ID for user 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+no subscriptions found for userId: 40bTczqxmEACb9iyd6pP6kKnrNE6MWCX
+ POST /sticker 200 in 294ms
+>> middleware start, pathname /sticker
+ ○ Compiling /api/history/sticker ...
+>> middleware start, pathname /
+ ✓ Compiled /api/history/sticker in 2.4s (3325 modules)
+ GET /api/auth/get-session 200 in 1361ms
+ GET /api/auth/get-session 200 in 3546ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 522ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 1200ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 1232ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 730ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ GET /api/history/sticker?refresh_urls=true 200 in 5093ms
+ POST /sticker 200 in 152ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 155ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 153ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 143ms
+ POST / 200 in 148ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 158ms
+ POST / 200 in 147ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 150ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 141ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 143ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 151ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 145ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 18ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 146ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 145ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 154ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 147ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 146ms
+ ✓ Compiled in 1800ms (2826 modules)
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 44ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 105ms
+ GET /api/auth/get-session 200 in 103ms
+ GET /api/auth/get-session 200 in 102ms
+ GET /api/auth/get-session 200 in 101ms
+ GET /api/auth/get-session 200 in 101ms
+ GET /api/auth/get-session 200 in 100ms
+ GET /api/auth/get-session 200 in 102ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /my-library 200 in 658ms
+ GET /remove-watermark 200 in 686ms
+ GET /aibackgrounds 200 in 687ms
+ GET /my-library 200 in 690ms
+ GET / 200 in 692ms
+ GET /sticker 200 in 694ms
+ GET / 200 in 696ms
+ GET /settings/security 200 in 715ms
+ GET /manifest.webmanifest 200 in 29ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 20ms
+ GET /manifest.webmanifest 200 in 26ms
+ GET /manifest.webmanifest 200 in 24ms
+ GET /manifest.webmanifest 200 in 15ms
+ GET /manifest.webmanifest 200 in 19ms
+ GET /manifest.webmanifest 200 in 25ms
+ ✓ Compiled in 9.1s (6145 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 380ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 394ms
+ GET /api/auth/get-session 200 in 392ms
+ GET /api/auth/get-session 200 in 390ms
+ GET /api/auth/get-session 200 in 388ms
+ GET /api/auth/get-session 200 in 387ms
+ GET /api/auth/get-session 200 in 387ms
+ GET /api/auth/get-session 200 in 387ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 586ms
+ GET /aibackgrounds 200 in 588ms
+ GET /my-library 200 in 589ms
+ GET /my-library 200 in 591ms
+ GET /sticker 200 in 591ms
+ GET / 200 in 628ms
+ GET / 200 in 603ms
+ GET /settings/security 200 in 622ms
+ GET /manifest.webmanifest 200 in 68ms
+ GET /manifest.webmanifest 200 in 14ms
+ GET /manifest.webmanifest 200 in 17ms
+ GET /manifest.webmanifest 200 in 35ms
+ GET /manifest.webmanifest 200 in 46ms
+ GET /manifest.webmanifest 200 in 23ms
+ ✓ Compiled in 7.1s (6145 modules)
+ GET /manifest.webmanifest 200 in 6555ms
+ GET /manifest.webmanifest 200 in 7195ms
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /my-library
+>> middleware start, pathname /
+>> middleware start, pathname /
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 259ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 280ms
+ GET /api/auth/get-session 200 in 279ms
+ GET /api/auth/get-session 200 in 279ms
+ GET /api/auth/get-session 200 in 278ms
+ GET /api/auth/get-session 200 in 279ms
+ GET /api/auth/get-session 200 in 278ms
+ GET /api/auth/get-session 200 in 278ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET /remove-watermark 200 in 509ms
+ GET /my-library 200 in 555ms
+ GET /my-library 200 in 555ms
+ GET /aibackgrounds 200 in 2144ms
+ GET /sticker 200 in 3085ms
+ GET / 200 in 3427ms
+ GET /manifest.webmanifest 200 in 2929ms
+ GET / 200 in 3445ms
+ GET /settings/security 200 in 3462ms
+ GET /manifest.webmanifest 200 in 1217ms
+ GET /manifest.webmanifest 200 in 1234ms
+ GET /manifest.webmanifest 200 in 57ms
+ GET /manifest.webmanifest 200 in 52ms
+ GET /manifest.webmanifest 200 in 43ms
+ GET /manifest.webmanifest 200 in 35ms
+ GET /manifest.webmanifest 200 in 15ms
+ ✓ Compiled in 6.7s (6145 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /my-library
+>> middleware start, pathname /settings/security
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 551ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 577ms
+ GET /api/auth/get-session 200 in 580ms
+ GET /api/auth/get-session 200 in 581ms
+ GET /api/auth/get-session 200 in 582ms
+ GET /api/auth/get-session 200 in 581ms
+ GET /api/auth/get-session 200 in 582ms
+ GET /api/auth/get-session 200 in 582ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware

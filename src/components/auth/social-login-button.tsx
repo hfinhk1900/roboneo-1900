@@ -13,6 +13,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { refreshCreditsSnapshot } from '@/lib/credits-utils';
 
 interface SocialLoginButtonProps {
   callbackUrl?: string;
@@ -85,6 +86,10 @@ export const SocialLoginButton = ({
         onSuccess: (ctx) => {
           // console.log("onSuccess", ctx.data);
           setIsLoading(null);
+          try {
+            // Try to refresh credits in case we return to current page without full reload
+            void refreshCreditsSnapshot();
+          } catch {}
         },
         onError: (ctx) => {
           console.log('social login error', ctx.error.message);

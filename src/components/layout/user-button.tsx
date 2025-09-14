@@ -17,6 +17,7 @@ import { LogOutIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { clearCreditsCache } from '@/lib/credits-utils';
 
 interface UserButtonProps {
   user: User;
@@ -45,6 +46,10 @@ export function UserButton({ user }: UserButtonProps) {
           console.log('sign out success');
           // Reset payment state on sign out
           resetState();
+          // Clear local credits cache on logout
+          try {
+            clearCreditsCache();
+          } catch {}
           localeRouter.replace('/');
         },
         onError: (error) => {

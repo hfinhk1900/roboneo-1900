@@ -31,6 +31,7 @@ import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { UserAvatar } from '../layout/user-avatar';
+import { clearCreditsCache } from '@/lib/credits-utils';
 
 interface SidebarUserProps {
   user: User;
@@ -74,6 +75,9 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
           console.log('sign out success');
           // Reset payment state on sign out
           resetState();
+          try {
+            clearCreditsCache();
+          } catch {}
           router.replace('/');
         },
         onError: (error) => {

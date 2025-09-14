@@ -30,6 +30,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { SocialLoginButton } from './social-login-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { refreshCreditsSnapshot } from '@/lib/credits-utils';
 
 export interface LoginFormProps {
   className?: string;
@@ -132,6 +133,10 @@ export const LoginForm = ({
         },
         onSuccess: (ctx) => {
           console.log('login, success:', ctx.data);
+          // Refresh credits snapshot after successful login
+          try {
+            void refreshCreditsSnapshot();
+          } catch {}
           setSuccess('Login successful');
           router.push(callbackUrl || '/');
         },
