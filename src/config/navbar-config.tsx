@@ -104,11 +104,7 @@ export function getNavbarLinks(): NestedMenuItem[] {
       href: Routes.Pricing,
       external: false,
     },
-    {
-      title: t('blog.title'),
-      href: Routes.Blog,
-      external: false,
-    },
+    // blog disabled for MVP
     // {
     //   title: t('docs.title'),
     //   href: Routes.Docs,

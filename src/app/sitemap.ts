@@ -14,7 +14,7 @@ type Href = Parameters<typeof getLocalePathname>[0]['href'];
 const staticRoutes = [
   '/',
   '/pricing',
-  '/blog',
+  // '/blog', // blog disabled for MVP
   '/docs',
   '/about',
   '/contact',
@@ -48,92 +48,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   );
 
-  // add categories
-  sitemapList.push(
-    ...categorySource.getPages().flatMap((category) =>
-      routing.locales.map((locale) => ({
-        url: getUrl(`/blog/category/${category.slugs[0]}`, locale),
-        lastModified: new Date(),
-        priority: 0.8,
-        changeFrequency: 'weekly' as const,
-      }))
-    )
-  );
+  // blog disabled for MVP: skip categories
 
-  // add paginated blog list pages
-  routing.locales.forEach((locale) => {
-    const posts = blogSource
-      .getPages(locale)
-      .filter((post) => post.data.published);
-    const totalPages = Math.max(
-      1,
-      Math.ceil(posts.length / websiteConfig.blog.paginationSize)
-    );
-    // /blog/page/[page] (from 2)
-    for (let page = 2; page <= totalPages; page++) {
-      sitemapList.push({
-        url: getUrl(`/blog/page/${page}`, locale),
-        lastModified: new Date(),
-        priority: 0.8,
-        changeFrequency: 'weekly' as const,
-      });
-    }
-  });
+  // blog disabled for MVP: skip paginated blog list pages
 
-  // add paginated category pages
-  routing.locales.forEach((locale) => {
-    const localeCategories = categorySource.getPages(locale);
-    localeCategories.forEach((category) => {
-      // posts in this category and locale
-      const postsInCategory = blogSource
-        .getPages(locale)
-        .filter((post) => post.data.published)
-        .filter(
-          (post) =>
-            Array.isArray(post.data.categories) &&
-            (post.data.categories as string[]).some(
-              (cat: string) => cat === category.slugs[0]
-            )
-        );
-      const totalPages = Math.max(
-        1,
-        Math.ceil(postsInCategory.length / websiteConfig.blog.paginationSize)
-      );
-      // /blog/category/[slug] (first page)
-      sitemapList.push({
-        url: getUrl(`/blog/category/${category.slugs[0]}`, locale),
-        lastModified: new Date(),
-        priority: 0.8,
-        changeFrequency: 'weekly' as const,
-      });
-      // /blog/category/[slug]/page/[page] (from 2)
-      for (let page = 2; page <= totalPages; page++) {
-        sitemapList.push({
-          url: getUrl(
-            `/blog/category/${category.slugs[0]}/page/${page}`,
-            locale
-          ),
-          lastModified: new Date(),
-          priority: 0.8,
-          changeFrequency: 'weekly' as const,
-        });
-      }
-    });
-  });
+  // blog disabled for MVP: skip paginated category pages
 
-  // add posts (single post pages)
-  sitemapList.push(
-    ...blogSource.getPages().flatMap((post) =>
-      routing.locales
-        .filter((locale) => post.locale === locale)
-        .map((locale) => ({
-          url: getUrl(`/blog/${post.slugs.join('/')}`, locale),
-          lastModified: new Date(),
-          priority: 0.8,
-          changeFrequency: 'weekly' as const,
-        }))
-    )
-  );
+  // blog disabled for MVP: skip posts
 
   // add docs
   const docsParams = source.generateParams();
