@@ -2659,3 +2659,426 @@ Found 3 payment records in database for user 4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY
  GET /manifest.webmanifest 200 in 20ms
  GET /manifest.webmanifest 200 in 13ms
  GET /manifest.webmanifest 200 in 21ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 71ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 1238ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 18ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 150ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 145ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 9ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 144ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 144ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 146ms
+>> middleware start, pathname /my-library
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 292ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 820ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/sticker ...
+ POST /my-library 200 in 4650ms
+>> middleware start, pathname /my-library
+>> middleware start, pathname /aibackgrounds
+ ✓ Compiled /[locale]/sticker in 12.6s (3273 modules)
+ GET /api/auth/get-session 200 in 8410ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 1139ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 13ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 9584ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 166ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 144ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 441ms
+>> middleware start, pathname /my-library
+ POST /sticker 200 in 15679ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 268ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 687ms
+ POST /my-library 200 in 407ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 269ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 806ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 408ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 275ms
+<< middleware end, applying intlMiddleware
+ POST /sticker 200 in 953ms
+ POST /my-library 200 in 445ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 270ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 410ms
+ ✓ Compiled in 4.9s (6107 modules)
+>> middleware start, pathname /
+>> middleware start, pathname /my-library
+>> middleware start, pathname /remove-watermark
+>> middleware start, pathname /aibackgrounds
+>> middleware start, pathname /pricing
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 431ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 445ms
+ GET /api/auth/get-session 200 in 444ms
+ GET /api/auth/get-session 200 in 445ms
+ GET /api/auth/get-session 200 in 444ms
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+<< middleware end, applying intlMiddleware
+ GET / 200 in 381ms
+ GET /my-library 200 in 359ms
+ GET /remove-watermark 200 in 359ms
+ GET /aibackgrounds 200 in 361ms
+ GET /pricing 200 in 377ms
+ ○ Compiling /manifest.webmanifest ...
+ GET /api/auth/get-session 200 in 2001ms
+<< middleware end, applying intlMiddleware
+ ✓ Compiled /manifest.webmanifest in 1135ms (3277 modules)
+ GET /manifest.webmanifest 200 in 784ms
+ GET /manifest.webmanifest 200 in 1336ms
+ GET /manifest.webmanifest 200 in 177ms
+ GET /manifest.webmanifest 200 in 176ms
+ GET /my-library 200 in 393ms
+ GET /manifest.webmanifest 200 in 11ms
+ GET /manifest.webmanifest 200 in 7ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 499ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 1178ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 12ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 154ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 149ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 142ms
+>> middleware start, pathname /about
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/about ...
+>> middleware start, pathname /about
+ ✓ Compiled /[locale]/about in 12.5s (6787 modules)
+ GET /api/auth/get-session 200 in 7664ms
+<< middleware end, applying intlMiddleware
+ GET /about 200 in 14407ms
+ GET /about 200 in 1248ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 26ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 1162ms
+>> middleware start, pathname /aibackgrounds
+ GET /api/auth/get-session 200 in 18ms
+<< middleware end, applying intlMiddleware
+ POST /aibackgrounds 200 in 143ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /manifest.webmanifest in 882ms (3619 modules)
+ GET /manifest.webmanifest 200 in 1058ms
+ GET /logo.png 404 in 196ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 195ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /pricing
+ GET /api/auth/get-session 200 in 17ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 923ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ POST /pricing 200 in 703ms
+>> middleware start, pathname /pricing
+ GET /api/auth/get-session 200 in 23ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 159ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /pricing 200 in 145ms
+ POST /my-library 200 in 145ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 7ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 165ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 11ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 144ms
+>> middleware start, pathname /my-library
+ GET /api/auth/get-session 200 in 8ms
+<< middleware end, applying intlMiddleware
+ POST /my-library 200 in 149ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 10ms
+<< middleware end, applying intlMiddleware
+ GET / 200 in 32ms
+ GET /manifest.webmanifest 200 in 14ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 14ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 172ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 20ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 166ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 18ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 155ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 17ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 150ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 1287ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 1494ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 281ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 413ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 285ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 413ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 405ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 295ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 425ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 290ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 411ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 410ms
+>> middleware start, pathname /
+ GET /api/auth/get-session 200 in 273ms
+<< middleware end, applying intlMiddleware
+ POST / 200 in 408ms
+>> middleware start, pathname /sticker
+ GET /api/auth/get-session 200 in 277ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/sticker ...
+ ✓ Compiled /[locale]/sticker in 2.5s (3604 modules)
+ GET /sticker 200 in 2829ms
+ ○ Compiling /api/history/sticker ...
+>> middleware start, pathname /aibackgrounds
+ ✓ Compiled /manifest.webmanifest in 8.6s (3612 modules)
+ ✓ Compiled (3616 modules)
+ GET /manifest.webmanifest 200 in 9906ms
+ GET /api/auth/get-session 200 in 6707ms
+<< middleware end, applying intlMiddleware
+ ○ Compiling /[locale]/aibackgrounds ...
+ ✓ Compiled /[locale]/aibackgrounds in 3.5s (3648 modules)
+ GET /aibackgrounds 200 in 3916ms
+ GET /api/history/sticker?refresh_urls=true 200 in 15634ms
+ ○ Compiling /api/assets/[id] ...
+>> middleware start, pathname /remove-watermark
+ ✓ Compiled /api/history/aibgs in 1802ms (3656 modules)
+ ✓ Compiled in 1ms (3658 modules)
+ ✓ Compiled in 0ms (3658 modules)
+ ✓ Compiled in 0ms (3658 modules)
+ GET /manifest.webmanifest 200 in 8319ms
+ GET /api/auth/get-session 200 in 14049ms
+<< middleware end, applying intlMiddleware
+ GET /api/assets/i5CifsOiEW-2g6jvoJT9MpYjWtmgNe1u 200 in 16924ms
+>> middleware start, pathname /pricing
+ GET /api/auth/get-session 200 in 293ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1976ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 281ms
+<< middleware end, applying intlMiddleware
+ GET /api/history/aibgs?refresh_urls=true 200 in 17663ms
+ POST /pricing 200 in 965ms
+>> middleware start, pathname /pricing
+ POST /remove-watermark 200 in 397ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 271ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /pricing 200 in 401ms
+>> middleware start, pathname /pricing
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 944ms
+>> middleware start, pathname /remove-watermark
+ POST /pricing 200 in 397ms
+>> middleware start, pathname /pricing
+ GET /api/auth/get-session 200 in 275ms
+<< middleware end, applying intlMiddleware
+ GET /api/auth/get-session 200 in 284ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 407ms
+>> middleware start, pathname /remove-watermark
+ POST /pricing 200 in 407ms
+ GET /api/auth/get-session 200 in 269ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 401ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 275ms
+<< middleware end, applying intlMiddleware
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 282ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 403ms
+ ○ Compiling /[locale]/productshot ...
+ ✓ Compiled /[locale]/productshot in 18.7s (6849 modules)
+ GET /productshot 200 in 19823ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 1186ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 1898ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 405ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 267ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 399ms
+>> middleware start, pathname /remove-watermark
+ GET /api/auth/get-session 200 in 273ms
+<< middleware end, applying intlMiddleware
+ POST /remove-watermark 200 in 403ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 268ms
+<< middleware end, applying intlMiddleware
+ GET /productshot 200 in 57ms
+ ○ Compiling /api/productshot/generate ...
+ ✓ Compiled /api/history/productshot in 6.3s (7073 modules)
+ GET /api/productshot/generate 200 in 6825ms
+ GET /manifest.webmanifest 200 in 5548ms
+ GET /api/productshot/generate 200 in 9ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 2315ms
+<< middleware end, applying intlMiddleware
+ GET /api/history/productshot?refresh_urls=true 200 in 12112ms
+ ○ Compiling /api/storage/sign-download ...
+ POST /productshot 200 in 3898ms
+ ✓ Compiled /api/storage/sign-download in 1541ms (7073 modules)
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 994ms
+<< middleware end, applying intlMiddleware
+✅ Generated new download URL: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  user_id: '4uxJH4KhYQXKWOyNruiH6CLxO9y7VANY',
+  display_mode: 'inline',
+  expires_in: 3600
+}
+ POST /api/storage/sign-download 200 in 3687ms
+ ○ Compiling /api/assets/download ...
+ POST /productshot 200 in 2517ms
+>> middleware start, pathname /productshot
+ ✓ Compiled /api/assets/download in 4.7s (7075 modules)
+⚠️ Using local asset metadata fallback for download { asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA' }
+✅ Asset download verified: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  filename: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  content_type: 'image/png',
+  display_mode: 'inline'
+}
+📥 Fetching asset from R2: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  key: undefined,
+  r2Url: 'https://pub-cfc94129019546e1887e6add7f39ef74.r2.dev/productshots/e135b779-de6d-4140-993e-76944ef0a3e...'
+}
+✅ Asset download successful: {
+  asset_id: 'lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA',
+  file_name: 'e135b779-de6d-4140-993e-76944ef0a3eb.png',
+  size: 1459129,
+  content_type: 'image/png'
+}
+ GET /api/auth/get-session 200 in 6215ms
+<< middleware end, applying intlMiddleware
+ GET /api/assets/download?asset_id=lBOGkV7p1FfrDtZzHtNIbV0S0P405tuA&exp=1757952741&sig=VvjxmKfF6srQyaGLnPC5o3kb81RfdIWhuBUhuu7_ObU&disp=inline 200 in 8001ms
+ GET /api/assets/8bbcLu-QnOUrEA18Kz3yU8S7o6XIdvow 200 in 9433ms
+ POST /productshot 200 in 2766ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 280ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 407ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 271ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 419ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 273ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 411ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 278ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 425ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 420ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 425ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 276ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 407ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 273ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 435ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 271ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 408ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 407ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 408ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 272ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 417ms
+>> middleware start, pathname /productshot
+ GET /api/auth/get-session 200 in 269ms
+<< middleware end, applying intlMiddleware
+ POST /productshot 200 in 404ms
+ ✓ Compiled in 10.9s (5438 modules)
