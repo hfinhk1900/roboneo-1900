@@ -21,7 +21,7 @@ import {
 import { getNavbarLinks } from '@/config/navbar-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useScroll } from '@/hooks/use-scroll';
-import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
+import { LocaleLink, useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useCredits } from '@/hooks/use-credits';
 import { cn } from '@/lib/utils';
@@ -105,6 +105,7 @@ export function Navbar({ scroll }: NavBarProps) {
   const scrolled = useScroll(50);
   const menuLinks = getNavbarLinks();
   const localePathname = useLocalePathname();
+  const localeRouter = useLocaleRouter();
   const [mounted, setMounted] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const { data: session, isPending } = authClient.useSession();
@@ -114,6 +115,40 @@ export function Navbar({ scroll }: NavBarProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Prefetch core tool routes during idle time for instant nav
+  useEffect(() => {
+    const targets = [
+      Routes.AISticker,
+      Routes.ProductShot,
+      Routes.AIBackground,
+      Routes.RemoveWatermark,
+      Routes.ProfilePictureMaker,
+      Routes.Pricing,
+    ];
+    const id = (window as any).requestIdleCallback
+      ? (window as any).requestIdleCallback(() => {
+          targets.forEach((href) => {
+            try {
+              localeRouter.prefetch(href);
+            } catch {}
+          });
+        })
+      : window.setTimeout(() => {
+          targets.forEach((href) => {
+            try {
+              localeRouter.prefetch(href);
+            } catch {}
+          });
+        }, 0);
+    return () => {
+      if ((window as any).cancelIdleCallback && typeof id === 'number') {
+        (window as any).cancelIdleCallback(id);
+      } else {
+        window.clearTimeout(id as any);
+      }
+    };
+  }, [localeRouter]);
 
   // Function to toggle menu state
   const toggleMenu = (menuTitle: string) => {
@@ -271,6 +306,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                               : undefined
                                           }
                                           onClick={() => closeAllMenus()}
+                                          prefetch
                                           className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
                                         >
                                           {/* Image */}
@@ -327,6 +363,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                               : undefined
                                           }
                                           onClick={() => closeAllMenus()}
+                                          prefetch
                                           className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
                                         >
                                           {/* Image */}
@@ -387,6 +424,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                           : undefined
                                       }
                                       onClick={() => closeAllMenus()}
+                                      prefetch
                                       className={cn(
                                         'group flex select-none flex-row items-start gap-2 rounded-xl flex-1 h-full overflow-hidden',
                                         'p-2.5 leading-none no-underline outline-hidden transition-colors',
@@ -499,6 +537,7 @@ export function Navbar({ scroll }: NavBarProps) {
                           rel={
                             item.external ? 'noopener noreferrer' : undefined
                           }
+                          prefetch
                         >
                           {item.title}
                         </LocaleLink>

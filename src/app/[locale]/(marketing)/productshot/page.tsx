@@ -1,8 +1,6 @@
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
-import ProductShotGeneratorSection from '@/components/blocks/productshot/productshot-generator';
 import { StructuredData } from '@/components/seo/structured-data';
-import PhotostockGallery from '@/components/shared/photostock-gallery';
 import type { Metadata } from 'next';
+import ProductShotPageContent from './productshot-content';
 
 export const metadata: Metadata = {
   title:
@@ -32,16 +30,7 @@ export default function ProductShotPage() {
   return (
     <>
       <StructuredData type="product" />
-      <div className="flex flex-col bg-white">
-        {/* Main Generator Section */}
-        <ProductShotGeneratorSection />
-
-        {/* Showcase Gallery */}
-        <PhotostockGallery />
-
-        {/* Explore More Tools (copied from Image to Sticker section) */}
-        <ExploreMoreToolsSection />
-      </div>
+      <ProductShotPageContent />
     </>
   );
 }

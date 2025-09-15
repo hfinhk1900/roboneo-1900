@@ -1,8 +1,5 @@
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import type { Metadata } from 'next';
-import React from 'react';
-
-import { RemoveWatermarkGeneratorSection } from '@/components/blocks/remove-watermark/remove-watermark-generator';
+import RemoveWatermarkPageContent from './watermark-content';
 
 export const metadata: Metadata = {
   title: 'Remove Image Watermark - RoboNeo Art',
@@ -25,10 +22,5 @@ export const metadata: Metadata = {
 };
 
 export default function RemoveWatermarkPage() {
-  return (
-    <main className="min-h-screen bg-[#F5F5F5]">
-      <RemoveWatermarkGeneratorSection />
-      <ExploreMoreToolsSection />
-    </main>
-  );
+  return <RemoveWatermarkPageContent />;
 }

@@ -1,8 +1,5 @@
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import type { Metadata } from 'next';
-import React from 'react';
-
-import { AIBackgroundGeneratorSection } from '@/components/blocks/aibg/aibg-generator';
+import AIBackgroundPageContent from './aibackground-content';
 
 export const metadata: Metadata = {
   title: 'AI Backgrounds - RoboNeo Art',
@@ -25,10 +22,5 @@ export const metadata: Metadata = {
 };
 
 export default function AIBackgroundPage() {
-  return (
-    <main className="min-h-screen bg-[#F5F5F5]">
-      <AIBackgroundGeneratorSection />
-      <ExploreMoreToolsSection />
-    </main>
-  );
+  return <AIBackgroundPageContent />;
 }

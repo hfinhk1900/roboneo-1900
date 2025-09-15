@@ -1,7 +1,3 @@
-import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
-import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
-import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
-import StickerGenerator from '@/components/blocks/sticker/sticker-generator';
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
 import { getUrlWithLocale } from '@/lib/urls/urls';
@@ -9,6 +5,7 @@ import { generateViewport } from '@/lib/viewport';
 import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
+import StickerPageContent from './sticker-content';
 
 export { generateViewport };
 
@@ -44,19 +41,7 @@ export default async function StickerPage(props: StickerPageProps) {
   return (
     <>
       <StructuredData type="website" />
-      <div className="flex flex-col">
-        {/* Main Sticker Generator Section */}
-        <StickerGenerator />
-
-        {/* Steps Showcase Section */}
-        <StepsShowcaseSection />
-
-        {/* Image Gallery & AI Features Section */}
-        <ImageShowcaseSection />
-
-        {/* Explore More AI Tools Section */}
-        <ExploreMoreToolsSection />
-      </div>
+      <StickerPageContent />
     </>
   );
 }
