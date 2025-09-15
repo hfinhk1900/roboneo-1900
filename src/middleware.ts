@@ -186,11 +186,16 @@ function getPathnameWithoutLocale(pathname: string, locales: string[]): string {
  * https://next-intl.dev/docs/routing#base-path
  */
 export const config = {
-  // The `matcher` is relative to the `basePath`
+  // Only run middleware for auth/protected areas to reduce overhead
   matcher: [
-    // Match all pathnames except for
-    // - if they start with `/api`, `/_next` or `/_vercel`
-    // - if they contain a dot (e.g. `favicon.ico`)
-    '/((?!api|_next|_vercel|.*\\..*).*)',
+    '/auth/:path*',
+    '/dashboard/:path*',
+    '/settings/:path*',
+    '/admin/:path*',
+    // Optional locale-prefixed paths (adjust locales as needed)
+    '/(en)/auth/:path*',
+    '/(en)/dashboard/:path*',
+    '/(en)/settings/:path*',
+    '/(en)/admin/:path*',
   ],
 };

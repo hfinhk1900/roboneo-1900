@@ -1,8 +1,6 @@
 'use client';
 
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
-import ImageShowcaseSection from '@/components/blocks/features/image-showcase';
-import StepsShowcaseSection from '@/components/blocks/features/steps-showcase';
 import dynamic from 'next/dynamic';
 
 const StickerGenerator = dynamic(
@@ -15,6 +13,16 @@ const StickerGenerator = dynamic(
       </div>
     ),
   }
+);
+
+const StepsShowcaseSection = dynamic(
+  () => import('@/components/blocks/features/steps-showcase'),
+  { ssr: false }
+);
+
+const ImageShowcaseSection = dynamic(
+  () => import('@/components/blocks/features/image-showcase'),
+  { ssr: false }
 );
 
 export default function StickerPageContent() {

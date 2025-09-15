@@ -1,5 +1,12 @@
 import { createMDX } from 'fumadocs-mdx/next';
 import type { NextConfig } from 'next';
+// Optional: bundle analyzer (enabled when ANALYZE=true)
+let withBundleAnalyzer: (config: NextConfig) => NextConfig = (c) => c;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const createAnalyzer = require('@next/bundle-analyzer');
+  withBundleAnalyzer = createAnalyzer({ enabled: process.env.ANALYZE === 'true' });
+} catch {}
 import createNextIntlPlugin from 'next-intl/plugin';
 
 /**
@@ -94,4 +101,4 @@ const withNextIntl = createNextIntlPlugin();
  */
 const withMDX = createMDX();
 
-export default withMDX(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withMDX(withNextIntl(nextConfig)));
