@@ -28,36 +28,43 @@ export default async function middleware(req: NextRequest) {
   const { nextUrl, headers } = req;
   console.log('>> middleware start, pathname', nextUrl.pathname);
 
-  // 暂时跳过 auth 检查来解决 fetch failed 问题
-  // TODO: 修复 auth 配置后再启用
+  // 仅在需要鉴权的路由执行会话检查，避免为普通营销/工具页增加延迟
+  const pathnameWithoutLocale = getPathnameWithoutLocale(
+    nextUrl.pathname,
+    LOCALES
+  );
+  const matches = (routes: readonly string[]) =>
+    routes.some((route) => new RegExp(`^${route}$`).test(pathnameWithoutLocale));
+  const needsAuthCheck =
+    matches(protectedRoutes) ||
+    matches(adminOnlyRoutes) ||
+    matches(routesNotAllowedByLoggedInUsers);
+
   let session: Session | null = null;
-  try {
-    const { data: sessionData } = await betterFetch<Session>(
-      '/api/auth/get-session',
-      {
-        baseURL: getBaseUrl(),
-        headers: {
-          cookie: req.headers.get('cookie') || '',
-        },
-      }
-    );
-    session = sessionData;
-  } catch (error) {
-    console.error(
-      'Middleware auth check failed:',
-      error instanceof Error ? error.message : String(error)
-    );
-    //
+  if (needsAuthCheck) {
+    try {
+      const { data: sessionData } = await betterFetch<Session>(
+        '/api/auth/get-session',
+        {
+          baseURL: getBaseUrl(),
+          headers: {
+            cookie: req.headers.get('cookie') || '',
+          },
+        }
+      );
+      session = sessionData;
+    } catch (error) {
+      console.error(
+        'Middleware auth check failed:',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
   const isLoggedIn = !!session;
 
   // console.log('middleware, isLoggedIn', isLoggedIn);
 
-  // Get the pathname of the request (e.g. /zh/dashboard to /dashboard)
-  const pathnameWithoutLocale = getPathnameWithoutLocale(
-    nextUrl.pathname,
-    LOCALES
-  );
+  // pathnameWithoutLocale computed above
 
   // If the route can not be accessed by logged in users, redirect if the user is logged in
   if (isLoggedIn) {

@@ -17,6 +17,8 @@ export function useServiceWorker() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    // Only enable SW when explicitly turned on
+    if (process.env.NEXT_PUBLIC_ENABLE_SW !== 'true') return;
     // 仅在客户端环境注册
     if (typeof window === 'undefined') return;
 

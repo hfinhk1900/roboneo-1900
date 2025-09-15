@@ -1,7 +1,15 @@
 'use client';
 
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
-import PhotostockGallery from '@/components/shared/photostock-gallery';
+const PhotostockGallery = dynamic(
+  () => import('@/components/shared/photostock-gallery'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[30vh] flex items-center justify-center">Loading…</div>
+    ),
+  }
+);
 import dynamic from 'next/dynamic';
 
 const ProductShotGeneratorSection = dynamic(

@@ -239,7 +239,18 @@ export function Navbar({ scroll }: NavBarProps) {
               <NavigationMenuList className="flex items-center">
                 {menuLinks?.map((item, index) =>
                   item.items ? (
-                    <NavigationMenuItem key={index} className="relative">
+                    <NavigationMenuItem
+                      key={index}
+                      className="relative"
+                      onMouseEnter={() => {
+                        // Open this menu on hover (desktop)
+                        setOpenMenus({ [item.title]: true });
+                      }}
+                      onMouseLeave={() => {
+                        // Close when mouse leaves the item and its content
+                        closeAllMenus();
+                      }}
+                    >
                       <button
                         type="button"
                         onClick={(e) => {
