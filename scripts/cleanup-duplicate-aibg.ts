@@ -48,10 +48,12 @@ async function cleanupDuplicateAibg() {
             `  🎨 模式 "${mode}" 样式 "${style}": ${styleRecords.length} 条记录`
           );
 
-          // 按创建时间排序，保留最新的
-          styleRecords.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
+          // 按创建时间排序，保留最新的（使用 getTime 避免 TS 算术类型报错）
+          styleRecords.sort((a, b) => {
+            const bt = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt as any).getTime();
+            const at = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt as any).getTime();
+            return at - bt;
+          });
 
           // 删除除最新一条外的所有记录
           const toDelete = styleRecords.slice(1);
