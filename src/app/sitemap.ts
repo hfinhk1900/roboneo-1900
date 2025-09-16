@@ -23,6 +23,7 @@ const staticRoutes = [
   '/privacy',
   '/terms',
   '/cookie',
+  '/refund',
   '/auth/login',
   '/auth/register',
 ];

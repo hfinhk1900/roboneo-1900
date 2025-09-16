@@ -77,6 +77,11 @@ export function getFooterLinks(): NestedMenuItem[] {
           href: Routes.TermsOfService,
           external: false,
         },
+        {
+          title: 'Refund Policy',
+          href: Routes.RefundPolicy,
+          external: false,
+        },
       ],
     },
   ];
