@@ -94,10 +94,11 @@ async function main() {
   const gens30dResults = await Promise.all(
     histTables.map((t) => countSince(t, 30))
   );
-  const gens30d = gens30dResults.reduce((sum, v) => {
-    if (typeof v === 'number') return sum + v;
-    return sum;
-  }, 0);
+  // Narrow to numeric results before summing to satisfy strict type checks during CI builds
+  const gens30dNumbers = gens30dResults.filter(
+    (v): v is number => typeof v === 'number'
+  );
+  const gens30d = gens30dNumbers.reduce((sum, v) => sum + v, 0);
 
   console.log('--- Dashboard metrics (expected) ---');
   console.log('Total Users:', totalUsers);
