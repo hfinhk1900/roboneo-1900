@@ -3,6 +3,8 @@ import { eq } from 'drizzle-orm';
 import { getDb } from '../src/db';
 import { aibgHistory } from '../src/db/schema';
 
+type AibgRow = typeof aibgHistory.$inferSelect;
+
 async function cleanupDuplicateAibg() {
   console.log('🧹 开始清理重复的 AI Background 历史记录...\n');
 
@@ -14,8 +16,8 @@ async function cleanupDuplicateAibg() {
     console.log(`📊 总共有 ${allHistory.length} 条历史记录`);
 
     // 按用户分组
-    const userGroups = {};
-    allHistory.forEach((record) => {
+    const userGroups: Record<string, AibgRow[]> = {};
+    allHistory.forEach((record: AibgRow) => {
       if (!userGroups[record.userId]) {
         userGroups[record.userId] = [];
       }
@@ -29,8 +31,8 @@ async function cleanupDuplicateAibg() {
       console.log(`\n👤 用户 ${userId}: ${records.length} 条记录`);
 
       // 按模式和样式分组
-      const modeStyleGroups = {};
-      records.forEach((record) => {
+      const modeStyleGroups: Record<string, AibgRow[]> = {};
+      (records as AibgRow[]).forEach((record) => {
         const key = `${record.mode}-${record.style}`;
         if (!modeStyleGroups[key]) {
           modeStyleGroups[key] = [];
