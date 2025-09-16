@@ -33,7 +33,7 @@ import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
-export const STYLE_CONFIGS = {
+const STYLE_CONFIGS = {
   ios: {
     name: 'iOS Sticker',
     userPrompt:
