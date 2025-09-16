@@ -3,6 +3,8 @@ import { eq } from 'drizzle-orm';
 import { getDb } from '../src/db';
 import { productshotHistory } from '../src/db/schema';
 
+type ProductshotRow = typeof productshotHistory.$inferSelect;
+
 async function cleanupDuplicateProductshots() {
   console.log('🧹 开始清理重复的 ProductShot 历史记录...\n');
 
@@ -14,8 +16,8 @@ async function cleanupDuplicateProductshots() {
     console.log(`📊 总共有 ${allHistory.length} 条历史记录`);
 
     // 按用户分组
-    const userGroups = {};
-    allHistory.forEach((record) => {
+    const userGroups: Record<string, ProductshotRow[]> = {};
+    allHistory.forEach((record: ProductshotRow) => {
       if (!userGroups[record.userId]) {
         userGroups[record.userId] = [];
       }
@@ -29,8 +31,8 @@ async function cleanupDuplicateProductshots() {
       console.log(`\n👤 用户 ${userId}: ${records.length} 条记录`);
 
       // 按场景分组
-      const sceneGroups = {};
-      records.forEach((record) => {
+      const sceneGroups: Record<string, ProductshotRow[]> = {};
+      (records as ProductshotRow[]).forEach((record) => {
         if (!sceneGroups[record.scene]) {
           sceneGroups[record.scene] = [];
         }
@@ -42,10 +44,12 @@ async function cleanupDuplicateProductshots() {
         if (sceneRecords.length > 1) {
           console.log(`  📸 场景 "${scene}": ${sceneRecords.length} 条记录`);
 
-          // 按创建时间排序，保留最新的
-          sceneRecords.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
+          // 按创建时间排序，保留最新的（使用 getTime 避免 TS 算术类型报错）
+          (sceneRecords as ProductshotRow[]).sort((a, b) => {
+            const bt = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt as any).getTime();
+            const at = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt as any).getTime();
+            return bt - at;
+          });
 
           // 删除除最新一条外的所有记录
           const toDelete = sceneRecords.slice(1);
