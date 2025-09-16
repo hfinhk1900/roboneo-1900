@@ -586,7 +586,7 @@
         },
         "CustomerPortalButton": {
           "loading": "Loading...",
-          "createCustomerPortalFailed": "Failed to open Stripe customer portal"
+          "createCustomerPortalFailed": "Failed to open customer portal"
         },
         "price": "Price:",
         "nextBillingDate": "Next billing date:",

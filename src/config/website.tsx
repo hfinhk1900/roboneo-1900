@@ -1,6 +1,28 @@
 import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import type { WebsiteConfig } from '@/types';
 
+// Choose payment provider via env; default to Stripe
+const paymentProvider =
+  process.env.NEXT_PUBLIC_PAYMENT_PROVIDER === 'creem' ? 'creem' : 'stripe';
+
+// Resolve price IDs based on provider
+const PRO_MONTHLY_PRICE_ID =
+  paymentProvider === 'creem'
+    ? process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_MONTHLY!
+    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!;
+const PRO_YEARLY_PRICE_ID =
+  paymentProvider === 'creem'
+    ? process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_YEARLY!
+    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!;
+const ULTIMATE_MONTHLY_PRICE_ID =
+  paymentProvider === 'creem'
+    ? process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_MONTHLY!
+    : process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!;
+const ULTIMATE_YEARLY_PRICE_ID =
+  paymentProvider === 'creem'
+    ? process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_YEARLY!
+    : process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!;
+
 /**
  * website config, without translations
  *
@@ -81,7 +103,7 @@ export const websiteConfig: WebsiteConfig = {
     provider: 's3',
   },
   payment: {
-    provider: 'stripe',
+    provider: paymentProvider,
   },
   price: {
     plans: {
@@ -98,14 +120,14 @@ export const websiteConfig: WebsiteConfig = {
         prices: [
           {
             type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
+            priceId: PRO_MONTHLY_PRICE_ID,
             amount: 1000, // $10.00
             currency: 'USD',
             interval: PlanIntervals.MONTH,
           },
           {
             type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
+            priceId: PRO_YEARLY_PRICE_ID,
             amount: 9600, // $96.00 ($8/month)
             currency: 'USD',
             interval: PlanIntervals.YEAR,
@@ -120,14 +142,14 @@ export const websiteConfig: WebsiteConfig = {
         prices: [
           {
             type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!,
+            priceId: ULTIMATE_MONTHLY_PRICE_ID,
             amount: 2000, // $20.00
             currency: 'USD',
             interval: PlanIntervals.MONTH,
           },
           {
             type: PaymentTypes.SUBSCRIPTION,
-            priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!,
+            priceId: ULTIMATE_YEARLY_PRICE_ID,
             amount: 19200, // $192.00 ($16/month)
             currency: 'USD',
             interval: PlanIntervals.YEAR,

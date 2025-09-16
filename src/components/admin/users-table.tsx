@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/table';
 import type { User } from '@/lib/auth-types';
 import { formatDate } from '@/lib/formatter';
-import { getStripeDashboardCustomerUrl } from '@/lib/urls/urls';
+import { getPaymentDashboardCustomerUrl } from '@/lib/urls/urls';
 import { useUsersStore } from '@/stores/users-store';
 import {
   type ColumnDef,
@@ -242,7 +242,7 @@ export function UsersTable({
           <div className="flex items-center gap-2 pl-3">
             {user.customerId ? (
               <a
-                href={getStripeDashboardCustomerUrl(user.customerId)}
+                href={getPaymentDashboardCustomerUrl(user.customerId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline hover:underline-offset-4"

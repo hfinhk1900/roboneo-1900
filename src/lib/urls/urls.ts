@@ -1,4 +1,5 @@
 import { routing } from '@/i18n/routing';
+import { websiteConfig } from '@/config/website';
 import type { Locale } from 'next-intl';
 
 const baseUrl =
@@ -110,4 +111,17 @@ export function getStripeDashboardCustomerUrl(customerId: string): string {
     return `https://dashboard.stripe.com/test/customers/${customerId}`;
   }
   return `https://dashboard.stripe.com/customers/${customerId}`;
+}
+
+/**
+ * Get the payment provider dashboard customer URL
+ * Falls back to Stripe dashboard if provider is 'stripe', otherwise returns '#'
+ */
+export function getPaymentDashboardCustomerUrl(customerId: string): string {
+  const provider = websiteConfig.payment.provider;
+  if (provider === 'stripe') {
+    return getStripeDashboardCustomerUrl(customerId);
+  }
+  // TODO: Add Creem dashboard customer URL once available
+  return '#';
 }

@@ -586,7 +586,7 @@
         },
         "CustomerPortalButton": {
           "loading": "加载中...",
-          "createCustomerPortalFailed": "打开Stripe客户界面失败"
+          "createCustomerPortalFailed": "打开客户门户失败"
         },
         "price": "价格：",
         "nextBillingDate": "下次账单日期：",

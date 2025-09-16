@@ -1,7 +1,7 @@
 'use server';
 
 import { websiteConfig } from '@/config/website';
-import { findPlanByPlanId } from '@/lib/price-plan';
+import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { getSession } from '@/lib/server';
 import { getUrlWithLocale } from '@/lib/urls/urls';
 import { createCheckout } from '@/payment';
@@ -71,6 +71,25 @@ export const createCheckoutAction = actionClient
         return {
           success: false,
           error: 'Plan not found',
+        };
+      }
+
+      // Validate priceId configured and present in plan
+      if (!priceId || typeof priceId !== 'string' || priceId.trim().length === 0) {
+        console.error('Price ID is missing or empty. Check your env config.');
+        return {
+          success: false,
+          error: 'Price ID is not configured. Please contact support.',
+        };
+      }
+      const priceDef = findPriceInPlan(planId, priceId);
+      if (!priceDef) {
+        console.error(
+          `Price ID ${priceId} not found in plan ${planId}. Check your env config.`
+        );
+        return {
+          success: false,
+          error: 'Price ID mismatch for selected plan. Please contact support.',
         };
       }
 

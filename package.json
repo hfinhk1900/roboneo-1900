@@ -39,7 +39,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^4.1.0",
-
     "@marsidev/react-turnstile": "^1.1.0",
     "@next/third-parties": "^15.3.0",
     "@openpanel/nextjs": "^1.0.7",
@@ -91,6 +90,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
     "cookie": "^1.0.2",
+    "creem": "^0.3.37",
     "date-fns": "^4.1.0",
     "deepmerge": "^4.3.1",
     "dotenv": "^16.4.7",
