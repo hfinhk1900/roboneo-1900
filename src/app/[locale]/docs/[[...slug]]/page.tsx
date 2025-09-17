@@ -85,7 +85,7 @@ export default async function DocPage({ params }: DocPageProps) {
     notFound();
   }
 
-  const preview = page.data.preview;
+  const preview = (page.data as any)?.preview as string | undefined;
 
   const MDX = page.data.body;
 
