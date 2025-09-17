@@ -78,40 +78,40 @@ export class CreemProvider implements PaymentProvider {
       throw new Error('CREEM_API_KEY is not set');
     }
 
-     try {
-       // Initialize Creem SDK
-       const creem = new Creem();
+    try {
+      // Initialize Creem SDK
+      const creem = new Creem();
 
-       const customMetadata = {
-         ...metadata,
-         planId,
-         priceId,
-         userId: metadata?.userId || '',
-       } as Record<string, any>;
+      const customMetadata = {
+        ...metadata,
+        planId,
+        priceId,
+        userId: metadata?.userId || '',
+      } as Record<string, any>;
 
-       console.log(
-         '[CreemProvider] Creating checkout with API key:',
-         this.apiKey ? 'SET' : 'MISSING'
-       );
-       console.log('[CreemProvider] Request data:', {
-         productId: priceId,
-         customerEmail,
-         successUrl,
-         metadata: customMetadata,
-       });
+      console.log(
+        '[CreemProvider] Creating checkout with API key:',
+        this.apiKey ? 'SET' : 'MISSING'
+      );
+      console.log('[CreemProvider] Request data:', {
+        productId: priceId,
+        customerEmail,
+        successUrl,
+        metadata: customMetadata,
+      });
 
-       const res = await creem.createCheckout({
-         xApiKey: this.apiKey,
-         createCheckoutRequest: {
-           productId: priceId, // In Creem, productId is used to create checkout
-           units: 1,
-           customer: {
-             email: customerEmail,
-           },
-           successUrl: successUrl ?? undefined,
-           metadata: customMetadata,
-         },
-       });
+      const res = await creem.createCheckout({
+        xApiKey: this.apiKey,
+        createCheckoutRequest: {
+          productId: priceId, // In Creem, productId is used to create checkout
+          units: 1,
+          customer: {
+            email: customerEmail,
+          },
+          successUrl: successUrl ?? undefined,
+          metadata: customMetadata,
+        },
+      });
 
       // SDK returns the entity directly
       const checkoutUrl = (res as any)?.checkoutUrl;
