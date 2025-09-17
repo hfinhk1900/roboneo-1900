@@ -3,10 +3,9 @@ import { getDb } from '@/db';
 import { aibgHistory, assets } from '@/db/schema';
 import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
-import { eq, desc, SQL } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { PgSelect } from 'drizzle-orm/pg-core';
+import { desc, eq } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
-    let query: PgSelect<any, any, any> = db
+    let query = db
       .select()
       .from(aibgHistory)
       .where(eq(aibgHistory.userId, session.user.id))
@@ -49,8 +48,15 @@ export async function GET(request: NextRequest) {
                 .from(assets)
                 .where(eq(assets.id, assetId))
                 .limit(1);
-              if (assetRows.length > 0 && assetRows[0].user_id === session.user.id) {
-                return { ...item, url: `/api/assets/${assetId}`, asset_id: assetId };
+              if (
+                assetRows.length > 0 &&
+                assetRows[0].user_id === session.user.id
+              ) {
+                return {
+                  ...item,
+                  url: `/api/assets/${assetId}`,
+                  asset_id: assetId,
+                };
               }
             }
           } catch (error) {
