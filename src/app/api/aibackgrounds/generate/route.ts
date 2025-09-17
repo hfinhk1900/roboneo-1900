@@ -106,6 +106,7 @@ interface AIBackgroundRequest {
 
 export async function POST(request: NextRequest) {
   let userId: string | undefined;
+  let backgroundMode: 'color' | 'background' | undefined;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -160,7 +161,6 @@ export async function POST(request: NextRequest) {
     const body: AIBackgroundRequest = await request.json();
     const {
       image_input,
-      backgroundMode,
       backgroundColor,
       backgroundType,
       customBackgroundDescription,
@@ -171,6 +171,7 @@ export async function POST(request: NextRequest) {
       size,
       output_format,
     } = body;
+    backgroundMode = body.backgroundMode;
 
     // 3. 验证必需参数
     if (!image_input) {
@@ -514,7 +515,7 @@ export async function POST(request: NextRequest) {
         await logAIOperation({
           userId,
           operation: 'aibg',
-          mode: backgroundMode,
+          mode: backgroundMode ?? 'unknown',
           creditsUsed: CREDITS_PER_IMAGE,
           status: 'failed',
           errorMessage: errorMessage,
