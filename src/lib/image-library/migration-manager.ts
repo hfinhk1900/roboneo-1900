@@ -310,7 +310,7 @@ export class MigrationManager {
       return {
         id: item.id || this.generateId('sticker'),
         url: item.url,
-        blob,
+        blob: blob ?? undefined,
         thumbnail,
         toolType: 'sticker',
         toolParams: {
@@ -362,7 +362,7 @@ export class MigrationManager {
       return {
         id: item.id || this.generateId('productshot'),
         url: item.url,
-        blob,
+        blob: blob ?? undefined,
         thumbnail,
         toolType: 'productshot',
         toolParams: {
@@ -413,7 +413,7 @@ export class MigrationManager {
       return {
         id: item.id || this.generateId('aibackground'),
         url: item.url,
-        blob,
+        blob: blob ?? undefined,
         thumbnail,
         toolType: 'aibackground',
         toolParams: {
@@ -464,7 +464,7 @@ export class MigrationManager {
       return {
         id: item.id || this.generateId('watermark-removal'),
         url,
-        blob,
+        blob: blob ?? undefined,
         thumbnail,
         toolType: 'watermark-removal',
         toolParams: {
@@ -507,7 +507,7 @@ export class MigrationManager {
       return {
         id: item.id || this.generateId('profile-picture'),
         url,
-        blob,
+        blob: blob ?? undefined,
         thumbnail,
         toolType: 'profile-picture',
         toolParams: {
@@ -661,8 +661,10 @@ export class MigrationManager {
    */
   private async cleanupLocalStorage(): Promise<void> {
     try {
-      Object.values(STORAGE_KEYS).forEach((key) => {
-        localStorage.removeItem(key);
+      Object.values(STORAGE_KEYS).forEach((keys) => {
+        for (const key of keys) {
+          localStorage.removeItem(key);
+        }
       });
     } catch (error) {
       console.warn('Failed to cleanup localStorage:', error);

@@ -101,7 +101,7 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       scope: ['openid', 'profile', 'email'],
-      profile: (profile) => {
+      profile: (profile: any) => {
         return {
           id: profile.sub,
           name: profile.name,

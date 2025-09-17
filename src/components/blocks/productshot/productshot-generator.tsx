@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { LocaleLink } from '@/i18n/navigation';
+import { creditsCache } from '@/lib/credits-cache';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { cn } from '@/lib/utils';
 import {

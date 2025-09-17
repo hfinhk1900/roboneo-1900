@@ -24,7 +24,7 @@ import { LOCALES, routing } from '@/i18n/routing';
 import { authClient } from '@/lib/auth-client';
 import { useLocaleStore } from '@/stores/locale-store';
 import { usePaymentStore } from '@/stores/payment-store';
-import type { User } from 'better-auth';
+import type { User } from '@/lib/auth-types';
 import { ChevronsUpDown, Languages, LogOut } from 'lucide-react';
 import { type Locale, useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';

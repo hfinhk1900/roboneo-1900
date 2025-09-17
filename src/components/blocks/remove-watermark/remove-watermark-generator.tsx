@@ -1172,7 +1172,6 @@ export function RemoveWatermarkGeneratorSection() {
                 </div>
               ))}
             </div>
-            )}
           </div>
         )}
       </div>
@@ -1205,7 +1204,6 @@ export function RemoveWatermarkGeneratorSection() {
               callbackUrl={
                 typeof window !== 'undefined' ? window.location.pathname : '/'
               }
-              className="border-none"
             />
           )}
         </DialogContent>

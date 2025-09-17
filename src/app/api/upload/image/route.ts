@@ -11,7 +11,9 @@ export async function POST(request: NextRequest) {
   if (csrf) return csrf;
   try {
     // 验证用户身份
-    const session = await auth.api.getSession();
+    const session = await auth.api.getSession({
+      headers: request.headers as any,
+    });
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -79,11 +81,11 @@ export async function POST(request: NextRequest) {
       content_type: contentType,
       size: imageBuffer.length,
       user_id: session.user.id,
-      metadata: {
+      metadata: JSON.stringify({
         source: 'aibg-solid-color',
         mode: 'color',
         uploaded_at: new Date().toISOString(),
-      },
+      }),
     });
 
     // 生成签名下载 URL 用于下载功能

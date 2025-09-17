@@ -301,7 +301,7 @@ export class PerformanceMonitor {
               navEntry.domContentLoadedEventStart - navEntry.responseEnd,
             resourceLoad:
               navEntry.loadEventStart - navEntry.domContentLoadedEventEnd,
-            total: navEntry.loadEventEnd - navEntry.navigationStart,
+            total: navEntry.loadEventEnd - navEntry.startTime,
           });
         }
       }, 1000);

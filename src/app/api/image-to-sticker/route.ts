@@ -187,6 +187,9 @@ async function gptStyleTransfer(
  */
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
+  let preDeducted = false;
+  let remainingAfterDeduct: number | undefined = undefined;
+  let idStoreKey: string | null = null;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(req);
@@ -246,11 +249,10 @@ export async function POST(req: NextRequest) {
     // Idempotency-Key (best-effort) & Pre-deduct credits (skip in mock mode)
     const idemKey =
       req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
-    let idStoreKey: string | null = null;
     if (idemKey) {
       const userId = session.user.id;
       idStoreKey = makeIdempotencyKey('sticker_generate', userId, idemKey);
-      const entry = getIdempotencyEntry(idStoreKey);
+      const entry = await getIdempotencyEntry(idStoreKey);
       if (entry?.status === 'success') {
         return NextResponse.json(entry.response);
       }
@@ -260,12 +262,10 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
-      setPending(idStoreKey);
+      await setPending(idStoreKey);
     }
 
     // Pre-deduct credits (skip in mock mode)
-    let preDeducted = false;
-    let remainingAfterDeduct: number | undefined = undefined;
     const isMock =
       process.env.NODE_ENV === 'development' && process.env.MOCK_API === 'true';
     if (!isMock) {
@@ -397,11 +397,11 @@ export async function POST(req: NextRequest) {
       isSubscribed = !!sub?.data?.data;
     } catch {}
 
-    let uploadBuffer = stickerBuffer;
+    let uploadBuffer = Buffer.from(stickerBuffer);
     if (!isSubscribed) {
       try {
         const { applyCornerWatermark } = await import('@/lib/watermark');
-        uploadBuffer = await applyCornerWatermark(
+        const watermarkedBuffer = await applyCornerWatermark(
           stickerBuffer,
           'ROBONEO.ART',
           {
@@ -413,6 +413,7 @@ export async function POST(req: NextRequest) {
             strokeWidth: 2,
           }
         );
+        uploadBuffer = Buffer.from(watermarkedBuffer);
       } catch (wmError) {
         console.warn('Sticker watermark application failed:', wmError);
       }

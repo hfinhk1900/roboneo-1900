@@ -177,6 +177,9 @@ export class S3Provider implements StorageProvider {
     try {
       const s3 = this.getS3Client();
       const arrayBuffer = await s3.getObjectArrayBuffer(key);
+      if (!arrayBuffer) {
+        throw new Error('Empty response when fetching object from storage');
+      }
       return Buffer.from(arrayBuffer);
     } catch (error) {
       const message =

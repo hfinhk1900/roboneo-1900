@@ -367,6 +367,9 @@ interface ProductShotRequest {
 }
 
 export async function POST(request: NextRequest) {
+  let idStoreKey: string | null = null;
+  let userIdRef: string | null = null;
+  let sceneTypeRef: SceneType | null = null;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -381,6 +384,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const userId = session.user.id;
+    userIdRef = userId;
 
     // Rate limit per user
     {
@@ -414,6 +418,7 @@ export async function POST(request: NextRequest) {
       additionalContext,
       productTypeHint,
     } = body;
+    sceneTypeRef = sceneType || null;
 
     // 3. 验证必需参数 - 简化验证逻辑，允许空场景（双图模式）
     if (!image_input) {
@@ -795,38 +800,40 @@ export async function POST(request: NextRequest) {
     }
 
     // 回滚预扣费
-    try {
-      const db = await getDb();
-      await db
-        .update(user)
-        .set({
-          credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, userId));
+    if (userIdRef) {
       try {
-        const remainingRows = await db
-          .select({ credits: user.credits })
-          .from(user)
-          .where(eq(user.id, userId))
-          .limit(1);
-        const remaining = remainingRows[0]?.credits ?? undefined;
-        if (typeof remaining === 'number') {
-          const { creditsTransaction } = await import('@/db/schema');
-          const { randomUUID } = await import('crypto');
-          await db.insert(creditsTransaction).values({
-            id: randomUUID(),
-            user_id: userId,
-            type: 'refund',
-            amount: CREDITS_PER_IMAGE,
-            balance_before: remaining - CREDITS_PER_IMAGE,
-            balance_after: remaining,
-            description: 'AI generation refund (productshot)',
-          } as any);
-        }
-      } catch {}
-    } catch (e) {
-      console.error('Failed to refund credits after error:', e);
+        const db = await getDb();
+        await db
+          .update(user)
+          .set({
+            credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, userIdRef));
+        try {
+          const remainingRows = await db
+            .select({ credits: user.credits })
+            .from(user)
+            .where(eq(user.id, userIdRef))
+            .limit(1);
+          const remaining = remainingRows[0]?.credits ?? undefined;
+          if (typeof remaining === 'number') {
+            const { creditsTransaction } = await import('@/db/schema');
+            const { randomUUID } = await import('crypto');
+            await db.insert(creditsTransaction).values({
+              id: randomUUID(),
+              user_id: userIdRef,
+              type: 'refund',
+              amount: CREDITS_PER_IMAGE,
+              balance_before: remaining - CREDITS_PER_IMAGE,
+              balance_after: remaining,
+              description: 'AI generation refund (productshot)',
+            } as any);
+          }
+        } catch {}
+      } catch (e) {
+        console.error('Failed to refund credits after error:', e);
+      }
     }
 
     if (typeof idStoreKey === 'string') {
@@ -835,14 +842,16 @@ export async function POST(request: NextRequest) {
     }
     try {
       const { logAIOperation } = await import('@/lib/ai-log');
-      await logAIOperation({
-        userId,
-        operation: 'productshot',
-        mode: sceneType || 'custom',
-        creditsUsed: CREDITS_PER_IMAGE,
-        status: 'failed',
-        errorMessage: errorMessage,
-      });
+      if (userIdRef) {
+        await logAIOperation({
+          userId: userIdRef,
+          operation: 'productshot',
+          mode: sceneTypeRef || 'custom',
+          creditsUsed: CREDITS_PER_IMAGE,
+          status: 'failed',
+          errorMessage: errorMessage,
+        });
+      }
     } catch {}
     return NextResponse.json(
       {

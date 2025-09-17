@@ -13,6 +13,9 @@ interface BlogCardProps {
 
 export default function BlogCard({ locale, post }: BlogCardProps) {
   const { date, title, description, image, author, categories } = post.data;
+  const imageUrl = typeof image === 'string' ? image : image?.url ?? null;
+  const defaultAlt = `${title || 'Roboneo AI Blog'} - AI Image Generation Tutorial`;
+  const imageAlt = typeof image === 'object' && image ? image.alt ?? defaultAlt : defaultAlt;
   const publishDate = formatDate(new Date(date));
   const blogAuthor = authorSource.getPage([author], locale);
   const blogCategories = categorySource
@@ -24,11 +27,11 @@ export default function BlogCard({ locale, post }: BlogCardProps) {
       <div className="group flex flex-col border rounded-lg overflow-hidden h-full">
         {/* Image container - fixed aspect ratio */}
         <div className="group overflow-hidden relative aspect-16/9 w-full">
-          {image && (
+          {imageUrl && (
             <div className="relative w-full h-full">
               <OptimizedImage
-                src={image}
-                alt={`${title || 'Roboneo AI Blog'} - AI Image Generation Tutorial`}
+                src={imageUrl}
+                alt={imageAlt}
                 className="object-cover hover:scale-105 transition-transform duration-300"
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
