@@ -3,9 +3,10 @@ import { getDb } from '@/db';
 import { aibgHistory, assets } from '@/db/schema';
 import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, SQL } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { PgSelect } from 'drizzle-orm/pg-core';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
-    let query = db
+    let query: PgSelect<any, any, any> = db
       .select()
       .from(aibgHistory)
       .where(eq(aibgHistory.userId, session.user.id))
