@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
     if (idemKey) {
       idStoreKey = makeIdempotencyKey('bg_remove_direct', userId, idemKey);
-      const entry = getIdempotencyEntry(idStoreKey);
+      const entry = await getIdempotencyEntry(idStoreKey);
       if (entry?.status === 'success') {
         return NextResponse.json(entry.response);
       }
@@ -152,7 +152,9 @@ export async function POST(req: NextRequest) {
       console.log('🌐 Using public HF Space without authentication');
     }
 
-    const TIMEOUT_MS = Number(process.env.BG_REMOVE_REQUEST_TIMEOUT_MS || 120000);
+    const TIMEOUT_MS = Number(
+      process.env.BG_REMOVE_REQUEST_TIMEOUT_MS || 120000
+    );
 
     async function fetchWithTimeoutRetry(
       url: string,
@@ -309,15 +311,25 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error) {
       const name = error.name || '';
       const msg = error.message || '';
-      if (name === 'AbortError' || name === 'TimeoutError' || msg.includes('timeout')) {
+      if (
+        name === 'AbortError' ||
+        name === 'TimeoutError' ||
+        msg.includes('timeout')
+      ) {
         return NextResponse.json(
-          { error: 'Request timeout', details: 'Background removal took too long' },
+          {
+            error: 'Request timeout',
+            details: 'Background removal took too long',
+          },
           { status: 408 }
         );
       }
       if (msg.includes('fetch') || msg.toLowerCase().includes('network')) {
         return NextResponse.json(
-          { error: 'Network error', details: 'Failed to connect to background removal service' },
+          {
+            error: 'Network error',
+            details: 'Failed to connect to background removal service',
+          },
           { status: 503 }
         );
       }
