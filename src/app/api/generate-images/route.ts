@@ -8,6 +8,8 @@ import {
   type ImageModel,
   experimental_generateImage as generateImage,
 } from 'ai';
+import { createSiliconflow } from '@ai-sdk/siliconflow';
+
 import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 
@@ -22,6 +24,10 @@ const DEFAULT_ASPECT_RATIO = '1:1';
 
 const fal = createFal({
   apiKey: process.env.FAL_API_KEY,
+});
+
+const siliconflow = createSiliconflow({
+  apiKey: process.env.SILICONFLOW_API_KEY,
 });
 
 interface ProviderConfig {
@@ -44,6 +50,10 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
   },
   fal: {
     createImageModel: fal.image,
+    dimensionFormat: 'size',
+  },
+  siliconflow: {
+    createImageModel: siliconflow.image,
     dimensionFormat: 'size',
   },
   // Laozhang 使用自定义实现，暂时不在此配置
