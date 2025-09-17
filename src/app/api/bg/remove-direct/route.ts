@@ -18,6 +18,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 // 使用全局速率限制工具 '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  let userId: string | undefined;
+  let idStoreKey: string | null = null;
   try {
     const csrf = enforceSameOriginCsrf(req);
     if (csrf) return csrf;
@@ -25,7 +27,6 @@ export async function POST(req: NextRequest) {
     const ip =
       req.headers.get('x-forwarded-for') ||
       req.headers.get('x-real-ip') ||
-      req.ip ||
       'unknown';
     const { bgRemovePerIpPerMin } = getRateLimitConfig();
     const rl = await checkRateLimit(`bg:remove:${ip}`, bgRemovePerIpPerMin, 60);
@@ -47,12 +48,11 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-    const userId = session.user.id;
+    userId = session.user.id;
 
     // Idempotency-Key support (best-effort)
     const idemKey =
       req.headers.get('idempotency-key') || req.headers.get('Idempotency-Key');
-    let idStoreKey: string | null = null;
     if (idemKey) {
       idStoreKey = makeIdempotencyKey('bg_remove_direct', userId, idemKey);
       const entry = getIdempotencyEntry(idStoreKey);
@@ -277,29 +277,33 @@ export async function POST(req: NextRequest) {
       const { user } = await import('@/db/schema');
       const { eq, sql } = await import('drizzle-orm');
       const db = await getDb();
-      await db
-        .update(user)
-        .set({
-          credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, userId));
+      if (userId) {
+        await db
+          .update(user)
+          .set({
+            credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, userId));
+      }
     } catch (e) {
       console.error('Failed to refund credits after error:', e);
     }
 
     if (typeof idStoreKey === 'string') clearKey(idStoreKey);
-    try {
-      const { logAIOperation } = await import('@/lib/ai-log');
-      await logAIOperation({
-        userId,
-        operation: 'bgremove',
-        mode: 'remove-direct',
-        creditsUsed: CREDITS_PER_IMAGE,
-        status: 'failed',
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
-    } catch {}
+    if (userId) {
+      try {
+        const { logAIOperation } = await import('@/lib/ai-log');
+        await logAIOperation({
+          userId,
+          operation: 'bgremove',
+          mode: 'remove-direct',
+          creditsUsed: CREDITS_PER_IMAGE,
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      } catch {}
+    }
 
     // Classify error AFTER refund to ensure user is not charged
     if (error instanceof Error) {
