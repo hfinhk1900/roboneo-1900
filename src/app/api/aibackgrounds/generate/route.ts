@@ -105,6 +105,7 @@ interface AIBackgroundRequest {
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string | undefined;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const userId = session.user.id;
+    userId = session.user.id;
 
     // Rate limit per user
     {
@@ -480,12 +481,12 @@ export async function POST(request: NextRequest) {
           credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId));
+        .where(eq(user.id, userId as string));
       try {
         const remainingRows = await db
           .select({ credits: user.credits })
           .from(user)
-          .where(eq(user.id, userId))
+          .where(eq(user.id, userId as string))
           .limit(1);
         const remaining = remainingRows[0]?.credits ?? undefined;
         if (typeof remaining === 'number') {
@@ -493,7 +494,7 @@ export async function POST(request: NextRequest) {
           const { randomUUID } = await import('crypto');
           await db.insert(creditsTransaction).values({
             id: randomUUID(),
-            user_id: userId,
+            user_id: userId as string,
             type: 'refund',
             amount: CREDITS_PER_IMAGE,
             balance_before: remaining - CREDITS_PER_IMAGE,
