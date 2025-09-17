@@ -1,5 +1,6 @@
 import type { GenerateImageRequest } from '@/ai/image/lib/api-types';
 import type { ProviderKey } from '@/ai/image/lib/provider-config';
+import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { createFal } from '@ai-sdk/fal';
 import { fireworks } from '@ai-sdk/fireworks';
 import { openai } from '@ai-sdk/openai';
@@ -8,10 +9,9 @@ import {
   type ImageModel,
   experimental_generateImage as generateImage,
 } from 'ai';
-import { createSiliconflow } from '@ai-sdk/siliconflow';
 
-import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * Intended to be slightly less than the maximum execution time allowed by the
@@ -26,9 +26,9 @@ const fal = createFal({
   apiKey: process.env.FAL_API_KEY,
 });
 
-const siliconflow = createSiliconflow({
-  apiKey: process.env.SILICONFLOW_API_KEY,
-});
+const siliconflowProvider = new SiliconFlowProvider(
+  process.env.SILICONFLOW_API_KEY!
+);
 
 interface ProviderConfig {
   createImageModel: (modelId: string) => ImageModel;
@@ -53,7 +53,8 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
     dimensionFormat: 'size',
   },
   siliconflow: {
-    createImageModel: siliconflow.image,
+    createImageModel: (modelId: string) =>
+      siliconflowProvider.getImageModel(modelId),
     dimensionFormat: 'size',
   },
   // Laozhang 使用自定义实现，暂时不在此配置
