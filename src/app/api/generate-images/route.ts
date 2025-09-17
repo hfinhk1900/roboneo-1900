@@ -69,8 +69,13 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
         // 需要将 ProductShotResult 转换为 ImageModelV1FinishReason
         // 这里简化处理，假设 resultUrl 存在即为成功
         return {
-          finishReason: 'success',
-          image: result.resultUrl!,
+          images: [result.resultUrl!],
+          warnings: [],
+          response: {
+            timestamp: new Date(),
+            modelId,
+            headers: {},
+          },
         };
       },
     }),
