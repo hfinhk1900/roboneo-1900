@@ -1,4 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
+import type { ComponentType } from 'react';
 import {
   Select,
   SelectContent,
@@ -37,7 +38,7 @@ interface ModelSelectProps {
   modelId: string;
 }
 
-const PROVIDER_ICONS: Partial<Record<ProviderKey, (props: { size?: number }) => JSX.Element>> = {
+const PROVIDER_ICONS: Partial<Record<ProviderKey, ComponentType<{ size?: number }>>> = {
   openai: OpenAIIcon,
   replicate: ReplicateIcon,
   // vertex: VertexIcon,
