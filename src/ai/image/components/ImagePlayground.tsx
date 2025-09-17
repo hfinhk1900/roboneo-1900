@@ -65,6 +65,8 @@ export function ImagePlayground({
     openai: selectedModels.openai,
     fireworks: selectedModels.fireworks,
     fal: selectedModels.fal,
+    laozhang: selectedModels.laozhang,
+    siliconflow: selectedModels.siliconflow,
   };
 
   const handlePromptSubmit = (newPrompt: string) => {
