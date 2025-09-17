@@ -56,6 +56,8 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
     createImageModel: (modelId: string) => ({
       provider: 'siliconflow',
       modelId,
+      specificationVersion: 'v1',
+      maxImagesPerCall: 1,
       async doGenerate(options: any) {
         const result = await siliconflowProvider.generateProductShot({
           ...options,
