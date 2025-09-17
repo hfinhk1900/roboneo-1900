@@ -37,20 +37,25 @@ interface ModelSelectProps {
   modelId: string;
 }
 
-const PROVIDER_ICONS = {
+const PROVIDER_ICONS: Partial<Record<ProviderKey, (props: { size?: number }) => JSX.Element>> = {
   openai: OpenAIIcon,
   replicate: ReplicateIcon,
   // vertex: VertexIcon,
   fireworks: FireworksIcon,
   fal: falAILogo,
+  // Fallback icons for custom providers
+  laozhang: OpenAIIcon,
+  siliconflow: FireworksIcon,
 } as const;
 
-const PROVIDER_LINKS = {
+const PROVIDER_LINKS: Partial<Record<ProviderKey, string>> = {
   openai: 'openai',
   replicate: 'replicate',
   // vertex: 'google-vertex',
   fireworks: 'fireworks',
   fal: 'fal',
+  laozhang: 'openai',
+  siliconflow: 'fireworks',
 } as const;
 
 export function ModelSelect({
@@ -65,7 +70,9 @@ export function ModelSelect({
   failed,
   modelId,
 }: ModelSelectProps) {
-  const Icon = PROVIDER_ICONS[providerKey];
+  const Icon = (PROVIDER_ICONS[providerKey] ?? OpenAIIcon) as (props: {
+    size?: number;
+  }) => JSX.Element;
 
   return (
     <Card
@@ -80,7 +87,7 @@ export function ModelSelect({
                 className="bg-primary hover:opacity-80 p-2 rounded-full"
                 href={
                   'https://sdk.vercel.ai/providers/ai-sdk-providers/' +
-                  PROVIDER_LINKS[providerKey]
+                  (PROVIDER_LINKS[providerKey] ?? 'openai')
                 }
                 target="_blank"
               >
@@ -93,7 +100,7 @@ export function ModelSelect({
                 className="hover:opacity-80"
                 href={
                   'https://sdk.vercel.ai/providers/ai-sdk-providers/' +
-                  PROVIDER_LINKS[providerKey]
+                  (PROVIDER_LINKS[providerKey] ?? 'openai')
                 }
                 target="_blank"
               >
