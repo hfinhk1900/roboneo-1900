@@ -21,7 +21,7 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function applyCornerWatermark(
-  imageBuffer: Buffer,
+  imageBuffer: Buffer<any>,
   text: string,
   options: CornerWatermarkOptions = {}
 ): Promise<Buffer> {
