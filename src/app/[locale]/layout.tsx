@@ -11,6 +11,7 @@ import AffonsoScript from '@/components/affiliate/affonso';
 import PromotekitScript from '@/components/affiliate/promotekit';
 import { TailwindIndicator } from '@/components/layout/tailwind-indicator';
 import { routing } from '@/i18n/routing';
+import { getSession } from '@/lib/server';
 import { cn } from '@/lib/utils';
 import { type Locale, NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
@@ -43,6 +44,9 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  const session = await getSession();
+  const currentUser = session?.user ?? null;
+
   return (
     <html suppressHydrationWarning lang={locale}>
       <head>
@@ -61,7 +65,7 @@ export default async function LocaleLayout({
         )}
       >
         <NextIntlClientProvider>
-          <Providers locale={locale}>
+          <Providers locale={locale} currentUser={currentUser}>
             {children}
 
             <Toaster richColors position="top-right" offset={64} />

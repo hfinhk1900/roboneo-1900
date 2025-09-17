@@ -6,7 +6,6 @@ import { Logo } from '@/components/layout/logo';
 import { ModeSwitcher } from '@/components/layout/mode-switcher';
 import { NavbarMobile } from '@/components/layout/navbar-mobile';
 import { UserButton } from '@/components/layout/user-button';
-import { CreditsDisplay } from '@/components/shared/credits-display';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -19,10 +18,9 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { getNavbarLinks } from '@/config/navbar-config';
-import { useCurrentUser } from '@/hooks/use-current-user';
 import { useScroll } from '@/hooks/use-scroll';
 import { LocaleLink, useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
-import { authClient } from '@/lib/auth-client';
+import { useCurrentUserContext } from '@/contexts/current-user-context';
 import { useCredits } from '@/hooks/use-credits';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
@@ -33,6 +31,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import LocaleSwitcher from './locale-switcher';
+import type { User } from '@/lib/auth-types';
 
 interface NavBarProps {
   scroll?: boolean;
@@ -48,24 +47,12 @@ const customNavigationMenuTriggerStyle = cn(
 );
 
 function HeaderCreditsDisplay() {
-  const { data: session } = authClient.useSession();
-  const { credits, loading, refresh } = useCredits();
+  const { credits, loading } = useCredits({ enabled: true });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // on mount, trigger a refresh in background to ensure latest
-    const id = window.requestIdleCallback
-      ? window.requestIdleCallback(() => void refresh())
-      : window.setTimeout(() => void refresh(), 0);
-    return () => {
-      if ((window as any).cancelIdleCallback && typeof id === 'number') {
-        (window as any).cancelIdleCallback(id);
-      } else {
-        window.clearTimeout(id as any);
-      }
-    };
-  }, [session, refresh]);
+  }, []);
 
   if (!mounted || loading) {
     return (
@@ -99,7 +86,14 @@ function HeaderCreditsDisplay() {
   );
 }
 
-export function Navbar({ scroll }: NavBarProps) {
+interface NavBarProps {
+  scroll?: boolean;
+  currentUser?: User | null;
+}
+
+export function Navbar({ scroll, currentUser = null }: NavBarProps) {
+  const currentUserFromContext = useCurrentUserContext();
+  const effectiveUser = currentUser ?? currentUserFromContext ?? null;
   const t = useTranslations();
   const scrolled = useScroll(50);
   const menuLinks = getNavbarLinks();
@@ -108,47 +102,12 @@ export function Navbar({ scroll }: NavBarProps) {
   const [mounted, setMounted] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { data: session, isPending } = authClient.useSession();
-  const currentUser = session?.user;
+  const hasPrefetchedCoreRoutes = useRef(false);
   // console.log(`Navbar, user:`, user);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Prefetch core tool routes during idle time for instant nav
-  useEffect(() => {
-    const targets = [
-      Routes.AISticker,
-      Routes.ProductShot,
-      Routes.AIBackground,
-      Routes.RemoveWatermark,
-      Routes.ProfilePictureMaker,
-      Routes.Pricing,
-    ];
-    const id = (window as any).requestIdleCallback
-      ? (window as any).requestIdleCallback(() => {
-          targets.forEach((href) => {
-            try {
-              localeRouter.prefetch(href);
-            } catch {}
-          });
-        })
-      : window.setTimeout(() => {
-          targets.forEach((href) => {
-            try {
-              localeRouter.prefetch(href);
-            } catch {}
-          });
-        }, 0);
-    return () => {
-      if ((window as any).cancelIdleCallback && typeof id === 'number') {
-        (window as any).cancelIdleCallback(id);
-      } else {
-        window.clearTimeout(id as any);
-      }
-    };
-  }, [localeRouter]);
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current) {
@@ -157,10 +116,29 @@ export function Navbar({ scroll }: NavBarProps) {
     }
   };
 
+  const prefetchCoreRoutes = () => {
+    if (hasPrefetchedCoreRoutes.current) return;
+    hasPrefetchedCoreRoutes.current = true;
+    const targets = [
+      Routes.AISticker,
+      Routes.ProductShot,
+      Routes.AIBackground,
+      Routes.RemoveWatermark,
+      Routes.ProfilePictureMaker,
+      Routes.Pricing,
+    ];
+    targets.forEach((href) => {
+      try {
+        localeRouter.prefetch(href);
+      } catch {}
+    });
+  };
+
   // Function to toggle menu state
   const toggleMenu = (menuTitle: string) => {
     console.log('Toggling menu:', menuTitle); // Debug log
     clearCloseTimeout();
+    prefetchCoreRoutes();
     setOpenMenus((prev) => {
       const isCurrentlyOpen = prev[menuTitle];
 
@@ -247,6 +225,7 @@ export function Navbar({ scroll }: NavBarProps) {
               href={Routes.Root}
               className="flex items-center space-x-2"
               aria-label="RoboNeo – AI Image Generator"
+              prefetch={false}
             >
               <Logo />
               <span className="text-xl font-extrabold font-barlow">
@@ -267,6 +246,7 @@ export function Navbar({ scroll }: NavBarProps) {
                       onMouseEnter={() => {
                         // Open this menu on hover (desktop)
                         clearCloseTimeout();
+                        prefetchCoreRoutes();
                         setOpenMenus({ [item.title]: true });
                       }}
                       onMouseLeave={() => {
@@ -344,7 +324,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                               : undefined
                                           }
                                           onClick={() => closeAllMenus()}
-                                          prefetch
+                                          prefetch={false}
                                           className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
                                         >
                                           {/* Image */}
@@ -401,7 +381,7 @@ export function Navbar({ scroll }: NavBarProps) {
                                               : undefined
                                           }
                                           onClick={() => closeAllMenus()}
-                                          prefetch
+                                          prefetch={false}
                                           className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
                                         >
                                           {/* Image */}
@@ -575,7 +555,7 @@ export function Navbar({ scroll }: NavBarProps) {
                           rel={
                             item.external ? 'noopener noreferrer' : undefined
                           }
-                          prefetch
+                          prefetch={false}
                         >
                           {item.title}
                         </LocaleLink>
@@ -589,15 +569,15 @@ export function Navbar({ scroll }: NavBarProps) {
 
           {/* navbar right show sign in or user */}
           <div className="flex items-center gap-x-4">
-            {!mounted || isPending ? (
+            {!mounted ? (
               <Skeleton className="size-8 border rounded-full" />
-            ) : currentUser ? (
+            ) : effectiveUser ? (
               <div className="flex items-center gap-x-3">
                 {/* Credits display for logged in users */}
                 <div className="hidden sm:block">
                   <HeaderCreditsDisplay />
                 </div>
-                <UserButton user={currentUser} />
+                <UserButton user={effectiveUser} />
               </div>
             ) : (
               <div
@@ -632,7 +612,7 @@ export function Navbar({ scroll }: NavBarProps) {
         </nav>
 
         {/* mobile navbar */}
-        <NavbarMobile className="lg:hidden" />
+        <NavbarMobile currentUser={effectiveUser} className="lg:hidden" />
       </Container>
     </section>
   );

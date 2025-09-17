@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/collapsible';
 import { getNavbarLinks } from '@/config/navbar-config';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
-import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { Portal } from '@radix-ui/react-portal';
@@ -27,19 +26,22 @@ import Image from 'next/image';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { RemoveScroll } from 'react-remove-scroll';
-import { Skeleton } from '../ui/skeleton';
 import { UserButtonMobile } from './user-button-mobile';
+import type { User } from '@/lib/auth-types';
+
+interface NavbarMobileProps extends React.HTMLAttributes<HTMLDivElement> {
+  currentUser?: User | null;
+}
 
 export function NavbarMobile({
   className,
+  currentUser = null,
   ...other
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: NavbarMobileProps) {
   const t = useTranslations();
   const [open, setOpen] = React.useState<boolean>(false);
   const localePathname = useLocalePathname();
   const [mounted, setMounted] = useState(false);
-  const { data: session, isPending } = authClient.useSession();
-  const currentUser = session?.user;
 
   useEffect(() => {
     setMounted(true);
@@ -88,6 +90,7 @@ export function NavbarMobile({
           href={Routes.Root}
           className="flex items-center gap-2"
           aria-label="RoboNeo – AI Image Generator"
+          prefetch={false}
         >
           <Logo />
           <span className="text-xl font-extrabold font-barlow">
@@ -98,11 +101,7 @@ export function NavbarMobile({
         {/* navbar right shows menu icon and user button */}
         <div className="flex items-center justify-end gap-4">
           {/* show user button if user is logged in */}
-          {isPending ? (
-            <Skeleton className="size-8 border rounded-full" />
-          ) : currentUser ? (
-            <UserButtonMobile user={currentUser} />
-          ) : null}
+          {currentUser ? <UserButtonMobile user={currentUser} /> : null}
 
           <Button
             variant="ghost"
@@ -128,13 +127,10 @@ export function NavbarMobile({
           {/* if we don't add RemoveScroll component, the underlying
             page will scroll when we scroll the mobile menu */}
           <RemoveScroll allowPinchZoom enabled>
-            {/* Only render MainMobileMenu when not in loading state */}
-            {!isPending && (
-              <MainMobileMenu
-                userLoggedIn={!!currentUser}
-                onLinkClicked={handleToggleMobileMenu}
-              />
-            )}
+            <MainMobileMenu
+              userLoggedIn={!!currentUser}
+              onLinkClicked={handleToggleMobileMenu}
+            />
           </RemoveScroll>
         </Portal>
       )}
@@ -166,6 +162,7 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
             <LocaleLink
               href={Routes.Login}
               onClick={onLinkClicked}
+              prefetch={false}
               className={cn(
                 buttonVariants({
                   variant: 'outline',
@@ -186,6 +183,7 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                 'w-full'
               )}
               onClick={onLinkClicked}
+              prefetch={false}
             >
               {t('Common.signUp')}
             </LocaleLink>
@@ -257,6 +255,7 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                                     ? 'noopener noreferrer'
                                     : undefined
                                 }
+                                prefetch={false}
                                 className={cn(
                                   buttonVariants({ variant: 'ghost' }),
                                   'group h-auto w-full justify-start gap-4 p-1 !pl-0 !pr-3',
@@ -354,6 +353,7 @@ function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
                     href={item.href || '#'}
                     target={item.external ? '_blank' : undefined}
                     rel={item.external ? 'noopener noreferrer' : undefined}
+                    prefetch={false}
                     className={cn(
                       buttonVariants({ variant: 'ghost' }),
                       'w-full !pl-2 justify-start cursor-pointer group',

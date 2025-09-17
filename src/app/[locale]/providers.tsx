@@ -4,6 +4,8 @@ import { ActiveThemeProvider } from '@/components/layout/active-theme-provider';
 import { PaymentProvider } from '@/components/layout/payment-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { websiteConfig } from '@/config/website';
+import { CurrentUserProvider } from '@/contexts/current-user-context';
+import type { User } from '@/lib/auth-types';
 import type { Translations } from 'fumadocs-ui/i18n';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { useTranslations } from 'next-intl';
@@ -12,6 +14,7 @@ import type { ReactNode } from 'react';
 interface ProvidersProps {
   children: ReactNode;
   locale: string;
+  currentUser: User | null;
 }
 
 /**
@@ -24,7 +27,7 @@ interface ProvidersProps {
  * - TooltipProvider: Provides the tooltip to the app.
  * - PaymentProvider: Provides the payment state to the app.
  */
-export function Providers({ children, locale }: ProvidersProps) {
+export function Providers({ children, locale, currentUser }: ProvidersProps) {
   // available languages that will be displayed in the docs UI
   // make sure `locale` is consistent with your i18n config
   const locales = Object.entries(websiteConfig.i18n.locales).map(
@@ -47,12 +50,14 @@ export function Providers({ children, locale }: ProvidersProps) {
   };
 
   return (
-    <ActiveThemeProvider>
-      <RootProvider i18n={{ locale, locales, translations }}>
-        <TooltipProvider>
-          <PaymentProvider>{children}</PaymentProvider>
-        </TooltipProvider>
-      </RootProvider>
-    </ActiveThemeProvider>
+    <CurrentUserProvider value={currentUser}>
+      <ActiveThemeProvider>
+        <RootProvider i18n={{ locale, locales, translations }}>
+          <TooltipProvider>
+            <PaymentProvider>{children}</PaymentProvider>
+          </TooltipProvider>
+        </RootProvider>
+      </ActiveThemeProvider>
+    </CurrentUserProvider>
   );
 }

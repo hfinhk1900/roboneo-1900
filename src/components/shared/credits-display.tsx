@@ -25,7 +25,10 @@ export function CreditsDisplay({
   actionLabel = 'Generate',
 }: CreditsDisplayProps) {
   const currentUser = useCurrentUser();
-  const { credits, loading, refresh } = useCredits();
+  const { credits, loading, refresh } = useCredits({
+    enabled: Boolean(currentUser),
+    refreshOnFocus: Boolean(currentUser),
+  });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

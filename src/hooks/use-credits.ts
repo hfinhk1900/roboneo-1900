@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { creditsCache } from "@/lib/credits-cache";
-import { getUserCreditsAction } from "@/actions/credits-actions";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { creditsCache } from '@/lib/credits-cache';
+import { getUserCreditsAction } from '@/actions/credits-actions';
 
 export interface UseCreditsResult {
   credits: number | null;
@@ -13,15 +13,29 @@ export interface UseCreditsResult {
   set: (v: number) => void;
 }
 
+interface UseCreditsOptions {
+  /**
+   * Whether the hook should actively fetch credits.
+   * Useful to disable when the user is not authenticated.
+   */
+  enabled?: boolean;
+  /**
+   * Automatically refresh when window gains focus / tab becomes visible.
+   * Defaults to true.
+   */
+  refreshOnFocus?: boolean;
+}
+
 /**
  * Shared credits hook that centralizes fetching, caching and broadcasting
  * - reads from creditsCache first for instant UI
  * - provides refresh() to fetch DB snapshot via safe-action
  * - auto-refresh on window focus / tab visibility
  */
-export function useCredits(): UseCreditsResult {
+export function useCredits(options: UseCreditsOptions = {}): UseCreditsResult {
+  const { enabled = true, refreshOnFocus = true } = options;
   const [credits, setCredits] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(enabled));
   const mountedRef = useRef(false);
 
   const set = useCallback((v: number) => {
@@ -29,6 +43,9 @@ export function useCredits(): UseCreditsResult {
   }, []);
 
   const refresh = useCallback(async () => {
+    if (!enabled) {
+      return;
+    }
     try {
       setLoading(true);
       const res = await getUserCreditsAction({});
@@ -44,6 +61,10 @@ export function useCredits(): UseCreditsResult {
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     mountedRef.current = true;
 
     // 1) read from cache for instant paint
@@ -83,18 +104,18 @@ export function useCredits(): UseCreditsResult {
 
   // Refresh on focus/visibility to keep cross-tab in sync
   useEffect(() => {
+    if (!enabled || !refreshOnFocus) return;
     const onFocus = () => void refresh();
     const onVisibility = () => {
-      if (document.visibilityState === "visible") void refresh();
+      if (document.visibilityState === 'visible') void refresh();
     };
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
     return () => {
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [refresh]);
+  }, [enabled, refreshOnFocus, refresh]);
 
   return { credits, loading, refresh, set };
 }
-

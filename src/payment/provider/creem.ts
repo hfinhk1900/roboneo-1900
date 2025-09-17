@@ -5,8 +5,8 @@ import { getDb } from '@/db';
 import { payment, user } from '@/db/schema';
 import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { sendNotification } from '@/notification/notification';
-import { desc, eq } from 'drizzle-orm';
 import { Creem } from 'creem';
+import { desc, eq } from 'drizzle-orm';
 import type {
   CheckoutResult,
   CreateCheckoutParams,
@@ -14,11 +14,11 @@ import type {
   PaymentProvider,
   PaymentStatus,
   PaymentType,
+  PlanInterval,
   PortalResult,
   Price,
   Subscription,
   getSubscriptionsParams,
-  PlanInterval,
 } from '../types';
 import { PaymentTypes, PlanIntervals } from '../types';
 
@@ -54,7 +54,15 @@ export class CreemProvider implements PaymentProvider {
   public async createCheckout(
     params: CreateCheckoutParams
   ): Promise<CheckoutResult> {
-    const { planId, priceId, customerEmail, successUrl, cancelUrl, metadata, locale } = params;
+    const {
+      planId,
+      priceId,
+      customerEmail,
+      successUrl,
+      cancelUrl,
+      metadata,
+      locale,
+    } = params;
 
     // Validate plan and price first (local config guard)
     const plan = findPlanByPlanId(planId);
@@ -66,18 +74,31 @@ export class CreemProvider implements PaymentProvider {
       throw new Error(`Price ID ${priceId} not found in plan ${planId}`);
     }
 
-     if (!this.apiKey) {
-       throw new Error('CREEM_API_KEY is not set');
-     }
+    if (!this.apiKey) {
+      throw new Error('CREEM_API_KEY is not set');
+    }
 
      try {
+       // Initialize Creem SDK
        const creem = new Creem();
+
        const customMetadata = {
          ...metadata,
          planId,
          priceId,
          userId: metadata?.userId || '',
        } as Record<string, any>;
+
+       console.log(
+         '[CreemProvider] Creating checkout with API key:',
+         this.apiKey ? 'SET' : 'MISSING'
+       );
+       console.log('[CreemProvider] Request data:', {
+         productId: priceId,
+         customerEmail,
+         successUrl,
+         metadata: customMetadata,
+       });
 
        const res = await creem.createCheckout({
          xApiKey: this.apiKey,
@@ -92,19 +113,22 @@ export class CreemProvider implements PaymentProvider {
          },
        });
 
-       // SDK returns the entity directly
-       const checkoutUrl = (res as any)?.checkoutUrl;
-       const id = (res as any)?.id;
-       if (!checkoutUrl || !id) {
-         console.error('[CreemProvider] Unexpected createCheckout response:', res);
-         throw new Error('Invalid checkout response from Creem');
-       }
+      // SDK returns the entity directly
+      const checkoutUrl = (res as any)?.checkoutUrl;
+      const id = (res as any)?.id;
+      if (!checkoutUrl || !id) {
+        console.error(
+          '[CreemProvider] Unexpected createCheckout response:',
+          res
+        );
+        throw new Error('Invalid checkout response from Creem');
+      }
 
-       return { url: checkoutUrl, id };
-     } catch (err) {
-       console.error('[CreemProvider] createCheckout error:', err);
-       throw new Error('Failed to create checkout session');
-     }
+      return { url: checkoutUrl, id };
+    } catch (err) {
+      console.error('[CreemProvider] createCheckout error:', err);
+      throw new Error('Failed to create checkout session');
+    }
   }
 
   /**
@@ -117,7 +141,15 @@ export class CreemProvider implements PaymentProvider {
       throw new Error('CREEM_API_KEY is not set');
     }
     try {
+      // Initialize Creem SDK
       const creem = new Creem();
+
+      console.log(
+        '[CreemProvider] Creating customer portal with API key:',
+        this.apiKey ? 'SET' : 'MISSING'
+      );
+      console.log('[CreemProvider] Customer ID:', params.customerId);
+
       const res = await creem.generateCustomerLinks({
         xApiKey: this.apiKey,
         createCustomerPortalLinkRequestEntity: {
@@ -178,9 +210,14 @@ export class CreemProvider implements PaymentProvider {
    * This scaffold does a minimal parse and logs the payload. Replace with
    * real signature verification and event handling.
    */
-  public async handleWebhookEvent(payload: string, signature: string): Promise<void> {
+  public async handleWebhookEvent(
+    payload: string,
+    signature: string
+  ): Promise<void> {
     if (!this.webhookSecret) {
-      console.warn('[CreemProvider] Missing CREEM_WEBHOOK_SECRET; skipping signature verification.');
+      console.warn(
+        '[CreemProvider] Missing CREEM_WEBHOOK_SECRET; skipping signature verification.'
+      );
     }
 
     let event: any;
