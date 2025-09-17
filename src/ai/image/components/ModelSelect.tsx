@@ -71,9 +71,9 @@ export function ModelSelect({
   failed,
   modelId,
 }: ModelSelectProps) {
-  const Icon = (PROVIDER_ICONS[providerKey] ?? OpenAIIcon) as (props: {
+  const Icon = (PROVIDER_ICONS[providerKey] ?? OpenAIIcon) as ComponentType<{
     size?: number;
-  }) => JSX.Element;
+  }>;
 
   return (
     <Card
