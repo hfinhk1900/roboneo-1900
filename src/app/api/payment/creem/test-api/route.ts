@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { Creem } from 'creem';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * Test Creem API connectivity and permissions
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const creemApiKey = process.env.CREEM_API_KEY;
-    
+
     if (!creemApiKey) {
       return NextResponse.json(
         { error: 'CREEM_API_KEY not configured' },
@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
 
     console.log('[Creem API Test] Starting API test...');
     console.log('[Creem API Test] API Key length:', creemApiKey.length);
-    console.log('[Creem API Test] API Key prefix:', creemApiKey.substring(0, 8) + '...');
+    console.log(
+      '[Creem API Test] API Key prefix:',
+      creemApiKey.substring(0, 8) + '...'
+    );
 
     const creem = new Creem();
     const testResults: any = {
@@ -38,25 +41,16 @@ export async function POST(request: NextRequest) {
       tests: {},
     };
 
-    // Test 1: Try to list products (if available)
-    try {
-      console.log('[Creem API Test] Testing product listing...');
-      // Note: This might not be available in Creem API, but let's try
-      const products = await creem.getProducts?.({
-        xApiKey: creemApiKey,
-      });
-      testResults.tests.listProducts = {
-        success: true,
-        data: products,
-      };
-    } catch (error: any) {
-      console.log('[Creem API Test] Product listing failed:', error.message);
-      testResults.tests.listProducts = {
-        success: false,
-        error: error.message,
-        statusCode: error.statusCode,
-      };
-    }
+    // Test 1: Check API key format and basic validation
+    testResults.tests.apiKeyValidation = {
+      success: true,
+      checks: {
+        hasApiKey: !!creemApiKey,
+        keyLength: creemApiKey.length,
+        keyFormat: creemApiKey.startsWith('sk_') ? 'Stripe-like format' : 'Unknown format',
+        environment: creemApiKey.includes('test') ? 'test' : 'production',
+      },
+    };
 
     // Test 2: Try to create a minimal checkout with a simple product
     try {
@@ -105,7 +99,10 @@ export async function POST(request: NextRequest) {
         data: actualCheckout,
       };
     } catch (error: any) {
-      console.log('[Creem API Test] Actual product checkout failed:', error.message);
+      console.log(
+        '[Creem API Test] Actual product checkout failed:',
+        error.message
+      );
       testResults.tests.actualProductCheckout = {
         success: false,
         error: error.message,
@@ -120,18 +117,20 @@ export async function POST(request: NextRequest) {
       success: true,
       testResults,
       recommendations: [
-        testResults.tests.createCheckout?.statusCode === 403 
+        testResults.tests.createCheckout?.statusCode === 403
           ? 'API Key may not have sufficient permissions'
           : null,
-        testResults.tests.actualProductCheckout?.error?.includes('product') 
+        testResults.tests.actualProductCheckout?.error?.includes('product')
           ? 'Product ID may not exist in your Creem account'
+          : null,
+        testResults.tests.apiKeyValidation?.checks?.keyFormat === 'Stripe-like format'
+          ? 'Warning: API key looks like Stripe format, ensure you are using Creem API key'
           : null,
         'Check Creem dashboard for valid product IDs',
         'Verify API key is from the correct Creem account',
         'Ensure API key has checkout creation permissions',
       ].filter(Boolean),
     });
-
   } catch (error) {
     console.error('[Creem API Test] Test failed:', error);
     return NextResponse.json(
