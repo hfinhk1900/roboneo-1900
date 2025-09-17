@@ -22,18 +22,17 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
-    let query = db
+    const baseQuery = db
       .select()
       .from(productshotHistory)
       .where(eq(productshotHistory.userId, session.user.id))
       .orderBy(desc(productshotHistory.createdAt));
 
     // 如果没有指定limit，则不限制数量，返回所有历史记录
-    if (limit) {
-      query = query.limit(Number.parseInt(limit));
-    }
-
-    const items = await query;
+    const items =
+      limit !== null
+        ? await baseQuery.limit(Number.parseInt(limit, 10))
+        : await baseQuery;
 
     // Convert legacy signed URLs to stable view URLs
     const converted = await Promise.all(

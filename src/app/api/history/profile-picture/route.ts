@@ -21,18 +21,17 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
-    let query = db
+    const baseQuery = db
       .select()
       .from(profilePictureHistory)
       .where(eq(profilePictureHistory.userId, session.user.id))
       .orderBy(desc(profilePictureHistory.createdAt));
 
     // 如果没有指定limit，则不限制数量，返回所有历史记录
-    if (limit) {
-      query = query.limit(Number.parseInt(limit));
-    }
-
-    const items = await query;
+    const items =
+      limit !== null
+        ? await baseQuery.limit(Number.parseInt(limit, 10))
+        : await baseQuery;
 
     // 将旧的签名URL转换为稳定的查看URL
     const stableItems = await Promise.all(
