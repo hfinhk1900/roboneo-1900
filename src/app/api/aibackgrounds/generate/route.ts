@@ -507,17 +507,19 @@ export async function POST(request: NextRequest) {
       console.error('Failed to refund credits after error:', e);
     }
 
-    // Log AI operation failure
+    // Log AI operation failure (only if userId is available)
     try {
       const { logAIOperation } = await import('@/lib/ai-log');
-      await logAIOperation({
-        userId,
-        operation: 'aibg',
-        mode: backgroundMode,
-        creditsUsed: CREDITS_PER_IMAGE,
-        status: 'failed',
-        errorMessage: errorMessage,
-      });
+      if (userId) {
+        await logAIOperation({
+          userId,
+          operation: 'aibg',
+          mode: backgroundMode,
+          creditsUsed: CREDITS_PER_IMAGE,
+          status: 'failed',
+          errorMessage: errorMessage,
+        });
+      }
     } catch {}
 
     if (typeof idStoreKey === 'string') clearKey(idStoreKey);
