@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Lightweight endpoint to fetch current user's credits
 // Uses session data to avoid heavy server actions on first paint.
@@ -18,9 +18,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, data: { credits } });
   } catch (e) {
     return NextResponse.json(
-      { success: false, error: e instanceof Error ? e.message : 'Failed to get credits' },
+      {
+        success: false,
+        error: e instanceof Error ? e.message : 'Failed to get credits',
+      },
       { status: 500 }
     );
   }
 }
-

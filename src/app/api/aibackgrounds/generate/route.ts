@@ -143,7 +143,11 @@ export async function POST(request: NextRequest) {
       request.headers.get('idempotency-key') ||
       request.headers.get('Idempotency-Key');
     if (idemKey) {
-      idStoreKey = makeIdempotencyKey('aibg_generate', userId as string, idemKey);
+      idStoreKey = makeIdempotencyKey(
+        'aibg_generate',
+        userId as string,
+        idemKey
+      );
       const entry = await getIdempotencyEntry(idStoreKey);
       if (entry?.status === 'success') {
         return NextResponse.json(entry.response);
