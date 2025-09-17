@@ -30,8 +30,7 @@ import { CoinsIcon } from 'lucide-react';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import LocaleSwitcher from './locale-switcher';
 
@@ -108,6 +107,7 @@ export function Navbar({ scroll }: NavBarProps) {
   const localeRouter = useLocaleRouter();
   const [mounted, setMounted] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { data: session, isPending } = authClient.useSession();
   const currentUser = session?.user;
   // console.log(`Navbar, user:`, user);
@@ -150,9 +150,17 @@ export function Navbar({ scroll }: NavBarProps) {
     };
   }, [localeRouter]);
 
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
   // Function to toggle menu state
   const toggleMenu = (menuTitle: string) => {
     console.log('Toggling menu:', menuTitle); // Debug log
+    clearCloseTimeout();
     setOpenMenus((prev) => {
       const isCurrentlyOpen = prev[menuTitle];
 
@@ -178,8 +186,22 @@ export function Navbar({ scroll }: NavBarProps) {
   // Function to close all menus
   const closeAllMenus = () => {
     console.log('Closing all menus'); // Debug log
+    clearCloseTimeout();
     setOpenMenus({});
   };
+
+  const scheduleCloseMenus = () => {
+    clearCloseTimeout();
+    closeTimeoutRef.current = setTimeout(() => {
+      closeAllMenus();
+    }, 200);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearCloseTimeout();
+    };
+  }, []);
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -244,11 +266,12 @@ export function Navbar({ scroll }: NavBarProps) {
                       className="relative"
                       onMouseEnter={() => {
                         // Open this menu on hover (desktop)
+                        clearCloseTimeout();
                         setOpenMenus({ [item.title]: true });
                       }}
                       onMouseLeave={() => {
                         // Close when mouse leaves the item and its content
-                        closeAllMenus();
+                        scheduleCloseMenus();
                       }}
                     >
                       <button
@@ -290,7 +313,11 @@ export function Navbar({ scroll }: NavBarProps) {
                         </svg>
                       </button>
                       {openMenus[item.title] && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto">
+                        <div
+                          onMouseEnter={clearCloseTimeout}
+                          onMouseLeave={scheduleCloseMenus}
+                          className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto"
+                        >
                           {/* Check if this is AI Tools menu */}
                           {item.title.includes('AI Tools') ||
                           item.title.includes('AI 工具') ? (
