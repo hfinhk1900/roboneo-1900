@@ -111,7 +111,7 @@ export const VertexIcon = ({ size = 16 }) => {
   );
 };
 
-export const falAILogo = ({ size = 16 }: { size: number }) => {
+export const falAILogo = ({ size = 16 }: { size?: number }) => {
   return (
     <svg
       width={size}
