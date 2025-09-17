@@ -53,8 +53,25 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
     dimensionFormat: 'size',
   },
   siliconflow: {
-    createImageModel: (modelId: string) =>
-      siliconflowProvider.getImageModel(modelId),
+    createImageModel: (modelId: string) => ({
+      provider: 'siliconflow',
+      modelId,
+      async doGenerate(options: any) {
+        const result = await siliconflowProvider.generateProductShot({
+          ...options,
+          model: modelId,
+        });
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        // 需要将 ProductShotResult 转换为 ImageModelV1FinishReason
+        // 这里简化处理，假设 resultUrl 存在即为成功
+        return {
+          finishReason: 'success',
+          image: result.resultUrl!,
+        };
+      },
+    }),
     dimensionFormat: 'size',
   },
   // Laozhang 使用自定义实现，暂时不在此配置
