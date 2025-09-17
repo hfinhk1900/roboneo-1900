@@ -298,8 +298,8 @@ export class SiliconFlowProvider {
       if (params.watermarkText) {
         try {
           const { applyCornerWatermark } = await import('@/lib/watermark');
-          uploadBuffer = await applyCornerWatermark(
-            uploadBuffer,
+          uploadBuffer = (await applyCornerWatermark(
+            uploadBuffer as any,
             params.watermarkText,
             {
               fontSizeRatio: 0.045,
@@ -309,7 +309,7 @@ export class SiliconFlowProvider {
               stroke: 'rgba(0,0,0,0.35)',
               strokeWidth: 2,
             }
-          );
+          )) as any;
         } catch (wmError) {
           console.warn(
             'Watermark application failed, uploading original buffer:',
