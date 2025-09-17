@@ -1,5 +1,5 @@
-import { routing } from '@/i18n/routing';
 import { websiteConfig } from '@/config/website';
+import { routing } from '@/i18n/routing';
 import type { Locale } from 'next-intl';
 
 /**
@@ -10,17 +10,17 @@ export function getBaseUrl(): string {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  
+
   // Check for explicit base URL first
   if (process.env.NEXT_PUBLIC_BASE_URL) {
     return process.env.NEXT_PUBLIC_BASE_URL;
   }
-  
+
   // In Vercel, try to use VERCEL_URL
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  
+
   // Fallback to localhost for development
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
