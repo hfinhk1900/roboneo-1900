@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     let idStoreKey: string | null = null;
     if (idemKey) {
       idStoreKey = makeIdempotencyKey('aibg_generate', userId, idemKey);
-      const entry = getIdempotencyEntry(idStoreKey);
+      const entry = await getIdempotencyEntry(idStoreKey);
       if (entry?.status === 'success') {
         return NextResponse.json(entry.response);
       }
