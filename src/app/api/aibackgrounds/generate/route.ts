@@ -107,6 +107,7 @@ interface AIBackgroundRequest {
 export async function POST(request: NextRequest) {
   let userId: string | undefined;
   let backgroundMode: 'color' | 'background' | undefined;
+  let idStoreKey: string | null = null;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -141,9 +142,8 @@ export async function POST(request: NextRequest) {
     const idemKey =
       request.headers.get('idempotency-key') ||
       request.headers.get('Idempotency-Key');
-    let idStoreKey: string | null = null;
     if (idemKey) {
-      idStoreKey = makeIdempotencyKey('aibg_generate', userId, idemKey);
+      idStoreKey = makeIdempotencyKey('aibg_generate', userId as string, idemKey);
       const entry = await getIdempotencyEntry(idStoreKey);
       if (entry?.status === 'success') {
         return NextResponse.json(entry.response);
