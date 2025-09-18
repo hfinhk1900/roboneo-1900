@@ -706,26 +706,56 @@ export class StripeProvider implements PaymentProvider {
         `<< Created new payment record ${result[0].id} for Stripe subscription ${stripeSubscription.id}`
       );
 
-      // Allocate credits to the user based on their subscription
+      // Determine if this subscription cycle actually collected funds
+      let amountPaidCents = 0;
       try {
-        const creditsResult = await allocateCreditsToUser(
-          userId,
-          undefined,
-          priceId
-        );
-        if (creditsResult.success) {
+        if (stripeSubscription.latest_invoice) {
+          const invoice =
+            typeof stripeSubscription.latest_invoice === 'string'
+              ? await this.stripe.invoices.retrieve(
+                  stripeSubscription.latest_invoice
+                )
+              : (stripeSubscription.latest_invoice as Stripe.Invoice);
+          amountPaidCents = invoice.amount_paid ?? 0;
           console.log(
-            `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for subscription ${stripeSubscription.id}`
-          );
-        } else {
-          console.error(
-            `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
+            `Latest invoice amount paid (cents): ${amountPaidCents} for subscription ${stripeSubscription.id}`
           );
         }
-      } catch (error) {
+      } catch (invoiceError) {
         console.error(
-          'Error allocating credits after subscription creation:',
-          error
+          `Failed to retrieve invoice for subscription ${stripeSubscription.id}:`,
+          invoiceError
+        );
+      }
+
+      const hasPositivePayment = amountPaidCents > 0;
+
+      // Allocate credits to the user based on their subscription
+      if (hasPositivePayment) {
+        try {
+          const creditsResult = await allocateCreditsToUser(
+            userId,
+            undefined,
+            priceId
+          );
+          if (creditsResult.success) {
+            console.log(
+              `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for subscription ${stripeSubscription.id}`
+            );
+          } else {
+            console.error(
+              `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
+            );
+          }
+        } catch (error) {
+          console.error(
+            'Error allocating credits after subscription creation:',
+            error
+          );
+        }
+      } else {
+        console.log(
+          `Skipping credit allocation for subscription ${stripeSubscription.id} because no funds were collected.`
         );
       }
     } else {
@@ -914,24 +944,32 @@ export class StripeProvider implements PaymentProvider {
       `<< Created one-time payment record for user ${userId}, price: ${priceId}`
     );
 
-    // Allocate credits to the user based on their one-time purchase
-    try {
-      const creditsResult = await allocateCreditsToUser(
-        userId,
-        undefined,
-        priceId
-      );
-      if (creditsResult.success) {
-        console.log(
-          `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for one-time payment ${session.id}`
+    const amountTotalCents = session.amount_total ?? 0;
+
+    if (amountTotalCents > 0) {
+      // Allocate credits to the user based on their one-time purchase
+      try {
+        const creditsResult = await allocateCreditsToUser(
+          userId,
+          undefined,
+          priceId
         );
-      } else {
-        console.error(
-          `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
-        );
+        if (creditsResult.success) {
+          console.log(
+            `✅ Allocated ${creditsResult.creditsAllocated} credits to user ${userId} for one-time payment ${session.id}`
+          );
+        } else {
+          console.error(
+            `❌ Failed to allocate credits to user ${userId}: ${creditsResult.error}`
+          );
+        }
+      } catch (error) {
+        console.error('Error allocating credits after one-time payment:', error);
       }
-    } catch (error) {
-      console.error('Error allocating credits after one-time payment:', error);
+    } else {
+      console.log(
+        `Skipping credit allocation for one-time session ${session.id} because no funds were collected.`
+      );
     }
 
     // Send notification
