@@ -47,8 +47,13 @@ export async function POST(request: NextRequest) {
       checks: {
         hasApiKey: !!creemApiKey,
         keyLength: creemApiKey.length,
-        keyFormat: creemApiKey.startsWith('sk_') ? 'Stripe-like format' : 'Unknown format',
+        keyFormat: creemApiKey.startsWith('creem_') 
+          ? 'Correct Creem format' 
+          : creemApiKey.startsWith('sk_') 
+          ? 'Stripe format (WRONG for Creem!)' 
+          : 'Unknown format',
         environment: creemApiKey.includes('test') ? 'test' : 'production',
+        isValidCreemFormat: creemApiKey.startsWith('creem_'),
       },
     };
 
@@ -123,8 +128,11 @@ export async function POST(request: NextRequest) {
         testResults.tests.actualProductCheckout?.error?.includes('product')
           ? 'Product ID may not exist in your Creem account'
           : null,
-        testResults.tests.apiKeyValidation?.checks?.keyFormat === 'Stripe-like format'
-          ? 'Warning: API key looks like Stripe format, ensure you are using Creem API key'
+        !testResults.tests.apiKeyValidation?.checks?.isValidCreemFormat
+          ? 'CRITICAL: API key is not in Creem format (should start with "creem_")'
+          : null,
+        testResults.tests.apiKeyValidation?.checks?.keyFormat?.includes('Stripe')
+          ? 'ERROR: You are using a Stripe API key instead of Creem API key!'
           : null,
         'Check Creem dashboard for valid product IDs',
         'Verify API key is from the correct Creem account',
