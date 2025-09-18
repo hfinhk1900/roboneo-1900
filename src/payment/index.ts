@@ -1,6 +1,7 @@
 import { websiteConfig } from '@/config/website';
-import { StripeProvider } from './provider/stripe';
 import { CreemProvider } from './provider/creem';
+import { PayPalProvider } from './provider/paypal';
+import { StripeProvider } from './provider/stripe';
 import type {
   CheckoutResult,
   CreateCheckoutParams,
@@ -38,6 +39,8 @@ export const initializePaymentProvider = (): PaymentProvider => {
       paymentProvider = new StripeProvider();
     } else if (websiteConfig.payment.provider === 'creem') {
       paymentProvider = new CreemProvider();
+    } else if (websiteConfig.payment.provider === 'paypal') {
+      paymentProvider = new PayPalProvider();
     } else {
       throw new Error(
         `Unsupported payment provider: ${websiteConfig.payment.provider}`

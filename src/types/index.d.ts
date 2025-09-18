@@ -137,8 +137,17 @@ export interface StorageConfig {
 /**
  * Payment configuration
  */
+export interface PaypalPaymentConfig {
+  clientId: string;                  // PayPal client ID used for SDK script
+  plans?: {
+    proMonthly?: string;             // PayPal plan ID for Pro Monthly
+    [key: string]: string | undefined;
+  };
+}
+
 export interface PaymentConfig {
-  provider: 'stripe' | 'creem';      // The payment provider
+  provider: 'stripe' | 'creem' | 'paypal'; // The payment provider
+  paypal?: PaypalPaymentConfig;      // PayPal specific configuration
 }
 
 /**

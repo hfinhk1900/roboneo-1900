@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { websiteConfig } from '@/config/website';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { formatPrice } from '@/lib/formatter';
@@ -25,6 +26,7 @@ import { useTranslations } from 'next-intl';
 import { LoginWrapper } from '../auth/login-wrapper';
 import { RegisterWrapper } from '../auth/register-wrapper';
 import { CheckoutButton } from './create-checkout-button';
+import { PayPalSubscribeButton } from './paypal-subscribe-button';
 
 interface PricingCardProps {
   plan: PricePlan;
@@ -82,6 +84,11 @@ export function PricingCard({
   const currentPath = useLocalePathname();
   const router = useLocaleRouter();
   // console.log('pricing card, currentPath', currentPath);
+  const paymentProvider = websiteConfig.payment.provider;
+  const paypalClientId = websiteConfig.payment.paypal?.clientId || '';
+  const isPayPalProvider = paymentProvider === 'paypal';
+  const isPayPalPlan = isPayPalProvider && plan.id === 'pro';
+  const payPalPlanId = isPayPalPlan ? price?.priceId || '' : '';
 
   // generate formatted price and price label
   let formattedPrice = '';
@@ -227,33 +234,41 @@ export function PricingCard({
           </Button>
         ) : isPaidPlan ? (
           currentUser ? (
-            <CheckoutButton
-              userId={currentUser.id}
-              planId={plan.id}
-              priceId={price.priceId}
-              metadata={metadata}
-              className="mt-4 w-full cursor-pointer"
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: 'var(--primary-foreground)',
-                borderColor: 'var(--primary)',
-              }}
-            >
-              <div className="flex items-center justify-center gap-2">
-                {plan.isLifetime
-                  ? t('getLifetimeAccess')
-                  : plan.id === 'free'
-                    ? t('getStartedForFree')
-                    : plan.id === 'pro'
-                      ? t('getPro')
-                      : plan.id === 'ultimate'
-                        ? t('getUltimate')
-                        : plan.id === 'premium'
-                          ? t('upgradeToPremium')
-                          : t('getStarted')}
-                <Zap className="w-4 h-4" />
-              </div>
-            </CheckoutButton>
+            isPayPalPlan ? (
+              <PayPalSubscribeButton
+                planId={payPalPlanId}
+                clientId={paypalClientId}
+                className="mt-4 w-full"
+              />
+            ) : (
+              <CheckoutButton
+                userId={currentUser.id}
+                planId={plan.id}
+                priceId={price.priceId}
+                metadata={metadata}
+                className="mt-4 w-full cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  color: 'var(--primary-foreground)',
+                  borderColor: 'var(--primary)',
+                }}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  {plan.isLifetime
+                    ? t('getLifetimeAccess')
+                    : plan.id === 'free'
+                      ? t('getStartedForFree')
+                      : plan.id === 'pro'
+                        ? t('getPro')
+                        : plan.id === 'ultimate'
+                          ? t('getUltimate')
+                          : plan.id === 'premium'
+                            ? t('upgradeToPremium')
+                            : t('getStarted')}
+                  <Zap className="w-4 h-4" />
+                </div>
+              </CheckoutButton>
+            )
           ) : (
             <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
               <Button

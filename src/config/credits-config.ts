@@ -5,6 +5,8 @@
  * and provides utilities for credits management.
  */
 
+import { findPlanByPriceId } from '@/lib/price-plan';
+
 export interface PlanCredits {
   planId: string;
   monthlyCredits: number;
@@ -72,29 +74,17 @@ export function imagesToCredits(images: number): number {
 }
 
 /**
- * Get plan ID from Stripe price ID
- * This maps Stripe price IDs to our internal plan IDs
- * @param priceId Stripe price ID
+ * Get plan ID from a configured price ID
+ * This looks up the configured price definitions regardless of provider
+ * @param priceId Price identifier (Stripe, Creem, PayPal plan ID, etc.)
  * @returns Plan ID or null if not found
  */
 export function getPlanIdFromPriceId(priceId: string): string | null {
-  // Map of common price ID patterns to plan IDs
-  // This should be updated with your actual Stripe price IDs
-  if (
-    priceId.includes('pro') ||
-    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ||
-    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY
-  ) {
-    return 'pro';
+  if (!priceId) {
+    return null;
   }
-  if (
-    priceId.includes('ultimate') ||
-    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY ||
-    priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY
-  ) {
-    return 'ultimate';
-  }
-  return null;
+  const plan = findPlanByPriceId(priceId);
+  return plan?.id ?? null;
 }
 
 /**

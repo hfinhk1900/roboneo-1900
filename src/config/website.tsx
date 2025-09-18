@@ -2,26 +2,106 @@ import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import type { WebsiteConfig } from '@/types';
 
 // Choose payment provider via env; default to Stripe
+const paymentProviderEnv = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER;
 const paymentProvider =
-  process.env.NEXT_PUBLIC_PAYMENT_PROVIDER === 'creem' ? 'creem' : 'stripe';
+  paymentProviderEnv === 'creem'
+    ? 'creem'
+    : paymentProviderEnv === 'paypal'
+      ? 'paypal'
+      : 'stripe';
 
-// Resolve price IDs based on provider
-const PRO_MONTHLY_PRICE_ID =
-  paymentProvider === 'creem'
-    ? process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_MONTHLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!;
-const PRO_YEARLY_PRICE_ID =
-  paymentProvider === 'creem'
-    ? process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_YEARLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!;
-const ULTIMATE_MONTHLY_PRICE_ID =
-  paymentProvider === 'creem'
-    ? process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_MONTHLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY!;
-const ULTIMATE_YEARLY_PRICE_ID =
-  paymentProvider === 'creem'
-    ? process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_YEARLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY!;
+const paypalConfig =
+  paymentProvider === 'paypal'
+    ? {
+        clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '',
+        plans: {
+          proMonthly: process.env.NEXT_PUBLIC_PAYPAL_PLAN_PRO_MONTHLY ?? '',
+        },
+      }
+    : undefined;
+
+const isPayPalReady =
+  paymentProvider === 'paypal'
+    ? Boolean((paypalConfig?.clientId || '').trim() && (paypalConfig?.plans?.proMonthly || '').trim())
+    : false;
+
+let PRO_MONTHLY_PRICE_ID = '';
+let PRO_YEARLY_PRICE_ID = '';
+let ULTIMATE_MONTHLY_PRICE_ID = '';
+let ULTIMATE_YEARLY_PRICE_ID = '';
+
+if (paymentProvider === 'creem') {
+  PRO_MONTHLY_PRICE_ID = process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_MONTHLY ?? '';
+  PRO_YEARLY_PRICE_ID = process.env.NEXT_PUBLIC_CREEM_PRICE_PRO_YEARLY ?? '';
+  ULTIMATE_MONTHLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_MONTHLY ?? '';
+  ULTIMATE_YEARLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_YEARLY ?? '';
+} else if (paymentProvider === 'paypal') {
+  PRO_MONTHLY_PRICE_ID = paypalConfig?.plans?.proMonthly ?? '';
+} else {
+  PRO_MONTHLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ?? '';
+  PRO_YEARLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY ?? '';
+  ULTIMATE_MONTHLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY ?? '';
+  ULTIMATE_YEARLY_PRICE_ID =
+    process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_YEARLY ?? '';
+}
+
+const proPlanPrices =
+  paymentProvider === 'paypal'
+    ? [
+        {
+          type: PaymentTypes.SUBSCRIPTION,
+          priceId: PRO_MONTHLY_PRICE_ID,
+          amount: 1000, // $10.00
+          currency: 'USD',
+          interval: PlanIntervals.MONTH,
+          allowPromotionCode: true,
+        },
+      ]
+    : [
+        {
+          type: PaymentTypes.SUBSCRIPTION,
+          priceId: PRO_MONTHLY_PRICE_ID,
+          amount: 1000, // $10.00
+          currency: 'USD',
+          interval: PlanIntervals.MONTH,
+          allowPromotionCode: true,
+        },
+        {
+          type: PaymentTypes.SUBSCRIPTION,
+          priceId: PRO_YEARLY_PRICE_ID,
+          amount: 9600, // $96.00 ($8/month)
+          currency: 'USD',
+          interval: PlanIntervals.YEAR,
+          allowPromotionCode: true,
+        },
+      ];
+
+const ultimatePlanPrices =
+  paymentProvider === 'paypal'
+    ? []
+    : [
+        {
+          type: PaymentTypes.SUBSCRIPTION,
+          priceId: ULTIMATE_MONTHLY_PRICE_ID,
+          amount: 2000, // $20.00
+          currency: 'USD',
+          interval: PlanIntervals.MONTH,
+          allowPromotionCode: true,
+        },
+        {
+          type: PaymentTypes.SUBSCRIPTION,
+          priceId: ULTIMATE_YEARLY_PRICE_ID,
+          amount: 19200, // $192.00 ($16/month)
+          currency: 'USD',
+          interval: PlanIntervals.YEAR,
+          allowPromotionCode: true,
+        },
+      ];
 
 /**
  * website config, without translations
@@ -104,6 +184,7 @@ export const websiteConfig: WebsiteConfig = {
   },
   payment: {
     provider: paymentProvider,
+    ...(paypalConfig ? { paypal: paypalConfig } : {}),
   },
   price: {
     plans: {
@@ -117,47 +198,19 @@ export const websiteConfig: WebsiteConfig = {
       },
       pro: {
         id: 'pro',
-        prices: [
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: PRO_MONTHLY_PRICE_ID,
-            amount: 1000, // $10.00
-            currency: 'USD',
-            interval: PlanIntervals.MONTH,
-          },
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: PRO_YEARLY_PRICE_ID,
-            amount: 9600, // $96.00 ($8/month)
-            currency: 'USD',
-            interval: PlanIntervals.YEAR,
-          },
-        ],
+        prices: proPlanPrices,
         isFree: false,
         isLifetime: false,
-        recommended: false,
+        recommended: paymentProvider === 'paypal' ? true : false,
+        disabled: paymentProvider === 'paypal' && !isPayPalReady,
       },
       ultimate: {
         id: 'ultimate',
-        prices: [
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: ULTIMATE_MONTHLY_PRICE_ID,
-            amount: 2000, // $20.00
-            currency: 'USD',
-            interval: PlanIntervals.MONTH,
-          },
-          {
-            type: PaymentTypes.SUBSCRIPTION,
-            priceId: ULTIMATE_YEARLY_PRICE_ID,
-            amount: 19200, // $192.00 ($16/month)
-            currency: 'USD',
-            interval: PlanIntervals.YEAR,
-          },
-        ],
+        prices: ultimatePlanPrices,
         isFree: false,
         isLifetime: false,
-        recommended: true,
+        recommended: paymentProvider !== 'paypal',
+        disabled: paymentProvider === 'paypal',
       },
     },
   },
