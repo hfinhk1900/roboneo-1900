@@ -28,6 +28,7 @@ const TestimonialsSection = dynamic(
     loading: () => <div className="h-64 bg-white animate-pulse" />,
   }
 );
+const SHOW_TESTIMONIALS = false;
 import { StructuredData } from '@/components/seo/structured-data';
 import { constructMetadata } from '@/lib/metadata';
 import { getUrlWithLocale } from '@/lib/urls/urls';
@@ -82,7 +83,7 @@ export default async function HomePage(props: HomePageProps) {
 
         <CallToActionSection />
 
-        <TestimonialsSection />
+        {SHOW_TESTIMONIALS && <TestimonialsSection />}
       </div>
     </>
   );
