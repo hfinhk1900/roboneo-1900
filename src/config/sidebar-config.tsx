@@ -11,6 +11,7 @@ import {
   Settings2Icon,
   SettingsIcon,
   UsersRoundIcon,
+  WrenchIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -47,6 +48,12 @@ export function getSidebarLinks(): NestedMenuItem[] {
           title: t('admin.users.title'),
           icon: <UsersRoundIcon className="size-4 shrink-0" />,
           href: Routes.AdminUsers,
+          external: false,
+        },
+        {
+          title: t('admin.tools.title'),
+          icon: <WrenchIcon className="size-4 shrink-0" />,
+          href: Routes.AdminTools,
           external: false,
         },
       ],

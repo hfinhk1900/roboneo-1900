@@ -536,6 +536,9 @@
           "error": "Failed to unban user"
         },
         "close": "Close"
+      },
+      "tools": {
+        "title": "Performance & Tools"
       }
     },
     "settings": {

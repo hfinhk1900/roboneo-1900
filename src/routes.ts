@@ -54,6 +54,9 @@ export enum Routes {
   RemoveWatermark = '/remove-watermark',
   ProfilePictureMaker = '/profile-picture-maker',
 
+  // admin routes
+  AdminTools = '/admin/tools',
+
   // block routes
   MagicuiBlocks = '/magicui',
   HeroBlocks = '/blocks/hero-section',
@@ -93,7 +96,11 @@ export const protectedRoutes = [
 /**
  * The routes that require admin access only
  */
-export const adminOnlyRoutes = [Routes.Dashboard, Routes.AdminUsers];
+export const adminOnlyRoutes = [
+  Routes.Dashboard,
+  Routes.AdminUsers,
+  Routes.AdminTools,
+];
 
 /**
  * The default redirect path after logging in
