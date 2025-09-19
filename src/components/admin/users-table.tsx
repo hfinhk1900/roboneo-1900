@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { User } from '@/lib/auth-types';
+import type { AdminUser } from '@/types/admin-user';
 import { formatDate } from '@/lib/formatter';
 import { getPaymentDashboardCustomerUrl } from '@/lib/urls/urls';
 import { useUsersStore } from '@/stores/users-store';
@@ -89,7 +89,7 @@ function DataTableColumnHeader<TData, TValue>({
 }
 
 interface UsersTableProps {
-  data: User[];
+  data: AdminUser[];
   total: number;
   pageIndex: number;
   pageSize: number;
@@ -132,13 +132,14 @@ export function UsersTable({
     role: 'columns.role' as const,
     createdAt: 'columns.createdAt' as const,
     customerId: 'columns.customerId' as const,
+    plan: 'columns.plan' as const,
     banned: 'columns.status' as const,
     banReason: 'columns.banReason' as const,
     banExpires: 'columns.banExpires' as const,
   } as const;
 
   // Table columns definition
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<AdminUser>[] = [
     {
       accessorKey: 'name',
       header: ({ column }) => (
@@ -252,6 +253,53 @@ export function UsersTable({
             ) : (
               '-'
             )}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'plan',
+      accessorFn: (row) => row.subscriptionPlan?.planName ?? row.subscriptionPlan?.priceId ?? null,
+      enableSorting: false,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('columns.plan')} />
+      ),
+      cell: ({ row }) => {
+        const plan = row.original.subscriptionPlan;
+        if (!plan) {
+          return (
+            <div className="pl-3">
+              <Badge variant="outline" className="px-1.5">
+                {t('plan.free')}
+              </Badge>
+            </div>
+          );
+        }
+
+        const statusLabel = plan.status
+          ? plan.status.charAt(0).toUpperCase() + plan.status.slice(1)
+          : null;
+        const intervalLabel = plan.interval
+          ? plan.interval.charAt(0).toUpperCase() + plan.interval.slice(1)
+          : null;
+        const renewalLabel = plan.periodEnd
+          ? t('plan.renews', {
+              date: formatDate(new Date(plan.periodEnd)),
+            })
+          : null;
+
+        return (
+          <div className="pl-3 flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="px-1.5">
+                {plan.planName ?? plan.priceId ?? t('plan.unknown')}
+              </Badge>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {[statusLabel, intervalLabel, renewalLabel]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
           </div>
         );
       },

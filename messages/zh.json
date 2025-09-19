@@ -498,7 +498,8 @@
           "customerId": "客户ID",
           "status": "状态",
           "banReason": "封禁原因",
-          "banExpires": "封禁到期时间"
+          "banExpires": "封禁到期时间",
+          "plan": "订阅计划"
         },
         "noResults": "没有结果",
         "firstPage": "第一页",
@@ -535,7 +536,12 @@
           "success": "用户已被解除封禁",
           "error": "解除封禁失败"
         },
-        "close": "关闭"
+        "close": "关闭",
+        "plan": {
+          "free": "免费计划",
+          "unknown": "未知计划",
+          "renews": "续订日期 {date}"
+        }
       },
       "tools": {
         "title": "性能与工具面板"

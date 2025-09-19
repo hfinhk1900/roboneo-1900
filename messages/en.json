@@ -498,7 +498,8 @@
           "customerId": "Customer ID",
           "status": "Status",
           "banReason": "Ban Reason",
-          "banExpires": "Ban Expires"
+          "banExpires": "Ban Expires",
+          "plan": "Plan"
         },
         "noResults": "No results",
         "firstPage": "First Page",
@@ -535,7 +536,12 @@
           "success": "User has been unbanned",
           "error": "Failed to unban user"
         },
-        "close": "Close"
+        "close": "Close",
+        "plan": {
+          "free": "Free plan",
+          "unknown": "Unknown plan",
+          "renews": "Renews {date}"
+        }
       },
       "tools": {
         "title": "Performance & Tools"

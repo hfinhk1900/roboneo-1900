@@ -1,8 +1,9 @@
 'use server';
 
 import { getDb } from '@/db';
-import { user } from '@/db/schema';
-import { asc, desc, ilike, or, sql } from 'drizzle-orm';
+import { payment, user } from '@/db/schema';
+import { findPlanByPriceId } from '@/lib/price-plan';
+import { asc, desc, ilike, inArray, or, sql } from 'drizzle-orm';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 
@@ -69,6 +70,41 @@ export const getUsersAction = actionClient
         db.select({ count: sql`count(*)` }).from(user).where(where),
       ]);
 
+      const userIds = items.map((item) => item.id).filter(Boolean);
+      const subscriptionPlanByUser = new Map<string, any>();
+
+      if (userIds.length > 0) {
+        const paymentRecords = await db
+          .select()
+          .from(payment)
+          .where(inArray(payment.userId, userIds))
+          .orderBy(desc(payment.createdAt));
+
+        for (const record of paymentRecords) {
+          if (subscriptionPlanByUser.has(record.userId)) {
+            continue;
+          }
+
+          const planConfig = findPlanByPriceId(record.priceId ?? '');
+
+          subscriptionPlanByUser.set(record.userId, {
+            planId: planConfig?.id ?? null,
+            planName: planConfig?.name ?? null,
+            priceId: record.priceId ?? null,
+            status: record.status ?? null,
+            interval: record.interval ?? null,
+            type: record.type ?? null,
+            periodStart: record.periodStart
+              ? record.periodStart.toISOString()
+              : null,
+            periodEnd: record.periodEnd ? record.periodEnd.toISOString() : null,
+            cancelAtPeriodEnd: record.cancelAtPeriodEnd ?? null,
+            updatedAt: record.updatedAt ? record.updatedAt.toISOString() : null,
+            customerId: record.customerId ?? null,
+          });
+        }
+      }
+
       // hide user data in demo website
       if (process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true') {
         items = items.map((item) => ({
@@ -79,10 +115,15 @@ export const getUsersAction = actionClient
         }));
       }
 
+      const itemsWithPlan = items.map((item) => ({
+        ...item,
+        subscriptionPlan: subscriptionPlanByUser.get(item.id) ?? null,
+      }));
+
       return {
         success: true,
         data: {
-          items,
+          items: itemsWithPlan,
           total: Number(count),
         },
       };

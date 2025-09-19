@@ -2,7 +2,7 @@
 
 import { getUsersAction } from '@/actions/get-users';
 import { UsersTable } from '@/components/admin/users-table';
-import type { User } from '@/lib/auth-types';
+import type { AdminUser } from '@/types/admin-user';
 import { useUsersStore } from '@/stores/users-store';
 import type { SortingState } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
@@ -14,7 +14,7 @@ export function UsersPageClient() {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
-  const [data, setData] = useState<User[]>([]);
+  const [data, setData] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -32,7 +32,7 @@ export function UsersPageClient() {
         });
 
         if (result?.data?.success) {
-          setData(result.data.data?.items || []);
+          setData((result.data.data?.items as AdminUser[]) || []);
           setTotal(result.data.data?.total || 0);
         } else {
           const errorMessage = result?.data?.error || t('error');
