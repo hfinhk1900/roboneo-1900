@@ -1,5 +1,7 @@
 'use client';
 
+import { LoginWrapper } from '@/components/auth/login-wrapper';
+import { RegisterWrapper } from '@/components/auth/register-wrapper';
 import LocaleSelector from '@/components/layout/locale-selector';
 import { Logo } from '@/components/layout/logo';
 import { ModeSwitcherHorizontal } from '@/components/layout/mode-switcher-horizontal';
@@ -11,6 +13,7 @@ import {
 } from '@/components/ui/collapsible';
 import { getNavbarLinks } from '@/config/navbar-config';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
+import type { User } from '@/lib/auth-types';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { Portal } from '@radix-ui/react-portal';
@@ -27,7 +30,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { RemoveScroll } from 'react-remove-scroll';
 import { UserButtonMobile } from './user-button-mobile';
-import type { User } from '@/lib/auth-types';
 
 interface NavbarMobileProps extends React.HTMLAttributes<HTMLDivElement> {
   currentUser?: User | null;
@@ -122,18 +124,17 @@ export function NavbarMobile({
       </div>
 
       {/* mobile menu */}
-      {open && (
-        <Portal asChild>
-          {/* if we don't add RemoveScroll component, the underlying
+      <Portal asChild>
+        {/* if we don't add RemoveScroll component, the underlying
             page will scroll when we scroll the mobile menu */}
-          <RemoveScroll allowPinchZoom enabled>
-            <MainMobileMenu
-              userLoggedIn={!!currentUser}
-              onLinkClicked={handleToggleMobileMenu}
-            />
-          </RemoveScroll>
-        </Portal>
-      )}
+        <RemoveScroll allowPinchZoom enabled={open}>
+          <MainMobileMenu
+            userLoggedIn={!!currentUser}
+            onLinkClicked={handleToggleMobileMenu}
+            isOpen={open}
+          />
+        </RemoveScroll>
+      </Portal>
     </>
   );
 }
@@ -141,52 +142,68 @@ export function NavbarMobile({
 interface MainMobileMenuProps {
   userLoggedIn: boolean;
   onLinkClicked: () => void;
+  isOpen: boolean;
 }
 
-function MainMobileMenu({ userLoggedIn, onLinkClicked }: MainMobileMenuProps) {
+function MainMobileMenu({
+  userLoggedIn,
+  onLinkClicked,
+  isOpen,
+}: MainMobileMenuProps) {
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   const t = useTranslations();
   const menuLinks = getNavbarLinks();
   const localePathname = useLocalePathname();
 
+  // Close mobile menu when auth modal opens
+  React.useEffect(() => {
+    const handleAuthModalOpen = () => {
+      onLinkClicked();
+    };
+
+    // Listen for login/register modal opening
+    window.addEventListener('auth:modal-opening', handleAuthModalOpen);
+
+    return () => {
+      window.removeEventListener('auth:modal-opening', handleAuthModalOpen);
+    };
+  }, [onLinkClicked]);
+
   return (
     <div
-      className="fixed w-full inset-0 z-50 mt-[64px] overflow-y-auto
-      backdrop-blur-md animate-in fade-in-0"
+      data-state={isOpen ? 'open' : 'closed'}
+      className={cn(
+        'fixed inset-0 z-50 mt-[64px] w-full overflow-y-auto backdrop-blur-md',
+        isOpen ? 'animate-in fade-in-0' : 'hidden'
+      )}
       style={{ backgroundColor: '#F5F5F5' }}
+      aria-hidden={!isOpen}
     >
       <div className="size-full flex flex-col items-start space-y-4">
         {/* action buttons */}
         {userLoggedIn ? null : (
           <div className="w-full flex flex-col gap-4 px-4">
-            <LocaleLink
-              href={Routes.Login}
-              onClick={onLinkClicked}
-              prefetch={false}
-              className={cn(
-                buttonVariants({
-                  variant: 'outline',
-                  size: 'lg',
-                }),
-                'w-full'
-              )}
-            >
-              {t('Common.login')}
-            </LocaleLink>
-            <LocaleLink
-              href={Routes.Register}
-              className={cn(
-                buttonVariants({
-                  variant: 'default',
-                  size: 'lg',
-                }),
-                'w-full'
-              )}
-              onClick={onLinkClicked}
-              prefetch={false}
-            >
-              {t('Common.signUp')}
-            </LocaleLink>
+            <LoginWrapper mode="modal" asChild>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full cursor-pointer"
+                onClick={() => {
+                  console.log('Mobile Login Button clicked');
+                }}
+              >
+                {t('Common.login')}
+              </Button>
+            </LoginWrapper>
+            <RegisterWrapper mode="modal" asChild>
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full cursor-pointer"
+              >
+                {t('Common.signUp')}
+              </Button>
+            </RegisterWrapper>
           </div>
         )}
 
