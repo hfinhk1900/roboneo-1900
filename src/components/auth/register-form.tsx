@@ -18,18 +18,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { websiteConfig } from '@/config/website';
 import { authClient } from '@/lib/auth-client';
 import { getUrlWithLocaleInCallbackUrl } from '@/lib/urls/urls';
+import { getTurnstileErrorMessage } from '@/lib/turnstile-errors';
 import { DEFAULT_LOGIN_REDIRECT, Routes } from '@/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import type { FieldErrors } from 'react-hook-form';
 import * as z from 'zod';
 import { Captcha } from '../shared/captcha';
 import { SocialLoginButton } from './social-login-button';
 import { toast } from 'sonner';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 interface RegisterFormProps {
   callbackUrl?: string;
@@ -61,7 +63,7 @@ export const RegisterForm = ({
   const captchaActive =
     turnstileEnabled && !!envSiteKey && envSiteKey !== 'YOUR_SITE_KEY_HERE';
   const captchaSchema = captchaActive
-    ? z.string().min(1, 'Please complete the captcha')
+    ? z.string().min(1, '请完成验证码验证')
     : z.string().optional();
 
   const RegisterSchema = z.object({
@@ -92,10 +94,44 @@ export const RegisterForm = ({
     name: 'captchaToken',
   });
 
+  const captchaRef = useRef<TurnstileInstance | undefined>(undefined);
+
+  const handleCaptchaSuccess = (token: string) => {
+    form.setValue('captchaToken', token, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.clearErrors('captchaToken');
+    setError('');
+  };
+
+  const handleCaptchaReset = (message?: string) => {
+    form.setValue('captchaToken', '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    try {
+      captchaRef.current?.reset();
+    } catch (resetError) {
+      console.warn('Failed to reset Turnstile widget (register):', resetError);
+    }
+    if (message) {
+      form.setError('captchaToken', {
+        type: 'manual',
+        message,
+      });
+    } else {
+      form.clearErrors('captchaToken');
+    }
+    if (message) {
+      setError(message);
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     // Validate captcha token if turnstile is enabled
     if (captchaActive && !values.captchaToken) {
-      const msg = 'Please complete the captcha';
+      const msg = '请先完成验证码验证。';
       setError(msg);
       toast.error(msg);
       return;
@@ -210,7 +246,7 @@ export const RegisterForm = ({
       form.formState.errors?.email?.message ||
       form.formState.errors?.password?.message ||
       form.formState.errors?.name?.message ||
-      (captchaActive && !captchaToken ? 'Please complete the captcha' : '') ||
+      (captchaActive && !captchaToken ? '请先完成验证码验证。' : '') ||
       'Please check the required fields';
     setError(String(msg));
     if (msg) toast.error(String(msg));
@@ -306,7 +342,15 @@ export const RegisterForm = ({
           <FormSuccess message={success} />
           {captchaActive && (
             <Captcha
-              onSuccess={(token) => form.setValue('captchaToken', token)}
+              ref={captchaRef}
+              onSuccess={handleCaptchaSuccess}
+              onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
+              onTimeout={() => handleCaptchaReset('验证码超时，请重新点击验证。')}
+              onError={(reason) => {
+                const message = getTurnstileErrorMessage(reason);
+                console.warn('Turnstile error on register:', reason);
+                handleCaptchaReset(message || '验证码校验失败，请重试。');
+              }}
               validationError={form.formState.errors.captchaToken?.message}
             />
           )}
@@ -323,7 +367,7 @@ export const RegisterForm = ({
               </Button>
             </TooltipTrigger>
             {captchaActive && !captchaToken && (
-              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+              <TooltipContent sideOffset={6}>请先完成验证</TooltipContent>
             )}
           </Tooltip>
         </form>

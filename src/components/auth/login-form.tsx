@@ -25,12 +25,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { SocialLoginButton } from './social-login-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { refreshCreditsSnapshot } from '@/lib/credits-utils';
+import { getTurnstileErrorMessage } from '@/lib/turnstile-errors';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 export interface LoginFormProps {
   className?: string;
@@ -66,7 +68,7 @@ export const LoginForm = ({
   const captchaActive =
     turnstileEnabled && !!envSiteKey && envSiteKey !== 'YOUR_SITE_KEY_HERE';
   const captchaSchema = captchaActive
-    ? z.string().min(1, 'Please complete the captcha')
+    ? z.string().min(1, '请完成验证码验证')
     : z.string().optional();
 
   const LoginSchema = z.object({
@@ -93,9 +95,43 @@ export const LoginForm = ({
     name: 'captchaToken',
   });
 
+  const captchaRef = useRef<TurnstileInstance | undefined>(undefined);
+
+  const handleCaptchaSuccess = (token: string) => {
+    form.setValue('captchaToken', token, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.clearErrors('captchaToken');
+    setError('');
+  };
+
+  const handleCaptchaReset = (message?: string) => {
+    form.setValue('captchaToken', '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    try {
+      captchaRef.current?.reset();
+    } catch (resetError) {
+      console.warn('Failed to reset Turnstile widget (login):', resetError);
+    }
+    if (message) {
+      form.setError('captchaToken', {
+        type: 'manual',
+        message,
+      });
+    } else {
+      form.clearErrors('captchaToken');
+    }
+    if (message) {
+      setError(message);
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     if (captchaActive && !values.captchaToken) {
-      setError('Please complete the captcha');
+      setError('请先完成验证码验证。');
       return;
     }
     // Validate captcha token if enabled
@@ -106,7 +142,8 @@ export const LoginForm = ({
 
       if (!captchaResult?.data?.success || !captchaResult?.data?.valid) {
         console.error('login, captcha invalid:', values.captchaToken);
-        const errorMessage = captchaResult?.data?.error || 'Captcha invalid';
+        const errorMessage =
+          captchaResult?.data?.error || '验证码无效，请重试。';
         setError(errorMessage);
         return;
       }
@@ -238,7 +275,15 @@ export const LoginForm = ({
           <FormSuccess message={success} />
           {captchaActive && (
             <Captcha
-              onSuccess={(token) => form.setValue('captchaToken', token)}
+              ref={captchaRef}
+              onSuccess={handleCaptchaSuccess}
+              onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
+              onTimeout={() => handleCaptchaReset('验证码超时，请重新点击验证。')}
+              onError={(reason) => {
+                const message = getTurnstileErrorMessage(reason);
+                console.warn('Turnstile error on login:', reason);
+                handleCaptchaReset(message || '验证码校验失败，请重试。');
+              }}
               validationError={form.formState.errors.captchaToken?.message}
             />
           )}

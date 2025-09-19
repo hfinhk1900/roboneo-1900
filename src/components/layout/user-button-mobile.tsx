@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/drawer';
 import { getAvatarLinks } from '@/config/avatar-config';
 import { LocaleLink, useLocaleRouter } from '@/i18n/navigation';
-import { authClient } from '@/lib/auth-client';
 import { usePaymentStore } from '@/stores/payment-store';
 import type { User } from '@/lib/auth-types';
 import { LogOutIcon } from 'lucide-react';
@@ -20,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { clearCreditsCache } from '@/lib/credits-utils';
+import { signOutUser } from '@/lib/sign-out';
 
 interface UserButtonProps {
   user: User;
@@ -37,23 +37,20 @@ export function UserButtonMobile({ user }: UserButtonProps) {
   };
 
   const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          console.log('sign out success');
-          // Reset payment state on sign out
-          resetState();
-          try {
-            clearCreditsCache();
-          } catch {}
-          localeRouter.replace('/');
-        },
-        onError: (error) => {
-          console.error('sign out error:', error);
-          toast.error(t('Common.logoutFailed'));
-        },
-      },
-    });
+    const { ok, error, status } = await signOutUser();
+
+    if (ok) {
+      // Reset payment state on sign out
+      resetState();
+      try {
+        clearCreditsCache();
+      } catch {}
+      localeRouter.replace('/');
+      return;
+    }
+
+    console.error('sign out failed:', error ?? { status });
+    toast.error(t('Common.logoutFailed'));
   };
 
   return (

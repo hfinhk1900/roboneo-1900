@@ -21,7 +21,6 @@ import {
 import { websiteConfig } from '@/config/website';
 import { useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { LOCALES, routing } from '@/i18n/routing';
-import { authClient } from '@/lib/auth-client';
 import { useLocaleStore } from '@/stores/locale-store';
 import { usePaymentStore } from '@/stores/payment-store';
 import type { User } from '@/lib/auth-types';
@@ -32,6 +31,7 @@ import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { UserAvatar } from '../layout/user-avatar';
 import { clearCreditsCache } from '@/lib/credits-utils';
+import { signOutUser } from '@/lib/sign-out';
 
 interface SidebarUserProps {
   user: User;
@@ -69,23 +69,20 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
   const showLocaleSwitch = LOCALES.length > 1;
 
   const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          console.log('sign out success');
-          // Reset payment state on sign out
-          resetState();
-          try {
-            clearCreditsCache();
-          } catch {}
-          router.replace('/');
-        },
-        onError: (error) => {
-          console.error('sign out error:', error);
-          toast.error(t('Common.logoutFailed'));
-        },
-      },
-    });
+    const { ok, error, status } = await signOutUser();
+
+    if (ok) {
+      // Reset payment state on sign out
+      resetState();
+      try {
+        clearCreditsCache();
+      } catch {}
+      router.replace('/');
+      return;
+    }
+
+    console.error('sign out failed:', error ?? { status });
+    toast.error(t('Common.logoutFailed'));
   };
 
   return (
