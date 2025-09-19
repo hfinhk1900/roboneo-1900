@@ -3,6 +3,7 @@
 import { getDb } from '@/db';
 import { payment, user } from '@/db/schema';
 import { findPlanByPriceId } from '@/lib/price-plan';
+import { PaymentTypes } from '@/payment/types';
 import { asc, desc, ilike, inArray, or, sql } from 'drizzle-orm';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
@@ -106,18 +107,34 @@ export const getUsersAction = actionClient
       }
 
       // hide user data in demo website
+      let preparedItems: any[] = items as any[];
+
       if (process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true') {
-        items = items.map((item) => ({
+        preparedItems = preparedItems.map((item) => ({
           ...item,
           name: 'Demo User',
           email: 'example@mksaas.com',
           customerId: 'cus_abcdef123456',
+          subscriptionPlan: {
+            planId: 'pro',
+            planName: 'Pro Plan',
+            priceId: 'price_demo_pro',
+            status: 'active',
+            interval: 'month',
+            type: PaymentTypes.SUBSCRIPTION,
+            periodStart: new Date().toISOString(),
+            periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            cancelAtPeriodEnd: false,
+            updatedAt: new Date().toISOString(),
+            customerId: 'cus_abcdef123456',
+          },
         }));
       }
 
-      const itemsWithPlan = items.map((item) => ({
+      const itemsWithPlan = preparedItems.map((item) => ({
         ...item,
-        subscriptionPlan: subscriptionPlanByUser.get(item.id) ?? null,
+        subscriptionPlan:
+          item.subscriptionPlan ?? subscriptionPlanByUser.get(item.id) ?? null,
       }));
 
       return {

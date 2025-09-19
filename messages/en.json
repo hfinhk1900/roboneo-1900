@@ -541,6 +541,12 @@
           "free": "Free plan",
           "unknown": "Unknown plan",
           "renews": "Renews {date}"
+        },
+        "planNames": {
+          "free": "Free plan",
+          "pro": "Pro plan",
+          "ultimate": "Ultimate plan",
+          "unknown": "Unknown plan"
         }
       },
       "tools": {

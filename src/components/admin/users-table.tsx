@@ -276,6 +276,12 @@ export function UsersTable({
           );
         }
 
+        const planLabel =
+          plan.planName ??
+          (plan.planId ? t(`planNames.${plan.planId}` as any) : null) ??
+          plan.priceId ??
+          t('plan.unknown');
+
         const statusLabel = plan.status
           ? plan.status.charAt(0).toUpperCase() + plan.status.slice(1)
           : null;
@@ -292,7 +298,7 @@ export function UsersTable({
           <div className="pl-3 flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="px-1.5">
-                {plan.planName ?? plan.priceId ?? t('plan.unknown')}
+                {planLabel}
               </Badge>
             </div>
             <span className="text-xs text-muted-foreground">

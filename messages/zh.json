@@ -541,6 +541,12 @@
           "free": "免费计划",
           "unknown": "未知计划",
           "renews": "续订日期 {date}"
+        },
+        "planNames": {
+          "free": "免费计划",
+          "pro": "专业版",
+          "ultimate": "旗舰版",
+          "unknown": "未知计划"
         }
       },
       "tools": {
