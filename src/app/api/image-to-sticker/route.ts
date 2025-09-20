@@ -297,7 +297,9 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const imageFile = formData.get('imageFile') as File;
+    const imageFile = (formData.get('imageFile') || formData.get('image')) as
+      | File
+      | null;
     const style = (formData.get('style') as string) || 'ios';
 
     if (!imageFile) {
