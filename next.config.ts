@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
   // Set development server port to 3000
   experimental: {
     // serverComponentsExternalPackages has been moved to serverExternalPackages
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
 
   serverExternalPackages: [],
