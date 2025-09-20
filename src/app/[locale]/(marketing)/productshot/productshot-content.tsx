@@ -6,7 +6,9 @@ const PhotostockGallery = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="min-h-[30vh] flex items-center justify-center">Loading…</div>
+      <div className="min-h-[30vh] flex items-center justify-center">
+        Loading…
+      </div>
     ),
   }
 );

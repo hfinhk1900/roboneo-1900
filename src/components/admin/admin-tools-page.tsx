@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import PerformanceDashboard from "@/components/blocks/library/performance-dashboard";
-import ServiceWorkerStatusComponent from "@/components/blocks/library/service-worker-status";
-import { IndexedDBManager } from "@/lib/image-library/indexeddb-manager";
+import PerformanceDashboard from '@/components/blocks/library/performance-dashboard';
+import ServiceWorkerStatusComponent from '@/components/blocks/library/service-worker-status';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Quota {
   used: number;
@@ -13,9 +13,9 @@ interface Quota {
 }
 
 function formatBytes(bytes: number): string {
-  if (!bytes || bytes <= 0) return "0 Bytes";
+  if (!bytes || bytes <= 0) return '0 Bytes';
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
 }
@@ -42,7 +42,9 @@ export function AdminToolsPageClient() {
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Admin: Performance & Storage</h1>
-        <p className="text-gray-600 text-sm">Monitoring widgets for admins only</p>
+        <p className="text-gray-600 text-sm">
+          Monitoring widgets for admins only
+        </p>
       </div>
 
       <Card>
@@ -101,4 +103,3 @@ export function AdminToolsPageClient() {
 }
 
 export default AdminToolsPageClient;
-

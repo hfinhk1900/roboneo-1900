@@ -6,8 +6,8 @@ import {
   generateAssetId,
   generateSignedDownloadUrl,
 } from '@/lib/asset-management';
-import { type NextRequest, NextResponse } from 'next/server';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { type NextRequest, NextResponse } from 'next/server';
 
 interface WatermarkRemoveRequest {
   // Required: Product image (base64 encoded)

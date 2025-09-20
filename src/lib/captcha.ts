@@ -94,12 +94,19 @@ export async function validateTurnstileTokenDetailed(token: string): Promise<{
       'timeout-or-duplicate': 'Captcha token timed out or already used',
       'internal-error': 'Turnstile internal error',
     };
-    const msg = codes.map((c) => map[c] || c).join(', ') || 'Captcha validation failed';
-    return { valid: false, errorCodes: codes, message: msg, hostname: data.hostname };
+    const msg =
+      codes.map((c) => map[c] || c).join(', ') || 'Captcha validation failed';
+    return {
+      valid: false,
+      errorCodes: codes,
+      message: msg,
+      hostname: data.hostname,
+    };
   } catch (e) {
     return {
       valid: false,
-      message: e instanceof Error ? e.message : 'Captcha validation request failed',
+      message:
+        e instanceof Error ? e.message : 'Captcha validation request failed',
     };
   }
 }

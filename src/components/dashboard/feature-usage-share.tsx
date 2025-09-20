@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/chart';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import * as React from 'react';
-import { Pie, PieChart, Cell } from 'recharts';
+import { Cell, Pie, PieChart } from 'recharts';
 
 const chartConfig = {
   aibg: { label: 'AI Backgrounds', color: 'hsl(var(--chart-1))' },
@@ -84,4 +84,3 @@ export default function FeatureUsageShare({ totals }: { totals: Totals }) {
     </Card>
   );
 }
-

@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { getBaseUrl } from '@/lib/urls/urls';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /**
  * Minimal CSRF protection using same-origin policy verification.
@@ -47,4 +47,3 @@ export function enforceSameOriginCsrf(
   // rely on SameSite cookies and auth checks as additional layers.
   return null;
 }
-

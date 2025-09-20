@@ -42,7 +42,10 @@ export default function LowCreditsUsers({ users }: { users: U[] }) {
             ))}
             {users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={2} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={2}
+                  className="text-center text-muted-foreground"
+                >
                   No low credit users
                 </TableCell>
               </TableRow>
@@ -53,4 +56,3 @@ export default function LowCreditsUsers({ users }: { users: U[] }) {
     </Card>
   );
 }
-

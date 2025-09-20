@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { creditsCache } from '@/lib/credits-cache';
 import { getUserCreditsAction } from '@/actions/credits-actions';
+import { creditsCache } from '@/lib/credits-cache';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseCreditsResult {
   credits: number | null;
@@ -90,7 +90,7 @@ export function useCredits(options: UseCreditsOptions = {}): UseCreditsResult {
         ? window.requestIdleCallback(() => void refresh())
         : window.setTimeout(() => void refresh(), 0);
       return () => {
-        if ((window as any).cancelIdleCallback && typeof id === "number") {
+        if ((window as any).cancelIdleCallback && typeof id === 'number') {
           (window as any).cancelIdleCallback(id);
         } else {
           window.clearTimeout(id as any);

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // Convert legacy signed URLs to stable view URLs
     const converted = await Promise.all(
       items.map(async (item: any) => {
-        if (item.url && item.url.startsWith('/api/assets/download')) {
+        if (item.url?.startsWith('/api/assets/download')) {
           try {
             const urlObj = new URL(item.url, 'http://localhost');
             const assetId = urlObj.searchParams.get('asset_id');

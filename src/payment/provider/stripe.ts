@@ -964,7 +964,10 @@ export class StripeProvider implements PaymentProvider {
           );
         }
       } catch (error) {
-        console.error('Error allocating credits after one-time payment:', error);
+        console.error(
+          'Error allocating credits after one-time payment:',
+          error
+        );
       }
     } else {
       console.log(

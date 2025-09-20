@@ -1,9 +1,12 @@
 import { getDb } from '@/db';
 import { aibgHistory } from '@/db/schema';
+import {
+  deleteAsset,
+  extractAssetIdFromHistoryItem,
+} from '@/lib/asset-deletion';
 import { auth } from '@/lib/auth';
-import { deleteAsset, extractAssetIdFromHistoryItem } from '@/lib/asset-deletion';
-import { and, eq } from 'drizzle-orm';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
@@ -29,15 +32,15 @@ export async function DELETE(
       .select()
       .from(aibgHistory)
       .where(
-        and(
-          eq(aibgHistory.id, id),
-          eq(aibgHistory.userId, session.user.id)
-        )
+        and(eq(aibgHistory.id, id), eq(aibgHistory.userId, session.user.id))
       )
       .limit(1);
 
     if (historyRecord.length === 0) {
-      return NextResponse.json({ error: 'History item not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'History item not found' },
+        { status: 404 }
+      );
     }
 
     const historyItem = historyRecord[0];
@@ -48,21 +51,23 @@ export async function DELETE(
       console.log(`🗑️ Deleting associated asset: ${assetId}`);
       const assetDeletionResult = await deleteAsset(assetId, session.user.id);
       if (!assetDeletionResult.success) {
-        console.warn(`⚠️ Failed to delete asset ${assetId}:`, assetDeletionResult.error);
+        console.warn(
+          `⚠️ Failed to delete asset ${assetId}:`,
+          assetDeletionResult.error
+        );
         // 继续删除历史记录，即使资产删除失败
       }
     } else {
-      console.log('📝 No asset_id found in history item, skipping asset deletion');
+      console.log(
+        '📝 No asset_id found in history item, skipping asset deletion'
+      );
     }
 
     // 3. 删除历史记录
     await db
       .delete(aibgHistory)
       .where(
-        and(
-          eq(aibgHistory.id, id),
-          eq(aibgHistory.userId, session.user.id)
-        )
+        and(eq(aibgHistory.id, id), eq(aibgHistory.userId, session.user.id))
       );
 
     console.log(`✅ AI Background history item ${id} deleted successfully`);

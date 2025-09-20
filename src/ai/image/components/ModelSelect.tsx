@@ -1,5 +1,4 @@
 import { Card, CardContent } from '@/components/ui/card';
-import type { ComponentType } from 'react';
 import {
   Select,
   SelectContent,
@@ -10,6 +9,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import type { ComponentType } from 'react';
 import { imageHelpers } from '../lib/image-helpers';
 import type { ProviderTiming } from '../lib/image-types';
 import {
@@ -38,7 +38,9 @@ interface ModelSelectProps {
   modelId: string;
 }
 
-const PROVIDER_ICONS: Partial<Record<ProviderKey, ComponentType<{ size?: number }>>> = {
+const PROVIDER_ICONS: Partial<
+  Record<ProviderKey, ComponentType<{ size?: number }>>
+> = {
   openai: OpenAIIcon,
   replicate: ReplicateIcon,
   // vertex: VertexIcon,

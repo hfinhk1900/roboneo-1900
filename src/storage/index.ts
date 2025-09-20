@@ -1,11 +1,7 @@
 import { websiteConfig } from '@/config/website';
 import { storageConfig } from './config/storage-config';
 import { S3Provider } from './provider/s3';
-import type {
-  StorageConfig,
-  StorageProvider,
-  UploadFileResult,
-} from './types';
+import type { StorageConfig, StorageProvider, UploadFileResult } from './types';
 
 /**
  * Default storage configuration

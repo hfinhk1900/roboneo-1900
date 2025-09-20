@@ -1,7 +1,7 @@
 'use client';
 
-import { useCurrentUser } from '@/hooks/use-current-user';
 import { useCredits } from '@/hooks/use-credits';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { CoinsIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

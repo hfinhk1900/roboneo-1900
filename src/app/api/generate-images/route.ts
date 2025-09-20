@@ -172,7 +172,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 如果是图片编辑模式，调整API调用方式
-    let generatePromise;
+    let generatePromise: Promise<{
+      image: { base64: string };
+      warnings: any[];
+    }>;
 
     if (provider === 'openai' && inputImage && editType !== 'generate') {
       // 使用 OpenAI 的图片编辑功能

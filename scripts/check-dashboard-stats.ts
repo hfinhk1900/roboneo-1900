@@ -1,5 +1,5 @@
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 import dotenv from 'dotenv';
 import postgres from 'postgres';
 
@@ -124,7 +124,9 @@ async function main() {
     }
   }
   const days = Array.from(merge.keys()).sort();
-  const preview = days.slice(-10).map((d) => ({ date: d, generations: merge.get(d) || 0 }));
+  const preview = days
+    .slice(-10)
+    .map((d) => ({ date: d, generations: merge.get(d) || 0 }));
   console.log('--- Chart preview (last 10 days with data) ---');
   for (const p of preview) console.log(p.date, p.generations);
 

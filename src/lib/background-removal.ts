@@ -22,19 +22,23 @@ export class BackgroundRemovalService {
 
   checkCompatibility(): CompatibilityResult {
     // 检查 WebGPU 支持
-    const webGPU = typeof navigator !== 'undefined' &&
+    const webGPU =
+      typeof navigator !== 'undefined' &&
       'gpu' in navigator &&
       typeof (navigator as any).gpu?.requestAdapter === 'function';
 
     // 检查 WebAssembly 支持
-    const wasm = typeof WebAssembly === 'object' &&
+    const wasm =
+      typeof WebAssembly === 'object' &&
       typeof WebAssembly.instantiate === 'function';
 
     // 检查 WebGL 支持
     const webGL = (() => {
       try {
         const canvas = document.createElement('canvas');
-        return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+        return !!(
+          canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+        );
       } catch {
         return false;
       }

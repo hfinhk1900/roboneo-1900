@@ -1,7 +1,3 @@
-
-
-
-
 // 检查 R2 中的 ProductShot 文件
 const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 

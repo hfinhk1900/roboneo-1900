@@ -10,4 +10,3 @@ export function newIdempotencyKey(): string {
   } catch {}
   return uuidv4();
 }
-

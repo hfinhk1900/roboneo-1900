@@ -21,17 +21,17 @@ import {
 import { websiteConfig } from '@/config/website';
 import { useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { LOCALES, routing } from '@/i18n/routing';
+import type { User } from '@/lib/auth-types';
+import { clearCreditsCache } from '@/lib/credits-utils';
+import { signOutUser } from '@/lib/sign-out';
 import { useLocaleStore } from '@/stores/locale-store';
 import { usePaymentStore } from '@/stores/payment-store';
-import type { User } from '@/lib/auth-types';
 import { ChevronsUpDown, Languages, LogOut } from 'lucide-react';
 import { type Locale, useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { UserAvatar } from '../layout/user-avatar';
-import { clearCreditsCache } from '@/lib/credits-utils';
-import { signOutUser } from '@/lib/sign-out';
 
 interface SidebarUserProps {
   user: User;

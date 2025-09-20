@@ -27,11 +27,13 @@ export function clearCreditsCache(): void {
  * - Else, deduct by amount from local cache when available.
  * - Optionally fetch a fresh snapshot if cache is missing or invalid.
  */
-export async function spendCredits(params: {
-  remainingFromServer?: number;
-  amount?: number; // credits to deduct when remainingFromServer not provided
-  fetchFallback?: boolean; // fetch snapshot if cache missing
-} = {}): Promise<void> {
+export async function spendCredits(
+  params: {
+    remainingFromServer?: number;
+    amount?: number; // credits to deduct when remainingFromServer not provided
+    fetchFallback?: boolean; // fetch snapshot if cache missing
+  } = {}
+): Promise<void> {
   const { remainingFromServer, amount = 0, fetchFallback = true } = params;
 
   if (typeof remainingFromServer === 'number') {

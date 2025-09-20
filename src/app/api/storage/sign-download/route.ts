@@ -1,11 +1,14 @@
-import { generateSignedDownloadUrl, getAssetMetadata } from '@/lib/asset-management';
-import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
+import {
+  generateSignedDownloadUrl,
+  getAssetMetadata,
+} from '@/lib/asset-management';
+import { getRateLimitConfig } from '@/lib/config/rate-limit';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { eq } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,8 +27,16 @@ export async function POST(request: NextRequest) {
     // 速率限制用户刷新行为
     {
       const { signPerUserPerMin } = getRateLimitConfig();
-      const rl = await checkRateLimit(`rl:sign:${session.user.id}`, signPerUserPerMin, 60);
-      if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      const rl = await checkRateLimit(
+        `rl:sign:${session.user.id}`,
+        signPerUserPerMin,
+        60
+      );
+      if (!rl.allowed)
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429 }
+        );
     }
 
     const body = await request.json();

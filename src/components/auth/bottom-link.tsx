@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { buttonVariants } from '@/components/ui/button';
 import { LocaleLink } from '@/i18n/navigation';

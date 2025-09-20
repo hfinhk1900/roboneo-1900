@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { user } from '@/db/schema';
-import { checkRateLimit } from '@/lib/rate-limit';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
-import { getIdempotencyEntry, setPending, clearKey } from '@/lib/idempotency';
+import { clearKey, getIdempotencyEntry, setPending } from '@/lib/idempotency';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { type NextRequest, NextResponse } from 'next/server';
 
 function present(name: string): boolean {
   return Boolean(process.env[name]);
@@ -27,7 +27,8 @@ export async function GET(_req: NextRequest) {
   ];
   const missingRequired = collectMissing(requiredEnv);
 
-  const upstashPresent = present('UPSTASH_REDIS_REST_URL') && present('UPSTASH_REDIS_REST_TOKEN');
+  const upstashPresent =
+    present('UPSTASH_REDIS_REST_URL') && present('UPSTASH_REDIS_REST_TOKEN');
 
   // 2) DB check
   let dbOk = false;
@@ -68,7 +69,11 @@ export async function GET(_req: NextRequest) {
 
   const result = {
     status:
-      missingRequired.length > 0 || !dbOk ? 'error' : rlOk && idemOk ? 'ok' : 'degraded',
+      missingRequired.length > 0 || !dbOk
+        ? 'error'
+        : rlOk && idemOk
+          ? 'ok'
+          : 'degraded',
     node_env: nodeEnv,
     signing: { configured: present('URL_SIGNING_SECRET') },
     storage: {
@@ -81,11 +86,14 @@ export async function GET(_req: NextRequest) {
       public_url_present: present('STORAGE_PUBLIC_URL'),
     },
     db: { ok: dbOk, error: dbError },
-    upstash: { present: upstashPresent, rate_limit_ok: rlOk, idempotency_ok: idemOk },
+    upstash: {
+      present: upstashPresent,
+      rate_limit_ok: rlOk,
+      idempotency_ok: idemOk,
+    },
     rate_limits: getRateLimitConfig(),
     missing_required_env: missingRequired,
   } as const;
 
   return NextResponse.json(result, { status: 200 });
 }
-

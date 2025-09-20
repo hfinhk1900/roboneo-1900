@@ -510,7 +510,11 @@ export function useProductShot(): UseProductShotReturn {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'include',
-              body: JSON.stringify({ asset_id: assetId, display_mode: 'inline', expires_in: 3600 }),
+              body: JSON.stringify({
+                asset_id: assetId,
+                display_mode: 'inline',
+                expires_in: 3600,
+              }),
             });
             if (res.ok) {
               const { url: signedUrl } = await res.json();

@@ -6,9 +6,9 @@ import { Routes } from '@/routes';
 import type { MenuItem } from '@/types';
 import {
   CreditCardIcon,
+  ImageIcon,
   LayoutDashboardIcon,
   Settings2Icon,
-  ImageIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 

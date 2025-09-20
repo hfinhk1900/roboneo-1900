@@ -23,7 +23,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     if (!payload) {
       console.error('Missing webhook payload');
-      return NextResponse.json({ error: 'Missing webhook payload' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing webhook payload' },
+        { status: 400 }
+      );
     }
 
     if (!signature) {
@@ -34,7 +37,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error('Error in Creem webhook route:', error);
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Webhook handler failed' },
+      { status: 400 }
+    );
   }
 }
-

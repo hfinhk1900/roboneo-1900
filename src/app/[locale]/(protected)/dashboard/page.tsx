@@ -1,23 +1,23 @@
 import { ChartAreaInteractive } from '@/components/dashboard/chart-area-interactive';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { SectionCards } from '@/components/dashboard/section-cards';
 import FeatureUsageShare from '@/components/dashboard/feature-usage-share';
-import RecentGenerations from '@/components/dashboard/recent-generations';
-import RecentCredits from '@/components/dashboard/recent-credits';
-import StorageUsageCard from '@/components/dashboard/storage-usage-card';
 import LowCreditsUsers from '@/components/dashboard/low-credits-users';
-import { getTranslations } from 'next-intl/server';
+import RecentCredits from '@/components/dashboard/recent-credits';
+import RecentGenerations from '@/components/dashboard/recent-generations';
+import { SectionCards } from '@/components/dashboard/section-cards';
+import StorageUsageCard from '@/components/dashboard/storage-usage-card';
 import { getDb } from '@/db';
 import {
   aibgHistory,
-  productshotHistory,
-  stickerHistory,
-  watermarkHistory,
-  profilePictureHistory,
   creditsTransaction,
+  productshotHistory,
+  profilePictureHistory,
+  stickerHistory,
   user,
+  watermarkHistory,
 } from '@/db/schema';
 import { desc, sql } from 'drizzle-orm';
+import { getTranslations } from 'next-intl/server';
 // Removed demo table data as it is unrelated to dashboard metrics
 
 /**
@@ -35,13 +35,43 @@ export default async function DashboardPage() {
   let creditsUsed7d = 0;
   let gens30d = 0;
   let chartPoints: Array<{ date: string; generations: number }> = [];
-  let featureShare: { d7: Record<string, number>; d30: Record<string, number>; d90: Record<string, number> } = { d7: {}, d30: {}, d90: {} };
-  let recentGenerations: Array<{ id: string; type: string; label: string; url?: string | null; userId: string; createdAt: Date }>
-    = [];
-  let recentCredits: Array<{ id: string; type: string; amount: number; balanceBefore: number; balanceAfter: number; createdAt: Date; userId: string }>
-    = [];
-  let storageUsage: { totalCount: number; totalSize: number; d7Count: number; d7Size: number; d30Count: number; d30Size: number }
-    = { totalCount: 0, totalSize: 0, d7Count: 0, d7Size: 0, d30Count: 0, d30Size: 0 };
+  let featureShare: {
+    d7: Record<string, number>;
+    d30: Record<string, number>;
+    d90: Record<string, number>;
+  } = { d7: {}, d30: {}, d90: {} };
+  let recentGenerations: Array<{
+    id: string;
+    type: string;
+    label: string;
+    url?: string | null;
+    userId: string;
+    createdAt: Date;
+  }> = [];
+  let recentCredits: Array<{
+    id: string;
+    type: string;
+    amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
+    createdAt: Date;
+    userId: string;
+  }> = [];
+  let storageUsage: {
+    totalCount: number;
+    totalSize: number;
+    d7Count: number;
+    d7Size: number;
+    d30Count: number;
+    d30Size: number;
+  } = {
+    totalCount: 0,
+    totalSize: 0,
+    d7Count: 0,
+    d7Size: 0,
+    d30Count: 0,
+    d30Size: 0,
+  };
   let lowCredits: Array<{ id: string; email: string; credits: number }> = [];
 
   try {
@@ -120,7 +150,8 @@ export default async function DashboardPage() {
         .where(sql`${aibgHistory.createdAt} >= ${d90.toISOString()}`)
         .groupBy(sql`date_trunc('day', ${aibgHistory.createdAt})`)
         .orderBy(sql`date_trunc('day', ${aibgHistory.createdAt})`);
-      for (const r of dailyAibg as any) merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+      for (const r of dailyAibg as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
       const dailyProduct = await db
         .select({
@@ -131,7 +162,8 @@ export default async function DashboardPage() {
         .where(sql`${productshotHistory.createdAt} >= ${d90.toISOString()}`)
         .groupBy(sql`date_trunc('day', ${productshotHistory.createdAt})`)
         .orderBy(sql`date_trunc('day', ${productshotHistory.createdAt})`);
-      for (const r of dailyProduct as any) merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+      for (const r of dailyProduct as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
       const dailySticker = await db
         .select({
@@ -142,7 +174,8 @@ export default async function DashboardPage() {
         .where(sql`${stickerHistory.createdAt} >= ${d90.toISOString()}`)
         .groupBy(sql`date_trunc('day', ${stickerHistory.createdAt})`)
         .orderBy(sql`date_trunc('day', ${stickerHistory.createdAt})`);
-      for (const r of dailySticker as any) merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+      for (const r of dailySticker as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
       const dailyWatermark = await db
         .select({
@@ -153,7 +186,8 @@ export default async function DashboardPage() {
         .where(sql`${watermarkHistory.createdAt} >= ${d90.toISOString()}`)
         .groupBy(sql`date_trunc('day', ${watermarkHistory.createdAt})`)
         .orderBy(sql`date_trunc('day', ${watermarkHistory.createdAt})`);
-      for (const r of dailyWatermark as any) merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+      for (const r of dailyWatermark as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
       const dailyProfile = await db
         .select({
@@ -164,44 +198,161 @@ export default async function DashboardPage() {
         .where(sql`${profilePictureHistory.createdAt} >= ${d90.toISOString()}`)
         .groupBy(sql`date_trunc('day', ${profilePictureHistory.createdAt})`)
         .orderBy(sql`date_trunc('day', ${profilePictureHistory.createdAt})`);
-      for (const r of dailyProfile as any) merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+      for (const r of dailyProfile as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
       const days = Array.from(merge.keys()).sort();
-      chartPoints = days.map((day) => ({ date: day, generations: merge.get(day) || 0 }));
+      chartPoints = days.map((day) => ({
+        date: day,
+        generations: merge.get(day) || 0,
+      }));
     } catch {}
 
     // Feature usage share (counts per feature for 7/30/90 days)
     try {
-      const [a7] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(aibgHistory).where(sql`${aibgHistory.createdAt} >= ${d7.toISOString()}`);
-      const [p7] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(productshotHistory).where(sql`${productshotHistory.createdAt} >= ${d7.toISOString()}`);
-      const [s7] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(stickerHistory).where(sql`${stickerHistory.createdAt} >= ${d7.toISOString()}`);
-      const [w7] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(watermarkHistory).where(sql`${watermarkHistory.createdAt} >= ${d7.toISOString()}`);
-      const [r7] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(profilePictureHistory).where(sql`${profilePictureHistory.createdAt} >= ${d7.toISOString()}`);
-      featureShare.d7 = { aibg: Number(a7?.c || 0), productshot: Number(p7?.c || 0), sticker: Number(s7?.c || 0), watermark: Number(w7?.c || 0), profile: Number(r7?.c || 0) };
+      const [a7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(aibgHistory)
+        .where(sql`${aibgHistory.createdAt} >= ${d7.toISOString()}`);
+      const [p7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(productshotHistory)
+        .where(sql`${productshotHistory.createdAt} >= ${d7.toISOString()}`);
+      const [s7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(stickerHistory)
+        .where(sql`${stickerHistory.createdAt} >= ${d7.toISOString()}`);
+      const [w7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(watermarkHistory)
+        .where(sql`${watermarkHistory.createdAt} >= ${d7.toISOString()}`);
+      const [r7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(profilePictureHistory)
+        .where(sql`${profilePictureHistory.createdAt} >= ${d7.toISOString()}`);
+      featureShare.d7 = {
+        aibg: Number(a7?.c || 0),
+        productshot: Number(p7?.c || 0),
+        sticker: Number(s7?.c || 0),
+        watermark: Number(w7?.c || 0),
+        profile: Number(r7?.c || 0),
+      };
 
-      const [a30] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(aibgHistory).where(sql`${aibgHistory.createdAt} >= ${d30.toISOString()}`);
-      const [p30] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(productshotHistory).where(sql`${productshotHistory.createdAt} >= ${d30.toISOString()}`);
-      const [s30] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(stickerHistory).where(sql`${stickerHistory.createdAt} >= ${d30.toISOString()}`);
-      const [w30] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(watermarkHistory).where(sql`${watermarkHistory.createdAt} >= ${d30.toISOString()}`);
-      const [r30] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(profilePictureHistory).where(sql`${profilePictureHistory.createdAt} >= ${d30.toISOString()}`);
-      featureShare.d30 = { aibg: Number(a30?.c || 0), productshot: Number(p30?.c || 0), sticker: Number(s30?.c || 0), watermark: Number(w30?.c || 0), profile: Number(r30?.c || 0) };
+      const [a30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(aibgHistory)
+        .where(sql`${aibgHistory.createdAt} >= ${d30.toISOString()}`);
+      const [p30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(productshotHistory)
+        .where(sql`${productshotHistory.createdAt} >= ${d30.toISOString()}`);
+      const [s30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(stickerHistory)
+        .where(sql`${stickerHistory.createdAt} >= ${d30.toISOString()}`);
+      const [w30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(watermarkHistory)
+        .where(sql`${watermarkHistory.createdAt} >= ${d30.toISOString()}`);
+      const [r30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(profilePictureHistory)
+        .where(sql`${profilePictureHistory.createdAt} >= ${d30.toISOString()}`);
+      featureShare.d30 = {
+        aibg: Number(a30?.c || 0),
+        productshot: Number(p30?.c || 0),
+        sticker: Number(s30?.c || 0),
+        watermark: Number(w30?.c || 0),
+        profile: Number(r30?.c || 0),
+      };
 
-      const [a90] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(aibgHistory).where(sql`${aibgHistory.createdAt} >= ${d90.toISOString()}`);
-      const [p90] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(productshotHistory).where(sql`${productshotHistory.createdAt} >= ${d90.toISOString()}`);
-      const [s90] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(stickerHistory).where(sql`${stickerHistory.createdAt} >= ${d90.toISOString()}`);
-      const [w90] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(watermarkHistory).where(sql`${watermarkHistory.createdAt} >= ${d90.toISOString()}`);
-      const [r90] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(profilePictureHistory).where(sql`${profilePictureHistory.createdAt} >= ${d90.toISOString()}`);
-      featureShare.d90 = { aibg: Number(a90?.c || 0), productshot: Number(p90?.c || 0), sticker: Number(s90?.c || 0), watermark: Number(w90?.c || 0), profile: Number(r90?.c || 0) };
+      const [a90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(aibgHistory)
+        .where(sql`${aibgHistory.createdAt} >= ${d90.toISOString()}`);
+      const [p90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(productshotHistory)
+        .where(sql`${productshotHistory.createdAt} >= ${d90.toISOString()}`);
+      const [s90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(stickerHistory)
+        .where(sql`${stickerHistory.createdAt} >= ${d90.toISOString()}`);
+      const [w90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(watermarkHistory)
+        .where(sql`${watermarkHistory.createdAt} >= ${d90.toISOString()}`);
+      const [r90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(profilePictureHistory)
+        .where(sql`${profilePictureHistory.createdAt} >= ${d90.toISOString()}`);
+      featureShare.d90 = {
+        aibg: Number(a90?.c || 0),
+        productshot: Number(p90?.c || 0),
+        sticker: Number(s90?.c || 0),
+        watermark: Number(w90?.c || 0),
+        profile: Number(r90?.c || 0),
+      };
     } catch {}
 
     // Recent generations (merge last records from all feature tables)
     try {
       const limit = 20;
-      const a = await db.select({ id: aibgHistory.id, url: aibgHistory.url, label: aibgHistory.style, userId: aibgHistory.userId, createdAt: aibgHistory.createdAt }).from(aibgHistory).orderBy(desc(aibgHistory.createdAt)).limit(limit);
-      const p = await db.select({ id: productshotHistory.id, url: productshotHistory.url, label: productshotHistory.scene, userId: productshotHistory.userId, createdAt: productshotHistory.createdAt }).from(productshotHistory).orderBy(desc(productshotHistory.createdAt)).limit(limit);
-      const s = await db.select({ id: stickerHistory.id, url: stickerHistory.url, label: stickerHistory.style, userId: stickerHistory.userId, createdAt: stickerHistory.createdAt }).from(stickerHistory).orderBy(desc(stickerHistory.createdAt)).limit(limit);
-      const w = await db.select({ id: watermarkHistory.id, url: watermarkHistory.processedImageUrl, label: watermarkHistory.method, userId: watermarkHistory.userId, createdAt: watermarkHistory.createdAt }).from(watermarkHistory).orderBy(desc(watermarkHistory.createdAt)).limit(limit);
-      const r = await db.select({ id: profilePictureHistory.id, url: profilePictureHistory.url, label: profilePictureHistory.style, userId: profilePictureHistory.userId, createdAt: profilePictureHistory.createdAt }).from(profilePictureHistory).orderBy(desc(profilePictureHistory.createdAt)).limit(limit);
+      const a = await db
+        .select({
+          id: aibgHistory.id,
+          url: aibgHistory.url,
+          label: aibgHistory.style,
+          userId: aibgHistory.userId,
+          createdAt: aibgHistory.createdAt,
+        })
+        .from(aibgHistory)
+        .orderBy(desc(aibgHistory.createdAt))
+        .limit(limit);
+      const p = await db
+        .select({
+          id: productshotHistory.id,
+          url: productshotHistory.url,
+          label: productshotHistory.scene,
+          userId: productshotHistory.userId,
+          createdAt: productshotHistory.createdAt,
+        })
+        .from(productshotHistory)
+        .orderBy(desc(productshotHistory.createdAt))
+        .limit(limit);
+      const s = await db
+        .select({
+          id: stickerHistory.id,
+          url: stickerHistory.url,
+          label: stickerHistory.style,
+          userId: stickerHistory.userId,
+          createdAt: stickerHistory.createdAt,
+        })
+        .from(stickerHistory)
+        .orderBy(desc(stickerHistory.createdAt))
+        .limit(limit);
+      const w = await db
+        .select({
+          id: watermarkHistory.id,
+          url: watermarkHistory.processedImageUrl,
+          label: watermarkHistory.method,
+          userId: watermarkHistory.userId,
+          createdAt: watermarkHistory.createdAt,
+        })
+        .from(watermarkHistory)
+        .orderBy(desc(watermarkHistory.createdAt))
+        .limit(limit);
+      const r = await db
+        .select({
+          id: profilePictureHistory.id,
+          url: profilePictureHistory.url,
+          label: profilePictureHistory.style,
+          userId: profilePictureHistory.userId,
+          createdAt: profilePictureHistory.createdAt,
+        })
+        .from(profilePictureHistory)
+        .orderBy(desc(profilePictureHistory.createdAt))
+        .limit(limit);
       recentGenerations = [
         ...a.map((x) => ({ ...x, type: 'aibg' })),
         ...p.map((x) => ({ ...x, type: 'productshot' })),
@@ -209,7 +360,10 @@ export default async function DashboardPage() {
         ...w.map((x) => ({ ...x, type: 'watermark' })),
         ...r.map((x) => ({ ...x, type: 'profile' })),
       ]
-        .sort((x, y) => (y.createdAt?.getTime?.() || 0) - (x.createdAt?.getTime?.() || 0))
+        .sort(
+          (x, y) =>
+            (y.createdAt?.getTime?.() || 0) - (x.createdAt?.getTime?.() || 0)
+        )
         .slice(0, 10);
     } catch {}
 
@@ -239,14 +393,30 @@ export default async function DashboardPage() {
     // Storage usage
     try {
       const { assets } = await import('@/db/schema');
-      const [{ c: totalCount = 0 } = { c: 0 }] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(assets);
-      const [{ s: totalSize = 0 } = { s: 0 }] = await db.select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` }).from(assets);
+      const [{ c: totalCount = 0 } = { c: 0 }] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(assets);
+      const [{ s: totalSize = 0 } = { s: 0 }] = await db
+        .select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` })
+        .from(assets);
 
-      const [{ c: d7Count = 0 } = { c: 0 }] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(assets).where(sql`${assets.created_at} >= ${d7.toISOString()}`);
-      const [{ s: d7Size = 0 } = { s: 0 }] = await db.select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` }).from(assets).where(sql`${assets.created_at} >= ${d7.toISOString()}`);
+      const [{ c: d7Count = 0 } = { c: 0 }] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(assets)
+        .where(sql`${assets.created_at} >= ${d7.toISOString()}`);
+      const [{ s: d7Size = 0 } = { s: 0 }] = await db
+        .select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` })
+        .from(assets)
+        .where(sql`${assets.created_at} >= ${d7.toISOString()}`);
 
-      const [{ c: d30Count = 0 } = { c: 0 }] = await db.select({ c: sql<number>`CAST(count(*) AS INT)` }).from(assets).where(sql`${assets.created_at} >= ${d30.toISOString()}`);
-      const [{ s: d30Size = 0 } = { s: 0 }] = await db.select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` }).from(assets).where(sql`${assets.created_at} >= ${d30.toISOString()}`);
+      const [{ c: d30Count = 0 } = { c: 0 }] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(assets)
+        .where(sql`${assets.created_at} >= ${d30.toISOString()}`);
+      const [{ s: d30Size = 0 } = { s: 0 }] = await db
+        .select({ s: sql<number>`COALESCE(SUM(${assets.size}), 0)` })
+        .from(assets)
+        .where(sql`${assets.created_at} >= ${d30.toISOString()}`);
 
       storageUsage = {
         totalCount: Number(totalCount),
@@ -267,12 +437,18 @@ export default async function DashboardPage() {
         .where(sql`${user.credits} <= ${threshold}`)
         .orderBy(sql`${user.credits} ASC`)
         .limit(5);
-      lowCredits = rows.map((r) => ({ id: r.id, email: r.email ?? '', credits: Number(r.credits || 0) }));
+      lowCredits = rows.map((r) => ({
+        id: r.id,
+        email: r.email ?? '',
+        credits: Number(r.credits || 0),
+      }));
     } catch {}
   } catch (error) {
     // Gracefully degrade on any server/DB failure to keep the page renderable
     // Avoid logging the full error object to prevent noisy RSC console replays in dev
-    console.warn('Dashboard metrics unavailable (tables missing or DB offline).');
+    console.warn(
+      'Dashboard metrics unavailable (tables missing or DB offline).'
+    );
     totalUsers = 0;
     newUsers30d = 0;
     creditsUsed7d = 0;
@@ -281,7 +457,14 @@ export default async function DashboardPage() {
     featureShare = { d7: {}, d30: {}, d90: {} };
     recentGenerations = [];
     recentCredits = [];
-    storageUsage = { totalCount: 0, totalSize: 0, d7Count: 0, d7Size: 0, d30Count: 0, d30Size: 0 };
+    storageUsage = {
+      totalCount: 0,
+      totalSize: 0,
+      d7Count: 0,
+      d7Size: 0,
+      d30Count: 0,
+      d30Size: 0,
+    };
     lowCredits = [];
   }
 

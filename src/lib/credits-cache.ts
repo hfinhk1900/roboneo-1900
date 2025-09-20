@@ -5,7 +5,7 @@ class CreditsCache {
   // TTL can be configured via NEXT_PUBLIC_CREDITS_CACHE_TTL_MS (defaults to 2 minutes)
   private readonly ttl: number = (() => {
     const raw = process.env.NEXT_PUBLIC_CREDITS_CACHE_TTL_MS;
-    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
+    const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 2 * 60 * 1000;
   })();
   private readonly storageKey = 'user_credits';

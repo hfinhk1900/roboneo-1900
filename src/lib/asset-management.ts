@@ -87,7 +87,9 @@ export function generateDownloadSignature(
   if (!secret) {
     if (process.env.NODE_ENV !== 'production') {
       // Dev fallback for local testing; strongly recommend setting real secret
-      console.warn('URL_SIGNING_SECRET is not set; using insecure dev fallback');
+      console.warn(
+        'URL_SIGNING_SECRET is not set; using insecure dev fallback'
+      );
       return createHmac('sha256', 'dev-insecure-secret')
         .update(`${assetId}|${expiresAt}|${displayMode}`)
         .digest('base64url');

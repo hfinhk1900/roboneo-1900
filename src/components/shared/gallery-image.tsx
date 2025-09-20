@@ -1,8 +1,8 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface GalleryImageProps {
   src: string;
@@ -31,7 +31,7 @@ export function GalleryImage({
     console.warn(`Failed to load image: ${src}`);
     setHasError(true);
     setIsLoading(false);
-    
+
     // 尝试使用 fallback 图片
     if (fallbackSrc && imageSrc !== fallbackSrc) {
       setImageSrc(fallbackSrc);
@@ -44,12 +44,12 @@ export function GalleryImage({
   };
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative', className)}>
       {/* Loading skeleton */}
       {isLoading && (
         <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-lg" />
       )}
-      
+
       {/* Error state */}
       {hasError && imageSrc === fallbackSrc && (
         <div className="absolute inset-0 bg-gray-50 flex items-center justify-center rounded-lg">
@@ -71,7 +71,7 @@ export function GalleryImage({
           </div>
         </div>
       )}
-      
+
       {/* Actual image */}
       <Image
         src={imageSrc}
@@ -79,9 +79,10 @@ export function GalleryImage({
         width={width}
         height={height}
         className={cn(
-          "w-full h-full object-contain transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
-          onClick && "cursor-pointer hover:scale-[1.02] transition-transform duration-200",
+          'w-full h-full object-contain transition-opacity duration-300',
+          isLoading ? 'opacity-0' : 'opacity-100',
+          onClick &&
+            'cursor-pointer hover:scale-[1.02] transition-transform duration-200',
           className
         )}
         onClick={onClick}

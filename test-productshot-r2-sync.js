@@ -1,5 +1,9 @@
 require('dotenv').config({ path: '.env.local' });
-const { S3Client, HeadObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const {
+  S3Client,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+} = require('@aws-sdk/client-s3');
 
 const s3Client = new S3Client({
   region: 'auto',
@@ -58,7 +62,9 @@ async function checkFileExists(fileName) {
 
     const response = await s3Client.send(headCommand);
     console.log(`✅ File exists: ${fileName}`);
-    console.log(`   Size: ${(response.ContentLength / 1024 / 1024).toFixed(2)} MB`);
+    console.log(
+      `   Size: ${(response.ContentLength / 1024 / 1024).toFixed(2)} MB`
+    );
     console.log(`   Type: ${response.ContentType}`);
     console.log(`   Modified: ${response.LastModified.toLocaleString()}\n`);
     return true;
@@ -98,8 +104,12 @@ function generateTestInstructions(files) {
   console.log('9. ✅ If file is gone from R2, the sync deletion is working!\n');
 
   console.log('📝 Alternative quick test:');
-  console.log(`   Before deletion: node test-productshot-r2-sync.js check ${fileName}`);
-  console.log(`   After deletion:  node test-productshot-r2-sync.js check ${fileName}`);
+  console.log(
+    `   Before deletion: node test-productshot-r2-sync.js check ${fileName}`
+  );
+  console.log(
+    `   After deletion:  node test-productshot-r2-sync.js check ${fileName}`
+  );
   console.log('\n');
 }
 
@@ -119,7 +129,9 @@ async function main() {
     case 'check':
       if (!fileName) {
         console.log('❌ Please provide a file name');
-        console.log('Usage: node test-productshot-r2-sync.js check <filename>\n');
+        console.log(
+          'Usage: node test-productshot-r2-sync.js check <filename>\n'
+        );
         return;
       }
       await checkFileExists(fileName);
@@ -133,10 +145,14 @@ async function main() {
     default:
       console.log('📖 USAGE:\n');
       console.log('List all files:     node test-productshot-r2-sync.js list');
-      console.log('Check specific file: node test-productshot-r2-sync.js check <filename>');
+      console.log(
+        'Check specific file: node test-productshot-r2-sync.js check <filename>'
+      );
       console.log('Generate test plan:  node test-productshot-r2-sync.js test');
       console.log('\nExample:');
-      console.log('node test-productshot-r2-sync.js check 05e632a6-b3e3-4c93-96bb-88c3f32482e3.png\n');
+      console.log(
+        'node test-productshot-r2-sync.js check 05e632a6-b3e3-4c93-96bb-88c3f32482e3.png\n'
+      );
 
       // 默认显示列表和测试指令
       const allFiles = await listProductShotFiles();

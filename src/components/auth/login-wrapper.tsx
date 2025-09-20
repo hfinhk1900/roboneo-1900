@@ -37,7 +37,8 @@ export const LoginWrapper = ({
   useEffect(() => {
     const closeLogin = () => setIsModalOpen(false);
     window.addEventListener('auth:switch-to-register', closeLogin);
-    return () => window.removeEventListener('auth:switch-to-register', closeLogin);
+    return () =>
+      window.removeEventListener('auth:switch-to-register', closeLogin);
   }, []);
 
   // Open this login modal on switch-to-login
@@ -46,6 +47,30 @@ export const LoginWrapper = ({
     window.addEventListener('auth:switch-to-login', openLogin);
     return () => window.removeEventListener('auth:switch-to-login', openLogin);
   }, []);
+
+  // Add custom styles to ensure dialog appears above mobile menu (only for modal mode)
+  useEffect(() => {
+    if (mode !== 'modal' || !isModalOpen) return;
+
+    const style = document.createElement('style');
+    style.id = 'login-dialog-z-index-fix';
+    style.textContent = `
+      [data-slot="dialog-overlay"] {
+        z-index: 60 !important;
+      }
+      [data-slot="dialog-content"] {
+        z-index: 60 !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      const existingStyle = document.getElementById('login-dialog-z-index-fix');
+      if (existingStyle) {
+        document.head.removeChild(existingStyle);
+      }
+    };
+  }, [mode, isModalOpen]);
 
   const handleLogin = () => {
     // append callbackUrl as a query parameter if provided
@@ -64,8 +89,25 @@ export const LoginWrapper = ({
 
   if (mode === 'modal') {
     return (
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          console.log('LoginWrapper: Dialog onOpenChange', open);
+          setIsModalOpen(open);
+          if (open) {
+            // Notify that auth modal is opening (for mobile menu to close)
+            window.dispatchEvent(new CustomEvent('auth:modal-opening'));
+          }
+        }}
+      >
+        <DialogTrigger
+          asChild={asChild}
+          onClick={() => {
+            console.log('LoginWrapper: DialogTrigger clicked');
+          }}
+        >
+          {children}
+        </DialogTrigger>
         <DialogContent className="sm:max-w-[400px] p-0">
           <DialogHeader className="hidden">
             <DialogTitle />

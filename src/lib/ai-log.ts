@@ -1,6 +1,6 @@
+import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { ailogHistory } from '@/db/schema';
-import { randomUUID } from 'crypto';
 
 export async function logAIOperation(params: {
   userId: string;
@@ -25,4 +25,3 @@ export async function logAIOperation(params: {
     console.warn('logAIOperation failed:', e);
   }
 }
-

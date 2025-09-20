@@ -35,21 +35,32 @@ export default function StorageUsageCard({
       <CardContent className="grid grid-cols-2 gap-4 px-4 sm:grid-cols-3">
         <div>
           <div className="text-muted-foreground text-sm">Total Files</div>
-          <div className="text-2xl font-semibold tabular-nums">{usage.totalCount.toLocaleString()}</div>
-          <div className="text-muted-foreground text-xs">{formatBytes(usage.totalSize)}</div>
+          <div className="text-2xl font-semibold tabular-nums">
+            {usage.totalCount.toLocaleString()}
+          </div>
+          <div className="text-muted-foreground text-xs">
+            {formatBytes(usage.totalSize)}
+          </div>
         </div>
         <div>
           <div className="text-muted-foreground text-sm">Last 7 days</div>
-          <div className="text-2xl font-semibold tabular-nums">{usage.d7Count.toLocaleString()}</div>
-          <div className="text-muted-foreground text-xs">{formatBytes(usage.d7Size)}</div>
+          <div className="text-2xl font-semibold tabular-nums">
+            {usage.d7Count.toLocaleString()}
+          </div>
+          <div className="text-muted-foreground text-xs">
+            {formatBytes(usage.d7Size)}
+          </div>
         </div>
         <div>
           <div className="text-muted-foreground text-sm">Last 30 days</div>
-          <div className="text-2xl font-semibold tabular-nums">{usage.d30Count.toLocaleString()}</div>
-          <div className="text-muted-foreground text-xs">{formatBytes(usage.d30Size)}</div>
+          <div className="text-2xl font-semibold tabular-nums">
+            {usage.d30Count.toLocaleString()}
+          </div>
+          <div className="text-muted-foreground text-xs">
+            {formatBytes(usage.d30Size)}
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
-

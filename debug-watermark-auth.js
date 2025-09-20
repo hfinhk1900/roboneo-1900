@@ -43,12 +43,16 @@ console.log('4. Try the API with a different user account');
 console.log('');
 
 console.log('📝 Expected Flow:');
-console.log('User logged in → Credits checked → Image uploaded → API called → Success');
+console.log(
+  'User logged in → Credits checked → Image uploaded → API called → Success'
+);
 console.log('');
 
 console.log('⚡ Quick Test:');
 console.log('Open browser console and run:');
-console.log('  fetch("/api/watermark/remove").then(r => console.log("Status:", r.status))');
+console.log(
+  '  fetch("/api/watermark/remove").then(r => console.log("Status:", r.status))'
+);
 console.log('  Expected: Status: 400 (missing image_input)');
 console.log('  If you see: Status: 401, then auth is the issue');
 console.log('');

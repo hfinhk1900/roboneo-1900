@@ -1,9 +1,12 @@
 import { getDb } from '@/db';
 import { stickerHistory } from '@/db/schema';
+import {
+  deleteAsset,
+  extractAssetIdFromHistoryItem,
+} from '@/lib/asset-deletion';
 import { auth } from '@/lib/auth';
-import { deleteAsset, extractAssetIdFromHistoryItem } from '@/lib/asset-deletion';
-import { and, eq } from 'drizzle-orm';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // DELETE /api/history/sticker/:id
@@ -40,7 +43,10 @@ export async function DELETE(
       .limit(1);
 
     if (historyRecord.length === 0) {
-      return NextResponse.json({ error: 'History item not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'History item not found' },
+        { status: 404 }
+      );
     }
 
     const historyItem = historyRecord[0];
@@ -51,11 +57,16 @@ export async function DELETE(
       console.log(`🗑️ Deleting associated Sticker asset: ${assetId}`);
       const assetDeletionResult = await deleteAsset(assetId, session.user.id);
       if (!assetDeletionResult.success) {
-        console.warn(`⚠️ Failed to delete Sticker asset ${assetId}:`, assetDeletionResult.error);
+        console.warn(
+          `⚠️ Failed to delete Sticker asset ${assetId}:`,
+          assetDeletionResult.error
+        );
         // 继续删除历史记录，即使资产删除失败
       }
     } else {
-      console.log('📝 No asset_id found in Sticker history item, skipping asset deletion');
+      console.log(
+        '📝 No asset_id found in Sticker history item, skipping asset deletion'
+      );
     }
 
     // 3. 删除历史记录

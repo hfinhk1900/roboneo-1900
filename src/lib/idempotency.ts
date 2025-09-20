@@ -1,6 +1,4 @@
-type Entry =
-  | { status: 'pending' }
-  | { status: 'success'; response: any };
+type Entry = { status: 'pending' } | { status: 'success'; response: any };
 
 const memStore = new Map<string, { value: Entry; expiresAt: number }>();
 const DEFAULT_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -51,7 +49,9 @@ export async function getIdempotencyEntry(
     )}`;
     try {
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}` },
+        headers: {
+          Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+        },
         cache: 'no-store',
       });
       if (!res.ok) return undefined;
@@ -77,7 +77,10 @@ export async function setPending(key: string, ttlMs = DEFAULT_TTL_MS) {
     return;
   }
   memCleanup();
-  memStore.set(key, { value: { status: 'pending' }, expiresAt: Date.now() + ttlMs });
+  memStore.set(key, {
+    value: { status: 'pending' },
+    expiresAt: Date.now() + ttlMs,
+  });
 }
 
 export async function setSuccess(

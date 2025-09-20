@@ -5,9 +5,9 @@ import {
   extractAssetIdFromHistoryItem,
 } from '@/lib/asset-deletion';
 import { auth } from '@/lib/auth';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { and, eq, inArray } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function DELETE(request: NextRequest) {
   try {

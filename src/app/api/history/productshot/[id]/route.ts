@@ -1,9 +1,12 @@
 import { getDb } from '@/db';
 import { productshotHistory } from '@/db/schema';
+import {
+  deleteAsset,
+  extractAssetIdFromHistoryItem,
+} from '@/lib/asset-deletion';
 import { auth } from '@/lib/auth';
-import { deleteAsset, extractAssetIdFromHistoryItem } from '@/lib/asset-deletion';
-import { and, eq } from 'drizzle-orm';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
@@ -51,11 +54,16 @@ export async function DELETE(
       console.log(`🗑️ Deleting associated ProductShot asset: ${assetId}`);
       const assetDeletionResult = await deleteAsset(assetId, session.user.id);
       if (!assetDeletionResult.success) {
-        console.warn(`⚠️ Failed to delete ProductShot asset ${assetId}:`, assetDeletionResult.error);
+        console.warn(
+          `⚠️ Failed to delete ProductShot asset ${assetId}:`,
+          assetDeletionResult.error
+        );
         // 继续删除历史记录，即使资产删除失败
       }
     } else {
-      console.log('📝 No asset_id found in ProductShot history item, skipping asset deletion');
+      console.log(
+        '📝 No asset_id found in ProductShot history item, skipping asset deletion'
+      );
     }
 
     // 3. 删除历史记录

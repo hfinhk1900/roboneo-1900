@@ -9,9 +9,7 @@ import { toast } from 'sonner';
 declare global {
   interface Window {
     paypal?: {
-      Buttons: (
-        config: Record<string, any>
-      ) => {
+      Buttons: (config: Record<string, any>) => {
         render: (selector: HTMLElement | string) => void;
       };
     };
@@ -85,7 +83,9 @@ export function PayPalSubscribeButton({
             },
             onError(error: unknown) {
               console.error('PayPal subscription error:', error);
-              toast.error('Unable to complete PayPal checkout. Please try again.');
+              toast.error(
+                'Unable to complete PayPal checkout. Please try again.'
+              );
             },
           })
           .render(containerRef.current);
@@ -96,7 +96,9 @@ export function PayPalSubscribeButton({
         console.error('PayPal button render error:', error);
         if (isMounted) {
           setLoadError('Unable to render PayPal button.');
-          toast.error('Failed to render PayPal button. Please refresh and try again.');
+          toast.error(
+            'Failed to render PayPal button. Please refresh and try again.'
+          );
         }
       }
     };
@@ -138,7 +140,9 @@ export function PayPalSubscribeButton({
       console.error('Failed to load PayPal SDK script.');
       if (isMounted) {
         setLoadError('Unable to load PayPal SDK script.');
-        toast.error('Unable to load PayPal. Please check your network and try again.');
+        toast.error(
+          'Unable to load PayPal. Please check your network and try again.'
+        );
       }
     };
 

@@ -367,7 +367,7 @@ interface ProductShotRequest {
 }
 
 export async function POST(request: NextRequest) {
-  let idStoreKey: string | null = null;
+  const idStoreKey: string | null = null;
   let userIdRef: string | null = null;
   let sceneTypeRef: SceneType | null = null;
   try {

@@ -5,7 +5,9 @@ let withBundleAnalyzer: (config: NextConfig) => NextConfig = (c) => c;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const createAnalyzer = require('@next/bundle-analyzer');
-  withBundleAnalyzer = createAnalyzer({ enabled: process.env.ANALYZE === 'true' });
+  withBundleAnalyzer = createAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+  });
 } catch {}
 import createNextIntlPlugin from 'next-intl/plugin';
 

@@ -46,8 +46,14 @@ async function cleanupDuplicateProductshots() {
 
           // 按创建时间排序，保留最新的（使用 getTime 避免 TS 算术类型报错）
           (sceneRecords as ProductshotRow[]).sort((a, b) => {
-            const bt = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt as any).getTime();
-            const at = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt as any).getTime();
+            const bt =
+              b.createdAt instanceof Date
+                ? b.createdAt.getTime()
+                : new Date(b.createdAt as any).getTime();
+            const at =
+              a.createdAt instanceof Date
+                ? a.createdAt.getTime()
+                : new Date(a.createdAt as any).getTime();
             return bt - at;
           });
 

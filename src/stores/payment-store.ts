@@ -70,7 +70,10 @@ export const usePaymentStore = create<PaymentState>((set, get) => ({
       } else {
         // Gracefully ignore auth-related failures on public pages
         const err = result?.data?.error || '';
-        if (err !== 'Unauthorized' && err !== 'Not authorized to do this action') {
+        if (
+          err !== 'Unauthorized' &&
+          err !== 'Not authorized to do this action'
+        ) {
           console.warn('get lifetime status failed', err);
         }
       }
@@ -132,7 +135,10 @@ export const usePaymentStore = create<PaymentState>((set, get) => ({
       } else {
         // Failed to fetch subscription
         const err = result?.data?.error || 'Failed to fetch payment data';
-        if (err === 'Unauthorized' || err === 'Not authorized to do this action') {
+        if (
+          err === 'Unauthorized' ||
+          err === 'Not authorized to do this action'
+        ) {
           // Treat as no subscription; do not surface error to UI
           set({
             currentPlan: freePlan || null,

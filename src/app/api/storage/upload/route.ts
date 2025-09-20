@@ -1,7 +1,7 @@
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { uploadFile } from '@/storage';
 import { StorageError } from '@/storage/types';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
   const csrf = enforceSameOriginCsrf(request);

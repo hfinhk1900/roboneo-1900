@@ -40,4 +40,3 @@ export function ensureProductionEnv(): void {
 
   validated = true;
 }
-

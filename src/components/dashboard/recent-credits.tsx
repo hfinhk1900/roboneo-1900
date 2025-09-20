@@ -46,7 +46,9 @@ export default function RecentCredits({ items }: { items: Tx[] }) {
               <TableRow key={t.id}>
                 <TableCell className="capitalize">{t.type}</TableCell>
                 <TableCell>
-                  {t.type === 'usage' ? `-${Math.abs(t.amount)}` : `${t.amount}`}
+                  {t.type === 'usage'
+                    ? `-${Math.abs(t.amount)}`
+                    : `${t.amount}`}
                 </TableCell>
                 <TableCell>
                   {t.balanceBefore} → {t.balanceAfter}
@@ -58,7 +60,10 @@ export default function RecentCredits({ items }: { items: Tx[] }) {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
                   No recent transactions
                 </TableCell>
               </TableRow>
@@ -69,4 +74,3 @@ export default function RecentCredits({ items }: { items: Tx[] }) {
     </Card>
   );
 }
-

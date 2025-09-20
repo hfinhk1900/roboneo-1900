@@ -22,4 +22,3 @@ export function getRateLimitConfig(): RateLimitConfig {
   };
   return cached;
 }
-

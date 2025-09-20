@@ -2590,7 +2590,9 @@ export function AIBackgroundGeneratorSection() {
                             {/* 生成中图标 */}
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">Creating...</span>
+                              <span className="text-lg font-medium">
+                                Creating...
+                              </span>
                             </div>
 
                             {/* 进度条 - 与Productshot保持一致 */}

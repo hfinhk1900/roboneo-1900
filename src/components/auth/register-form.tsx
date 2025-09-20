@@ -14,24 +14,28 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { websiteConfig } from '@/config/website';
 import { authClient } from '@/lib/auth-client';
-import { getUrlWithLocaleInCallbackUrl } from '@/lib/urls/urls';
 import { getTurnstileErrorMessage } from '@/lib/turnstile-errors';
+import { getUrlWithLocaleInCallbackUrl } from '@/lib/urls/urls';
 import { DEFAULT_LOGIN_REDIRECT, Routes } from '@/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import type { FieldErrors } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 import { Captcha } from '../shared/captcha';
 import { SocialLoginButton } from './social-login-button';
-import { toast } from 'sonner';
-import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 interface RegisterFormProps {
   callbackUrl?: string;
@@ -188,25 +192,36 @@ export const RegisterForm = ({
             // Graceful error mapping for duplicate email & generic errors
             const anyErr: any = ctx?.error ?? {};
             const resp: any = (ctx as any)?.response;
-            const status = anyErr.status ?? anyErr.code ?? anyErr.statusCode ?? resp?.status;
+            const status =
+              anyErr.status ?? anyErr.code ?? anyErr.statusCode ?? resp?.status;
             let message: string = anyErr.message ?? '';
 
             // Try to decode common duplicate scenarios
             const lower = String(message).toLowerCase();
             if (!message || message === '[object Object]') {
               if (status === 409) {
-                message = 'An account with this email already exists. Please sign in or reset your password.';
+                message =
+                  'An account with this email already exists. Please sign in or reset your password.';
               } else if (status === 400) {
-                message = 'Invalid registration data. Please check the fields and try again.';
+                message =
+                  'Invalid registration data. Please check the fields and try again.';
               } else if (status === 403) {
-                message = 'Request was forbidden. Please check your domain and try again.';
+                message =
+                  'Request was forbidden. Please check your domain and try again.';
               } else if (status === 429) {
-                message = 'Too many attempts. Please wait a moment and try again.';
+                message =
+                  'Too many attempts. Please wait a moment and try again.';
               } else {
-                message = 'Sign up failed. Please try again or use a different email.';
+                message =
+                  'Sign up failed. Please try again or use a different email.';
               }
-            } else if (lower.includes('exist') || lower.includes('duplicate') || lower.includes('unique')) {
-              message = 'An account with this email already exists. Please sign in or reset your password.';
+            } else if (
+              lower.includes('exist') ||
+              lower.includes('duplicate') ||
+              lower.includes('unique')
+            ) {
+              message =
+                'An account with this email already exists. Please sign in or reset your password.';
             }
 
             setError(message);
@@ -230,7 +245,8 @@ export const RegisterForm = ({
         }
       );
     } catch (e) {
-      const fallback = 'Sign up request failed. Please check your network and try again.';
+      const fallback =
+        'Sign up request failed. Please check your network and try again.';
       console.error('register, unhandled error:', e);
       setIsPending(false);
       setError(fallback);
@@ -345,7 +361,9 @@ export const RegisterForm = ({
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
               onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
-              onTimeout={() => handleCaptchaReset('验证码超时，请重新点击验证。')}
+              onTimeout={() =>
+                handleCaptchaReset('验证码超时，请重新点击验证。')
+              }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on register:', reason);
@@ -362,7 +380,9 @@ export const RegisterForm = ({
                 type="submit"
                 className="cursor-pointer w-full flex items-center justify-center gap-2"
               >
-                {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                {isPending && (
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                )}
                 <span>{t('signUp')}</span>
               </Button>
             </TooltipTrigger>

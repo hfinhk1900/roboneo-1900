@@ -75,7 +75,11 @@ export const createCheckoutAction = actionClient
       }
 
       // Validate priceId configured and present in plan
-      if (!priceId || typeof priceId !== 'string' || priceId.trim().length === 0) {
+      if (
+        !priceId ||
+        typeof priceId !== 'string' ||
+        priceId.trim().length === 0
+      ) {
         console.error('Price ID is missing or empty. Check your env config.');
         return {
           success: false,

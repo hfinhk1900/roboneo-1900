@@ -48,7 +48,11 @@ export async function GET(request: NextRequest) {
                 .where(eq(assets.id, assetId))
                 .limit(1);
               if (assetRows[0]?.user_id === session.user.id) {
-                return { ...row, url: `/api/assets/${assetId}`, asset_id: assetId };
+                return {
+                  ...row,
+                  url: `/api/assets/${assetId}`,
+                  asset_id: assetId,
+                };
               }
             }
           }

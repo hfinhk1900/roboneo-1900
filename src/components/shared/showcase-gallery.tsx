@@ -2,9 +2,9 @@
 
 import { OptimizedImage } from '@/components/seo/optimized-image';
 import { Button } from '@/components/ui/button';
+import { getStickerImages } from '@/config/gallery-config';
 import { cn } from '@/lib/utils';
 import { SparklesIcon } from 'lucide-react';
-import { getStickerImages } from '@/config/gallery-config';
 
 interface ShowcaseGalleryProps {
   className?: string;

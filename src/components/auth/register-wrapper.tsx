@@ -37,14 +37,16 @@ export const RegisterWrapper = ({
   useEffect(() => {
     const closeRegister = () => setIsModalOpen(false);
     window.addEventListener('auth:switch-to-login', closeRegister);
-    return () => window.removeEventListener('auth:switch-to-login', closeRegister);
+    return () =>
+      window.removeEventListener('auth:switch-to-login', closeRegister);
   }, []);
 
   // Open this register modal on switch-to-register
   useEffect(() => {
     const openRegister = () => setIsModalOpen(true);
     window.addEventListener('auth:switch-to-register', openRegister);
-    return () => window.removeEventListener('auth:switch-to-register', openRegister);
+    return () =>
+      window.removeEventListener('auth:switch-to-register', openRegister);
   }, []);
 
   const handleRegister = () => {
@@ -64,7 +66,16 @@ export const RegisterWrapper = ({
 
   if (mode === 'modal') {
     return (
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (open) {
+            // Notify that auth modal is opening (for mobile menu to close)
+            window.dispatchEvent(new CustomEvent('auth:modal-opening'));
+          }
+        }}
+      >
         <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
         <DialogContent className="sm:max-w-[400px] p-0">
           <DialogHeader className="hidden">

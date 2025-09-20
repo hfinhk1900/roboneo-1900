@@ -1,8 +1,8 @@
 'use client';
 
+import type { User } from '@/lib/auth-types';
 import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import type { User } from '@/lib/auth-types';
 
 const CurrentUserContext = createContext<User | null>(null);
 
@@ -11,9 +11,14 @@ interface CurrentUserProviderProps {
   children: ReactNode;
 }
 
-export function CurrentUserProvider({ value, children }: CurrentUserProviderProps) {
+export function CurrentUserProvider({
+  value,
+  children,
+}: CurrentUserProviderProps) {
   return (
-    <CurrentUserContext.Provider value={value}>{children}</CurrentUserContext.Provider>
+    <CurrentUserContext.Provider value={value}>
+      {children}
+    </CurrentUserContext.Provider>
   );
 }
 

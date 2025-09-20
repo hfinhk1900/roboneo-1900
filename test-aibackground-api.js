@@ -57,7 +57,7 @@ async function sendRequest(url, options = {}) {
     const contentType = response.headers.get('content-type');
     let responseData;
 
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType?.includes('application/json')) {
       responseData = await response.json();
     } else {
       responseData = await response.text();

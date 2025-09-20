@@ -1,0 +1,20 @@
+# Vercel 环境变量更新命令
+# 请在 Vercel Dashboard 中设置这些环境变量
+
+# 1. 产品 ID 配置（立即更新）
+NEXT_PUBLIC_CREEM_PRICE_PRO_MONTHLY=prod_4irkpIUIDcEtbFraaLU2TT
+NEXT_PUBLIC_CREEM_PRICE_PRO_YEARLY=prod_rbE5gREcbO1fQUrsCjYXQ
+NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_MONTHLY=prod_2P4YC31e5tjLOVNEfREgUY
+NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_YEARLY=prod_4R24ChuSuPcH7CVz9qf3YR
+
+# 2. 支付提供商（如果还没设置）
+NEXT_PUBLIC_PAYMENT_PROVIDER=creem
+
+# 3. API 密钥（等解决权限问题后更新）
+CREEM_API_KEY=creem_test_1RgN9IYysdot0UO4kTQRbX
+CREEM_WEBHOOK_SECRET=your_webhook_secret
+
+# 4. Base URL（如果还没设置）
+NEXT_PUBLIC_BASE_URL=https://roboneo.art
+
+# 注意：确保所有变量都勾选 "Production" 环境

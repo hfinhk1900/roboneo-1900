@@ -47,4 +47,3 @@ export default async function RefundPolicyPage(props: NextPageProps) {
 
   return <CustomPage page={page} />;
 }
-

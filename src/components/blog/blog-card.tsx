@@ -13,9 +13,10 @@ interface BlogCardProps {
 
 export default function BlogCard({ locale, post }: BlogCardProps) {
   const { date, title, description, image, author, categories } = post.data;
-  const imageUrl = typeof image === 'string' ? image : image?.url ?? null;
+  const imageUrl = typeof image === 'string' ? image : (image?.url ?? null);
   const defaultAlt = `${title || 'Roboneo AI Blog'} - AI Image Generation Tutorial`;
-  const imageAlt = typeof image === 'object' && image ? image.alt ?? defaultAlt : defaultAlt;
+  const imageAlt =
+    typeof image === 'object' && image ? (image.alt ?? defaultAlt) : defaultAlt;
   const publishDate = formatDate(new Date(date));
   const blogAuthor = authorSource.getPage([author], locale);
   const blogCategories = categorySource

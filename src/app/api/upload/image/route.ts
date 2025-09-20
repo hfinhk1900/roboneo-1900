@@ -2,9 +2,9 @@ import { createHmac, randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { auth } from '@/lib/auth';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { uploadFile } from '@/storage';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
   const csrf = enforceSameOriginCsrf(request);
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     // 上传到 R2 使用现有的存储系统
     let uploadResult;
     let storageKey;
-    
+
     try {
       uploadResult = await uploadFile(
         imageBuffer,
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       // 使用上传结果中的信息
       storageKey = uploadResult.key; // 使用上传后的存储键
       // Do not expose public R2 URL in API response
-      
+
       console.log('✅ File uploaded successfully:', uploadResult);
     } catch (error) {
       console.error('Failed to upload to R2:', error);

@@ -48,11 +48,18 @@ export async function GET(request: NextRequest) {
                 .limit(1);
 
               if (assetRows[0]?.user_id === session.user.id) {
-                return { ...item, url: `/api/assets/${assetId}`, asset_id: assetId };
+                return {
+                  ...item,
+                  url: `/api/assets/${assetId}`,
+                  asset_id: assetId,
+                };
               }
             }
           } catch (error) {
-            console.error('Failed to convert URL for profile picture item:', error);
+            console.error(
+              'Failed to convert URL for profile picture item:',
+              error
+            );
           }
         }
         return item;

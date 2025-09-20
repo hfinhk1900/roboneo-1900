@@ -47,7 +47,8 @@ export class SiliconFlowProvider {
       const res = await fetch(url, { ...init, signal: controller });
       return res;
     } catch (err) {
-      const isAbort = (err as any)?.name === 'TimeoutError' ||
+      const isAbort =
+        (err as any)?.name === 'TimeoutError' ||
         (err as any)?.name === 'AbortError' ||
         String(err).includes('timeout');
       if (isAbort && retries > 0) {

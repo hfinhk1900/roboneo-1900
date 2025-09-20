@@ -4,16 +4,20 @@ import { DividerWithText } from '@/components/auth/divider-with-text';
 import { GitHubIcon } from '@/components/icons/github';
 import { GoogleIcon } from '@/components/icons/google';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { websiteConfig } from '@/config/website';
 import { authClient } from '@/lib/auth-client';
+import { refreshCreditsSnapshot } from '@/lib/credits-utils';
 import { getUrlWithLocaleInCallbackUrl } from '@/lib/urls/urls';
 import { DEFAULT_LOGIN_REDIRECT, Routes } from '@/routes';
 import { Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { refreshCreditsSnapshot } from '@/lib/credits-utils';
 
 interface SocialLoginButtonProps {
   callbackUrl?: string;
@@ -106,22 +110,24 @@ export const SocialLoginButton = ({
         <Tooltip open={disabled ? undefined : false}>
           <TooltipTrigger asChild>
             <Button
-          size="lg"
-          className="w-full cursor-pointer"
-          variant="outline"
-          onClick={() => onClick('google')}
-          disabled={disabled || isLoading === 'google'}
-        >
-          {isLoading === 'google' ? (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          ) : (
-            <GoogleIcon className="size-4 mr-2" />
-          )}
-          <span>{t('signInWithGoogle')}</span>
+              size="lg"
+              className="w-full cursor-pointer"
+              variant="outline"
+              onClick={() => onClick('google')}
+              disabled={disabled || isLoading === 'google'}
+            >
+              {isLoading === 'google' ? (
+                <Loader2Icon className="mr-2 size-4 animate-spin" />
+              ) : (
+                <GoogleIcon className="size-4 mr-2" />
+              )}
+              <span>{t('signInWithGoogle')}</span>
             </Button>
           </TooltipTrigger>
           {disabled && (
-            <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+            <TooltipContent sideOffset={6}>
+              Please complete verification first
+            </TooltipContent>
           )}
         </Tooltip>
       )}
@@ -129,22 +135,24 @@ export const SocialLoginButton = ({
         <Tooltip open={disabled ? undefined : false}>
           <TooltipTrigger asChild>
             <Button
-          size="lg"
-          className="w-full cursor-pointer"
-          variant="outline"
-          onClick={() => onClick('github')}
-          disabled={disabled || isLoading === 'github'}
-        >
-          {isLoading === 'github' ? (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          ) : (
-            <GitHubIcon className="size-4 mr-2" />
-          )}
-          <span>{t('signInWithGitHub')}</span>
+              size="lg"
+              className="w-full cursor-pointer"
+              variant="outline"
+              onClick={() => onClick('github')}
+              disabled={disabled || isLoading === 'github'}
+            >
+              {isLoading === 'github' ? (
+                <Loader2Icon className="mr-2 size-4 animate-spin" />
+              ) : (
+                <GitHubIcon className="size-4 mr-2" />
+              )}
+              <span>{t('signInWithGitHub')}</span>
             </Button>
           </TooltipTrigger>
           {disabled && (
-            <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+            <TooltipContent sideOffset={6}>
+              Please complete verification first
+            </TooltipContent>
           )}
         </Tooltip>
       )}

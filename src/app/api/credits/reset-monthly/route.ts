@@ -4,9 +4,9 @@ import {
 } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { payment, user } from '@/db/schema';
+import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
-import { enforceSameOriginCsrf } from '@/lib/csrf';
 
 /**
  * API endpoint for resetting monthly credits

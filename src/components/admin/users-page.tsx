@@ -2,8 +2,8 @@
 
 import { getUsersAction } from '@/actions/get-users';
 import { UsersTable } from '@/components/admin/users-table';
-import type { AdminUser } from '@/types/admin-user';
 import { useUsersStore } from '@/stores/users-store';
+import type { AdminUser } from '@/types/admin-user';
 import type { SortingState } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';

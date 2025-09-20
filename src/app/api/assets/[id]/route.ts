@@ -2,8 +2,8 @@ import { createHash } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { auth } from '@/lib/auth';
-import { eq } from 'drizzle-orm';
 import { getFile } from '@/storage';
+import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -23,7 +23,11 @@ export async function GET(
 
     // Lookup asset
     const db = await getDb();
-    const rows = await db.select().from(assets).where(eq(assets.id, id)).limit(1);
+    const rows = await db
+      .select()
+      .from(assets)
+      .where(eq(assets.id, id))
+      .limit(1);
     const asset = rows[0];
     if (!asset) {
       return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
@@ -74,4 +78,3 @@ export async function GET(
     );
   }
 }
-

@@ -242,7 +242,9 @@ export class MigrationManager {
     count: number;
     total: number;
   }> {
-    const data = this.getCombinedLocalStorageData<any[]>(STORAGE_KEYS.watermark);
+    const data = this.getCombinedLocalStorageData<any[]>(
+      STORAGE_KEYS.watermark
+    );
     if (!data || data.length === 0) {
       return { count: 0, total: 0 };
     }
@@ -459,7 +461,9 @@ export class MigrationManager {
 
     try {
       const blob = await this.downloadImageAsBlob(url);
-      const thumbnail = blob ? await this.dbManager.generateThumbnail(blob) : undefined;
+      const thumbnail = blob
+        ? await this.dbManager.generateThumbnail(blob)
+        : undefined;
 
       return {
         id: item.id || this.generateId('watermark-removal'),
@@ -502,7 +506,9 @@ export class MigrationManager {
 
     try {
       const blob = await this.downloadImageAsBlob(url);
-      const thumbnail = blob ? await this.dbManager.generateThumbnail(blob) : undefined;
+      const thumbnail = blob
+        ? await this.dbManager.generateThumbnail(blob)
+        : undefined;
 
       return {
         id: item.id || this.generateId('profile-picture'),
@@ -552,7 +558,9 @@ export class MigrationManager {
   /**
    * 从多个 localStorage 键合并数据（按时间降序去重）
    */
-  private getCombinedLocalStorageData<T extends Array<any>>(keys: string[]): any[] | null {
+  private getCombinedLocalStorageData<T extends Array<any>>(
+    keys: string[]
+  ): any[] | null {
     const all: any[] = [];
     for (const key of keys) {
       const part = this.getLocalStorageData<any[]>(key);

@@ -1,6 +1,8 @@
 'use client';
 
+import { validateCaptchaAction } from '@/actions/validate-captcha';
 import { AuthCard } from '@/components/auth/auth-card';
+import { Captcha } from '@/components/shared/captcha';
 import { FormError } from '@/components/shared/form-error';
 import { FormSuccess } from '@/components/shared/form-success';
 import { Button } from '@/components/ui/button';
@@ -13,15 +15,21 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { LocaleLink } from '@/i18n/navigation';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { websiteConfig } from '@/config/website';
-import { validateCaptchaAction } from '@/actions/validate-captcha';
-import { Captcha } from '@/components/shared/captcha';
+import { LocaleLink } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
+import { refreshCreditsSnapshot } from '@/lib/credits-utils';
+import { getTurnstileErrorMessage } from '@/lib/turnstile-errors';
 import { getUrlWithLocaleInCallbackUrl } from '@/lib/urls/urls';
 import { cn } from '@/lib/utils';
 import { DEFAULT_LOGIN_REDIRECT, Routes } from '@/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -29,10 +37,6 @@ import { useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import * as z from 'zod';
 import { SocialLoginButton } from './social-login-button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { refreshCreditsSnapshot } from '@/lib/credits-utils';
-import { getTurnstileErrorMessage } from '@/lib/turnstile-errors';
-import type { TurnstileInstance } from '@marsidev/react-turnstile';
 
 export interface LoginFormProps {
   className?: string;
@@ -278,7 +282,9 @@ export const LoginForm = ({
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
               onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
-              onTimeout={() => handleCaptchaReset('验证码超时，请重新点击验证。')}
+              onTimeout={() =>
+                handleCaptchaReset('验证码超时，请重新点击验证。')
+              }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on login:', reason);
@@ -295,12 +301,16 @@ export const LoginForm = ({
                 type="submit"
                 className="w-full flex items-center justify-center gap-2 cursor-pointer"
               >
-                {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                {isPending && (
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                )}
                 <span>{t('signIn')}</span>
               </Button>
             </TooltipTrigger>
             {captchaActive && !captchaToken && (
-              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+              <TooltipContent sideOffset={6}>
+                Please complete verification first
+              </TooltipContent>
             )}
           </Tooltip>
         </form>

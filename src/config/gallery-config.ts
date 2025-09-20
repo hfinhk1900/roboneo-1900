@@ -41,7 +41,10 @@ export interface GalleryImage {
  * @param filename - The image filename
  * @returns Full URL to the image
  */
-export const getGalleryImageUrl = (folder: string, filename: string): string => {
+export const getGalleryImageUrl = (
+  folder: string,
+  filename: string
+): string => {
   const baseUrl = getGalleryBaseUrl();
   return `${baseUrl}/${folder}/${filename}`;
 };
@@ -202,7 +205,7 @@ export const stickerImages: GalleryImage[] = [
  * @returns Array of sticker images with full URLs
  */
 export const getStickerImages = () => {
-  return stickerImages.map(image => ({
+  return stickerImages.map((image) => ({
     ...image,
     src: getGalleryImageUrl('Landing-sticker', image.filename),
   }));

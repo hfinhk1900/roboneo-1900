@@ -57,7 +57,10 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
                   No recent items
                 </TableCell>
               </TableRow>
@@ -68,4 +71,3 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
     </Card>
   );
 }
-

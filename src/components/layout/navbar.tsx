@@ -18,10 +18,15 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { getNavbarLinks } from '@/config/navbar-config';
-import { useScroll } from '@/hooks/use-scroll';
-import { LocaleLink, useLocalePathname, useLocaleRouter } from '@/i18n/navigation';
 import { useCurrentUserContext } from '@/contexts/current-user-context';
 import { useCredits } from '@/hooks/use-credits';
+import { useScroll } from '@/hooks/use-scroll';
+import {
+  LocaleLink,
+  useLocalePathname,
+  useLocaleRouter,
+} from '@/i18n/navigation';
+import type { User } from '@/lib/auth-types';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { CoinsIcon } from 'lucide-react';
@@ -31,7 +36,6 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import LocaleSwitcher from './locale-switcher';
-import type { User } from '@/lib/auth-types';
 
 interface NavBarProps {
   scroll?: boolean;

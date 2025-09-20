@@ -61,7 +61,11 @@ export function CheckoutButton({
 
       console.log('Using price ID from environment variables:', priceId);
 
-      if (!priceId || typeof priceId !== 'string' || priceId.trim().length === 0) {
+      if (
+        !priceId ||
+        typeof priceId !== 'string' ||
+        priceId.trim().length === 0
+      ) {
         console.error('Checkout aborted: priceId is missing or empty.');
         toast.error(t('checkoutFailed'));
         return;

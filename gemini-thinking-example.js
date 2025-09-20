@@ -74,4 +74,3 @@ if (require.main === module) {
 }
 
 module.exports = { runGeminiThinking };
-

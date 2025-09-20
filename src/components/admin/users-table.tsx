@@ -25,10 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { AdminUser } from '@/types/admin-user';
 import { formatDate } from '@/lib/formatter';
 import { getPaymentDashboardCustomerUrl } from '@/lib/urls/urls';
 import { useUsersStore } from '@/stores/users-store';
+import type { AdminUser } from '@/types/admin-user';
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -259,7 +259,8 @@ export function UsersTable({
     },
     {
       id: 'plan',
-      accessorFn: (row) => row.subscriptionPlan?.planName ?? row.subscriptionPlan?.priceId ?? null,
+      accessorFn: (row) =>
+        row.subscriptionPlan?.planName ?? row.subscriptionPlan?.priceId ?? null,
       enableSorting: false,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('columns.plan')} />
