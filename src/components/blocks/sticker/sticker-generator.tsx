@@ -322,7 +322,7 @@ export default function StickerGenerator() {
         });
       }, 500);
 
-      const response = await fetch('/api/sticker/generate', {
+      const response = await fetch('/api/image-to-sticker', {
         method: 'POST',
         body: formData,
       });
