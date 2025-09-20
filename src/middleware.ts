@@ -34,7 +34,9 @@ export default async function middleware(req: NextRequest) {
     LOCALES
   );
   const matches = (routes: readonly string[]) =>
-    routes.some((route) => new RegExp(`^${route}$`).test(pathnameWithoutLocale));
+    routes.some((route) =>
+      new RegExp(`^${route}$`).test(pathnameWithoutLocale)
+    );
   const needsAuthCheck =
     matches(protectedRoutes) ||
     matches(adminOnlyRoutes) ||
@@ -129,6 +131,43 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(
       new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
     );
+  }
+
+  // Check for blocked documentation pages
+  const blockedDocsPaths = [
+    '/docs/comparisons',
+    '/docs/customisation',
+    '/docs/', // root docs page
+    '/docs/internationalization',
+    '/docs/manual-installation',
+    '/docs/markdown',
+    '/docs/search',
+    '/docs/static-export',
+    '/docs/theme',
+    '/docs/what-is-fumadocs',
+    '/docs/components',
+    '/docs/layouts',
+    '/docs/mdx',
+  ];
+  
+  const isBlockedDocsPath = blockedDocsPaths.some((blockedPath) => {
+    // Exact match for specific paths
+    if (pathnameWithoutLocale === blockedPath) return true;
+    
+    // Match subdirectories (e.g., /docs/components/*)
+    if (blockedPath.endsWith('/') || 
+        (blockedPath === '/docs/components' && pathnameWithoutLocale.startsWith('/docs/components/')) ||
+        (blockedPath === '/docs/layouts' && pathnameWithoutLocale.startsWith('/docs/layouts/')) ||
+        (blockedPath === '/docs/mdx' && pathnameWithoutLocale.startsWith('/docs/mdx/'))) {
+      return true;
+    }
+    
+    return false;
+  });
+  
+  if (isBlockedDocsPath) {
+    console.log('<< middleware end, blocked docs path, returning 404');
+    return new NextResponse(null, { status: 404 });
   }
 
   // Apply intlMiddleware for all routes
