@@ -137,7 +137,6 @@ export default async function middleware(req: NextRequest) {
   const blockedDocsPaths = [
     '/docs/comparisons',
     '/docs/customisation',
-    '/docs/', // root docs page
     '/docs/internationalization',
     '/docs/manual-installation',
     '/docs/markdown',
@@ -145,26 +144,21 @@ export default async function middleware(req: NextRequest) {
     '/docs/static-export',
     '/docs/theme',
     '/docs/what-is-fumadocs',
+  ];
+
+  const blockedDocsDirectories = [
     '/docs/components',
     '/docs/layouts',
     '/docs/mdx',
   ];
-  
-  const isBlockedDocsPath = blockedDocsPaths.some((blockedPath) => {
-    // Exact match for specific paths
-    if (pathnameWithoutLocale === blockedPath) return true;
-    
-    // Match subdirectories (e.g., /docs/components/*)
-    if (blockedPath.endsWith('/') || 
-        (blockedPath === '/docs/components' && pathnameWithoutLocale.startsWith('/docs/components/')) ||
-        (blockedPath === '/docs/layouts' && pathnameWithoutLocale.startsWith('/docs/layouts/')) ||
-        (blockedPath === '/docs/mdx' && pathnameWithoutLocale.startsWith('/docs/mdx/'))) {
-      return true;
-    }
-    
-    return false;
-  });
-  
+
+  const isBlockedDocsPath =
+    blockedDocsPaths.includes(pathnameWithoutLocale) ||
+    blockedDocsDirectories.some((dir) =>
+      pathnameWithoutLocale.startsWith(`${dir}/`)
+    ) ||
+    pathnameWithoutLocale === '/docs'; // Block only the exact root docs page
+
   if (isBlockedDocsPath) {
     console.log('<< middleware end, blocked docs path, returning 404');
     return new NextResponse(null, { status: 404 });
