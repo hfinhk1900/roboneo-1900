@@ -111,12 +111,12 @@
   },
   "AboutPage": {
     "title": "关于我们",
-    "description": "MkSaaS 是一个使用最先进的技术栈构建的 AI SaaS 模板，它可以帮助你更快更好地构建你的 SaaS。如果你有任何问题，欢迎联系我。",
-    "authorName": "MkSaaS",
-    "authorBio": "最好的 AI SaaS 模板",
-    "introduction": "👋 你好，这里是 MkSaaS，一个使用最先进的技术栈构建的 AI SaaS 模板，它可以帮助你更快更好地构建你的 SaaS。如果你有任何问题，欢迎联系我。",
-    "talkWithMe": "联系我",
-    "followMe": "关注我"
+    "description": "RoboNeo 旨在让每个人都能轻松用 AI 创作高质量视觉内容。",
+    "authorName": "RoboNeo 团队",
+    "authorBio": "AI 创意平台",
+    "introduction": "👋 你好！我们是 RoboNeo，致力于提供易上手的 AI 工具，帮助你更快完成营销素材与创意作品。有任何想法欢迎随时反馈给我们。",
+    "talkWithMe": "联系团队",
+    "followMe": "关注 RoboNeo 的 X 账号"
   },
   "ChangelogPage": {
     "title": "更新日志",
@@ -257,7 +257,7 @@
     "previousPage": "上一页",
     "nextPage": "下一页",
     "chooseLanguage": "选择语言",
-    "title": "MkSaaS文档",
+    "title": "RoboNeo 文档",
     "homepage": "首页",
     "blog": "博客"
   },
@@ -704,12 +704,12 @@
     }
   },
   "HomePage": {
-    "title": "MkSaaS",
-    "description": "在几天内，简单轻松地创建 AI SaaS",
+    "title": "RoboNeo",
+    "description": "使用 RoboNeo 快速生成贴纸、产品图与营销创意图。",
     "hero": {
-      "title": "使用 MkSaaS 轻松构建您的 AI SaaS 产品",
-      "description": "MkSaaS 是构建 AI SaaS 的最佳模板，内置 AI、身份验证、全球支付、博客、文档、邮件订阅、SEO、多彩主题、丰富组件等。",
-      "introduction": "介绍 MkSaaS 模板",
+      "title": "几秒钟生成吸睛视觉",
+      "description": "RoboNeo 可以把文字和照片转换成贴纸、洁净产品图以及营销场景，无需任何设计经验。",
+      "introduction": "RoboNeo AI 工作室",
       "primary": "开始使用",
       "secondary": "查看演示"
     },
@@ -717,42 +717,42 @@
       "title": "您最爱公司都是我们的合作伙伴"
     },
     "integration": {
-      "title": "集成",
-      "subtitle": "与您最喜欢的工具集成",
-      "description": "无缝连接流行的平台和服务，以增强您的工作流程。",
+      "title": "工作流",
+      "subtitle": "随时导出到常用平台",
+      "description": "生成的素材可直接用于团队已经使用的各类工具。",
       "learnMore": "了解更多",
       "items": {
         "item-1": {
-          "title": "Google Gemini",
-          "description": "这里是Google Gemini的描述，详细介绍Google Gemini的功能和优势。"
+          "title": "Canva",
+          "description": "将透明 PNG 直接分享到社媒内容日程。"
         },
         "item-2": {
-          "title": "Replit",
-          "description": "这里是Replit的描述，详细介绍Replit的功能和优势。"
+          "title": "Figma",
+          "description": "同步素材到设计系统，快速迭代页面。"
         },
         "item-3": {
-          "title": "MagicUI",
-          "description": "这里是MagicUI的描述，详细介绍MagicUI的功能和优势。"
+          "title": "Shopify",
+          "description": "几分钟内更新店铺陈列图与营销主视觉。"
         },
         "item-4": {
-          "title": "VSCodium",
-          "description": "这里是VSCodium的描述，详细介绍VSCodium的功能和优势。"
+          "title": "Notion",
+          "description": "将生成的视觉内容嵌入文档、Wiki 与发布计划。"
         },
         "item-5": {
-          "title": "MediaWiki",
-          "description": "这里是MediaWiki的描述，详细介绍MediaWiki的功能和优势。"
+          "title": "Zapier",
+          "description": "自动推送到邮件、Slack 或存储流程。"
         },
         "item-6": {
-          "title": "Google PaLM",
-          "description": "这里是Google PaLM的描述，详细介绍Google PaLM的功能和优势。"
+          "title": "Adobe Creative Cloud",
+          "description": "通过分层导出继续在专业软件中精修。"
         }
       }
     },
     "integration2": {
-      "title": "与您最喜欢的工具集成",
-      "description": "无缝连接流行的平台和服务，以增强您的工作流程。",
-      "primaryButton": "开始使用",
-      "secondaryButton": "查看演示"
+      "title": "自动化你的发布流程",
+      "description": "把 RoboNeo 与现有协作、排期工具连接起来，让团队协同更顺畅。",
+      "primaryButton": "查看集成",
+      "secondaryButton": "查看文档"
     },
     "imageShowcase": {
       "title": "将任何照片转换为贴纸",
@@ -760,72 +760,72 @@
       "description": "上传自拍照、宠物照片或任何图片，观看RoboNeo AI创造完美的贴纸，具有干净的背景、流畅的轮廓和鲜艳的色彩。非常适合消息应用、社交媒体等。"
     },
     "features": {
-      "title": "功能",
-      "subtitle": "您的 SaaS 产品功能",
-      "description": "请在这里介绍您的 SaaS 产品的特色功能的信息",
+      "title": "创作者选择 RoboNeo 的理由",
+      "subtitle": "一个工作室覆盖四大场景",
+      "description": "这套 AI 工具链专为营销团队打造，完整覆盖视觉内容生产流程。",
       "items": {
         "item-1": {
-          "title": "产品特色功能一",
-          "description": "请在这里详细描述您的产品特色功能一，尽可能详细，使其更吸引用户，提高落地页的转化率"
+          "title": "贴纸生成",
+          "description": "把人物、宠物和品牌元素转换成适配社交平台的透明贴纸。"
         },
         "item-2": {
-          "title": "产品特色功能二",
-          "description": "请在这里详细描述您的产品特色功能二，尽可能详细，使其更吸引用户，提高落地页的转化率"
+          "title": "产品影棚",
+          "description": "根据一张参考图生成生活方式场景与产品主视觉。"
         },
         "item-3": {
-          "title": "产品特色功能三",
-          "description": "请在这里详细描述您的产品特色功能三，尽可能详细，使其更吸引用户，提高落地页的转化率"
+          "title": "AI 背景",
+          "description": "快速替换场景，同时保持光线、反射与透视效果。"
         },
         "item-4": {
-          "title": "产品特色功能四",
-          "description": "请在这里详细描述您的产品特色功能四，尽可能详细，使其更吸引用户，提高落地页的转化率"
+          "title": "水印清除",
+          "description": "智能去除 Logo 与文字水印，不留下明显痕迹。"
         }
       }
     },
     "features2": {
-      "title": "功能2",
-      "subtitle": "您的 SaaS 产品功能",
-      "description": "请在这里介绍您的 SaaS 产品的特色功能的信息",
-      "feature-1": "特色功能特点一",
-      "feature-2": "特色功能特点二",
-      "feature-3": "特色功能特点三",
-      "feature-4": "特色功能特点四"
+      "title": "为团队而生",
+      "subtitle": "保持品牌一致性的完整能力",
+      "description": "适用于个人创作者到成长型团队的灵活协作方案。",
+      "feature-1": "共享素材库，支持无限文件夹",
+      "feature-2": "一次可生成最多四个版本",
+      "feature-3": "导出尺寸适配电商、社媒与印刷",
+      "feature-4": "使用数据帮助追踪素材表现"
     },
     "features3": {
-      "title": "功能3",
-      "subtitle": "您的 SaaS 产品功能",
-      "description": "请在这里介绍您的 SaaS 产品的特色功能的信息",
+      "title": "你的工作流，更顺畅",
+      "subtitle": "从创意到上线只需几个步骤",
+      "description": "RoboNeo 帮你把控每一步，让素材产出更快更稳定。",
       "items": {
         "item-1": {
-          "title": "产品特色功能一",
-          "description": "请在这里详细描述您的产品特色功能一，尽可能详细，使其更吸引用户"
+          "title": "明确目标",
+          "description": "选择模板或直接输入提示词描述需求。"
         },
         "item-2": {
-          "title": "产品特色功能二",
-          "description": "请在这里详细描述您的产品特色功能二，尽可能详细，使其更吸引用户"
+          "title": "上传参考",
+          "description": "添加产品图或品牌素材，确保风格一致。"
         },
         "item-3": {
-          "title": "产品特色功能三",
-          "description": "请在这里详细描述您的产品特色功能三，尽可能详细，使其更吸引用户"
+          "title": "选择风格",
+          "description": "挑选精选的灯光、氛围与构图预设。"
         },
         "item-4": {
-          "title": "产品特色功能四",
-          "description": "请在这里详细描述您的产品特色功能四，尽可能详细，使其更吸引用户"
+          "title": "批量生成",
+          "description": "一次产出多组方案，收藏最喜欢的版本。"
         },
         "item-5": {
-          "title": "产品特色功能五",
-          "description": "请在这里详细描述您的产品特色功能五，尽可能详细，使其更吸引用户"
+          "title": "智能编辑",
+          "description": "使用背景替换、水印清除等工具微调细节。"
         },
         "item-6": {
-          "title": "产品特色功能六",
-          "description": "请在这里详细描述您的产品特色功能六，尽可能详细，使其更吸引用户"
+          "title": "导出发布",
+          "description": "下载优化后的文件或直接推送到你的工作流。"
         }
       }
     },
     "pricing": {
       "title": "价格",
       "subtitle": "价格",
-      "description": "使用AI技术生成动态场景，随时可取消！"
+      "description": "灵活的套餐，随时升级或取消，按需付费。"
     },
     "faqs": {
       "title": "常见问题",
@@ -909,17 +909,17 @@
     },
     "stats": {
       "title": "统计",
-      "subtitle": "MkSaaS 相关的数字",
-      "description": "MkSaaS 可让您在几天内轻松构建您的 AI SaaS",
+      "subtitle": "RoboNeo 指标",
+      "description": "了解团队如何利用 RoboNeo 更快产出内容。",
       "items": {
         "item-1": {
-          "title": "GitHub 上的星星"
+          "title": "使用 RoboNeo 上线的项目"
         },
         "item-2": {
-          "title": "使用 MkSaaS 的活跃用户"
+          "title": "活跃的创意团队"
         },
         "item-3": {
-          "title": "使用 MkSaaS 启动的应用"
+          "title": "本月生成的素材数量"
         }
       }
     },
@@ -932,22 +932,22 @@
   },
   "AITextPage": {
     "title": "AI 文本",
-    "description": "MkSaaS 让您在几天内轻松构建您的 AI SaaS，简单且毫不费力",
+    "description": "了解如何编写能提升营销转化的提示词与文案。",
     "content": "正在开发中"
   },
   "AIImagePage": {
     "title": "AI 图片",
-    "description": "MkSaaS 让您在几天内轻松构建您的 AI SaaS，简单且毫不费力",
+    "description": "掌握在 RoboNeo 中生成写实视觉、贴纸与背景替换的技巧。",
     "content": "正在开发中"
   },
   "AIVideoPage": {
     "title": "AI 视频",
-    "description": "MkSaaS 让您在几天内轻松构建您的 AI SaaS，简单且毫不费力",
+    "description": "逐步演示如何用 RoboNeo 完成营销素材制作流程。",
     "content": "正在开发中"
   },
   "AIAudioPage": {
     "title": "AI 音频",
-    "description": "MkSaaS 让您在几天内轻松构建您的 AI SaaS，简单且毫不费力",
+    "description": "分享把 RoboNeo 与其他工具串联的自动化思路。",
     "content": "正在开发中"
   }
 }

@@ -22,7 +22,10 @@ const paypalConfig =
 
 const isPayPalReady =
   paymentProvider === 'paypal'
-    ? Boolean((paypalConfig?.clientId || '').trim() && (paypalConfig?.plans?.proMonthly || '').trim())
+    ? Boolean(
+        (paypalConfig?.clientId || '').trim() &&
+          (paypalConfig?.plans?.proMonthly || '').trim()
+      )
     : false;
 
 let PRO_MONTHLY_PRICE_ID = '';
@@ -40,10 +43,8 @@ if (paymentProvider === 'creem') {
 } else if (paymentProvider === 'paypal') {
   PRO_MONTHLY_PRICE_ID = paypalConfig?.plans?.proMonthly ?? '';
 } else {
-  PRO_MONTHLY_PRICE_ID =
-    process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ?? '';
-  PRO_YEARLY_PRICE_ID =
-    process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY ?? '';
+  PRO_MONTHLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ?? '';
+  PRO_YEARLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY ?? '';
   ULTIMATE_MONTHLY_PRICE_ID =
     process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE_MONTHLY ?? '';
   ULTIMATE_YEARLY_PRICE_ID =
@@ -125,13 +126,13 @@ export const websiteConfig: WebsiteConfig = {
       logoDark: '/favicon.svg',
     },
     social: {
-      github: 'https://github.com/MkSaaSHQ',
-      twitter: 'https://mksaas.link/twitter',
-      blueSky: 'https://mksaas.link/bsky',
-      discord: 'https://mksaas.link/discord',
-      mastodon: 'https://mksaas.link/mastodon',
-      linkedin: 'https://mksaas.link/linkedin',
-      youtube: 'https://mksaas.link/youtube',
+      github: 'https://github.com/roboneo-art',
+      twitter: 'https://x.com/roboneoart',
+      blueSky: '',
+      discord: '',
+      mastodon: '',
+      linkedin: '',
+      youtube: '',
     },
   },
   features: {

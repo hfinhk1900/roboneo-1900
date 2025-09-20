@@ -1,4 +1,4 @@
-# MkSaaS
+# RoboNeo
 
 Make AI SaaS in a weekend.
 
@@ -6,36 +6,36 @@ The complete Next.js boilerplate for building profitable SaaS, with auth, paymen
 
 ## Author
 
-This project is created by [Fox](https://x.com/indie_maker_fox), the founder of [MkSaaS](https://mksaas.com) and [Mkdirs](https://mkdirs.com). The official X account for [MkSaaS](https://mksaas.com) is [@mksaascom](https://x.com/mksaascom), you can follow this account for the updates about MkSaaS.
+This project is created by [Fox](https://x.com/indie_maker_fox), the founder of [RoboNeo](https://roboneo.com) and [Mkdirs](https://mkdirs.com). The official X account for [RoboNeo](https://roboneo.com) is [@roboneocom](https://x.com/roboneocom), you can follow this account for the updates about RoboNeo.
 
 ## Documentation
 
-The documentation is available on the [website](https://mksaas.com/docs). It includes guides, tutorials, and detailed explanations of the code. I designed it to be as beginner-friendly as possible, so you can start making money from day one.
+The documentation is available on the [website](https://roboneo.com/docs). It includes guides, tutorials, and detailed explanations of the code. I designed it to be as beginner-friendly as possible, so you can start making money from day one.
 
 If you found anything that could be improved, please let me know.
 
 ## Links
 
-- 🔥 website: [mksaas.com](https://mksaas.com)
-- 🌐 demo: [demo.mksaas.com](https://demo.mksaas.com)
-- 📚 documentation: [mksaas.com/docs](https://mksaas.com/docs)
-- 🗓️ roadmap: [mksaas roadmap](https://mksaas.link/roadmap)
-- 👨‍💻 discord: [mksaas.link/discord](https://mksaas.link/discord)
-- 📹 video (WIP): [mksaas.link/youtube](https://mksaas.link/youtube)
+- 🔥 website: [roboneo.com](https://roboneo.com)
+- 🌐 demo: [demo.roboneo.com](https://demo.roboneo.com)
+- 📚 documentation: [roboneo.com/docs](https://roboneo.com/docs)
+- 🗓️ roadmap: [roboneo roadmap](https://roboneo.link/roadmap)
+- 👨‍💻 discord: [roboneo.link/discord](https://roboneo.link/discord)
+- 📹 video (WIP): [roboneo.link/youtube](https://roboneo.link/youtube)
 
 ## Repositories
 
 By default, you should have access to all 5 repositories. If you find that you’re unable to access any of them, please don’t hesitate to reach out to me, and I’ll assist you in resolving the issue.
 
-- [mksaas-template (ready)](https://github.com/MkSaaSHQ/mksaas-template): https://demo.mksaas.com
-- [mksaas-blog (ready)](https://github.com/MkSaaSHQ/mksaas-blog): https://mksaas.me
-- [mksaas-haitang (ready)](https://github.com/MkSaaSHQ/mksaas-haitang): https://haitang.app
-- [mksaas-outfit (ready)](https://github.com/MkSaaSHQ/mksaas-outfit)
-- [mksaas-app (WIP)](https://github.com/MkSaaSHQ/mksaas-app): https://mksaas.app
+- [roboneo-template (ready)](https://github.com/RoboNeoHQ/roboneo-template): https://demo.roboneo.com
+- [roboneo-blog (ready)](https://github.com/RoboNeoHQ/roboneo-blog): https://roboneo.me
+- [roboneo-haitang (ready)](https://github.com/RoboNeoHQ/roboneo-haitang): https://haitang.app
+- [roboneo-outfit (ready)](https://github.com/RoboNeoHQ/roboneo-outfit)
+- [roboneo-app (WIP)](https://github.com/RoboNeoHQ/roboneo-app): https://roboneo.app
 
 ## Notice
 
-> If you have any questions, please [submit an issue](https://github.com/MkSaaSHQ/mksaas-template/issues/new), or contact me at [support@mksaas.com](mailto:support@mksaas.com), or join our [discord community](https://mksaas.link/discord) and ask for help there.
+> If you have any questions, please [submit an issue](https://github.com/RoboNeoHQ/roboneo-template/issues/new), or contact me at [support@roboneo.com](mailto:support@roboneo.com), or join our [discord community](https://roboneo.link/discord) and ask for help there.
 
 > If you want to receive notifications whenever code changes, please click `Watch` button in the top right.
 

@@ -111,12 +111,12 @@
   },
   "AboutPage": {
     "title": "About",
-    "description": "This is MkSaaS, an AI SaaS template built with modern technologies, helping you build your SaaS faster and better.",
-    "authorName": "MkSaaS",
-    "authorBio": "AI SaaS Boilerplate",
-    "introduction": "👋 Hi there! This is MkSaaS, an AI SaaS template built with modern technologies, helping you build your SaaS faster and better. If you have any questions, welcome to contact me.",
-    "talkWithMe": "Talk with me",
-    "followMe": "Follow me on X"
+    "description": "RoboNeo helps creators turn ideas into polished visuals with production-ready AI workflows.",
+    "authorName": "RoboNeo Team",
+    "authorBio": "AI Creativity Platform",
+    "introduction": "👋 Hi there! We're RoboNeo—building approachable AI tools so you can launch campaigns faster. Reach out anytime, we love feedback.",
+    "talkWithMe": "Contact us",
+    "followMe": "Follow RoboNeo on X"
   },
   "ChangelogPage": {
     "title": "Changelog",
@@ -257,7 +257,7 @@
     "previousPage": "Previous",
     "nextPage": "Next",
     "chooseLanguage": "Select language",
-    "title": "MkSaaS Docs",
+    "title": "RoboNeo Docs",
     "homepage": "Homepage",
     "blog": "Blog"
   },
@@ -704,12 +704,12 @@
     }
   },
   "HomePage": {
-    "title": "MkSaaS",
-    "description": "Make AI SaaS in days, simply and effortlessly",
+    "title": "RoboNeo",
+    "description": "Create AI-powered stickers, product shots, and marketing visuals with RoboNeo.",
     "hero": {
-      "title": "Make AI SaaS in days, simply and effortlessly",
-      "description": "The is a demo website built with MkSaaS, a Next.js SaaS boilerplate to help you build your AI SaaS faster and better.",
-      "introduction": "Introducing MkSaaS Boilerplate",
+      "title": "Create standout visuals in seconds",
+      "description": "RoboNeo turns prompts and photos into stickers, clean product shots, and marketing-ready scenes—no design skills required.",
+      "introduction": "Introducing RoboNeo AI Studio",
       "primary": "Get Started",
       "secondary": "See Demo"
     },
@@ -717,42 +717,42 @@
       "title": "Your favorite companies are our partners"
     },
     "integration": {
-      "title": "Integrations",
-      "subtitle": "Integrate with your favorite tools",
-      "description": "Connect seamlessly with popular platforms and services to enhance your workflow.",
+      "title": "Workflows",
+      "subtitle": "Export wherever you publish",
+      "description": "Download production-ready assets and drop them into the tools your team already uses.",
       "learnMore": "Learn More",
       "items": {
         "item-1": {
-          "title": "Google Gemini",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Canva",
+          "description": "Send transparent PNGs straight to your social content calendar."
         },
         "item-2": {
-          "title": "Replit",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Figma",
+          "description": "Sync assets to design systems and iterate on layouts fast."
         },
         "item-3": {
-          "title": "MagicUI",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Shopify",
+          "description": "Refresh storefront visuals and merchandising photography in minutes."
         },
         "item-4": {
-          "title": "VSCodium",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Notion",
+          "description": "Embed generated art in docs, briefs, and launch plans."
         },
         "item-5": {
-          "title": "MediaWiki",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Zapier",
+          "description": "Automate delivery to email, Slack, or storage workflows."
         },
         "item-6": {
-          "title": "Google PaLM",
-          "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem."
+          "title": "Adobe Creative Cloud",
+          "description": "Hand off layered exports for advanced retouching."
         }
       }
     },
     "integration2": {
-      "title": "Integrate with your favorite tools",
-      "description": "Connect seamlessly with popular platforms and services to enhance your workflow.",
-      "primaryButton": "Get Started",
-      "secondaryButton": "See Demo"
+      "title": "Automate your publishing pipeline",
+      "description": "Connect RoboNeo with the tools you already use to schedule, collaborate, and ship content.",
+      "primaryButton": "Explore integrations",
+      "secondaryButton": "View docs"
     },
     "imageShowcase": {
       "title": "Transform Any Photo into a Sticker",
@@ -760,72 +760,72 @@
       "description": "Upload a selfie, pet photo, or any image and watch RoboNeo AI create perfect stickers with clean backgrounds, smooth outlines, and vibrant colors. Perfect for messaging apps, social media, and more."
     },
     "features": {
-      "title": "Features",
-      "subtitle": "The features of your product",
-      "description": "Write the description of your product here",
+      "title": "Why creators choose RoboNeo",
+      "subtitle": "One studio, four workflows",
+      "description": "Cover your entire visual pipeline with AI tooling purpose-built for marketing teams.",
       "items": {
         "item-1": {
-          "title": "Product Feature One",
-          "description": "Please write the detailed description of feature one here, make it as detailed as possible, make it more attractive to users"
+          "title": "Sticker Maker",
+          "description": "Turn portraits, pets, and branding elements into crisp transparent stickers."
         },
         "item-2": {
-          "title": "Product Feature Two",
-          "description": "Please write the detailed description of feature two here, make it as detailed as possible, make it more attractive to users"
+          "title": "Product Studio",
+          "description": "Generate lifestyle scenes and packshots from a single reference image."
         },
         "item-3": {
-          "title": "Product Feature Three",
-          "description": "Please write the detailed description of feature three here, make it as detailed as possible, make it more attractive to users"
+          "title": "AI Backgrounds",
+          "description": "Swap environments instantly while preserving lighting and perspective."
         },
         "item-4": {
-          "title": "Product Feature Four",
-          "description": "Please write the detailed description of feature four here, make it as detailed as possible, make it more attractive to users"
+          "title": "Watermark Removal",
+          "description": "Clean legacy assets without introducing artifacts or blur."
         }
       }
     },
     "features2": {
-      "title": "Features2",
-      "subtitle": "The features of your product",
-      "description": "Write the description of your product here",
-      "feature-1": "Product Feature One",
-      "feature-2": "Product Feature Two",
-      "feature-3": "Product Feature Three",
-      "feature-4": "Product Feature Four"
+      "title": "Built for teams",
+      "subtitle": "Everything you need to stay on brand",
+      "description": "Flexible collaboration and pricing for solo creators through fast-growing teams.",
+      "feature-1": "Shared libraries with unlimited folders",
+      "feature-2": "Batch generation up to four variations at once",
+      "feature-3": "Export sizes optimized for web, print, and marketplaces",
+      "feature-4": "Usage insights to track adoption"
     },
     "features3": {
-      "title": "Features3",
-      "subtitle": "The features of your product",
-      "description": "Write the description of your product here",
+      "title": "Your workflow, streamlined",
+      "subtitle": "Go from idea to publish-ready",
+      "description": "RoboNeo guides you through each step so you can ship visuals faster.",
       "items": {
         "item-1": {
-          "title": "Product Feature One",
-          "description": "Please write the detailed description of feature one here"
+          "title": "Describe your goal",
+          "description": "Pick a preset or write a prompt for the asset you need."
         },
         "item-2": {
-          "title": "Product Feature Two",
-          "description": "Please write the detailed description of feature two here"
+          "title": "Upload references",
+          "description": "Add product photos or branding elements to keep things consistent."
         },
         "item-3": {
-          "title": "Product Feature Three",
-          "description": "Please write the detailed description of feature three here"
+          "title": "Choose a style",
+          "description": "Select curated lighting, mood, and composition presets."
         },
         "item-4": {
-          "title": "Product Feature Four",
-          "description": "Please write the detailed description of feature four here"
+          "title": "Generate variations",
+          "description": "Produce multiple options and favorite the ones you love."
         },
         "item-5": {
-          "title": "Product Feature Five",
-          "description": "Please write the detailed description of feature five here"
+          "title": "Fine-tune",
+          "description": "Apply background swaps, watermark removal, and precise crops."
         },
         "item-6": {
-          "title": "Product Feature Six",
-          "description": "Please write the detailed description of feature six here"
+          "title": "Export & publish",
+          "description": "Download optimized files or send them straight to your tools."
         }
       }
     },
     "pricing": {
       "title": "Pricing",
       "subtitle": "Pricing",
-      "description": "Generate dynamic scenes using AI technology, cancel anytime!"
+      "description": "Flexible plans with instant cancellation—upgrade only when you need more power."
     },
     "faqs": {
       "title": "Frequently Asked Questions",
@@ -909,17 +909,17 @@
     },
     "stats": {
       "title": "Stats",
-      "subtitle": "MkSaaS in numbers",
-      "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
+      "subtitle": "RoboNeo by the numbers",
+      "description": "See how teams use RoboNeo to create and ship content faster.",
       "items": {
         "item-1": {
-          "title": "Stars on GitHub"
+          "title": "Projects launched with RoboNeo"
         },
         "item-2": {
-          "title": "Active Users"
+          "title": "Active creative teams"
         },
         "item-3": {
-          "title": "Powered Apps"
+          "title": "Assets generated this month"
         }
       }
     },
@@ -932,22 +932,22 @@
   },
   "AITextPage": {
     "title": "AI Text",
-    "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
+    "description": "RoboNeo shares prompt tips and messaging examples for stronger campaigns.",
     "content": "Working in progress"
   },
   "AIImagePage": {
     "title": "AI Image",
-    "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
+    "description": "Learn how to generate photoreal assets, stickers, and background swaps with RoboNeo.",
     "content": "Working in progress"
   },
   "AIVideoPage": {
     "title": "AI Video",
-    "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
+    "description": "Watch step-by-step workflows that take you from concept to publish-ready visuals.",
     "content": "Working in progress"
   },
   "AIAudioPage": {
     "title": "AI Audio",
-    "description": "MkSaaS lets you make AI SaaS in days, simply and effortlessly",
+    "description": "Discover automation ideas that link RoboNeo with the rest of your tooling.",
     "content": "Working in progress"
   },
   "MyImageLibrary": {

@@ -60,7 +60,7 @@ export const getUsersAction = actionClient
       const sortDirection = sortConfig?.desc ? desc : asc;
 
       const db = await getDb();
-      let [items, [{ count }]] = await Promise.all([
+      const [items, [{ count }]] = await Promise.all([
         db
           .select()
           .from(user)
@@ -113,7 +113,7 @@ export const getUsersAction = actionClient
         preparedItems = preparedItems.map((item) => ({
           ...item,
           name: 'Demo User',
-          email: 'example@mksaas.com',
+          email: 'example@roboneo.com',
           customerId: 'cus_abcdef123456',
           subscriptionPlan: {
             planId: 'pro',
@@ -123,7 +123,9 @@ export const getUsersAction = actionClient
             interval: 'month',
             type: PaymentTypes.SUBSCRIPTION,
             periodStart: new Date().toISOString(),
-            periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            periodEnd: new Date(
+              Date.now() + 30 * 24 * 60 * 60 * 1000
+            ).toISOString(),
             cancelAtPeriodEnd: false,
             updatedAt: new Date().toISOString(),
             customerId: 'cus_abcdef123456',
