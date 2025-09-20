@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { AhrefsAnalytics } from './ahrefs-analytics';
 import DataFastAnalytics from './data-fast-analytics';
 import GoogleAnalytics from './google-analytics';
+import ClarityAnalytics from './clarity';
 import OpenPanelAnalytics from './open-panel-analytics';
 import { PlausibleAnalytics } from './plausible-analytics';
 import { SelineAnalytics } from './seline-analytics';
@@ -33,6 +34,9 @@ export function Analytics() {
 
       {/* plausible analytics */}
       <PlausibleAnalytics />
+
+      {/* microsoft clarity */}
+      <ClarityAnalytics />
 
       {/* ahrefs analytics */}
       <AhrefsAnalytics />
