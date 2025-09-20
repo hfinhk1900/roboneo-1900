@@ -800,7 +800,10 @@ export default function ProfilePictureMakerGenerator() {
         // Update credits (unified)
         try {
           const { spendCredits } = await import('@/lib/credits-utils');
-          await spendCredits({ amount: CREDITS_PER_IMAGE, fetchFallback: true });
+          await spendCredits({
+            amount: CREDITS_PER_IMAGE,
+            fetchFallback: true,
+          });
         } catch {}
 
         toast.success('Profile picture generated successfully!');
@@ -1076,7 +1079,7 @@ export default function ProfilePictureMakerGenerator() {
                   {isGenerating ? (
                     <>
                       <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
-                      Generating...
+                      Creating...
                     </>
                   ) : !isMounted ? (
                     <>
@@ -1126,14 +1129,14 @@ export default function ProfilePictureMakerGenerator() {
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
                               <span className="text-lg font-medium">
-                                Creating Professional Profile Picture...
+                                Creating...
                               </span>
                             </div>
 
                             {/* Progress bar - consistent with AI Background */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
@@ -1328,7 +1331,9 @@ export default function ProfilePictureMakerGenerator() {
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="truncate max-w-[60%]">Profile Style</span>
-                    <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
+                    <span>
+                      {new Date(item.createdAt).toISOString().slice(0, 10)}
+                    </span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button

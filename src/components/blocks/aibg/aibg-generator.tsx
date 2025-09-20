@@ -2373,7 +2373,7 @@ export function AIBackgroundGeneratorSection() {
                   {isProcessing ? (
                     <>
                       <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
-                      Processing...
+                      Creating...
                     </>
                   ) : !isMounted ? (
                     <>
@@ -2590,17 +2590,13 @@ export function AIBackgroundGeneratorSection() {
                             {/* 生成中图标 */}
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">
-                                {backgroundMode === 'color'
-                                  ? 'Removing Background...'
-                                  : 'Generating AI Background...'}
-                              </span>
+                              <span className="text-lg font-medium">Creating...</span>
                             </div>
 
                             {/* 进度条 - 与Productshot保持一致 */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
@@ -2746,7 +2742,9 @@ export function AIBackgroundGeneratorSection() {
                         ? 'Background Style'
                         : 'Solid Color'}
                     </span>
-                    <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
+                    <span>
+                      {new Date(item.createdAt).toISOString().slice(0, 10)}
+                    </span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button

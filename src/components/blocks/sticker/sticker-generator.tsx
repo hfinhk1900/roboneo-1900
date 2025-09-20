@@ -346,7 +346,10 @@ export default function StickerGenerator() {
         // Update credits (unified)
         try {
           const { spendCredits } = await import('@/lib/credits-utils');
-          await spendCredits({ amount: CREDITS_PER_IMAGE, fetchFallback: true });
+          await spendCredits({
+            amount: CREDITS_PER_IMAGE,
+            fetchFallback: true,
+          });
         } catch {}
 
         toast.success('Sticker generated successfully!');
@@ -622,26 +625,26 @@ export default function StickerGenerator() {
                 <Button
                   onClick={handleGenerate}
                   disabled={!selectedImage || isGenerating}
-                  className="w-full font-semibold h-[50px] rounded-2xl text-base mt-auto"
+                  className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] mt-auto whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
                 >
                   {isGenerating ? (
                     <>
-                      <LoaderIcon className="h-5 w-5 mr-2 animate-spin" />
-                      Generating...
+                      <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
+                      Creating...
                     </>
                   ) : !isMounted ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Generate Sticker ({CREDITS_PER_IMAGE} credits)
                     </>
                   ) : !currentUser ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Log in to generate
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Generate Sticker ({CREDITS_PER_IMAGE} credits)
                     </>
                   )}
@@ -676,15 +679,13 @@ export default function StickerGenerator() {
                             {/* Processing icon */}
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">
-                                Creating Amazing Sticker...
-                              </span>
+                              <span className="text-lg font-medium">Creating...</span>
                             </div>
 
                             {/* Progress bar */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
@@ -838,7 +839,9 @@ export default function StickerGenerator() {
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="truncate max-w-[60%]">{item.style}</span>
-                    <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
+                    <span>
+                      {new Date(item.createdAt).toISOString().slice(0, 10)}
+                    </span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button

@@ -1327,7 +1327,7 @@ export default function ProductShotGeneratorSection() {
 
                   <Button
                     onClick={handleGenerate}
-                  className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] cursor-pointer whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
+                    className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] cursor-pointer whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
                     disabled={
                       !uploadedImage ||
                       (!referenceImage && !selectedScene) || // 单图模式需要selectedScene，双图模式不需要
@@ -1342,7 +1342,7 @@ export default function ProductShotGeneratorSection() {
                       <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                     )}
                     {isLoading
-                      ? 'Generating Product Scene...'
+                      ? 'Creating...'
                       : !isMounted
                         ? `Generate Product Scene (${CREDITS_PER_IMAGE} credits)`
                         : !currentUser
@@ -1443,14 +1443,14 @@ export default function ProductShotGeneratorSection() {
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
                               <span className="text-lg font-medium">
-                                Generating...
+                                Creating...
                               </span>
                             </div>
 
                             {/* 进度条 */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
@@ -1761,7 +1761,9 @@ export default function ProductShotGeneratorSection() {
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                   <span className="truncate max-w-[60%]">{item.scene}</span>
-                  <span>{new Date(item.createdAt).toISOString().slice(0, 10)}</span>
+                  <span>
+                    {new Date(item.createdAt).toISOString().slice(0, 10)}
+                  </span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <Button
