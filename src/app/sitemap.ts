@@ -1,7 +1,7 @@
-import { websiteConfig } from '@/config/website';
 import { getLocalePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { blogSource, categorySource, source } from '@/lib/source';
+import { Routes } from '@/routes';
 import type { MetadataRoute } from 'next';
 import type { Locale } from 'next-intl';
 import { getBaseUrl } from '../lib/urls/urls';
@@ -11,21 +11,24 @@ type Href = Parameters<typeof getLocalePathname>[0]['href'];
 /**
  * static routes for sitemap, you may change the routes for your own
  */
-const staticRoutes = [
-  '/',
-  '/pricing',
-  // '/blog', // blog disabled for MVP
-  '/docs',
-  '/about',
-  '/contact',
-  '/waitlist',
-  '/changelog',
-  '/privacy',
-  '/terms',
-  '/cookie',
-  '/refund',
-  '/auth/login',
-  '/auth/register',
+const staticRoutes: Href[] = [
+  Routes.Root,
+  Routes.Pricing,
+  Routes.About,
+  Routes.Contact,
+  Routes.Waitlist,
+  Routes.Changelog,
+  Routes.PrivacyPolicy,
+  Routes.TermsOfService,
+  Routes.CookiePolicy,
+  Routes.RefundPolicy,
+  Routes.AISticker,
+  Routes.ProductShot,
+  Routes.AIBackground,
+  Routes.RemoveWatermark,
+  Routes.ProfilePictureMaker,
+  Routes.Login,
+  Routes.Register,
 ];
 
 /**
