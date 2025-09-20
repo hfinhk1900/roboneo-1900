@@ -1327,7 +1327,7 @@ export default function ProductShotGeneratorSection() {
 
                   <Button
                     onClick={handleGenerate}
-                    className="w-full font-semibold h-[50px] rounded-2xl text-base cursor-pointer"
+                  className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] cursor-pointer whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
                     disabled={
                       !uploadedImage ||
                       (!referenceImage && !selectedScene) || // 单图模式需要selectedScene，双图模式不需要
@@ -1337,9 +1337,9 @@ export default function ProductShotGeneratorSection() {
                     }
                   >
                     {isLoading ? (
-                      <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
+                      <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
                     ) : (
-                      <SparklesIcon className="mr-2 h-5 w-5" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                     )}
                     {isLoading
                       ? 'Generating Product Scene...'

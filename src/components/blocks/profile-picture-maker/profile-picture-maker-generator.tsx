@@ -1071,26 +1071,26 @@ export default function ProfilePictureMakerGenerator() {
                 <Button
                   onClick={handleGenerate}
                   disabled={!selectedImage || isGenerating}
-                  className="w-full font-semibold h-[50px] rounded-2xl text-base mt-auto"
+                  className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] mt-auto whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
                 >
                   {isGenerating ? (
                     <>
-                      <LoaderIcon className="h-5 w-5 mr-2 animate-spin" />
+                      <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
                       Generating...
                     </>
                   ) : !isMounted ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Generate Profile Picture ({CREDITS_PER_IMAGE} credits)
                     </>
                   ) : !currentUser ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Log in to generate
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2" />
+                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
                       Generate Profile Picture ({CREDITS_PER_IMAGE} credits)
                     </>
                   )}

@@ -59,7 +59,7 @@ export default function HomeHeroSection() {
               asChild
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto rounded-full text-sm sm:text-base px-6 sm:px-8 h-[48px] sm:h-[50px]"
+              className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px]"
             >
               <Link href="/sticker">Create Sticker</Link>
             </Button>
@@ -67,7 +67,7 @@ export default function HomeHeroSection() {
             <Button
               asChild
               size="lg"
-              className="w-full sm:w-auto rounded-full text-sm sm:text-base px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+              className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
             >
               <Link href="#all-tools">
                 <SparklesIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
