@@ -297,9 +297,8 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const imageFile = (formData.get('imageFile') || formData.get('image')) as
-      | File
-      | null;
+    const imageFile = (formData.get('imageFile') ||
+      formData.get('image')) as File | null;
     const style = (formData.get('style') as string) || 'ios';
 
     if (!imageFile) {
@@ -477,14 +476,17 @@ export async function POST(req: NextRequest) {
     // 8. 返回结果（完全脱敏）
     const payload = {
       success: true,
-      asset_id: assetId,
-      url: downloadUrl.url, // 前端使用的URL字段
+      data: {
+        output_image_url: downloadUrl.url,
+        asset_id: assetId,
+        expires_at: downloadUrl.expires_at,
+        style,
+        size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
+        credits_used: CREDITS_PER_IMAGE,
+        remaining_credits: remainingAfterDeduct ?? undefined,
+      },
+      url: downloadUrl.url,
       download_url: downloadUrl.url,
-      expires_at: downloadUrl.expires_at,
-      style: style,
-      size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
-      credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: remainingAfterDeduct ?? undefined,
       credits_sufficient: true,
       from_cache: false,
     } as const;
