@@ -60,10 +60,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // blog disabled for MVP: skip posts
 
-  // add docs
+  // add docs (filtered to exclude unwanted pages)
   const docsParams = source.generateParams();
+  const excludedDocsPaths = [
+    'comparisons',
+    'customisation',
+    '', // root docs page
+    'internationalization',
+    'manual-installation',
+    'markdown',
+    'search',
+    'static-export',
+    'theme',
+    'what-is-fumadocs',
+    'components/accordion',
+    'components/banner',
+    'components/dynamic-codeblock',
+    'components/files',
+    'components/github-info',
+    'components/image-zoom',
+    'components',
+    'components/inline-toc',
+    'components/root-toggle',
+    'components/steps',
+    'components/tabs',
+    'components/type-table',
+    'layouts/docs',
+    'layouts/home-layout',
+    'layouts/notebook',
+    'layouts/page',
+    'layouts/root-provider',
+    'mdx/callout',
+    'mdx/card',
+    'mdx/codeblock',
+    'mdx/heading',
+    'mdx',
+  ];
+
+  const filteredDocsParams = docsParams.filter((param) => {
+    const slugPath = param.slug.join('/');
+    return !excludedDocsPaths.includes(slugPath);
+  });
+
   sitemapList.push(
-    ...docsParams.flatMap((param) =>
+    ...filteredDocsParams.flatMap((param) =>
       routing.locales.map((locale) => ({
         url: getUrl(`/docs/${param.slug.join('/')}`, locale),
         lastModified: new Date(),
