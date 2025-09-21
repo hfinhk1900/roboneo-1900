@@ -262,7 +262,9 @@ export const RegisterForm = ({
       form.formState.errors?.email?.message ||
       form.formState.errors?.password?.message ||
       form.formState.errors?.name?.message ||
-      (captchaActive && !captchaToken ? 'Please complete captcha verification first.' : '') ||
+      (captchaActive && !captchaToken
+        ? 'Please complete captcha verification first.'
+        : '') ||
       'Please check the required fields';
     setError(String(msg));
     if (msg) toast.error(String(msg));
@@ -360,14 +362,20 @@ export const RegisterForm = ({
             <Captcha
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
-              onExpire={() => handleCaptchaReset('Captcha expired, please verify again.')}
+              onExpire={() =>
+                handleCaptchaReset('Captcha expired, please verify again.')
+              }
               onTimeout={() =>
-                handleCaptchaReset('Captcha timeout, please click to verify again.')
+                handleCaptchaReset(
+                  'Captcha timeout, please click to verify again.'
+                )
               }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on register:', reason);
-                handleCaptchaReset(message || 'Captcha verification failed, please try again.');
+                handleCaptchaReset(
+                  message || 'Captcha verification failed, please try again.'
+                );
               }}
               validationError={form.formState.errors.captchaToken?.message}
             />
@@ -387,7 +395,9 @@ export const RegisterForm = ({
               </Button>
             </TooltipTrigger>
             {captchaActive && !captchaToken && (
-              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
+              <TooltipContent sideOffset={6}>
+                Please complete verification first
+              </TooltipContent>
             )}
           </Tooltip>
         </form>

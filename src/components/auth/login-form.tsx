@@ -72,7 +72,7 @@ export const LoginForm = ({
   const captchaActive =
     turnstileEnabled && !!envSiteKey && envSiteKey !== 'YOUR_SITE_KEY_HERE';
   const captchaSchema = captchaActive
-    ? z.string().min(1, '请完成验证码验证')
+    ? z.string().min(1, 'Please complete captcha verification')
     : z.string().optional();
 
   const LoginSchema = z.object({
@@ -292,14 +292,14 @@ export const LoginForm = ({
             <Captcha
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
-              onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
+              onExpire={() => handleCaptchaReset('Captcha expired, please verify again.')}
               onTimeout={() =>
-                handleCaptchaReset('验证码超时，请重新点击验证。')
+                handleCaptchaReset('Captcha timeout, please click to verify again.')
               }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on login:', reason);
-                handleCaptchaReset(message || '验证码校验失败，请重试。');
+                handleCaptchaReset(message || 'Captcha verification failed, please try again.');
               }}
               validationError={form.formState.errors.captchaToken?.message}
             />
