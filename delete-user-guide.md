@@ -30,10 +30,10 @@ import { UserManagement } from '@/components/admin/user-management';
 4. 确认后点击"确认删除"
 
 #### **删除范围**：
-✅ **数据库**：用户账户、会话、支付记录、所有历史记录  
-✅ **R2存储**：用户上传和生成的所有图片文件  
-✅ **级联删除**：所有关联的子表数据  
-❌ **IndexedDB**：需要前端手动清理  
+✅ **数据库**：用户账户、会话、支付记录、所有历史记录
+✅ **R2存储**：用户上传和生成的所有图片文件
+✅ **级联删除**：所有关联的子表数据
+❌ **IndexedDB**：需要前端手动清理
 
 ---
 
@@ -87,15 +87,15 @@ DELETE FROM "user" WHERE id = 'USER_ID';
 // 在浏览器控制台执行，清理特定用户的IndexedDB
 async function deleteUserIndexedDB(userId) {
   const dbName = `RoboneoImageLibrary_${userId}`;
-  
+
   console.log(`🗑️ 删除用户${userId}的IndexedDB: ${dbName}`);
-  
+
   const deleteRequest = indexedDB.deleteDatabase(dbName);
-  
+
   deleteRequest.onsuccess = () => {
     console.log(`✅ ${dbName} 删除成功`);
   };
-  
+
   deleteRequest.onerror = (error) => {
     console.log(`❌ ${dbName} 删除失败:`, error);
   };
@@ -136,7 +136,7 @@ SELECT COUNT(*) FROM aibg_history WHERE "user_id" = 'DELETED_USER_ID'; -- 应该
 - ✅ **支持预览模式** (可以先查看要删除的数据)
 
 ### **数据恢复**：
-- ⚠️ **数据库删除不可逆** 
+- ⚠️ **数据库删除不可逆**
 - ⚠️ **R2文件删除不可逆**
 - 💡 **建议删除前先备份重要数据**
 
@@ -153,21 +153,21 @@ USER_EMAILS=(
 
 for email in "${USER_EMAILS[@]}"; do
   echo "正在删除用户: $email"
-  
+
   # 查找用户ID
   USER_ID=$(curl -s -X GET "https://your-domain.com/api/admin/find-user?email=$email" \
     -H "Cookie: your-session" | jq -r '.userId')
-  
+
   if [ "$USER_ID" != "null" ]; then
     # 执行删除
     curl -X DELETE "https://your-domain.com/api/admin/delete-user?userId=$USER_ID" \
       -H "Cookie: your-session"
-    
+
     echo "✅ $email 删除完成"
   else
     echo "❌ $email 用户不存在"
   fi
-  
+
   sleep 1  # 避免API频率限制
 done
 ```

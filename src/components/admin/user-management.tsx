@@ -43,7 +43,9 @@ export function UserManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [userPreview, setUserPreview] = useState<UserDeletionPreview | null>(null);
+  const [userPreview, setUserPreview] = useState<UserDeletionPreview | null>(
+    null
+  );
 
   // 搜索用户并获取删除预览
   const handleSearchUser = async () => {
@@ -55,8 +57,10 @@ export function UserManagement() {
     setIsLoading(true);
     try {
       // 注意：这里需要一个API来通过邮箱查找用户ID
-      const searchRes = await fetch(`/api/admin/find-user?email=${encodeURIComponent(searchEmail)}`);
-      
+      const searchRes = await fetch(
+        `/api/admin/find-user?email=${encodeURIComponent(searchEmail)}`
+      );
+
       if (!searchRes.ok) {
         const error = await searchRes.json();
         toast.error(error.error || '查找用户失败');
@@ -67,7 +71,7 @@ export function UserManagement() {
 
       // 获取删除预览
       const previewRes = await fetch(`/api/admin/delete-user?userId=${userId}`);
-      
+
       if (!previewRes.ok) {
         const error = await previewRes.json();
         toast.error(error.error || '获取用户信息失败');
@@ -77,7 +81,6 @@ export function UserManagement() {
       const preview = await previewRes.json();
       setUserPreview(preview);
       setShowDeleteDialog(true);
-
     } catch (error) {
       console.error('Search user error:', error);
       toast.error('搜索用户时发生错误');
@@ -92,9 +95,12 @@ export function UserManagement() {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/admin/delete-user?userId=${userPreview.user.id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/api/admin/delete-user?userId=${userPreview.user.id}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -104,12 +110,11 @@ export function UserManagement() {
 
       const result = await response.json();
       toast.success(`用户 ${result.deletedData.email} 已完全删除`);
-      
+
       // 重置状态
       setShowDeleteDialog(false);
       setUserPreview(null);
       setSearchEmail('');
-
     } catch (error) {
       console.error('Delete user error:', error);
       toast.error('删除用户时发生错误');
@@ -187,12 +192,23 @@ export function UserManagement() {
                   <span className="font-medium">用户信息</span>
                 </div>
                 <div className="text-sm space-y-1">
-                  <div><strong>邮箱:</strong> {userPreview.user.email}</div>
-                  <div><strong>姓名:</strong> {userPreview.user.name}</div>
-                  <div><strong>积分:</strong> {userPreview.user.credits}</div>
-                  <div><strong>注册时间:</strong> {new Date(userPreview.user.createdAt).toLocaleString()}</div>
+                  <div>
+                    <strong>邮箱:</strong> {userPreview.user.email}
+                  </div>
+                  <div>
+                    <strong>姓名:</strong> {userPreview.user.name}
+                  </div>
+                  <div>
+                    <strong>积分:</strong> {userPreview.user.credits}
+                  </div>
+                  <div>
+                    <strong>注册时间:</strong>{' '}
+                    {new Date(userPreview.user.createdAt).toLocaleString()}
+                  </div>
                   {userPreview.user.role && (
-                    <div><strong>角色:</strong> {userPreview.user.role}</div>
+                    <div>
+                      <strong>角色:</strong> {userPreview.user.role}
+                    </div>
                   )}
                 </div>
               </div>
@@ -205,14 +221,31 @@ export function UserManagement() {
                 </div>
                 <div className="text-sm space-y-1">
                   <div>资产文件: {userPreview.dataToDelete.assets} 个</div>
-                  <div>AI背景历史: {userPreview.dataToDelete.aibgHistory} 条</div>
-                  <div>头像制作历史: {userPreview.dataToDelete.profilePictureHistory} 条</div>
-                  <div>贴纸生成历史: {userPreview.dataToDelete.stickerHistory} 条</div>
-                  <div>产品拍摄历史: {userPreview.dataToDelete.productshotHistory} 条</div>
-                  <div>水印移除历史: {userPreview.dataToDelete.watermarkHistory} 条</div>
-                  <div>积分交易记录: {userPreview.dataToDelete.creditsTransactions} 条</div>
+                  <div>
+                    AI背景历史: {userPreview.dataToDelete.aibgHistory} 条
+                  </div>
+                  <div>
+                    头像制作历史:{' '}
+                    {userPreview.dataToDelete.profilePictureHistory} 条
+                  </div>
+                  <div>
+                    贴纸生成历史: {userPreview.dataToDelete.stickerHistory} 条
+                  </div>
+                  <div>
+                    产品拍摄历史: {userPreview.dataToDelete.productshotHistory}{' '}
+                    条
+                  </div>
+                  <div>
+                    水印移除历史: {userPreview.dataToDelete.watermarkHistory} 条
+                  </div>
+                  <div>
+                    积分交易记录: {userPreview.dataToDelete.creditsTransactions}{' '}
+                    条
+                  </div>
                   <div className="pt-2 border-t border-red-200">
-                    <strong>总计: {userPreview.dataToDelete.totalRecords} 条记录</strong>
+                    <strong>
+                      总计: {userPreview.dataToDelete.totalRecords} 条记录
+                    </strong>
                   </div>
                 </div>
               </div>

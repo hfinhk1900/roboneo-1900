@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // 获取查询参数
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
-    
+
     if (!email) {
       return NextResponse.json(
         { error: 'Missing email parameter' },
@@ -47,22 +47,15 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (userData.length === 0) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     return NextResponse.json({
       userId: userData[0].id,
       user: userData[0],
     });
-
   } catch (error) {
     console.error('❌ Failed to find user:', error);
-    return NextResponse.json(
-      { error: 'Failed to find user' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to find user' }, { status: 500 });
   }
 }

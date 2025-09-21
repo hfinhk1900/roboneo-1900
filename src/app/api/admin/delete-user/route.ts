@@ -1,17 +1,17 @@
 import { getDb } from '@/db';
-import { 
-  user, 
-  account, 
-  session, 
-  payment, 
-  assets, 
-  aibgHistory, 
-  profilePictureHistory, 
-  creditsTransaction, 
+import {
+  account,
+  aibgHistory,
   ailogHistory,
-  stickerHistory,
+  assets,
+  creditsTransaction,
+  payment,
   productshotHistory,
-  watermarkHistory
+  profilePictureHistory,
+  session,
+  stickerHistory,
+  user,
+  watermarkHistory,
 } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { isAdmin } from '@/lib/auth-utils';
@@ -39,7 +39,7 @@ export async function DELETE(request: NextRequest) {
     // 2. 获取要删除的用户ID
     const { searchParams } = new URL(request.url);
     const targetUserId = searchParams.get('userId');
-    
+
     if (!targetUserId) {
       return NextResponse.json(
         { error: 'Missing userId parameter' },
@@ -56,10 +56,7 @@ export async function DELETE(request: NextRequest) {
       .limit(1);
 
     if (targetUserData.length === 0) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     if (isAdmin(targetUserData[0])) {
@@ -69,7 +66,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    console.log(`🗑️ Starting deletion of user: ${targetUserId} (${targetUserData[0].email})`);
+    console.log(
+      `🗑️ Starting deletion of user: ${targetUserId} (${targetUserData[0].email})`
+    );
 
     // 4. 获取用户的所有资产以删除R2文件
     const userAssets = await db
@@ -83,7 +82,7 @@ export async function DELETE(request: NextRequest) {
     if (userAssets.length > 0) {
       try {
         const { deleteFile } = await import('@/storage');
-        
+
         for (const asset of userAssets) {
           try {
             await deleteFile(asset.key);
@@ -101,8 +100,10 @@ export async function DELETE(request: NextRequest) {
     await db.transaction(async (tx) => {
       // 删除用户记录 (CASCADE会自动删除相关表的记录)
       await tx.delete(user).where(eq(user.id, targetUserId));
-      
-      console.log(`✅ User ${targetUserId} and all related data deleted from database`);
+
+      console.log(
+        `✅ User ${targetUserId} and all related data deleted from database`
+      );
     });
 
     // 7. 返回成功响应
@@ -113,15 +114,14 @@ export async function DELETE(request: NextRequest) {
         userId: targetUserId,
         email: targetUserData[0].email,
         assetsDeleted: userAssets.length,
-      }
+      },
     });
-
   } catch (error) {
     console.error('❌ User deletion failed:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to delete user',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const targetUserId = searchParams.get('userId');
-    
+
     if (!targetUserId) {
       return NextResponse.json(
         { error: 'Missing userId parameter' },
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDb();
-    
+
     // 获取用户基本信息
     const userData = await db
       .select()
@@ -165,10 +165,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (userData.length === 0) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // 统计用户数据
@@ -183,11 +180,26 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       db.select().from(assets).where(eq(assets.user_id, targetUserId)),
       db.select().from(aibgHistory).where(eq(aibgHistory.userId, targetUserId)),
-      db.select().from(profilePictureHistory).where(eq(profilePictureHistory.userId, targetUserId)),
-      db.select().from(stickerHistory).where(eq(stickerHistory.userId, targetUserId)),
-      db.select().from(productshotHistory).where(eq(productshotHistory.userId, targetUserId)),
-      db.select().from(watermarkHistory).where(eq(watermarkHistory.userId, targetUserId)),
-      db.select().from(creditsTransaction).where(eq(creditsTransaction.user_id, targetUserId)),
+      db
+        .select()
+        .from(profilePictureHistory)
+        .where(eq(profilePictureHistory.userId, targetUserId)),
+      db
+        .select()
+        .from(stickerHistory)
+        .where(eq(stickerHistory.userId, targetUserId)),
+      db
+        .select()
+        .from(productshotHistory)
+        .where(eq(productshotHistory.userId, targetUserId)),
+      db
+        .select()
+        .from(watermarkHistory)
+        .where(eq(watermarkHistory.userId, targetUserId)),
+      db
+        .select()
+        .from(creditsTransaction)
+        .where(eq(creditsTransaction.user_id, targetUserId)),
     ]);
 
     return NextResponse.json({
@@ -200,14 +212,18 @@ export async function GET(request: NextRequest) {
         productshotHistory: productshotCount.length,
         watermarkHistory: watermarkCount.length,
         creditsTransactions: transactionCount.length,
-        totalRecords: assetCount.length + aibgCount.length + profileCount.length + 
-                      stickerCount.length + productshotCount.length + watermarkCount.length + 
-                      transactionCount.length,
+        totalRecords:
+          assetCount.length +
+          aibgCount.length +
+          profileCount.length +
+          stickerCount.length +
+          productshotCount.length +
+          watermarkCount.length +
+          transactionCount.length,
       },
       isAdmin: isAdmin(userData[0]),
       canDelete: !isAdmin(userData[0]),
     });
-
   } catch (error) {
     console.error('❌ Failed to get user deletion preview:', error);
     return NextResponse.json(
