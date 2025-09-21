@@ -95,13 +95,18 @@ export class RembgApiService {
         }
       }
 
+      // Generate idempotency key including image hash for better uniqueness
+      const imageHash = await this.generateImageHash(imageFile);
+      const aspectRatioStr = options.aspectRatio ? `${options.aspectRatio.width}x${options.aspectRatio.height}` : 'auto';
+      const contextualKey = `${newIdempotencyKey()}-${imageHash}-${aspectRatioStr}-${options.backgroundColor || 'transparent'}`;
+      
       const response = await fetchWithTimeoutRetry(
         '/api/bg/remove-direct',
         {
           method: 'POST',
           body: formData,
           headers: {
-            'Idempotency-Key': newIdempotencyKey(),
+            'Idempotency-Key': contextualKey,
           } as any,
         },
         // Default 120s unless explicitly overridden by caller
@@ -113,6 +118,13 @@ export class RembgApiService {
         const errorData = await response
           .json()
           .catch(() => ({ error: 'Unknown error' }));
+        
+        // Handle duplicate request error specially
+        if (response.status === 409 && errorData.error === 'Duplicate request') {
+          console.warn('⚠️ Duplicate request detected, this might indicate a timing issue');
+          throw new Error('Request is already being processed. Please wait a moment and try again.');
+        }
+        
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
@@ -219,6 +231,44 @@ export class RembgApiService {
       img.onerror = () => reject(new Error('Image processing failed'));
       img.src = imageDataUrl;
     });
+  }
+
+  /**
+   * 生成图片内容的简单哈希值用于幂等性键
+   */
+  private async generateImageHash(imageFile: File | string): Promise<string> {
+    try {
+      let content: string;
+      
+      if (typeof imageFile === 'string') {
+        // If it's already a base64 string, use first 100 chars
+        content = imageFile.substring(0, 100);
+      } else {
+        // For File objects, create a simple hash from name and size
+        content = `${imageFile.name}-${imageFile.size}-${imageFile.lastModified}`;
+      }
+      
+      // Create simple hash using built-in crypto if available
+      if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(content);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+      }
+      
+      // Fallback: simple string hash
+      let hash = 0;
+      for (let i = 0; i < content.length; i++) {
+        const char = content.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+      }
+      return Math.abs(hash).toString(16);
+    } catch {
+      // Fallback to timestamp if hashing fails
+      return Date.now().toString(16);
+    }
   }
 
   /**

@@ -60,12 +60,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(entry.response);
       }
       if (entry?.status === 'pending') {
+        console.warn(`⚠️ Duplicate request detected for key: ${idStoreKey}`);
         return NextResponse.json(
           { error: 'Duplicate request' },
           { status: 409 }
         );
       }
-      setPending(idStoreKey);
+      // Set pending with shorter TTL for background removal (3 minutes instead of 10)
+      await setPending(idStoreKey, 3 * 60 * 1000);
     }
 
     // Pre-deduct credits (atomic); refund on failure later
