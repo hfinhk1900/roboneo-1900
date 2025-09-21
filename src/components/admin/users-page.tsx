@@ -1,7 +1,9 @@
 'use client';
 
 import { getUsersAction } from '@/actions/get-users';
+import { UserManagement } from '@/components/admin/user-management';
 import { UsersTable } from '@/components/admin/users-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUsersStore } from '@/stores/users-store';
 import type { AdminUser } from '@/types/admin-user';
 import type { SortingState } from '@tanstack/react-table';
@@ -19,6 +21,7 @@ export function UsersPageClient() {
   const [loading, setLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const refreshTrigger = useUsersStore((state) => state.refreshTrigger);
+  const triggerRefresh = useUsersStore((state) => state.triggerRefresh);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -54,19 +57,32 @@ export function UsersPageClient() {
   }, [pageIndex, pageSize, search, sorting, refreshTrigger]);
 
   return (
-    <>
-      <UsersTable
-        data={data}
-        total={total}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        search={search}
-        loading={loading}
-        onSearch={setSearch}
-        onPageChange={setPageIndex}
-        onPageSizeChange={setPageSize}
-        onSortingChange={setSorting}
-      />
-    </>
+    <div className="container mx-auto px-4 py-6">
+      <Tabs defaultValue="list" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="list">User List</TabsTrigger>
+          <TabsTrigger value="delete">Delete User</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="list" className="mt-6">
+          <UsersTable
+            data={data}
+            total={total}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            search={search}
+            loading={loading}
+            onSearch={setSearch}
+            onPageChange={setPageIndex}
+            onPageSizeChange={setPageSize}
+            onSortingChange={setSorting}
+          />
+        </TabsContent>
+        
+        <TabsContent value="delete" className="mt-6">
+          <UserManagement onUserDeleted={triggerRefresh} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

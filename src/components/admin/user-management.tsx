@@ -38,7 +38,11 @@ interface UserDeletionPreview {
   canDelete: boolean;
 }
 
-export function UserManagement() {
+interface UserManagementProps {
+  onUserDeleted?: () => void;
+}
+
+export function UserManagement({ onUserDeleted }: UserManagementProps = {}) {
   const [searchEmail, setSearchEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -115,6 +119,11 @@ export function UserManagement() {
       setShowDeleteDialog(false);
       setUserPreview(null);
       setSearchEmail('');
+
+      // 触发用户列表刷新
+      if (onUserDeleted) {
+        onUserDeleted();
+      }
     } catch (error) {
       console.error('Delete user error:', error);
       toast.error('删除用户时发生错误');

@@ -50,8 +50,8 @@ await deleteUser('user@example.com');
 
 // 批量删除多个用户
 await batchDeleteUsers([
-  'test1@example.com', 
-  'test2@example.com', 
+  'test1@example.com',
+  'test2@example.com',
   'test3@example.com'
 ]);
 
@@ -191,7 +191,7 @@ async function cleanUserIndexedDB(userId) {
 // 批量删除所有test邮箱
 const testEmails = [
   'test1@example.com',
-  'test2@example.com', 
+  'test2@example.com',
   'test3@example.com',
   'demo@example.com',
   'sample@example.com'
