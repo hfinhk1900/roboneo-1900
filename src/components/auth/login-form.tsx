@@ -292,14 +292,20 @@ export const LoginForm = ({
             <Captcha
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
-              onExpire={() => handleCaptchaReset('Captcha expired, please verify again.')}
+              onExpire={() =>
+                handleCaptchaReset('Captcha expired, please verify again.')
+              }
               onTimeout={() =>
-                handleCaptchaReset('Captcha timeout, please click to verify again.')
+                handleCaptchaReset(
+                  'Captcha timeout, please click to verify again.'
+                )
               }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on login:', reason);
-                handleCaptchaReset(message || 'Captcha verification failed, please try again.');
+                handleCaptchaReset(
+                  message || 'Captcha verification failed, please try again.'
+                );
               }}
               validationError={form.formState.errors.captchaToken?.message}
             />

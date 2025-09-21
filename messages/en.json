@@ -91,11 +91,10 @@
       "description": "Best for creators",
       "features": {
         "feature-1": "5,000 credits per month (500 images)",
-        "feature-2": "Batch generation (up to 4 images per prompt)",
-        "feature-3": "Priority queue (5× faster)",
-        "feature-4": "Early access to new features",
-        "feature-5": "High-resolution downloads (up to 4K)",
-        "feature-6": "No ads, no watermark"
+        "feature-2": "Priority queue (5× faster)",
+        "feature-3": "Early access to new features",
+        "feature-4": "High-resolution downloads (up to 4K)",
+        "feature-5": "No ads, no watermark"
       }
     }
   },
