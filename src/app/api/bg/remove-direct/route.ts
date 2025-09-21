@@ -70,26 +70,10 @@ export async function POST(req: NextRequest) {
       await setPending(idStoreKey, 3 * 60 * 1000);
     }
 
-    // Pre-deduct credits (atomic); refund on failure later
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deduct = await deductCreditsAction({
-      userId,
-      amount: CREDITS_PER_IMAGE,
-    });
-    if (!deduct?.data?.success) {
-      return NextResponse.json(
-        {
-          error: 'Insufficient credits',
-          required: CREDITS_PER_IMAGE,
-          current: deduct?.data?.data?.currentCredits ?? 0,
-        },
-        { status: 402 }
-      );
-    }
-
+    // Pre-check system configuration (before charging user to avoid wrong deductions)
     console.log('🔄 Proxying request to private HF Space...');
 
-    // 检查环境变量配置
+    // 检查环境变量配置（在扣费前检查，避免系统配置问题导致用户被错误扣费）
     const HF_SPACE_URL = process.env.HF_SPACE_URL;
     const HF_SPACE_TOKEN = process.env.HF_SPACE_TOKEN;
 
@@ -105,7 +89,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 获取请求数据
+    // 获取请求数据并预检查
     const formData = await req.formData();
 
     // 记录请求信息（不记录敏感数据）
@@ -120,7 +104,7 @@ export async function POST(req: NextRequest) {
       `📊 Image data size: ${imageData ? imageData.length : 0} characters`
     );
 
-    // 限制图片大小（基于base64长度的近似计算）
+    // 限制图片大小（基于base64长度的近似计算） - 在扣费前检查
     if (imageData) {
       const base64Part = imageData.includes(',')
         ? imageData.split(',')[1]
@@ -139,6 +123,23 @@ export async function POST(req: NextRequest) {
           { status: 413 }
         );
       }
+    }
+
+    // Pre-deduct credits (atomic); refund on failure later
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId,
+      amount: CREDITS_PER_IMAGE,
+    });
+    if (!deduct?.data?.success) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          required: CREDITS_PER_IMAGE,
+          current: deduct?.data?.data?.currentCredits ?? 0,
+        },
+        { status: 402 }
+      );
     }
 
     // 转发到 HF Space (支持公有和私有)
