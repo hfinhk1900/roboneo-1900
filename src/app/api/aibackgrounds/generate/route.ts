@@ -246,24 +246,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. 预扣费（原子），失败则直接返回402
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deduct = await deductCreditsAction({
-      userId,
-      amount: CREDITS_PER_IMAGE,
-    });
-    if (!deduct?.data?.success) {
-      return NextResponse.json(
-        {
-          error: 'Insufficient credits',
-          required: CREDITS_PER_IMAGE,
-          current: deduct?.data?.data?.currentCredits ?? 0,
-        },
-        { status: 402 }
-      );
-    }
-
-    // 5. 初始化 SiliconFlow 提供商
+    // 4. 预检查系统配置（在扣费前检查，避免用户被错误扣费）
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {
       console.error('SiliconFlow API key not configured');
@@ -273,9 +256,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const provider = new SiliconFlowProvider(apiKey);
-
-    // 校验存储配置（提前失败）
+    // 校验存储配置（提前失败，避免扣费后才发现配置问题）
     try {
       const required = [
         'STORAGE_REGION',
@@ -293,7 +274,27 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
-    // 6. 构建提示词
+    // 5. 预扣费（原子），失败则直接返回402
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId,
+      amount: CREDITS_PER_IMAGE,
+    });
+    if (!deduct?.data?.success) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          required: CREDITS_PER_IMAGE,
+          current: deduct?.data?.data?.currentCredits ?? 0,
+        },
+        { status: 402 }
+      );
+    }
+
+    // 6. 初始化 SiliconFlow 提供商
+    const provider = new SiliconFlowProvider(apiKey);
+
+    // 7. 构建提示词
     let finalPrompt: string;
 
     if (backgroundMode === 'color') {
@@ -339,7 +340,7 @@ export async function POST(request: NextRequest) {
       prompt: finalPrompt.substring(0, 100) + '...',
     });
 
-    // 7. 设置生成参数
+    // 8. 设置生成参数
     const selectedModel =
       backgroundMode === 'color'
         ? 'black-forest-labs/FLUX.1-schnell'
@@ -365,7 +366,7 @@ export async function POST(request: NextRequest) {
       hasImageInput: !!image_input,
     });
 
-    // 8. 调用 AI 生成 - 使用专门的 aibackgrounds 存储文件夹
+    // 9. 调用 AI 生成 - 使用专门的 aibackgrounds 存储文件夹
     // 订阅检查：未订阅加水印
     let isSubscribed = false;
     try {
@@ -382,9 +383,9 @@ export async function POST(request: NextRequest) {
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
-    // 9. 已预扣费，无需再次扣费
+    // 10. 已预扣费，无需再次扣费
 
-    // 10. 创建资产记录
+    // 11. 创建资产记录
     if (!result.resultUrl) {
       throw new Error('Failed to generate image URL');
     }
@@ -411,7 +412,7 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // 11. 生成签名下载URL
+    // 12. 生成签名下载URL
     const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
 
     console.log('✅ AI Background asset created:', {
@@ -436,7 +437,7 @@ export async function POST(request: NextRequest) {
       });
     } catch {}
 
-    // 12. 返回结果（完全脱敏）
+    // 13. 返回结果（完全脱敏）
     const payload = {
       success: true,
       asset_id: assetId,
