@@ -50,13 +50,18 @@ const customNavigationMenuTriggerStyle = cn(
   'data-[state=open]:bg-transparent data-[state=open]:text-foreground'
 );
 
-function HeaderCreditsDisplay() {
-  const { credits, loading } = useCredits({ enabled: true });
+function HeaderCreditsDisplay({ user }: { user: User | null }) {
+  const { credits, loading } = useCredits({ enabled: Boolean(user) });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Don't show anything if user is not logged in
+  if (!user) {
+    return null;
+  }
 
   if (!mounted || loading) {
     return (
@@ -579,7 +584,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
               <div className="flex items-center gap-x-3">
                 {/* Credits display for logged in users */}
                 <div className="hidden sm:block">
-                  <HeaderCreditsDisplay />
+                  <HeaderCreditsDisplay user={effectiveUser} />
                 </div>
                 <UserButton user={effectiveUser} />
               </div>
