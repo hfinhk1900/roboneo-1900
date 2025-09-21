@@ -1154,8 +1154,7 @@ export default function ProductShotGeneratorSection() {
                         }
                       >
                         <SelectTrigger
-                          className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                          style={{ height: '50px', padding: '0px 12px' }}
+                          className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                         >
                           <SelectValue placeholder="Please select a photography scene">
                             {selectedSceneConfig ? (
@@ -1176,7 +1175,7 @@ export default function ProductShotGeneratorSection() {
                             )}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                        <SelectContent className="z-[9999] max-h-[300px] overflow-y-auto">
                           <SelectGroup>
                             {/* All Scenes in order */}
                             {scenes.map((scene) => (
@@ -1184,10 +1183,11 @@ export default function ProductShotGeneratorSection() {
                                 <SelectItem
                                   value={scene.id}
                                   className={cn(
-                                    'cursor-pointer py-3 px-3 transition-colors',
-                                    'hover:bg-muted/50 hover:text-foreground',
-                                    'focus:bg-muted/50 focus:text-foreground',
-                                    'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
+                                    'cursor-pointer py-3 px-3 transition-all duration-150',
+                                    'hover:bg-blue-50 hover:text-blue-900',
+                                    'focus:bg-blue-50 focus:text-blue-900',
+                                    'data-[highlighted]:bg-blue-50 data-[highlighted]:text-blue-900',
+                                    'active:bg-blue-100'
                                   )}
                                 >
                                   <div className="flex items-center gap-3">
@@ -1256,8 +1256,7 @@ export default function ProductShotGeneratorSection() {
                         onValueChange={(value) => setSelectedAspect(value)}
                       >
                         <SelectTrigger
-                          className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                          style={{ height: '50px', padding: '0px 12px' }}
+                          className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                         >
                           <SelectValue placeholder="Aspect Ratio (Default Original)">
                             {ASPECT_OPTIONS.find(
@@ -1290,7 +1289,7 @@ export default function ProductShotGeneratorSection() {
                             )}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-gray-900 border border-border shadow-md !bg-opacity-100">
+                        <SelectContent className="z-[9999] max-h-[300px] overflow-y-auto">
                           <SelectGroup>
                             {ASPECT_OPTIONS.map((opt) => (
                               <SelectItem

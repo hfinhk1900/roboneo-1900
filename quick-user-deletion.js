@@ -29,7 +29,7 @@ class UserDeletionTool {
 
       if (!findResponse.ok) {
         const error = await findResponse.json();
-        console.error(`❌ 查找用户失败:`, error.error);
+        console.error('❌ 查找用户失败:', error.error);
         return false;
       }
 
@@ -37,7 +37,7 @@ class UserDeletionTool {
       console.log(`✅ 找到用户: ${user.name} (${user.email})`);
 
       // 2. 获取删除预览
-      console.log(`📊 获取删除预览信息...`);
+      console.log('📊 获取删除预览信息...');
       const previewResponse = await fetch(
         `${this.baseUrl}/api/admin/delete-user?userId=${userId}`,
         {
@@ -47,19 +47,19 @@ class UserDeletionTool {
 
       if (!previewResponse.ok) {
         const error = await previewResponse.json();
-        console.error(`❌ 获取预览失败:`, error.error);
+        console.error('❌ 获取预览失败:', error.error);
         return false;
       }
 
       const preview = await previewResponse.json();
 
       // 3. 显示删除预览
-      console.log(`📋 删除预览:`);
+      console.log('📋 删除预览:');
       console.log(`  用户: ${preview.user.name} (${preview.user.email})`);
       console.log(`  积分: ${preview.user.credits}`);
       console.log(`  注册时间: ${preview.user.createdAt}`);
       console.log(`  是否管理员: ${preview.isAdmin ? '是' : '否'}`);
-      console.log(`  待删除数据:`);
+      console.log('  待删除数据:');
       console.log(`    - 资产文件: ${preview.dataToDelete.assets} 个`);
       console.log(`    - AI背景历史: ${preview.dataToDelete.aibgHistory} 条`);
       console.log(
@@ -80,7 +80,7 @@ class UserDeletionTool {
       console.log(`    📊 总计: ${preview.dataToDelete.totalRecords} 条记录`);
 
       if (!preview.canDelete) {
-        console.error(`❌ 无法删除此用户 (管理员保护)`);
+        console.error('❌ 无法删除此用户 (管理员保护)');
         return false;
       }
 
@@ -90,12 +90,12 @@ class UserDeletionTool {
       );
 
       if (!confirmed) {
-        console.log(`❌ 用户取消删除操作`);
+        console.log('❌ 用户取消删除操作');
         return false;
       }
 
       // 5. 执行删除
-      console.log(`🗑️ 正在删除用户...`);
+      console.log('🗑️ 正在删除用户...');
       const deleteResponse = await fetch(
         `${this.baseUrl}/api/admin/delete-user?userId=${userId}`,
         {
@@ -106,22 +106,22 @@ class UserDeletionTool {
 
       if (!deleteResponse.ok) {
         const error = await deleteResponse.json();
-        console.error(`❌ 删除失败:`, error.error);
+        console.error('❌ 删除失败:', error.error);
         return false;
       }
 
       const result = await deleteResponse.json();
-      console.log(`🎉 用户删除成功!`);
-      console.log(`✅ 删除信息:`, result.deletedData);
+      console.log('🎉 用户删除成功!');
+      console.log('✅ 删除信息:', result.deletedData);
 
       // 6. 清理前端IndexedDB数据
-      console.log(`🧹 清理前端IndexedDB数据...`);
+      console.log('🧹 清理前端IndexedDB数据...');
       await this.cleanIndexedDB(userId);
 
       console.log(`✨ 用户 ${email} 完全删除完成！该邮箱现在可以重新注册。`);
       return true;
     } catch (error) {
-      console.error(`💥 删除过程发生错误:`, error);
+      console.error('💥 删除过程发生错误:', error);
       return false;
     }
   }
@@ -132,7 +132,7 @@ class UserDeletionTool {
   async cleanIndexedDB(userId) {
     const possibleDbNames = [
       `RoboneoImageLibrary_${userId}`,
-      `RoboneoImageLibrary_Guest`, // 如果用户曾经以访客身份使用
+      'RoboneoImageLibrary_Guest', // 如果用户曾经以访客身份使用
     ];
 
     for (const dbName of possibleDbNames) {
@@ -177,7 +177,7 @@ class UserDeletionTool {
       results.push({ email, success });
 
       if (i < emails.length - 1) {
-        console.log(`⏳ 等待1秒后继续下一个用户...`);
+        console.log('⏳ 等待1秒后继续下一个用户...');
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
@@ -186,7 +186,7 @@ class UserDeletionTool {
     const successful = results.filter((r) => r.success).length;
     const failed = results.length - successful;
 
-    console.log(`\n📊 批量删除完成:`);
+    console.log('\n📊 批量删除完成:');
     console.log(`  ✅ 成功: ${successful} 个`);
     console.log(`  ❌ 失败: ${failed} 个`);
 
@@ -194,7 +194,7 @@ class UserDeletionTool {
       const failedEmails = results
         .filter((r) => !r.success)
         .map((r) => r.email);
-      console.log(`  失败的邮箱:`, failedEmails);
+      console.log('  失败的邮箱:', failedEmails);
     }
 
     return results;
@@ -215,12 +215,11 @@ class UserDeletionTool {
       if (response.status === 404) {
         console.log(`✅ 验证成功: 用户 ${email} 已不存在`);
         return true;
-      } else {
-        console.log(`❌ 验证失败: 用户 ${email} 仍然存在`);
-        return false;
       }
+      console.log(`❌ 验证失败: 用户 ${email} 仍然存在`);
+      return false;
     } catch (error) {
-      console.error(`验证删除结果时发生错误:`, error);
+      console.error('验证删除结果时发生错误:', error);
       return false;
     }
   }
