@@ -77,7 +77,8 @@ export function SidebarUser({ user, className }: SidebarUserProps) {
       try {
         clearCreditsCache();
       } catch {}
-      router.replace('/');
+      // Force a hard refresh to ensure all state is cleared
+      window.location.href = '/';
       return;
     }
 

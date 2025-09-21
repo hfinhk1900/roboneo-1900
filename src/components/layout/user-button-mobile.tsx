@@ -45,7 +45,8 @@ export function UserButtonMobile({ user }: UserButtonProps) {
       try {
         clearCreditsCache();
       } catch {}
-      localeRouter.replace('/');
+      // Force a hard refresh to ensure all state is cleared
+      window.location.href = '/';
       return;
     }
 
