@@ -67,7 +67,7 @@ export const RegisterForm = ({
   const captchaActive =
     turnstileEnabled && !!envSiteKey && envSiteKey !== 'YOUR_SITE_KEY_HERE';
   const captchaSchema = captchaActive
-    ? z.string().min(1, '请完成验证码验证')
+    ? z.string().min(1, 'Please complete captcha verification')
     : z.string().optional();
 
   const RegisterSchema = z.object({
@@ -135,7 +135,7 @@ export const RegisterForm = ({
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     // Validate captcha token if turnstile is enabled
     if (captchaActive && !values.captchaToken) {
-      const msg = '请先完成验证码验证。';
+      const msg = 'Please complete captcha verification first.';
       setError(msg);
       toast.error(msg);
       return;
@@ -255,14 +255,14 @@ export const RegisterForm = ({
   };
 
   const onInvalid = (errors: FieldErrors<z.infer<typeof RegisterSchema>>) => {
-    // 提供一个顶部的可见错误提示，避免用户感觉“没有反应”
+    // Provide a visible error message at the top to avoid user confusion
     const firstError = Object.values(errors)[0];
     const msg =
       (firstError as any)?.message ||
       form.formState.errors?.email?.message ||
       form.formState.errors?.password?.message ||
       form.formState.errors?.name?.message ||
-      (captchaActive && !captchaToken ? '请先完成验证码验证。' : '') ||
+      (captchaActive && !captchaToken ? 'Please complete captcha verification first.' : '') ||
       'Please check the required fields';
     setError(String(msg));
     if (msg) toast.error(String(msg));
@@ -360,14 +360,14 @@ export const RegisterForm = ({
             <Captcha
               ref={captchaRef}
               onSuccess={handleCaptchaSuccess}
-              onExpire={() => handleCaptchaReset('验证码已过期，请重新验证。')}
+              onExpire={() => handleCaptchaReset('Captcha expired, please verify again.')}
               onTimeout={() =>
-                handleCaptchaReset('验证码超时，请重新点击验证。')
+                handleCaptchaReset('Captcha timeout, please click to verify again.')
               }
               onError={(reason) => {
                 const message = getTurnstileErrorMessage(reason);
                 console.warn('Turnstile error on register:', reason);
-                handleCaptchaReset(message || '验证码校验失败，请重试。');
+                handleCaptchaReset(message || 'Captcha verification failed, please try again.');
               }}
               validationError={form.formState.errors.captchaToken?.message}
             />
@@ -387,7 +387,7 @@ export const RegisterForm = ({
               </Button>
             </TooltipTrigger>
             {captchaActive && !captchaToken && (
-              <TooltipContent sideOffset={6}>请先完成验证</TooltipContent>
+              <TooltipContent sideOffset={6}>Please complete verification first</TooltipContent>
             )}
           </Tooltip>
         </form>

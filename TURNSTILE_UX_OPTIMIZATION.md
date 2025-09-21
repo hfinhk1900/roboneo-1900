@@ -22,12 +22,12 @@ sequenceDiagram
     Auth->>Form: token有效
     Form->>Auth: 登录请求
     Auth->>Form: 密码错误 ❌
-    
+
     Note over User: 用户修改密码，再次尝试
     User->>Form: 重新提交
     Form->>Auth: 使用同一个token
     Auth->>Form: token已使用 ❌
-    
+
     Note over User: 用户必须重新完成验证码
 ```
 
@@ -47,7 +47,7 @@ onError: (ctx) => {
   console.error('login, error:', ctx.error);
   const errorMessage = `${ctx.error.status}: ${ctx.error.message}`;
   setError(errorMessage);
-  
+
   // 🎯 关键改进：登录失败时自动重置验证码
   if (captchaActive && captchaValidated) {
     handleCaptchaReset('登录失败，请重新验证后再试。');
@@ -79,7 +79,7 @@ const onSubmit = async (values) => {
     }
     captchaValidated = true;
   }
-  
+
   // 继续登录流程...
 };
 ```
@@ -96,7 +96,7 @@ const onSubmit = async (values) => {
 const getErrorMessage = (error: any) => {
   const status = error.status;
   const message = error.message?.toLowerCase() || '';
-  
+
   // 验证码相关错误
   if (message.includes('captcha') || message.includes('turnstile')) {
     if (message.includes('timeout') || message.includes('expired')) {
@@ -107,7 +107,7 @@ const getErrorMessage = (error: any) => {
     }
     return '验证码验证失败，请重新验证。';
   }
-  
+
   // 认证相关错误
   if (status === 401) {
     return '邮箱或密码错误，请检查后重试。';
@@ -115,7 +115,7 @@ const getErrorMessage = (error: any) => {
   if (status === 429) {
     return '登录尝试过于频繁，请稍后再试。';
   }
-  
+
   return error.message || '登录失败，请重试。';
 };
 ```
@@ -129,7 +129,7 @@ const [failureCount, setFailureCount] = useState(0);
 
 const onLoginError = () => {
   setFailureCount(prev => prev + 1);
-  
+
   if (failureCount >= 2) {
     // 多次失败后强制重新验证
     handleCaptchaReset('多次登录失败，请重新完成验证码。');

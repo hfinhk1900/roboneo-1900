@@ -135,11 +135,11 @@ export const LoginForm = ({
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     if (captchaActive && !values.captchaToken) {
-      setError('请先完成验证码验证。');
+      setError('Please complete captcha verification first.');
       return;
     }
-    
-    // 预验证验证码但不消费它（延迟消费策略）
+
+    // Pre-validate captcha but don't consume it (delayed consumption strategy)
     let captchaValidated = false;
     if (captchaActive && values.captchaToken) {
       const captchaResult = await validateCaptchaAction({
@@ -149,10 +149,10 @@ export const LoginForm = ({
       if (!captchaResult?.data?.success || !captchaResult?.data?.valid) {
         console.error('login, captcha invalid:', values.captchaToken);
         const errorMessage =
-          captchaResult?.data?.error || '验证码无效，请重试。';
+          captchaResult?.data?.error || 'Invalid captcha, please try again.';
         setError(errorMessage);
-        // 验证码失败时重置
-        handleCaptchaReset('验证码验证失败，请重新验证。');
+        // Reset captcha on validation failure
+        handleCaptchaReset('Captcha validation failed, please verify again.');
         return;
       }
       captchaValidated = true;
@@ -190,10 +190,10 @@ export const LoginForm = ({
           console.error('login, error:', ctx.error);
           const errorMessage = `${ctx.error.status}: ${ctx.error.message}`;
           setError(errorMessage);
-          
-          // 登录失败时自动重置验证码，改善用户体验
+
+          // Auto-reset captcha on login failure for better UX
           if (captchaActive && captchaValidated) {
-            handleCaptchaReset('登录失败，请重新验证后再试。');
+            handleCaptchaReset('Login failed, please verify again to retry.');
           }
         },
       }
