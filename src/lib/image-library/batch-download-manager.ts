@@ -231,7 +231,10 @@ export class BatchDownloadManager {
   /**
    * 下载单个图片
    */
-  private async downloadSingleImage(record: ImageRecord, userId?: string): Promise<void> {
+  private async downloadSingleImage(
+    record: ImageRecord,
+    userId?: string
+  ): Promise<void> {
     const dbManager = IndexedDBManager.getInstance(userId);
     const fullRecord = await dbManager.getImage(record.id, true);
 

@@ -138,7 +138,9 @@ export const LoginForm = ({
       setError('请先完成验证码验证。');
       return;
     }
-    // Validate captcha token if enabled
+    
+    // 预验证验证码但不消费它（延迟消费策略）
+    let captchaValidated = false;
     if (captchaActive && values.captchaToken) {
       const captchaResult = await validateCaptchaAction({
         captchaToken: values.captchaToken,
@@ -149,8 +151,11 @@ export const LoginForm = ({
         const errorMessage =
           captchaResult?.data?.error || '验证码无效，请重试。';
         setError(errorMessage);
+        // 验证码失败时重置
+        handleCaptchaReset('验证码验证失败，请重新验证。');
         return;
       }
+      captchaValidated = true;
     }
     // 1. if callbackUrl is provided, user will be redirected to the callbackURL after login successfully.
     // if user email is not verified, a new verification email will be sent to the user with the callbackURL.
@@ -183,7 +188,13 @@ export const LoginForm = ({
         },
         onError: (ctx) => {
           console.error('login, error:', ctx.error);
-          setError(`${ctx.error.status}: ${ctx.error.message}`);
+          const errorMessage = `${ctx.error.status}: ${ctx.error.message}`;
+          setError(errorMessage);
+          
+          // 登录失败时自动重置验证码，改善用户体验
+          if (captchaActive && captchaValidated) {
+            handleCaptchaReset('登录失败，请重新验证后再试。');
+          }
         },
       }
     );
