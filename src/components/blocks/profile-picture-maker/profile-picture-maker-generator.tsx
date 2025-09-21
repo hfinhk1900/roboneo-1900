@@ -296,7 +296,7 @@ export default function ProfilePictureMakerGenerator() {
   // 历史记录操作函数
   const pushHistory = useCallback(
     async (item: ProfilePictureHistoryItem) => {
-      const db = IndexedDBManager.getInstance();
+      const db = IndexedDBManager.getInstance(currentUser?.id);
       // 已登录：写入服务端
       if (currentUser) {
         try {

@@ -32,12 +32,10 @@ export interface BatchDownloadResult {
 }
 
 export class BatchDownloadManager {
-  private dbManager: IndexedDBManager;
   private worker: Worker | null = null;
   private isWorkerSupported: boolean;
 
   constructor() {
-    this.dbManager = IndexedDBManager.getInstance();
     this.isWorkerSupported = typeof Worker !== 'undefined';
   }
 
@@ -49,7 +47,8 @@ export class BatchDownloadManager {
     options: BatchDownloadOptions = {
       format: 'individual',
       includeMetadata: false,
-    }
+    },
+    userId?: string
   ): Promise<BatchDownloadResult> {
     if (records.length === 0) {
       return {
@@ -122,7 +121,8 @@ export class BatchDownloadManager {
         options.onProgress?.(i, records.length, record.id);
 
         try {
-          const fullRecord = await this.dbManager.getImage(record.id, true);
+          const dbManager = IndexedDBManager.getInstance(userId);
+          const fullRecord = await dbManager.getImage(record.id, true);
           if (fullRecord?.blob) {
             const fileName = this.generateFileName(record);
             imageData.push({
@@ -199,7 +199,7 @@ export class BatchDownloadManager {
       options.onProgress?.(i, records.length, record.id);
 
       try {
-        await this.downloadSingleImage(record);
+        await this.downloadSingleImage(record, userId);
         result.downloadedCount++;
 
         // 添加延迟避免浏览器阻塞下载
@@ -229,8 +229,9 @@ export class BatchDownloadManager {
   /**
    * 下载单个图片
    */
-  private async downloadSingleImage(record: ImageRecord): Promise<void> {
-    const fullRecord = await this.dbManager.getImage(record.id, true);
+  private async downloadSingleImage(record: ImageRecord, userId?: string): Promise<void> {
+    const dbManager = IndexedDBManager.getInstance(userId);
+    const fullRecord = await dbManager.getImage(record.id, true);
 
     if (fullRecord?.blob) {
       const fileName = this.generateFileName(record);
@@ -267,7 +268,7 @@ export class BatchDownloadManager {
       // 简化版：直接创建文件夹结构并下载
       for (const record of records) {
         try {
-          await this.downloadSingleImage(record);
+          await this.downloadSingleImage(record, userId);
           result.downloadedCount++;
         } catch (error) {
           result.failedCount++;

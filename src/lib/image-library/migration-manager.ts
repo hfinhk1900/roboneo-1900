@@ -52,18 +52,19 @@ const STORAGE_KEYS: Record<string, string[]> = {
 };
 
 export class MigrationManager {
-  private static instance: MigrationManager;
+  private static instances: Map<string, MigrationManager> = new Map();
   private dbManager: IndexedDBManager;
 
-  private constructor() {
-    this.dbManager = IndexedDBManager.getInstance();
+  private constructor(userId?: string) {
+    this.dbManager = IndexedDBManager.getInstance(userId);
   }
 
-  public static getInstance(): MigrationManager {
-    if (!MigrationManager.instance) {
-      MigrationManager.instance = new MigrationManager();
+  public static getInstance(userId?: string): MigrationManager {
+    const key = userId || 'guest';
+    if (!MigrationManager.instances.has(key)) {
+      MigrationManager.instances.set(key, new MigrationManager(userId));
     }
-    return MigrationManager.instance;
+    return MigrationManager.instances.get(key)!;
   }
 
   /**

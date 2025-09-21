@@ -408,7 +408,7 @@ export default function ProductShotGeneratorSection() {
   // 写入历史（永久保存所有历史记录）
   const pushHistory = useCallback(
     async (item: ProductshotHistoryItem) => {
-      const db = IndexedDBManager.getInstance();
+      const db = IndexedDBManager.getInstance(currentUser?.id);
       // 已登录：写入服务端
       if (currentUser) {
         try {

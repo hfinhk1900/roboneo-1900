@@ -1,8 +1,8 @@
 'use client';
 
+import { BGRemovalStats } from '@/components/admin/bg-removal-stats';
 import PerformanceDashboard from '@/components/blocks/library/performance-dashboard';
 import ServiceWorkerStatusComponent from '@/components/blocks/library/service-worker-status';
-import { BGRemovalStats } from '@/components/admin/bg-removal-stats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { useEffect, useMemo, useState } from 'react';
@@ -22,6 +22,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function AdminToolsPageClient() {
+  // 管理员工具使用guest数据库实例来查看系统概况
   const db = useMemo(() => IndexedDBManager.getInstance(), []);
   const [quota, setQuota] = useState<Quota | null>(null);
 
@@ -44,7 +45,8 @@ export function AdminToolsPageClient() {
       <div>
         <h1 className="text-2xl font-bold">Admin: System Monitoring & Tools</h1>
         <p className="text-gray-600 text-sm">
-          Performance monitoring, cost tracking, and system tools for administrators
+          Performance monitoring, cost tracking, and system tools for
+          administrators
         </p>
       </div>
 

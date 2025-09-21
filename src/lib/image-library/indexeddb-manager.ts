@@ -16,9 +16,9 @@ import type {
 } from '@/types/image-library';
 
 export class IndexedDBManager {
-  private static instance: IndexedDBManager;
+  private static instances: Map<string, IndexedDBManager> = new Map();
   private db: IDBDatabase | null = null;
-  private readonly dbName = 'RoboneoImageLibrary';
+  private readonly dbName: string;
   private readonly dbVersion = 1;
 
   // 表名
@@ -35,13 +35,22 @@ export class IndexedDBManager {
     quality: 0.8,
   };
 
-  private constructor() {}
-
-  public static getInstance(): IndexedDBManager {
-    if (!IndexedDBManager.instance) {
-      IndexedDBManager.instance = new IndexedDBManager();
+  private constructor(userId?: string) {
+    // 为每个用户创建独立的数据库
+    if (userId) {
+      this.dbName = `RoboneoImageLibrary_${userId}`;
+    } else {
+      // 未登录用户使用通用数据库（本地预览）
+      this.dbName = 'RoboneoImageLibrary_Guest';
     }
-    return IndexedDBManager.instance;
+  }
+
+  public static getInstance(userId?: string): IndexedDBManager {
+    const key = userId || 'guest';
+    if (!IndexedDBManager.instances.has(key)) {
+      IndexedDBManager.instances.set(key, new IndexedDBManager(userId));
+    }
+    return IndexedDBManager.instances.get(key)!;
   }
 
   /**

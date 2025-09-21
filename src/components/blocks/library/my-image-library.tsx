@@ -34,6 +34,8 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useCurrentUser } from '@/hooks/use-current-user';
+
 import { BatchAnalyticsManager } from '@/lib/analytics/batch-analytics-manager';
 import { APICacheManager } from '@/lib/cache/api-cache-manager';
 import { BatchDownloadManager } from '@/lib/image-library/batch-download-manager';
@@ -73,6 +75,9 @@ const SORT_OPTIONS: Record<SortOption, string> = {
 };
 
 export default function MyImageLibrary() {
+  // 获取当前用户（用于数据隔离）
+  const currentUser = useCurrentUser();
+  
   // 状态管理
   const [isLoading, setIsLoading] = useState(true);
   const [images, setImages] = useState<ImageRecord[]>([]);
@@ -111,9 +116,9 @@ export default function MyImageLibrary() {
     useState<MigrationStatus | null>(null);
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
 
-  // 管理器实例
-  const dbManager = useMemo(() => IndexedDBManager.getInstance(), []);
-  const migrationManager = useMemo(() => MigrationManager.getInstance(), []);
+  // 管理器实例 - 基于用户ID隔离数据
+  const dbManager = useMemo(() => IndexedDBManager.getInstance(currentUser?.id), [currentUser?.id]);
+  const migrationManager = useMemo(() => MigrationManager.getInstance(currentUser?.id), [currentUser?.id]);
   const thumbnailCache = useMemo(() => getThumbnailCache(), []);
   const fullImageCache = useMemo(() => getFullImageCache(), []);
   const batchDownloadManager = useMemo(() => new BatchDownloadManager(), []);

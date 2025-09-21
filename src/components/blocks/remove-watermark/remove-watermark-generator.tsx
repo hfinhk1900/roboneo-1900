@@ -632,7 +632,7 @@ export function RemoveWatermarkGeneratorSection() {
         saveHistory(newHistory);
         // 保存到本地图片库（IndexedDB）
         try {
-          const db = IndexedDBManager.getInstance();
+          const db = IndexedDBManager.getInstance(currentUser?.id);
           let blob: Blob | undefined;
           try {
             const resp = await fetch(newHistoryItem.processedImage);

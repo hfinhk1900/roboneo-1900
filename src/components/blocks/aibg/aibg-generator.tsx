@@ -321,7 +321,7 @@ export function AIBackgroundGeneratorSection() {
   // 历史记录操作函数
   const pushHistory = useCallback(
     async (item: AibgHistoryItem) => {
-      const db = IndexedDBManager.getInstance();
+      const db = IndexedDBManager.getInstance(currentUser?.id);
       // 已登录：写入服务端
       if (currentUser) {
         try {
@@ -1323,14 +1323,29 @@ export function AIBackgroundGeneratorSection() {
             };
             await pushHistory(historyItem);
 
-            // 更新积分（统一工具）
+            // 更新积分缓存 - 使用API返回的积分信息（API已经扣除了积分）
             try {
-              const { spendCredits } = await import('@/lib/credits-utils');
-              await spendCredits({
-                remainingFromServer: result.remaining_credits,
-                amount: CREDITS_PER_IMAGE,
-                fetchFallback: true,
-              });
+              // result对象来自rembg API，它转发了bg/remove-direct的响应
+              // 注意：bg/remove-direct API返回的是remaining_credits
+              if (result.remaining_credits !== undefined) {
+                creditsCache.set(result.remaining_credits);
+                console.log(
+                  `💰 Updated credits cache from API: ${result.remaining_credits} credits`
+                );
+              } else {
+                // 如果API没有返回积分信息，手动更新缓存（fallback）
+                const currentCredits = creditsCache.get();
+                if (currentCredits !== null) {
+                  const newCredits = Math.max(
+                    0,
+                    currentCredits - CREDITS_PER_IMAGE
+                  );
+                  creditsCache.set(newCredits);
+                  console.log(
+                    `💰 Updated credits cache manually (fallback): ${currentCredits} → ${newCredits}`
+                  );
+                }
+              }
             } catch (error) {
               console.warn('Failed to update credits cache:', error);
             }
@@ -1483,14 +1498,24 @@ export function AIBackgroundGeneratorSection() {
       };
       await pushHistory(historyItem);
 
-      // 更新积分（统一工具）
+      // 更新积分缓存 - 使用API返回的积分信息
       try {
-        const { spendCredits } = await import('@/lib/credits-utils');
-        await spendCredits({
-          remainingFromServer: result.remaining_credits,
-          amount: CREDITS_PER_IMAGE,
-          fetchFallback: true,
-        });
+        if (result.remaining_credits !== undefined) {
+          creditsCache.set(result.remaining_credits);
+          console.log(
+            `💰 Updated credits cache from API: ${result.remaining_credits} credits`
+          );
+        } else {
+          // 如果API没有返回积分信息，手动扣除
+          const currentCredits = creditsCache.get();
+          if (currentCredits !== null) {
+            const newCredits = Math.max(0, currentCredits - CREDITS_PER_IMAGE);
+            creditsCache.set(newCredits);
+            console.log(
+              `💰 Updated credits cache manually: ${currentCredits} → ${newCredits}`
+            );
+          }
+        }
       } catch (error) {
         console.warn('Failed to update credits cache:', error);
       }
@@ -2361,38 +2386,39 @@ export function AIBackgroundGeneratorSection() {
                     (backgroundMode === 'background' &&
                       selectedBackground === 'custom' &&
                       !customBackgroundDescription.trim()) ||
+                    // Solid Color模式：如果已有处理结果，禁用按钮（避免重复处理）
                     (backgroundMode === 'color' && !!processedImage)
                   }
                   className={cn(
-                    'w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2',
+                    'w-full font-semibold h-[50px] rounded-2xl text-base',
                     backgroundMode === 'color' && processedImage
-                      ? 'cursor-not-allowed opacity-60'
-                      : 'cursor-pointer'
+                      ? 'cursor-not-allowed opacity-60' // 禁用状态样式
+                      : 'cursor-pointer' // 正常状态样式
                   )}
                 >
                   {isProcessing ? (
                     <>
-                      <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
-                      Creating...
+                      <LoaderIcon className="mr-2 h-5 w-5 animate-spin" />
+                      Processing...
                     </>
                   ) : !isMounted ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
+                      <SparklesIcon className="mr-2 h-5 w-5" />
                       Process Image ({CREDITS_PER_IMAGE} credits)
                     </>
                   ) : !currentUser ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
+                      <SparklesIcon className="mr-2 h-5 w-5" />
                       Log in to generate
                     </>
                   ) : backgroundMode === 'color' && processedImage ? (
                     <>
-                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
+                      <SparklesIcon className="mr-2 h-5 w-5" />
                       Image Processed - Upload New Image to Process
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1" />
+                      <SparklesIcon className="mr-2 h-5 w-5" />
                       Process Image ({CREDITS_PER_IMAGE} credits)
                     </>
                   )}
@@ -2591,14 +2617,16 @@ export function AIBackgroundGeneratorSection() {
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
                               <span className="text-lg font-medium">
-                                Creating...
+                                {backgroundMode === 'color'
+                                  ? 'Removing Background...'
+                                  : 'Generating AI Background...'}
                               </span>
                             </div>
 
                             {/* 进度条 - 与Productshot保持一致 */}
-                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
@@ -2744,9 +2772,7 @@ export function AIBackgroundGeneratorSection() {
                         ? 'Background Style'
                         : 'Solid Color'}
                     </span>
-                    <span>
-                      {new Date(item.createdAt).toISOString().slice(0, 10)}
-                    </span>
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <Button
@@ -2773,6 +2799,10 @@ export function AIBackgroundGeneratorSection() {
                 </div>
               ))}
             </div>
+            )
+            
+
+            
           </div>
         )}
 
