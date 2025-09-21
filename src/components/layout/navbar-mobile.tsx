@@ -77,6 +77,10 @@ export function NavbarMobile({
     setOpen((open) => !open);
   };
 
+  const handleCloseMobileMenu = (): void => {
+    setOpen(false);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -131,6 +135,7 @@ export function NavbarMobile({
           <MainMobileMenu
             userLoggedIn={!!currentUser}
             onLinkClicked={handleToggleMobileMenu}
+            onClose={handleCloseMobileMenu}
             isOpen={open}
           />
         </RemoveScroll>
@@ -142,12 +147,14 @@ export function NavbarMobile({
 interface MainMobileMenuProps {
   userLoggedIn: boolean;
   onLinkClicked: () => void;
+  onClose: () => void;
   isOpen: boolean;
 }
 
 function MainMobileMenu({
   userLoggedIn,
   onLinkClicked,
+  onClose,
   isOpen,
 }: MainMobileMenuProps) {
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
@@ -158,7 +165,8 @@ function MainMobileMenu({
   // Close mobile menu when auth modal opens
   React.useEffect(() => {
     const handleAuthModalOpen = () => {
-      onLinkClicked();
+      // Force close the mobile menu when auth modal opens
+      onClose();
     };
 
     // Listen for login/register modal opening
@@ -167,7 +175,7 @@ function MainMobileMenu({
     return () => {
       window.removeEventListener('auth:modal-opening', handleAuthModalOpen);
     };
-  }, [onLinkClicked]);
+  }, [onClose]);
 
   return (
     <div
