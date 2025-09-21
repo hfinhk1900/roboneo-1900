@@ -2,6 +2,7 @@
 
 import PerformanceDashboard from '@/components/blocks/library/performance-dashboard';
 import ServiceWorkerStatusComponent from '@/components/blocks/library/service-worker-status';
+import { BGRemovalStats } from '@/components/admin/bg-removal-stats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,7 +18,7 @@ function formatBytes(bytes: number): string {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 }
 
 export function AdminToolsPageClient() {
@@ -41,15 +42,24 @@ export function AdminToolsPageClient() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Admin: Performance & Storage</h1>
+        <h1 className="text-2xl font-bold">Admin: System Monitoring & Tools</h1>
         <p className="text-gray-600 text-sm">
-          Monitoring widgets for admins only
+          Performance monitoring, cost tracking, and system tools for administrators
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Core Web Vitals & Bandwidth</CardTitle>
+          <CardTitle>🎯 AI Background Cost Monitoring</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BGRemovalStats />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>📊 Core Web Vitals & Bandwidth</CardTitle>
         </CardHeader>
         <CardContent>
           <PerformanceDashboard />

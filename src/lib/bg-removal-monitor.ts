@@ -43,7 +43,7 @@ class BGRemovalMonitor {
       this.checkAndResetMonthlyStats();
 
       const stats = this.getStats();
-      
+
       // 更新计数器
       stats.totalCalls++;
       if (call.success) {
@@ -51,7 +51,7 @@ class BGRemovalMonitor {
       } else {
         stats.failedCalls++;
       }
-      
+
       if (call.cacheHit) {
         stats.cacheHits++;
       }
@@ -62,8 +62,10 @@ class BGRemovalMonitor {
         if (totalNonCachedCalls === 1) {
           stats.avgProcessingTime = call.processingTime;
         } else {
-          stats.avgProcessingTime = 
-            (stats.avgProcessingTime * (totalNonCachedCalls - 1) + call.processingTime) / totalNonCachedCalls;
+          stats.avgProcessingTime =
+            (stats.avgProcessingTime * (totalNonCachedCalls - 1) +
+              call.processingTime) /
+            totalNonCachedCalls;
         }
       }
 
@@ -77,7 +79,6 @@ class BGRemovalMonitor {
       if (process.env.NODE_ENV === 'development') {
         this.logCallStats(call, stats);
       }
-
     } catch (error) {
       console.warn('Failed to record BG removal call stats:', error);
     }
@@ -103,11 +104,16 @@ class BGRemovalMonitor {
   /**
    * 获取缓存效率统计
    */
-  getCacheEfficiency(): { hitRate: number; savedCalls: number; savedCost: number } {
+  getCacheEfficiency(): {
+    hitRate: number;
+    savedCalls: number;
+    savedCost: number;
+  } {
     const stats = this.getStats();
-    const hitRate = stats.totalCalls > 0 ? (stats.cacheHits / stats.totalCalls) : 0;
+    const hitRate =
+      stats.totalCalls > 0 ? stats.cacheHits / stats.totalCalls : 0;
     const savedCost = stats.cacheHits * this.COST_PER_CALL;
-    
+
     return {
       hitRate: Math.round(hitRate * 100) / 100,
       savedCalls: stats.cacheHits,
@@ -118,11 +124,11 @@ class BGRemovalMonitor {
   /**
    * 检查是否超出免费额度
    */
-  checkFreeTierStatus(): { 
-    withinLimit: boolean; 
-    usage: number; 
-    limit: number; 
-    warningLevel: 'safe' | 'warning' | 'critical' 
+  checkFreeTierStatus(): {
+    withinLimit: boolean;
+    usage: number;
+    limit: number;
+    warningLevel: 'safe' | 'warning' | 'critical';
   } {
     const stats = this.getStats();
     const realAPICalls = stats.totalCalls - stats.cacheHits;
@@ -194,13 +200,17 @@ class BGRemovalMonitor {
     const stats = this.getStats();
     const cacheEff = this.getCacheEfficiency();
     const freeTier = this.checkFreeTierStatus();
-    
-    return JSON.stringify({
-      stats,
-      cacheEfficiency: cacheEff,
-      freeTierStatus: freeTier,
-      exportDate: new Date().toISOString(),
-    }, null, 2);
+
+    return JSON.stringify(
+      {
+        stats,
+        cacheEfficiency: cacheEff,
+        freeTierStatus: freeTier,
+        exportDate: new Date().toISOString(),
+      },
+      null,
+      2
+    );
   }
 
   private getDefaultStats(): BGRemovalStats {
@@ -233,9 +243,10 @@ class BGRemovalMonitor {
 
       const lastResetDate = new Date(lastReset);
       const now = new Date();
-      const monthsDiff = (now.getFullYear() - lastResetDate.getFullYear()) * 12 + 
-                        (now.getMonth() - lastResetDate.getMonth());
-      
+      const monthsDiff =
+        (now.getFullYear() - lastResetDate.getFullYear()) * 12 +
+        (now.getMonth() - lastResetDate.getMonth());
+
       if (monthsDiff >= 1) {
         this.resetMonthlyStats();
       }
@@ -247,13 +258,21 @@ class BGRemovalMonitor {
   private logCallStats(call: BGRemovalCall, stats: BGRemovalStats): void {
     const cacheEff = this.getCacheEfficiency();
     const freeTier = this.checkFreeTierStatus();
-    
+
     console.group('📊 BG Removal Call Stats');
-    console.log(`${call.success ? '✅' : '❌'} Call ${call.cacheHit ? '(cached)' : '(API)'}`);
+    console.log(
+      `${call.success ? '✅' : '❌'} Call ${call.cacheHit ? '(cached)' : '(API)'}`
+    );
     console.log(`⏱️ Processing time: ${call.processingTime}ms`);
-    console.log(`📈 Total calls: ${stats.totalCalls} | Cache hits: ${stats.cacheHits} (${Math.round(cacheEff.hitRate * 100)}%)`);
-    console.log(`💰 Estimated cost: $${stats.estimatedMonthlyCost.toFixed(3)} | Saved: $${cacheEff.savedCost.toFixed(3)}`);
-    console.log(`🎯 Free tier: ${freeTier.usage}/${freeTier.limit} (${freeTier.warningLevel})`);
+    console.log(
+      `📈 Total calls: ${stats.totalCalls} | Cache hits: ${stats.cacheHits} (${Math.round(cacheEff.hitRate * 100)}%)`
+    );
+    console.log(
+      `💰 Estimated cost: $${stats.estimatedMonthlyCost.toFixed(3)} | Saved: $${cacheEff.savedCost.toFixed(3)}`
+    );
+    console.log(
+      `🎯 Free tier: ${freeTier.usage}/${freeTier.limit} (${freeTier.warningLevel})`
+    );
     console.groupEnd();
   }
 }

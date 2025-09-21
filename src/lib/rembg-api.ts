@@ -24,7 +24,8 @@ export interface RembgApiResult {
 
 export class RembgApiService {
   private static instance: RembgApiService;
-  private cache: Map<string, { result: RembgApiResult; timestamp: number }> = new Map();
+  private cache: Map<string, { result: RembgApiResult; timestamp: number }> =
+    new Map();
   private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24小时缓存
 
   static getInstance(): RembgApiService {
@@ -43,12 +44,12 @@ export class RembgApiService {
     try {
       // 生成缓存键
       const cacheKey = await this.generateCacheKey(imageFile, options);
-      
+
       // 检查缓存
       const cached = this.getFromCache(cacheKey);
       if (cached) {
         console.log('💾 Using cached background removal result');
-        
+
         // 记录缓存命中
         bgRemovalMonitor.recordCall({
           timestamp: Date.now(),
@@ -56,7 +57,7 @@ export class RembgApiService {
           processingTime: 0,
           cacheHit: true,
         });
-        
+
         return cached;
       }
 
@@ -195,7 +196,7 @@ export class RembgApiService {
 
         // 缓存成功结果
         this.setToCache(cacheKey, successResult);
-        
+
         // 记录成功的API调用
         bgRemovalMonitor.recordCall({
           timestamp: startTime,
@@ -203,7 +204,7 @@ export class RembgApiService {
           processingTime,
           cacheHit: false,
         });
-        
+
         return successResult;
       }
 
@@ -229,7 +230,7 @@ export class RembgApiService {
       }
 
       const processingTime = Date.now() - startTime;
-      
+
       // 记录失败的API调用
       bgRemovalMonitor.recordCall({
         timestamp: startTime,
@@ -348,9 +349,14 @@ export class RembgApiService {
   /**
    * 生成缓存键
    */
-  private async generateCacheKey(imageFile: File | string, options: RembgApiOptions): Promise<string> {
+  private async generateCacheKey(
+    imageFile: File | string,
+    options: RembgApiOptions
+  ): Promise<string> {
     const imageHash = await this.generateImageHash(imageFile);
-    const aspectRatio = options.aspectRatio ? `${options.aspectRatio.w}x${options.aspectRatio.h}` : 'auto';
+    const aspectRatio = options.aspectRatio
+      ? `${options.aspectRatio.w}x${options.aspectRatio.h}`
+      : 'auto';
     const bgColor = options.backgroundColor || 'transparent';
     return `bg_removal_${imageHash}_${aspectRatio}_${bgColor}`;
   }
@@ -380,7 +386,7 @@ export class RembgApiService {
 
     this.cache.set(cacheKey, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // 限制缓存大小，防止内存溢出 (LRU策略)
@@ -400,18 +406,18 @@ export class RembgApiService {
     // 清理过期缓存
     const now = Date.now();
     let cleaned = 0;
-    
+
     for (const [key, value] of this.cache.entries()) {
       if (now - value.timestamp > this.CACHE_DURATION) {
         this.cache.delete(key);
         cleaned++;
       }
     }
-    
+
     if (cleaned > 0) {
       console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
     }
-    
+
     return {
       size: this.cache.size,
       maxSize: 50,
