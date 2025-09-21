@@ -50,7 +50,6 @@ export function AdminToolsPageClient() {
         </p>
       </div>
 
-
       <Card>
         <CardHeader>
           <CardTitle>🎯 AI Background Cost Monitoring</CardTitle>

@@ -63,7 +63,7 @@ export function UsersPageClient() {
           <TabsTrigger value="list">User List</TabsTrigger>
           <TabsTrigger value="delete">Delete User</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="list" className="mt-6">
           <UsersTable
             data={data}
@@ -78,7 +78,7 @@ export function UsersPageClient() {
             onSortingChange={setSorting}
           />
         </TabsContent>
-        
+
         <TabsContent value="delete" className="mt-6">
           <UserManagement onUserDeleted={triggerRefresh} />
         </TabsContent>

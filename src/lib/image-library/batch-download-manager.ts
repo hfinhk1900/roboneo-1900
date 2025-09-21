@@ -68,9 +68,9 @@ export class BatchDownloadManager {
 
     try {
       if (options.format === 'zip') {
-        return await this.downloadAsZip(records, options);
+        return await this.downloadAsZip(records, options, userId);
       }
-      return await this.downloadIndividual(records, options);
+      return await this.downloadIndividual(records, options, userId);
     } catch (error) {
       console.error('Batch download failed:', error);
       result.errors.push({
@@ -86,7 +86,8 @@ export class BatchDownloadManager {
    */
   private async downloadAsZip(
     records: ImageRecord[],
-    options: BatchDownloadOptions
+    options: BatchDownloadOptions,
+    userId?: string
   ): Promise<BatchDownloadResult> {
     const result: BatchDownloadResult = {
       success: false,
@@ -97,7 +98,7 @@ export class BatchDownloadManager {
 
     if (!this.isWorkerSupported) {
       // 回退到主线程处理
-      return await this.downloadAsZipMainThread(records, options);
+      return await this.downloadAsZipMainThread(records, options, userId);
     }
 
     try {
@@ -185,7 +186,8 @@ export class BatchDownloadManager {
    */
   private async downloadIndividual(
     records: ImageRecord[],
-    options: BatchDownloadOptions
+    options: BatchDownloadOptions,
+    userId?: string
   ): Promise<BatchDownloadResult> {
     const result: BatchDownloadResult = {
       success: false,
@@ -254,7 +256,8 @@ export class BatchDownloadManager {
    */
   private async downloadAsZipMainThread(
     records: ImageRecord[],
-    options: BatchDownloadOptions
+    options: BatchDownloadOptions,
+    userId?: string
   ): Promise<BatchDownloadResult> {
     // 使用 JSZip 库的简化实现
     const result: BatchDownloadResult = {

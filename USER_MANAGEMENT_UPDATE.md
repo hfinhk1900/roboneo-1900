@@ -53,7 +53,7 @@ https://roboneo.art/admin/users
 │   ├── 用户表格显示
 │   ├── 分页控制
 │   └── 用户详情查看
-└── Delete User (删除用户) 
+└── Delete User (删除用户)
     ├── 邮箱搜索
     ├── 用户信息预览
     ├── 数据删除统计
