@@ -955,18 +955,29 @@ export default function ProductShotGeneratorSection() {
   };
 
   // 新增：监听 result 变化，自动添加到历史记录
+  // Track processed results to prevent duplicate history entries
+  const processedResults = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if ((result?.download_url || result?.asset_id) && isMounted) {
-      console.log('🎉 ProductShot generated, adding to history:', result);
-      const historyItem: ProductshotHistoryItem = {
-        asset_id: result.asset_id, // 保存资产ID
-        url: result.asset_id
-          ? `/api/assets/${result.asset_id}`
-          : result.download_url,
-        scene: selectedScene || 'custom',
-        createdAt: Date.now(),
-      };
-      pushHistory(historyItem);
+      // Create unique identifier for the result
+      const resultId = result.asset_id || result.download_url || '';
+      
+      // Only add to history if this result hasn't been processed yet
+      if (resultId && !processedResults.current.has(resultId)) {
+        console.log('🎉 ProductShot generated, adding to history:', result);
+        processedResults.current.add(resultId);
+        
+        const historyItem: ProductshotHistoryItem = {
+          asset_id: result.asset_id, // 保存资产ID
+          url: result.asset_id
+            ? `/api/assets/${result.asset_id}`
+            : result.download_url,
+          scene: selectedScene || 'custom',
+          createdAt: Date.now(),
+        };
+        pushHistory(historyItem);
+      }
     }
   }, [result, selectedScene, pushHistory, isMounted]);
 
@@ -1153,9 +1164,7 @@ export default function ProductShotGeneratorSection() {
                           setSelectedScene(value as SceneType | '')
                         }
                       >
-                        <SelectTrigger
-                          className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                        >
+                        <SelectTrigger className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
                           <SelectValue placeholder="Please select a photography scene">
                             {selectedSceneConfig ? (
                               <div className="flex items-center gap-3">
@@ -1255,9 +1264,7 @@ export default function ProductShotGeneratorSection() {
                         value={selectedAspect}
                         onValueChange={(value) => setSelectedAspect(value)}
                       >
-                        <SelectTrigger
-                          className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                        >
+                        <SelectTrigger className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
                           <SelectValue placeholder="Aspect Ratio (Default Original)">
                             {ASPECT_OPTIONS.find(
                               (o) => o.id === selectedAspect
