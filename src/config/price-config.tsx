@@ -58,7 +58,6 @@ export function getPricePlans(): Record<string, PricePlan> {
         t('ultimate.features.feature-3'),
         t('ultimate.features.feature-4'),
         t('ultimate.features.feature-5'),
-        t('ultimate.features.feature-6'),
       ],
       limits: [],
     };
