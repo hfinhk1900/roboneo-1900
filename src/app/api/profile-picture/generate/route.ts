@@ -26,12 +26,13 @@ interface ProfilePictureRequest {
 }
 
 export async function POST(request: NextRequest) {
+  let session: any = null;
   try {
     const csrf = enforceSameOriginCsrf(request);
     if (csrf) return csrf;
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
-    const session = await auth.api.getSession({
+    session = await auth.api.getSession({
       headers: request.headers as any,
     });
 
@@ -112,7 +113,24 @@ export async function POST(request: NextRequest) {
       `💳 User ${session.user.id} has ${currentCredits} credits, proceeding with profile picture generation...`
     );
 
-    // 4. 初始化 SiliconFlow 提供商
+    // 4. 预扣费（原子），失败则直接返回402
+    const { deductCreditsAction } = await import('@/actions/credits-actions');
+    const deduct = await deductCreditsAction({
+      userId: session.user.id,
+      amount: CREDITS_PER_IMAGE,
+    });
+    if (!deduct?.data?.success) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          required: CREDITS_PER_IMAGE,
+          current: deduct?.data?.data?.currentCredits ?? 0,
+        },
+        { status: 402 }
+      );
+    }
+
+    // 5. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {
       console.warn('SiliconFlow API key not configured');
@@ -182,22 +200,9 @@ export async function POST(request: NextRequest) {
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
-    // 8. 扣减 Credits - 成功生成后
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deductResult = await deductCreditsAction({
-      userId: session.user.id,
-      amount: CREDITS_PER_IMAGE,
-    });
-
-    if (deductResult?.data?.success) {
-      console.log(
-        `💰 Deducted ${CREDITS_PER_IMAGE} credits for profile picture generation. Remaining: ${deductResult.data.data?.remainingCredits}`
-      );
-    } else {
-      console.warn(
-        '⚠️ Failed to deduct credits, but profile picture was generated successfully'
-      );
-    }
+    console.log(
+      `💰 Credits already deducted (${CREDITS_PER_IMAGE}). Remaining: ${deduct.data.data?.remainingCredits}`
+    );
 
     // 9. 创建资产记录
     if (!result.resultUrl) {
@@ -247,7 +252,7 @@ export async function POST(request: NextRequest) {
       },
       operation: 'profile_picture_generation',
       credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deductResult?.data?.data?.remainingCredits ?? 0,
+      remaining_credits: deduct?.data?.data?.remainingCredits ?? 0,
       credits_sufficient: true,
       from_cache: false,
     });
@@ -256,6 +261,45 @@ export async function POST(request: NextRequest) {
 
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
+
+    // 失败：回滚预扣费
+    if (session?.user?.id) {
+      try {
+        const { getDb } = await import('@/db');
+        const { user, creditsTransaction } = await import('@/db/schema');
+        const { eq, sql } = await import('drizzle-orm');
+        const db = await getDb();
+        await db
+          .update(user)
+          .set({
+            credits: sql`${user.credits} + ${CREDITS_PER_IMAGE}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, session.user.id));
+        try {
+          const remainingRows = await db
+            .select({ credits: user.credits })
+            .from(user)
+            .where(eq(user.id, session.user.id))
+            .limit(1);
+          const remaining = remainingRows[0]?.credits ?? undefined;
+          if (typeof remaining === 'number') {
+            const { randomUUID } = await import('crypto');
+            await db.insert(creditsTransaction).values({
+              id: randomUUID(),
+              user_id: session.user.id,
+              type: 'refund',
+              amount: CREDITS_PER_IMAGE,
+              balance_before: remaining - CREDITS_PER_IMAGE,
+              balance_after: remaining,
+              description: 'AI generation refund (profile-picture)',
+            } as any);
+          }
+        } catch {}
+      } catch (e) {
+        console.error('Failed to refund credits after error:', e);
+      }
+    }
 
     // 根据错误类型返回不同的HTTP状态码和用户友好的消息
     let statusCode = 500;
