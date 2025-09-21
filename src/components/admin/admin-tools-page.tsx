@@ -1,6 +1,7 @@
 'use client';
 
 import { BGRemovalStats } from '@/components/admin/bg-removal-stats';
+import { UserManagement } from '@/components/admin/user-management';
 import PerformanceDashboard from '@/components/blocks/library/performance-dashboard';
 import ServiceWorkerStatusComponent from '@/components/blocks/library/service-worker-status';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,6 +50,15 @@ export function AdminToolsPageClient() {
           administrators
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>🗑️ User Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <UserManagement />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
