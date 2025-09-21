@@ -20,16 +20,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { eq, sql } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
-// AI Background 预设颜色配置
-const PRESET_COLORS = [
-  { name: 'Red', value: '#E25241' },
-  { name: 'Purple', value: '#9036AA' },
-  { name: 'Blue', value: '#4153AF' },
-  { name: 'Green', value: '#419488' },
-  { name: 'White', value: '#FFFFFF' },
-  { name: 'Black', value: '#000000' },
-  { name: 'Transparent', value: 'transparent' },
-];
+// PRESET_COLORS removed - solid color functionality uses different API (/api/bg/remove-direct)
 
 // AI Background 风格预设
 const BACKGROUND_STYLES = {
@@ -85,11 +76,8 @@ interface AIBackgroundRequest {
   // Required: Product image (base64 encoded)
   image_input: string;
 
-  // Background mode: 'color' for solid colors, 'background' for AI-generated backgrounds
-  backgroundMode: 'color' | 'background';
-
-  // For solid color mode
-  backgroundColor?: string; // hex color or 'transparent'
+  // Background mode: only 'background' for AI-generated backgrounds (solid color uses different API)
+  backgroundMode: 'background';
 
   // For background style mode
   backgroundType?: BackgroundType;
@@ -106,7 +94,7 @@ interface AIBackgroundRequest {
 
 export async function POST(request: NextRequest) {
   let userId: string | undefined;
-  let backgroundMode: 'color' | 'background' | undefined;
+  let backgroundMode: 'background' | undefined;
   let idStoreKey: string | null = null;
   try {
     ensureProductionEnv();
@@ -165,7 +153,6 @@ export async function POST(request: NextRequest) {
     const body: AIBackgroundRequest = await request.json();
     const {
       image_input,
-      backgroundColor,
       backgroundType,
       customBackgroundDescription,
       quality = 'standard',
@@ -202,48 +189,36 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
-    if (
-      !backgroundMode ||
-      (backgroundMode !== 'color' && backgroundMode !== 'background')
-    ) {
+    if (!backgroundMode || backgroundMode !== 'background') {
       return NextResponse.json(
-        { error: 'Invalid background mode. Must be "color" or "background"' },
+        { error: 'Invalid background mode. Must be "background"' },
         { status: 400 }
       );
     }
 
-    // 验证背景模式特定参数
-    if (backgroundMode === 'color' && !backgroundColor) {
+    // 验证背景模式参数
+    if (!backgroundType) {
       return NextResponse.json(
-        { error: 'Background color is required when using color mode' },
+        { error: 'Background type is required' },
         { status: 400 }
       );
     }
 
-    if (backgroundMode === 'background') {
-      if (!backgroundType) {
-        return NextResponse.json(
-          { error: 'Background type is required when using background mode' },
-          { status: 400 }
-        );
-      }
+    if (!BACKGROUND_STYLES[backgroundType]) {
+      return NextResponse.json(
+        { error: 'Invalid background type' },
+        { status: 400 }
+      );
+    }
 
-      if (!BACKGROUND_STYLES[backgroundType]) {
-        return NextResponse.json(
-          { error: 'Invalid background type' },
-          { status: 400 }
-        );
-      }
-
-      if (backgroundType === 'custom' && !customBackgroundDescription?.trim()) {
-        return NextResponse.json(
-          {
-            error:
-              'Custom background description is required when using custom background type',
-          },
-          { status: 400 }
-        );
-      }
+    if (backgroundType === 'custom' && !customBackgroundDescription?.trim()) {
+      return NextResponse.json(
+        {
+          error:
+            'Custom background description is required when using custom background type',
+        },
+        { status: 400 }
+      );
     }
 
     // 4. 预检查系统配置（在扣费前检查，避免用户被错误扣费）
@@ -294,32 +269,22 @@ export async function POST(request: NextRequest) {
     // 6. 初始化 SiliconFlow 提供商
     const provider = new SiliconFlowProvider(apiKey);
 
-    // 7. 构建提示词
-    let finalPrompt: string;
+    // 7. 构建提示词 (AI生成背景模式)
+    const styleConfig = BACKGROUND_STYLES[backgroundType!];
+    console.log(
+      `🎯 Using background style: ${backgroundType} (${styleConfig.name})`
+    );
 
-    if (backgroundMode === 'color') {
-      // Solid Color 模式：先去除背景，然后用户可以添加纯色背景
-      finalPrompt =
-        'remove the background completely, make background transparent or white, keep only the main subject, clean edges, no background elements';
-      console.log('🎯 Solid Color mode: Using background removal prompt');
+    let backgroundPrompt: string;
+    if (backgroundType === 'custom' && customBackgroundDescription) {
+      backgroundPrompt = customBackgroundDescription;
+      console.log('🎨 Using custom background description');
     } else {
-      // AI 生成背景模式
-      const styleConfig = BACKGROUND_STYLES[backgroundType!];
-      console.log(
-        `🎯 Using background style: ${backgroundType} (${styleConfig.name})`
-      );
-
-      let backgroundPrompt: string;
-      if (backgroundType === 'custom' && customBackgroundDescription) {
-        backgroundPrompt = customBackgroundDescription;
-        console.log('🎨 Using custom background description');
-      } else {
-        backgroundPrompt = styleConfig.prompt;
-        console.log(`🎨 Style: ${styleConfig.name}`);
-      }
-
-      finalPrompt = `replace the background with ${backgroundPrompt}, keep the main subject exactly as it is, create a seamless and natural background integration`;
+      backgroundPrompt = styleConfig.prompt;
+      console.log(`🎨 Style: ${styleConfig.name}`);
     }
+
+    let finalPrompt = `replace the background with ${backgroundPrompt}, keep the main subject exactly as it is, create a seamless and natural background integration`;
 
     // 添加通用质量提升词
     const qualityEnhancements = [
@@ -336,16 +301,12 @@ export async function POST(request: NextRequest) {
     console.log('🤖 AI Background generation prompt:', {
       mode: backgroundMode,
       backgroundType: backgroundType || 'N/A',
-      backgroundColor: backgroundColor || 'N/A',
       prompt: finalPrompt.substring(0, 100) + '...',
     });
 
     // 8. 设置生成参数
-    const selectedModel =
-      backgroundMode === 'color'
-        ? 'black-forest-labs/FLUX.1-schnell'
-        : 'black-forest-labs/FLUX.1-Kontext-dev';
-    const selectedSteps = steps ?? (backgroundMode === 'color' ? 20 : 30);
+    const selectedModel = 'black-forest-labs/FLUX.1-Kontext-dev';
+    const selectedSteps = steps ?? 30;
     const generationParams = {
       prompt: finalPrompt,
       model: selectedModel,
@@ -428,10 +389,7 @@ export async function POST(request: NextRequest) {
       await logAIOperation({
         userId,
         operation: 'aibg',
-        mode:
-          backgroundMode === 'background'
-            ? backgroundType || 'style'
-            : backgroundMode,
+        mode: backgroundType || 'style',
         creditsUsed: CREDITS_PER_IMAGE,
         status: 'success',
       });
@@ -446,7 +404,6 @@ export async function POST(request: NextRequest) {
       expires_at: downloadUrl.expires_at,
       backgroundMode,
       backgroundType: backgroundType || null,
-      backgroundColor: backgroundColor || null,
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
       credits_sufficient: true,
@@ -541,7 +498,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET 方法用于获取可用的背景类型
+// GET 方法用于获取可用的背景样式
 export async function GET() {
   // 获取所有背景样式
   const allStyles = Object.entries(BACKGROUND_STYLES).map(([id, config]) => ({
@@ -549,11 +506,8 @@ export async function GET() {
     name: config.name,
   }));
 
-  // 获取预设颜色
-  const colors = PRESET_COLORS;
-
   return NextResponse.json({
     backgroundStyles: allStyles,
-    presetColors: colors,
+    // presetColors removed - solid color functionality uses different API (/api/bg/remove-direct)
   });
 }
