@@ -958,6 +958,13 @@ export default function ProductShotGeneratorSection() {
   // Track processed results to prevent duplicate history entries
   const processedResults = useRef<Set<string>>(new Set());
 
+  // Clear processed results when result is cleared
+  useEffect(() => {
+    if (!result) {
+      processedResults.current.clear();
+    }
+  }, [result]);
+
   useEffect(() => {
     if ((result?.download_url || result?.asset_id) && isMounted) {
       // Create unique identifier for the result
