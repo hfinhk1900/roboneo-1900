@@ -2623,10 +2623,10 @@ export function AIBackgroundGeneratorSection() {
                               </span>
                             </div>
 
-                            {/* 进度条 - 与Productshot保持一致 */}
-                            <div className="w-64 bg-gray-700 rounded-full h-2 overflow-hidden">
+                            {/* 进度条 - 与其他功能保持一致的黄色主题 */}
+                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out"
+                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                 style={{ width: `${generationProgress}%` }}
                               />
                             </div>
