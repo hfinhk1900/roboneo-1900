@@ -969,12 +969,12 @@ export default function ProductShotGeneratorSection() {
     if ((result?.download_url || result?.asset_id) && isMounted) {
       // Create unique identifier for the result
       const resultId = result.asset_id || result.download_url || '';
-      
+
       // Only add to history if this result hasn't been processed yet
       if (resultId && !processedResults.current.has(resultId)) {
         console.log('🎉 ProductShot generated, adding to history:', result);
         processedResults.current.add(resultId);
-        
+
         const historyItem: ProductshotHistoryItem = {
           asset_id: result.asset_id, // 保存资产ID
           url: result.asset_id
