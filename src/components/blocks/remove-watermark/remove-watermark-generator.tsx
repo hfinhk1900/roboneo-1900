@@ -684,7 +684,7 @@ export function RemoveWatermarkGeneratorSection() {
         ) {
           userMessage = 'Request timed out. Please try again.';
         } else if (
-          errorMessage.includes('AI服务暂时不可用') ||
+          errorMessage.includes('AI service is temporarily unavailable') ||
           errorMessage.includes('service temporarily unavailable')
         ) {
           userMessage =

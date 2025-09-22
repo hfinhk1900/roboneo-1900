@@ -279,9 +279,9 @@ export async function POST(request: NextRequest) {
     let statusCode = 500;
     let userMessage = 'Watermark removal failed';
 
-    if (errorMessage.includes('AI服务暂时不可用')) {
+    if (errorMessage.includes('AI service is temporarily unavailable')) {
       statusCode = 503;
-      userMessage = 'AI服务暂时不可用，请稍后重试';
+      userMessage = 'AI service is temporarily unavailable, please try again later';
     } else if (
       errorMessage.includes('timeout') ||
       errorMessage.includes('AbortError')
@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
         error: userMessage,
         details: errorMessage,
         provider: 'SiliconFlow',
-        suggestion: '如果问题持续存在，请稍后重试或联系技术支持',
+        suggestion: 'If the problem persists, please try again later or contact technical support',
       },
       { status: statusCode }
     );

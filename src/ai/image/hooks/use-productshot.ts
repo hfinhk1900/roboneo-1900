@@ -443,7 +443,7 @@ export function useProductShot(): UseProductShotReturn {
         );
       } else if (
         errorMessage.includes('temporarily unavailable') ||
-        errorMessage.includes('AI服务暂时不可用')
+        errorMessage.includes('AI service is temporarily unavailable')
       ) {
         toast.error(
           'AI service is temporarily unavailable. Please try again in a few minutes.'
@@ -636,13 +636,15 @@ export const DEFAULT_SCENES: SceneConfig[] = [
     id: 'studio-white',
     name: 'Studio White',
     category: 'studio',
-    description: 'Clean white background, perfect for e-commerce product display',
+    description:
+      'Clean white background, perfect for e-commerce product display',
   },
   {
     id: 'studio-shadow',
     name: 'Studio Shadow',
     category: 'studio',
-    description: 'Professional lighting with shadows to highlight product quality',
+    description:
+      'Professional lighting with shadows to highlight product quality',
   },
   {
     id: 'home-lifestyle',

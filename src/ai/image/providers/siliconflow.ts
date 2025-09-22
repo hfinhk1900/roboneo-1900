@@ -187,9 +187,9 @@ export class SiliconFlowProvider {
 
         // 特殊处理500错误和60000错误代码
         if (response.status === 500) {
-          console.warn('⚠️ SiliconFlow API 服务端错误，可能是临时问题');
+          console.warn('⚠️ SiliconFlow API server error, possibly a temporary issue');
           throw new Error(
-            'AI服务暂时不可用，请稍后重试。这可能是由于服务器负载过高或临时维护。'
+            'AI service is temporarily unavailable, please try again later. This may be due to high server load or temporary maintenance.'
           );
         }
 

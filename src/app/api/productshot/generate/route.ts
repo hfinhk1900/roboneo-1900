@@ -333,14 +333,19 @@ const PRODUCT_ONLY_SCENE_PROMPTS = {
 /**
  * 获取无人物的场景提示词
  */
-function getProductOnlyScenePrompt(sceneType: SceneType, customScene?: string): string {
-  let prompt = PRODUCT_ONLY_SCENE_PROMPTS[sceneType] || PRODUCT_ONLY_SCENE_PROMPTS['minimalist-clean'];
-  
+function getProductOnlyScenePrompt(
+  sceneType: SceneType,
+  customScene?: string
+): string {
+  let prompt =
+    PRODUCT_ONLY_SCENE_PROMPTS[sceneType] ||
+    PRODUCT_ONLY_SCENE_PROMPTS['minimalist-clean'];
+
   // 处理自定义场景
   if (sceneType === 'custom' && customScene) {
     prompt = prompt.replace('{customScene}', customScene);
   }
-  
+
   return prompt;
 }
 
@@ -544,7 +549,9 @@ export async function POST(request: NextRequest) {
       // 统一使用产品专用的无人物场景提示词（包括自定义场景）
       basePrompt = getProductOnlyScenePrompt(sceneType, customSceneDescription);
       if (sceneType === 'custom' && customSceneDescription) {
-        console.log('🎨 Using custom scene prompt with strict no-people constraint');
+        console.log(
+          '🎨 Using custom scene prompt with strict no-people constraint'
+        );
       } else {
         console.log(
           `📸 Scene: ${sceneConfig.icon} ${sceneConfig.name} (product-only version with strict no-people constraints)`
@@ -628,7 +635,8 @@ export async function POST(request: NextRequest) {
     finalPrompt += `, ${kontextEnhancements}`;
 
     // 强制添加无人物约束作为最后的保护层
-    finalPrompt += ', IMPORTANT: product photography only, no people, no humans, no persons in the image, empty scene, product-focused composition';
+    finalPrompt +=
+      ', IMPORTANT: product photography only, no people, no humans, no persons in the image, empty scene, product-focused composition';
 
     // 6. 场景特定的质量参数优化
     const sceneOptimizations = {
@@ -796,18 +804,18 @@ export async function POST(request: NextRequest) {
     let statusCode = 500;
     let userMessage = 'Generation failed';
 
-    if (errorMessage.includes('AI服务暂时不可用')) {
+    if (errorMessage.includes('AI service is temporarily unavailable')) {
       statusCode = 503;
-      userMessage = 'AI服务暂时不可用，请稍后重试';
+      userMessage = 'AI service is temporarily unavailable, please try again later';
     } else if (
       errorMessage.includes('timeout') ||
       errorMessage.includes('AbortError')
     ) {
       statusCode = 408;
-      userMessage = '请求超时，请重试';
+      userMessage = 'Request timed out, please try again';
     } else if (errorMessage.includes('网络')) {
       statusCode = 503;
-      userMessage = '网络连接问题，请检查网络后重试';
+      userMessage = 'Network connection issue, please check your network and try again';
     }
 
     // 回滚预扣费
@@ -869,7 +877,7 @@ export async function POST(request: NextRequest) {
         error: userMessage,
         details: errorMessage,
         provider: 'SiliconFlow',
-        suggestion: '如果问题持续存在，请稍后重试或联系技术支持',
+        suggestion: 'If the problem persists, please try again later or contact technical support',
       },
       { status: statusCode }
     );
