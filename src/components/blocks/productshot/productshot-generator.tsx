@@ -1237,12 +1237,17 @@ export default function ProductShotGeneratorSection() {
                   {/* Custom Scene Description Input - Only show when custom is selected - 紧接着Scene选择器后面 */}
                   {selectedScene === 'custom' && (
                     <div className="space-y-3">
-                      <Label
-                        htmlFor="custom-scene"
-                        className="text-sm font-medium"
-                      >
-                        Custom Scene Description
-                      </Label>
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="custom-scene"
+                          className="text-sm font-medium"
+                        >
+                          Custom Scene Description
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Please describe in English only
+                        </p>
+                      </div>
                       <Textarea
                         id="custom-scene"
                         placeholder="Describe your custom scene, e.g., 'Product displayed on a wooden table in a cozy coffee shop with warm lighting and plants in the background'"
