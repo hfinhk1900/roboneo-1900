@@ -636,37 +636,37 @@ export const DEFAULT_SCENES: SceneConfig[] = [
     id: 'studio-white',
     name: 'Studio White',
     category: 'studio',
-    description: '电商白底图 - 纯净白色背景，完美商业展示',
+    description: 'Clean white background, perfect for e-commerce product display',
   },
   {
     id: 'studio-shadow',
     name: 'Studio Shadow',
     category: 'studio',
-    description: '质感工作室图 - 专业灯光，突出产品质感',
+    description: 'Professional lighting with shadows to highlight product quality',
   },
   {
     id: 'home-lifestyle',
     name: 'Home Lifestyle',
     category: 'lifestyle',
-    description: '生活场景 - 温馨家居环境，日常使用情境',
+    description: 'Cozy home environment for everyday product context',
   },
   {
     id: 'nature-outdoor',
     name: 'Nature Outdoor',
     category: 'nature',
-    description: '户外自然 - 自然光线，有机环境背景',
+    description: 'Natural outdoor setting with organic background elements',
   },
   {
     id: 'table-flatlay',
     name: 'Table Flatlay',
     category: 'flatlay',
-    description: '桌面俯拍 - 俯视角度，整洁构图',
+    description: 'Overhead perspective with clean tabletop composition',
   },
   {
     id: 'minimalist-clean',
     name: 'Minimalist Clean',
     category: 'minimal',
-    description: '简约美学 - 极简设计，突出产品线条',
+    description: 'Minimalist aesthetic highlighting clean product lines',
   },
 ];
 

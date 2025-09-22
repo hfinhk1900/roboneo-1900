@@ -34,7 +34,7 @@ const PRODUCT_SIZE_HINTS = {
 // 场景与产品类型的智能映射
 const SCENE_PRODUCT_PREFERENCES = {
   'studio-white': {
-    likely: 'medium', // 电商产品通常是标准商品
+    likely: 'medium', // E-commerce products typically standard size
     description: 'e-commerce products for online stores',
     contextHints: [
       'commercial product',
@@ -43,32 +43,32 @@ const SCENE_PRODUCT_PREFERENCES = {
     ],
   },
   'studio-shadow': {
-    likely: 'medium', // 高端产品适合展现质感
+    likely: 'medium', // Premium products suit quality showcase
     description: 'premium products with luxury appeal',
     contextHints: ['luxury item', 'premium product', 'high-end merchandise'],
   },
   'home-lifestyle': {
-    likely: 'medium', // 家居生活产品适合日常使用
+    likely: 'medium', // Home products for daily use
     description: 'everyday household products',
     contextHints: ['home product', 'lifestyle item', 'daily use object'],
   },
   'nature-outdoor': {
-    likely: 'medium', // 户外产品适合自然环境
+    likely: 'medium', // Outdoor products for natural environment
     description: 'outdoor and adventure products',
     contextHints: ['outdoor gear', 'nature product', 'adventure equipment'],
   },
   'table-flatlay': {
-    likely: 'small', // 俯拍适合小到中型产品
+    likely: 'small', // Flatlay suits small to medium products
     description: 'small to medium products for overhead photography',
     contextHints: ['flatlay item', 'desk accessory', 'portable product'],
   },
   'minimalist-clean': {
-    likely: 'small', // 极简风格适合设计感产品
+    likely: 'small', // Minimalist style suits design-focused products
     description: 'design-focused products',
     contextHints: ['design object', 'modern item', 'minimalist product'],
   },
   custom: {
-    likely: 'medium', // 自定义场景默认中等尺寸
+    likely: 'medium', // Custom scene defaults to medium size
     description: 'custom products',
     contextHints: ['product item', 'custom merchandise', 'unique product'],
   },
@@ -260,7 +260,7 @@ const SCENE_PRESETS = {
       'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details',
     category: 'studio',
     icon: '⚪',
-    description: '电商白底图 - 纯净白色背景，完美商业展示',
+    description: 'Clean white background, perfect for e-commerce product display',
   },
   'studio-shadow': {
     name: 'Studio Shadow',
@@ -268,7 +268,7 @@ const SCENE_PRESETS = {
       'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic',
     category: 'studio',
     icon: '🎭',
-    description: '质感工作室图 - 专业灯光，突出产品质感',
+    description: 'Professional lighting with shadows to highlight product quality',
   },
   'home-lifestyle': {
     name: 'Home Lifestyle',
@@ -276,7 +276,7 @@ const SCENE_PRESETS = {
       'natural home lifestyle setting, modern interior background, warm ambient lighting, cozy domestic environment, product in everyday use context, soft natural light, lived-in atmosphere, relatable home scene',
     category: 'lifestyle',
     icon: '🏠',
-    description: '生活场景 - 温馨家居环境，日常使用情境',
+    description: 'Cozy home environment for everyday product context',
   },
   'nature-outdoor': {
     name: 'Nature Outdoor',
@@ -284,7 +284,7 @@ const SCENE_PRESETS = {
       'natural outdoor environment, soft daylight, organic natural background, fresh air atmosphere, product in nature setting, golden hour lighting, adventure lifestyle vibe, authentic outdoor scene',
     category: 'nature',
     icon: '🌿',
-    description: '户外自然 - 自然光线，有机环境背景',
+    description: 'Natural outdoor setting with organic background elements',
   },
   'table-flatlay': {
     name: 'Table Flatlay',
@@ -292,7 +292,7 @@ const SCENE_PRESETS = {
       'clean tabletop flatlay photography, overhead perspective, organized composition, modern surface texture, soft overhead lighting, minimalist arrangement, product showcase style, editorial layout',
     category: 'flatlay',
     icon: '📷',
-    description: '桌面俯拍 - 俯视角度，整洁构图',
+    description: 'Overhead perspective with clean tabletop composition',
   },
   'minimalist-clean': {
     name: 'Minimalist Clean',
@@ -300,7 +300,7 @@ const SCENE_PRESETS = {
       'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style',
     category: 'minimal',
     icon: '✨',
-    description: '简约美学 - 极简设计，突出产品线条',
+    description: 'Minimalist aesthetic highlighting clean product lines',
   },
   custom: {
     name: 'Custom Scene',
@@ -543,9 +543,9 @@ export async function POST(request: NextRequest) {
         );
         console.log('🎨 Using custom scene prompt');
       } else {
-        // 直接使用场景预设的提示词
-        basePrompt = sceneConfig.prompt;
-        console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name}`);
+        // 使用产品专用的无人物场景提示词
+        basePrompt = getProductOnlyScenePrompt(sceneType);
+        console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name} (product-only version)`);
       }
 
       // 双图模式下强化场景与参考图的融合
@@ -630,37 +630,37 @@ export async function POST(request: NextRequest) {
         steps: steps || 35,
         guidance_scale: guidance_scale || 4.0,
         size: size || '1024x1024',
-      }, // 高精度白底图
+      }, // High precision white background
       'studio-shadow': {
         steps: steps || 40,
         guidance_scale: guidance_scale || 4.2,
         size: size || '1024x1024',
-      }, // 强调光影效果
+      }, // Emphasize lighting effects
       'home-lifestyle': {
         steps: steps || 32,
         guidance_scale: guidance_scale || 3.8,
         size: size || '1024x768',
-      }, // 生活场景平衡
+      }, // Lifestyle scene balance
       'nature-outdoor': {
         steps: steps || 35,
         guidance_scale: guidance_scale || 4.0,
         size: size || '1216x832',
-      }, // 自然场景宽屏
+      }, // Natural scene widescreen
       'table-flatlay': {
         steps: steps || 30,
         guidance_scale: guidance_scale || 3.8,
         size: size || '1024x1024',
-      }, // 俯视构图优化
+      }, // Overhead composition optimization
       'minimalist-clean': {
         steps: steps || 28,
         guidance_scale: guidance_scale || 3.5,
         size: size || '1024x1024',
-      }, // 简约快速生成
+      }, // Minimalist fast generation
       custom: {
         steps: steps || 32,
         guidance_scale: guidance_scale || 3.6,
         size: size || '1024x1024',
-      }, // 自定义默认
+      }, // Custom default settings
     };
 
     const optimizedParams =
