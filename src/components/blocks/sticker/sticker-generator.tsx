@@ -140,8 +140,8 @@ export default function StickerGenerator() {
     return () => {
       // cleanup on unmount
       try {
-        delete (window as any).heroStyleSelect;
-        delete (window as any).heroScrollToHero;
+        (window as any).heroStyleSelect = undefined;
+        (window as any).heroScrollToHero = undefined;
       } catch {}
     };
   }, []);
