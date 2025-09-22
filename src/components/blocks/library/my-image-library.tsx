@@ -99,6 +99,8 @@ export default function MyImageLibrary() {
   const [previewImage, setPreviewImage] = useState<ImageRecord | null>(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSingleDeleteConfirm, setShowSingleDeleteConfirm] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<ImageRecord | null>(null);
   // Storage and SW status UI removed from public page
 
   // 批量下载状态
@@ -462,29 +464,42 @@ export default function MyImageLibrary() {
   };
 
   /**
+   * 显示单个图片删除确认弹窗
+   */
+  const showDeleteConfirmation = (imageRecord: ImageRecord) => {
+    setImageToDelete(imageRecord);
+    setShowSingleDeleteConfirm(true);
+  };
+
+  /**
    * 删除单个图片
    */
-  const handleDelete = async (imageRecord: ImageRecord) => {
-    try {
-      await dbManager.deleteImages([imageRecord.id]);
+  const handleSingleDelete = async () => {
+    if (!imageToDelete) return;
 
-      setImages((prev) => prev.filter((img) => img.id !== imageRecord.id));
+    try {
+      await dbManager.deleteImages([imageToDelete.id]);
+
+      setImages((prev) => prev.filter((img) => img.id !== imageToDelete.id));
       setSelectedImages((prev) => {
         const newSet = new Set(prev);
-        newSet.delete(imageRecord.id);
+        newSet.delete(imageToDelete.id);
         return newSet;
       });
 
       // 记录删除操作
       analytics.track('image_deleted', {
-        image_id: imageRecord.id,
-        tool_type: imageRecord.toolType,
+        image_id: imageToDelete.id,
+        tool_type: imageToDelete.toolType,
       });
 
       toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Failed to delete image:', error);
       toast.error('Failed to delete image');
+    } finally {
+      setShowSingleDeleteConfirm(false);
+      setImageToDelete(null);
     }
   };
 
@@ -872,7 +887,7 @@ export default function MyImageLibrary() {
             title="Delete image"
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(image);
+              showDeleteConfirmation(image);
             }}
           >
             <Trash2Icon className="h-4 w-4 text-gray-600" />
@@ -1021,7 +1036,7 @@ export default function MyImageLibrary() {
         </DialogContent>
       </Dialog>
 
-      {/* 删除确认对话框 */}
+      {/* 批量删除确认对话框 */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -1039,6 +1054,32 @@ export default function MyImageLibrary() {
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteSelected}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 单张图片删除确认对话框 */}
+      <Dialog open={showSingleDeleteConfirm} onOpenChange={setShowSingleDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Image</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this image? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSingleDeleteConfirm(false);
+                setImageToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleSingleDelete}>
               Delete
             </Button>
           </div>
