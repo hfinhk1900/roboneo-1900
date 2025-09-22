@@ -328,7 +328,7 @@ const PRODUCT_ONLY_SCENE_PROMPTS = {
   'minimalist-clean':
     'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style, product only, no people, no humans',
   custom: '{customScene}, product only, no people, no humans', // Will be replaced with actual custom scene description + no-people constraint
-} as const;
+};
 
 /**
  * 获取无人物的场景提示词
