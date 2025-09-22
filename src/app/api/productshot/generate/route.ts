@@ -260,7 +260,8 @@ const SCENE_PRESETS = {
       'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details',
     category: 'studio',
     icon: '⚪',
-    description: 'Clean white background, perfect for e-commerce product display',
+    description:
+      'Clean white background, perfect for e-commerce product display',
   },
   'studio-shadow': {
     name: 'Studio Shadow',
@@ -268,7 +269,8 @@ const SCENE_PRESETS = {
       'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic',
     category: 'studio',
     icon: '🎭',
-    description: 'Professional lighting with shadows to highlight product quality',
+    description:
+      'Professional lighting with shadows to highlight product quality',
   },
   'home-lifestyle': {
     name: 'Home Lifestyle',
@@ -311,31 +313,35 @@ const SCENE_PRESETS = {
   },
 } as const;
 
-// 产品专用场景提示词（无人物版本）- 与新场景匹配
+// 产品专用场景提示词（严格无人物版本）- 明确避免人物生成
 const PRODUCT_ONLY_SCENE_PROMPTS = {
   'studio-white':
-    'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details',
+    'professional product photography, clean white seamless background, soft even lighting, high-key illumination, commercial studio setup, product centered and in focus, no shadows, crisp details, product only, no people, no humans',
   'studio-shadow':
-    'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic',
+    'professional studio photography, neutral gray backdrop, dramatic side lighting, soft shadows for depth, premium commercial feel, product as hero subject, professional lighting setup, luxury brand aesthetic, product only, no people, no humans',
   'home-lifestyle':
-    'natural home lifestyle setting, modern interior background, warm ambient lighting, cozy domestic environment, product in everyday use context, soft natural light, lived-in atmosphere, relatable home scene',
+    'modern interior background with home decor elements, warm ambient lighting, contemporary living space setting, soft natural light through windows, minimalist home aesthetic, product displayed in residential context, product only, no people, no humans, empty room',
   'nature-outdoor':
-    'natural outdoor environment, soft daylight, organic natural background, fresh air atmosphere, product in nature setting, golden hour lighting, adventure lifestyle vibe, authentic outdoor scene',
+    'natural outdoor environment, soft daylight, organic natural background elements like plants or stones, fresh outdoor atmosphere, natural lighting, outdoor product display setting, product only, no people, no humans, no persons',
   'table-flatlay':
-    'clean tabletop flatlay photography, overhead perspective, organized composition, modern surface texture, soft overhead lighting, minimalist arrangement, product showcase style, editorial layout',
+    'clean tabletop flatlay photography, overhead perspective, organized composition, modern surface texture, soft overhead lighting, minimalist arrangement, product showcase style, editorial layout, product only, no people, no humans',
   'minimalist-clean':
-    'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style',
-  custom: '{customScene}', // Will be replaced with actual custom scene description
+    'minimalist aesthetic, clean geometric composition, neutral color palette, simple elegant background, architectural elements, modern design sensibility, sophisticated brand positioning, premium minimalist style, product only, no people, no humans',
+  custom: '{customScene}, product only, no people, no humans', // Will be replaced with actual custom scene description + no-people constraint
 } as const;
 
 /**
  * 获取无人物的场景提示词
  */
-function getProductOnlyScenePrompt(sceneType: SceneType): string {
-  return (
-    PRODUCT_ONLY_SCENE_PROMPTS[sceneType] ||
-    PRODUCT_ONLY_SCENE_PROMPTS['minimalist-clean']
-  );
+function getProductOnlyScenePrompt(sceneType: SceneType, customScene?: string): string {
+  let prompt = PRODUCT_ONLY_SCENE_PROMPTS[sceneType] || PRODUCT_ONLY_SCENE_PROMPTS['minimalist-clean'];
+  
+  // 处理自定义场景
+  if (sceneType === 'custom' && customScene) {
+    prompt = prompt.replace('{customScene}', customScene);
+  }
+  
+  return prompt;
 }
 
 type SceneType = keyof typeof SCENE_PRESETS;
@@ -535,17 +541,14 @@ export async function POST(request: NextRequest) {
       const sceneConfig = SCENE_PRESETS[sceneType];
       console.log(`🎯 Using scene: ${sceneType} (${sceneConfig.name})`);
 
+      // 统一使用产品专用的无人物场景提示词（包括自定义场景）
+      basePrompt = getProductOnlyScenePrompt(sceneType, customSceneDescription);
       if (sceneType === 'custom' && customSceneDescription) {
-        // 对于自定义场景，使用用户提供的场景描述
-        basePrompt = sceneConfig.prompt.replace(
-          '{customScene}',
-          customSceneDescription
-        );
-        console.log('🎨 Using custom scene prompt');
+        console.log('🎨 Using custom scene prompt with strict no-people constraint');
       } else {
-        // 使用产品专用的无人物场景提示词
-        basePrompt = getProductOnlyScenePrompt(sceneType);
-        console.log(`📸 Scene: ${sceneConfig.icon} ${sceneConfig.name} (product-only version)`);
+        console.log(
+          `📸 Scene: ${sceneConfig.icon} ${sceneConfig.name} (product-only version with strict no-people constraints)`
+        );
       }
 
       // 双图模式下强化场景与参考图的融合
@@ -624,6 +627,9 @@ export async function POST(request: NextRequest) {
 
     finalPrompt += `, ${kontextEnhancements}`;
 
+    // 强制添加无人物约束作为最后的保护层
+    finalPrompt += ', IMPORTANT: product photography only, no people, no humans, no persons in the image, empty scene, product-focused composition';
+
     // 6. 场景特定的质量参数优化
     const sceneOptimizations = {
       'studio-white': {
@@ -682,6 +688,11 @@ export async function POST(request: NextRequest) {
     console.log(
       '🤖 Using model: black-forest-labs/FLUX.1-Kontext-dev for dual-image composition'
     );
+
+    // 详细的prompt调试日志
+    console.log('🔍 PROMPT DEBUG - Final prompt used:', finalPrompt);
+    console.log('🎯 Scene type:', sceneType);
+    console.log('📝 Base prompt from getProductOnlyScenePrompt:', basePrompt);
 
     // 检查订阅：无订阅则加右下角水印
     let isSubscribed = false;
