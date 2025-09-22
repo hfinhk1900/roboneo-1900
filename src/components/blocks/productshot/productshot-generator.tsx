@@ -71,7 +71,7 @@ const sceneIcons: Record<SceneType, string> = {
 // Presentation Style 已经整合到场景选择中，不再需要单独配置
 
 export default function ProductShotGeneratorSection() {
-  const [selectedScene, setSelectedScene] = useState<SceneType | ''>('');
+  const [selectedScene, setSelectedScene] = useState<SceneType | ''>('custom');
   const [customSceneDescription, setCustomSceneDescription] = useState('');
   // Product Size Hint 已隐藏，系统自动智能检测
   const [productTypeHint] = useState<'auto'>('auto');
