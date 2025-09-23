@@ -406,7 +406,7 @@ export async function POST(req: NextRequest) {
     }
 
     let uploadBuffer = Buffer.from(stickerBuffer);
-    
+
     // 4.2 Apply watermark for free users
     if (!isSubscribed) {
       console.log('🎨 Applying watermark for free user...');
@@ -424,20 +424,22 @@ export async function POST(req: NextRequest) {
             strokeWidth: 2,
           }
         );
-        
+
         if (watermarkedBuffer && watermarkedBuffer.length > 0) {
           uploadBuffer = Buffer.from(watermarkedBuffer);
           console.log('✅ Watermark applied successfully');
-          console.log(`📊 Buffer sizes - Original: ${stickerBuffer.length}, Watermarked: ${watermarkedBuffer.length}`);
+          console.log(
+            `📊 Buffer sizes - Original: ${stickerBuffer.length}, Watermarked: ${watermarkedBuffer.length}`
+          );
         } else {
           console.error('❌ Watermark function returned empty buffer');
         }
       } catch (wmError) {
         console.error('❌ Sticker watermark application failed:', wmError);
         console.error('📋 Error details:', {
-          errorName: wmError?.name,
-          errorMessage: wmError?.message,
-          stack: wmError?.stack?.substring(0, 200),
+          errorName: wmError instanceof Error ? wmError.name : 'Unknown',
+          errorMessage: wmError instanceof Error ? wmError.message : String(wmError),
+          stack: wmError instanceof Error ? wmError.stack?.substring(0, 200) : undefined,
         });
         // Continue with original buffer if watermark fails
       }
