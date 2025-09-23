@@ -28,7 +28,7 @@ const renderTextWithEmailLinks = (text: string) => {
       return (
         <a
           key={index}
-          href={`mailto:${part}`}
+          href="/contact"
           className="text-primary hover:underline"
         >
           {part}

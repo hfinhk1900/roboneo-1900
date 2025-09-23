@@ -289,9 +289,9 @@ export default function AboutPageContent() {
                 size="lg"
                 className="rounded-full text-base px-8 h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
               >
-                <Link href="mailto:hi@roboneo.art">
+                <Link href="/contact">
                   <MailIcon className="mr-2 h-5 w-5" />
-                  hi@roboneo.art
+                  Contact Us
                 </Link>
               </Button>
             </div>
