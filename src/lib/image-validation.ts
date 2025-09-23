@@ -5,8 +5,8 @@
 
 // OpenAI API 配置
 export const OPENAI_IMAGE_CONFIG = {
-  // 文件大小限制 (4MB - 实际推荐限制，考虑 FormData 开销)
-  maxFileSize: 4 * 1024 * 1024, // 4MB
+  // 文件大小限制 (6MB - 提高用户体验，会在客户端压缩到合适大小)
+  maxFileSize: 6 * 1024 * 1024, // 6MB
 
   // 支持的文件类型 (OpenAI gpt-image-1 支持的格式)
   allowedFileTypes: [

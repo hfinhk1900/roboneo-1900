@@ -25,6 +25,7 @@ import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { LocaleLink } from '@/i18n/navigation';
 import { creditsCache } from '@/lib/credits-cache';
+import { compressImage, formatFileSize, FEATURE_PRESETS } from '@/lib/image-compression';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { validateImageFile } from '@/lib/image-validation';
 import { cn } from '@/lib/utils';
@@ -79,6 +80,8 @@ export default function StickerGenerator() {
   const [selectedStyle, setSelectedStyle] = useState('ios');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState<number>(0);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [creditsError, setCreditsError] = useState<{
     required: number;
@@ -304,14 +307,56 @@ export default function StickerGenerator() {
     pendingGeneration.current = true;
     setIsGenerating(true);
     setGenerationProgress(0);
+    setIsCompressing(true);
+    setCompressionProgress(0);
 
     try {
       console.log('🚀 Starting sticker generation...');
+      console.log(`📸 Original file: ${selectedImage.name} (${formatFileSize(selectedImage.size)})`);
+
+      // Step 1: Compress image for optimal sticker generation
+      toast.info('正在优化图片，请稍候...', { duration: 3000 });
+      setCompressionProgress(25);
+
+      const compressed = await compressImage(selectedImage, FEATURE_PRESETS.imageToSticker);
+      
+      setCompressionProgress(75);
+      console.log(`✅ Compression complete: ${formatFileSize(selectedImage.size)} → ${formatFileSize(compressed.compressedSize)} (${compressed.compressionRatio.toFixed(1)}% reduction)`);
+      
+      // Check if compression was successful
+      if (compressed.compressedSize > 4 * 1024 * 1024) {
+        console.warn('⚠️ Compressed image still large, applying further compression...');
+        
+        // Apply more aggressive compression
+        const furtherCompressed = await compressImage(selectedImage, {
+          maxWidth: 512,
+          maxHeight: 512,
+          quality: 0.7,
+          outputFormat: 'png',
+          preserveTransparency: true,
+        });
+        
+        if (furtherCompressed.compressedSize <= 4 * 1024 * 1024) {
+          compressed.blob = furtherCompressed.blob;
+          compressed.compressedSize = furtherCompressed.compressedSize;
+          console.log(`✅ Further compression successful: ${formatFileSize(furtherCompressed.compressedSize)}`);
+        } else {
+          toast.error('图片太大了，请选择一个更小的图片或者尝试其他图片');
+          return;
+        }
+      }
+
+      setCompressionProgress(100);
+      setIsCompressing(false);
+      
+      toast.success(`图片优化完成！大小减少了${compressed.compressionRatio.toFixed(1)}%`, { duration: 2000 });
+
+      // Step 2: Create FormData with compressed image
       const formData = new FormData();
-      formData.append('image', selectedImage);
+      formData.append('image', compressed.blob, selectedImage.name);
       formData.append('style', selectedStyle);
 
-      // Simulate progress
+      // Step 3: Start generation progress simulation
       const progressInterval = setInterval(() => {
         setGenerationProgress((prev) => {
           if (prev >= 90) {
@@ -358,13 +403,21 @@ export default function StickerGenerator() {
       }
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to generate sticker'
-      );
+      
+      // Check if error occurred during compression
+      if (isCompressing) {
+        toast.error('图片处理失败，请尝试选择其他图片');
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to generate sticker'
+        );
+      }
     } finally {
       setIsGenerating(false);
+      setIsCompressing(false);
       pendingGeneration.current = false;
       setGenerationProgress(0);
+      setCompressionProgress(0);
     }
   }, [selectedImage, selectedStyle, currentUser]);
 
@@ -557,7 +610,10 @@ export default function StickerGenerator() {
                             Click or drag & drop to upload
                           </p>
                           <p className="text-xs text-muted-foreground text-center mt-1">
-                            (JPG, JPEG, PNG, WEBP)
+                            JPG, PNG, WEBP • Up to 6MB
+                          </p>
+                          <p className="text-xs text-green-600 text-center mt-1">
+                            ✨ Auto-optimized for best quality
                           </p>
                         </div>
                       </div>
@@ -624,13 +680,13 @@ export default function StickerGenerator() {
                 {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
-                  disabled={!selectedImage || isGenerating}
+                  disabled={!selectedImage || isGenerating || isCompressing}
                   className="w-full font-semibold h-auto min-h-[52px] rounded-2xl text-[14px] mt-auto whitespace-normal leading-tight text-center sm:text-left flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-2"
                 >
-                  {isGenerating ? (
+                  {isGenerating || isCompressing ? (
                     <>
                       <LoaderIcon className="h-5 w-5 sm:mr-2 sm:mb-0 mb-1 animate-spin" />
-                      Creating...
+                      {isCompressing ? 'Optimizing...' : 'Creating...'}
                     </>
                   ) : !isMounted ? (
                     <>
@@ -680,21 +736,33 @@ export default function StickerGenerator() {
                             <div className="flex items-center space-x-2 text-white">
                               <LoaderIcon className="h-6 w-6 animate-spin" />
                               <span className="text-lg font-medium">
-                                Creating...
+                                {isCompressing ? 'Optimizing Image...' : 'Creating Sticker...'}
                               </span>
+                            </div>
+
+                            {/* Current phase indicator */}
+                            <div className="text-white text-sm opacity-80">
+                              {isCompressing ? 'Step 1: Image Compression' : 'Step 2: AI Generation'}
                             </div>
 
                             {/* Progress bar */}
                             <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                               <div
                                 className="h-full bg-yellow-400 transition-all duration-300 ease-out"
-                                style={{ width: `${generationProgress}%` }}
+                                style={{ 
+                                  width: isCompressing 
+                                    ? `${compressionProgress}%` 
+                                    : `${generationProgress}%` 
+                                }}
                               />
                             </div>
 
                             {/* Progress percentage */}
                             <div className="text-white text-sm font-medium">
-                              {Math.round(generationProgress)}%
+                              {isCompressing 
+                                ? `${Math.round(compressionProgress)}%` 
+                                : `${Math.round(generationProgress)}%`
+                              }
                             </div>
 
                             {/* 页面刷新提示 */}

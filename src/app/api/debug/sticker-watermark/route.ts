@@ -23,10 +23,7 @@ export async function POST(request: NextRequest) {
     const { userId, action } = body;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Missing userId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
     // 权限检查：只允许管理员或用户自己查看
@@ -37,12 +34,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🔍 Debugging sticker watermark for user ${userId}, action: ${action}`);
+    console.log(
+      `🔍 Debugging sticker watermark for user ${userId}, action: ${action}`
+    );
 
     switch (action) {
       case 'checkSubscriptionForWatermark': {
         console.log('📋 Checking subscription status for watermark logic...');
-        
+
         // 模拟 image-to-sticker API 中的订阅检查逻辑
         let isSubscribed = false;
         let subscriptionData = null;
@@ -52,19 +51,21 @@ export async function POST(request: NextRequest) {
           const sub = await getActiveSubscriptionAction({
             userId: userId,
           });
-          
+
           subscriptionData = sub?.data;
           isSubscribed = !!sub?.data?.data;
-          
+
           console.log('订阅检查结果:', {
             success: sub?.data?.success,
             hasData: !!sub?.data?.data,
             isSubscribed,
           });
-          
         } catch (subscriptionError) {
           console.error('订阅状态检查失败:', subscriptionError);
-          error = subscriptionError instanceof Error ? subscriptionError.message : 'Unknown error';
+          error =
+            subscriptionError instanceof Error
+              ? subscriptionError.message
+              : 'Unknown error';
         }
 
         return NextResponse.json({
@@ -87,27 +88,31 @@ export async function POST(request: NextRequest) {
             strokeWidth: 2,
           },
           explanation: {
-            logic: 'If isSubscribed = false, watermark will be applied to sticker',
-            expected: isSubscribed ? 'No watermark (subscribed user)' : 'Watermark applied (free user)',
+            logic:
+              'If isSubscribed = false, watermark will be applied to sticker',
+            expected: isSubscribed
+              ? 'No watermark (subscribed user)'
+              : 'Watermark applied (free user)',
           },
         });
       }
 
       case 'testWatermarkFunction': {
         console.log('🎨 Testing watermark function...');
-        
+
         try {
           // 测试水印函数是否可用
           const { applyCornerWatermark } = await import('@/lib/watermark');
-          
+
           // 创建一个简单的测试图片buffer（1x1 像素的PNG）
           const testBuffer = Buffer.from([
-            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
-            0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-            0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
-            0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
-            0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49,
-            0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+            0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00,
+            0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+            0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89,
+            0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63,
+            0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4,
+            0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60,
+            0x82,
           ]);
 
           // 尝试应用水印
@@ -134,18 +139,20 @@ export async function POST(request: NextRequest) {
               originalSize: testBuffer.length,
               watermarkedSize: watermarkedBuffer.length,
               watermarkApplied,
-              message: watermarkApplied 
+              message: watermarkApplied
                 ? 'Watermark function is working correctly'
                 : 'Watermark may not have been applied correctly',
             },
           });
-
         } catch (watermarkError) {
           console.error('水印函数测试失败:', watermarkError);
           return NextResponse.json({
             success: false,
             action: 'testWatermarkFunction',
-            error: watermarkError instanceof Error ? watermarkError.message : 'Unknown error',
+            error:
+              watermarkError instanceof Error
+                ? watermarkError.message
+                : 'Unknown error',
             watermarkTest: {
               functionAvailable: false,
               message: 'Watermark function failed',
@@ -209,7 +216,9 @@ export async function GET(request: NextRequest) {
       userId,
       isSubscribed,
       shouldApplyWatermark: !isSubscribed,
-      watermarkExpected: isSubscribed ? 'No watermark' : 'Watermark should be applied',
+      watermarkExpected: isSubscribed
+        ? 'No watermark'
+        : 'Watermark should be applied',
       debugInstructions: {
         testSubscription: `POST /api/debug/sticker-watermark {"userId": "${userId}", "action": "checkSubscriptionForWatermark"}`,
         testWatermarkFunction: `POST /api/debug/sticker-watermark {"userId": "${userId}", "action": "testWatermarkFunction"}`,

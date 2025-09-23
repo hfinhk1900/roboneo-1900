@@ -438,8 +438,12 @@ export async function POST(req: NextRequest) {
         console.error('❌ Sticker watermark application failed:', wmError);
         console.error('📋 Error details:', {
           errorName: wmError instanceof Error ? wmError.name : 'Unknown',
-          errorMessage: wmError instanceof Error ? wmError.message : String(wmError),
-          stack: wmError instanceof Error ? wmError.stack?.substring(0, 200) : undefined,
+          errorMessage:
+            wmError instanceof Error ? wmError.message : String(wmError),
+          stack:
+            wmError instanceof Error
+              ? wmError.stack?.substring(0, 200)
+              : undefined,
         });
         // Continue with original buffer if watermark fails
       }
