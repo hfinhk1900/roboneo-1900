@@ -396,10 +396,20 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
       });
       isSubscribed = !!sub?.data?.data;
-    } catch {}
+      console.log(`🔍 Subscription check for user ${session.user.id}:`, {
+        hasSubscription: isSubscribed,
+        subData: sub?.data?.data ? 'Present' : 'None',
+      });
+    } catch (subError) {
+      console.error('❌ Subscription check failed:', subError);
+      // Keep isSubscribed = false as default for safety
+    }
 
     let uploadBuffer = Buffer.from(stickerBuffer);
+    
+    // 4.2 Apply watermark for free users
     if (!isSubscribed) {
+      console.log('🎨 Applying watermark for free user...');
       try {
         const { applyCornerWatermark } = await import('@/lib/watermark');
         const watermarkedBuffer = await applyCornerWatermark(
@@ -414,10 +424,25 @@ export async function POST(req: NextRequest) {
             strokeWidth: 2,
           }
         );
-        uploadBuffer = Buffer.from(watermarkedBuffer);
+        
+        if (watermarkedBuffer && watermarkedBuffer.length > 0) {
+          uploadBuffer = Buffer.from(watermarkedBuffer);
+          console.log('✅ Watermark applied successfully');
+          console.log(`📊 Buffer sizes - Original: ${stickerBuffer.length}, Watermarked: ${watermarkedBuffer.length}`);
+        } else {
+          console.error('❌ Watermark function returned empty buffer');
+        }
       } catch (wmError) {
-        console.warn('Sticker watermark application failed:', wmError);
+        console.error('❌ Sticker watermark application failed:', wmError);
+        console.error('📋 Error details:', {
+          errorName: wmError?.name,
+          errorMessage: wmError?.message,
+          stack: wmError?.stack?.substring(0, 200),
+        });
+        // Continue with original buffer if watermark fails
       }
+    } else {
+      console.log('⭐ Subscribed user - no watermark applied');
     }
     const filename = `${style}-${nanoid()}.png`;
     const uploadResult = await uploadFile(
