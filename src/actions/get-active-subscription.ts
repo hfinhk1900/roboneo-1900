@@ -50,7 +50,7 @@ export const getActiveSubscriptionAction = actionClient
     try {
       // Find the user's most recent active subscription
       const subscriptions = await getSubscriptions({
-        userId: session.user.id,
+        userId: userId, // 🔧 修复：使用传入的userId而不是session.user.id
       });
       // debug removed: subscription list
 
@@ -70,7 +70,7 @@ export const getActiveSubscriptionAction = actionClient
           // debug removed: subscription statuses when not active
         }
       } else {
-        console.log('no subscriptions found for userId:', session.user.id);
+        console.log('no subscriptions found for userId:', userId);
       }
 
       return {
