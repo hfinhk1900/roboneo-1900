@@ -4,7 +4,6 @@ import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
   BellIcon,
-  BugIcon,
   CircleUserRoundIcon,
   CreditCardIcon,
   DatabaseIcon,
@@ -59,22 +58,16 @@ export function getSidebarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
-          title: t('admin.debug.title'),
-          icon: <BugIcon className="size-4 shrink-0" />,
-          items: [
-            {
-              title: t('admin.debug.subscription.title'),
-              icon: <CreditCardIcon className="size-4 shrink-0" />,
-              href: Routes.AdminDebugSubscription,
-              external: false,
-            },
-            {
-              title: t('admin.debug.userIntegrity.title'),
-              icon: <DatabaseIcon className="size-4 shrink-0" />,
-              href: Routes.AdminDebugUserIntegrity,
-              external: false,
-            },
-          ],
+          title: t('admin.debug.subscription.title'),
+          icon: <CreditCardIcon className="size-4 shrink-0" />,
+          href: Routes.AdminDebugSubscription,
+          external: false,
+        },
+        {
+          title: t('admin.debug.userIntegrity.title'),
+          icon: <DatabaseIcon className="size-4 shrink-0" />,
+          href: Routes.AdminDebugUserIntegrity,
+          external: false,
         },
       ],
     },
