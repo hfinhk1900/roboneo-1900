@@ -3,7 +3,7 @@ import { getDb } from '@/db';
 import { payment } from '@/db/schema';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { getSession } from '@/lib/server';
-import { eq, desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
@@ -41,13 +41,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🔍 Debugging subscription status for user ${userId}, action: ${action}`);
+    console.log(
+      `🔍 Debugging subscription status for user ${userId}, action: ${action}`
+    );
 
     switch (action) {
       case 'findUserByEmail': {
         console.log('🔍 Finding user by email...');
         const { email } = body;
-        
+
         if (!email) {
           return NextResponse.json(
             { error: 'Email is required for findUserByEmail action' },
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
         }
 
         const foundUser = users[0];
-        
+
         // 同时获取该用户的订阅信息
         const userPayments = await db
           .select()
@@ -102,8 +104,8 @@ export async function POST(request: NextRequest) {
           subscriptionSummary: {
             totalPayments: userPayments.length,
             latestStatus: userPayments[0]?.status || 'none',
-            hasActiveSubscription: userPayments.some(p => 
-              p.status === 'active' || p.status === 'trialing'
+            hasActiveSubscription: userPayments.some(
+              (p) => p.status === 'active' || p.status === 'trialing'
             ),
           },
         });
@@ -112,7 +114,7 @@ export async function POST(request: NextRequest) {
       case 'searchUsers': {
         console.log('🔍 Searching users...');
         const { searchTerm } = body;
-        
+
         if (!searchTerm || searchTerm.length < 2) {
           return NextResponse.json(
             { error: 'Search term must be at least 2 characters' },
@@ -123,7 +125,7 @@ export async function POST(request: NextRequest) {
         const db = await getDb();
         const { user } = await import('@/db/schema');
         const { ilike, or } = await import('drizzle-orm');
-        
+
         const users = await db
           .select({
             id: user.id,
@@ -162,8 +164,8 @@ export async function POST(request: NextRequest) {
               subscriptionSummary: {
                 totalPayments: userPayments.length,
                 latestStatus: userPayments[0]?.status || 'none',
-                hasActiveSubscription: userPayments.some(p => 
-                  p.status === 'active' || p.status === 'trialing'
+                hasActiveSubscription: userPayments.some(
+                  (p) => p.status === 'active' || p.status === 'trialing'
                 ),
                 latestSubscriptionId: userPayments[0]?.subscriptionId || null,
               },
@@ -183,7 +185,7 @@ export async function POST(request: NextRequest) {
       case 'getActiveSubscription': {
         console.log('📋 Fetching active subscription...');
         const result = await getActiveSubscriptionAction({ userId });
-        
+
         return NextResponse.json({
           success: true,
           action: 'getActiveSubscription',
@@ -206,7 +208,7 @@ export async function POST(request: NextRequest) {
           success: true,
           action: 'getAllPayments',
           totalRecords: payments.length,
-          payments: payments.map(p => ({
+          payments: payments.map((p) => ({
             id: p.id,
             subscriptionId: p.subscriptionId,
             customerId: p.customerId,
@@ -227,7 +229,7 @@ export async function POST(request: NextRequest) {
 
       case 'checkStripeStatus': {
         console.log('🔄 Checking Stripe real-time status...');
-        
+
         // 首先获取用户的订阅记录
         const db = await getDb();
         const userPayments = await db
@@ -252,7 +254,9 @@ export async function POST(request: NextRequest) {
         for (const paymentRecord of userPayments) {
           if (paymentRecord.subscriptionId) {
             try {
-              console.log(`🔍 Checking Stripe subscription: ${paymentRecord.subscriptionId}`);
+              console.log(
+                `🔍 Checking Stripe subscription: ${paymentRecord.subscriptionId}`
+              );
               const stripeSubscription = await stripe.subscriptions.retrieve(
                 paymentRecord.subscriptionId
               );
@@ -262,19 +266,30 @@ export async function POST(request: NextRequest) {
                 localStatus: paymentRecord.status,
                 stripeStatus: stripeSubscription.status,
                 statusMatch: paymentRecord.status === stripeSubscription.status,
-                stripeCancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                stripeCancelAtPeriodEnd:
+                  stripeSubscription.cancel_at_period_end,
                 localCancelAtPeriodEnd: paymentRecord.cancelAtPeriodEnd,
-                stripeCurrentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
+                stripeCurrentPeriodEnd: new Date(
+                  stripeSubscription.current_period_end * 1000
+                ).toISOString(),
                 localPeriodEnd: paymentRecord.periodEnd?.toISOString(),
-                stripeUpdated: new Date(stripeSubscription.created * 1000).toISOString(),
+                stripeUpdated: new Date(
+                  stripeSubscription.created * 1000
+                ).toISOString(),
                 localUpdated: paymentRecord.updatedAt.toISOString(),
               });
             } catch (stripeError) {
-              console.error(`❌ Error checking Stripe subscription ${paymentRecord.subscriptionId}:`, stripeError);
+              console.error(
+                `❌ Error checking Stripe subscription ${paymentRecord.subscriptionId}:`,
+                stripeError
+              );
               stripeChecks.push({
                 subscriptionId: paymentRecord.subscriptionId,
                 localStatus: paymentRecord.status,
-                stripeError: stripeError instanceof Error ? stripeError.message : 'Unknown error',
+                stripeError:
+                  stripeError instanceof Error
+                    ? stripeError.message
+                    : 'Unknown error',
                 statusMatch: false,
               });
             }
@@ -287,9 +302,12 @@ export async function POST(request: NextRequest) {
           totalChecks: stripeChecks.length,
           stripeChecks,
           summary: {
-            totalSubscriptions: userPayments.filter(p => p.subscriptionId).length,
-            statusMismatches: stripeChecks.filter(check => !check.statusMatch).length,
-            stripeErrors: stripeChecks.filter(check => check.stripeError).length,
+            totalSubscriptions: userPayments.filter((p) => p.subscriptionId)
+              .length,
+            statusMismatches: stripeChecks.filter((check) => !check.statusMatch)
+              .length,
+            stripeErrors: stripeChecks.filter((check) => check.stripeError)
+              .length,
           },
         });
       }
@@ -337,21 +355,23 @@ export async function GET(request: NextRequest) {
 
     // 快速状态检查
     const activeSubResult = await getActiveSubscriptionAction({ userId });
-    
+
     return NextResponse.json({
       success: true,
       userId,
       hasActiveSubscription: !!activeSubResult?.data?.data,
-      subscriptionSummary: activeSubResult?.data?.data ? {
-        id: activeSubResult.data.data.id,
-        status: activeSubResult.data.data.status,
-        type: activeSubResult.data.data.type,
-        interval: activeSubResult.data.data.interval,
-      } : null,
+      subscriptionSummary: activeSubResult?.data?.data
+        ? {
+            id: activeSubResult.data.data.id,
+            status: activeSubResult.data.data.status,
+            type: activeSubResult.data.data.type,
+            interval: activeSubResult.data.data.interval,
+          }
+        : null,
       debugInstructions: {
         browserConsole: `debugSubscriptionStatus('${userId}')`,
         apiEndpoint: '/api/debug/subscription-status',
-      }
+      },
     });
   } catch (error) {
     console.error('❌ Quick debug error:', error);

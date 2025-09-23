@@ -550,6 +550,9 @@
       },
       "tools": {
         "title": "性能与工具面板"
+      },
+      "debug": {
+        "title": "订阅状态调试"
       }
     },
     "settings": {

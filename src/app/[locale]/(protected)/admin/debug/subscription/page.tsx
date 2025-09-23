@@ -56,14 +56,24 @@ export default function SubscriptionDebugPage() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
-        setDebugResults(prev => prev + `\n✅ ${action} 执行成功:\n${JSON.stringify(data, null, 2)}\n\n`);
+        setDebugResults(
+          (prev) =>
+            prev +
+            `\n✅ ${action} 执行成功:\n${JSON.stringify(data, null, 2)}\n\n`
+        );
       } else {
-        setDebugResults(prev => prev + `\n❌ ${action} 执行失败:\n${JSON.stringify(data, null, 2)}\n\n`);
+        setDebugResults(
+          (prev) =>
+            prev +
+            `\n❌ ${action} 执行失败:\n${JSON.stringify(data, null, 2)}\n\n`
+        );
       }
     } catch (error) {
-      setDebugResults(prev => prev + `\n❌ ${action} 执行出错:\n${error}\n\n`);
+      setDebugResults(
+        (prev) => prev + `\n❌ ${action} 执行出错:\n${error}\n\n`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -78,11 +88,15 @@ export default function SubscriptionDebugPage() {
     setIsLoading(true);
     setDebugResults(`🔍 开始完整诊断用户: ${userId}\n${'='.repeat(50)}\n`);
 
-    const actions = ['getActiveSubscription', 'getAllPayments', 'checkStripeStatus'];
-    
+    const actions = [
+      'getActiveSubscription',
+      'getAllPayments',
+      'checkStripeStatus',
+    ];
+
     for (const action of actions) {
-      setDebugResults(prev => prev + `\n📋 执行 ${action}...\n`);
-      
+      setDebugResults((prev) => prev + `\n📋 执行 ${action}...\n`);
+
       try {
         const response = await fetch('/api/debug/subscription-status', {
           method: 'POST',
@@ -93,18 +107,22 @@ export default function SubscriptionDebugPage() {
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
-          setDebugResults(prev => prev + `✅ 成功:\n${JSON.stringify(data, null, 2)}\n\n`);
+          setDebugResults(
+            (prev) => prev + `✅ 成功:\n${JSON.stringify(data, null, 2)}\n\n`
+          );
         } else {
-          setDebugResults(prev => prev + `❌ 失败:\n${JSON.stringify(data, null, 2)}\n\n`);
+          setDebugResults(
+            (prev) => prev + `❌ 失败:\n${JSON.stringify(data, null, 2)}\n\n`
+          );
         }
       } catch (error) {
-        setDebugResults(prev => prev + `❌ 出错:\n${error}\n\n`);
+        setDebugResults((prev) => prev + `❌ 出错:\n${error}\n\n`);
       }
     }
 
-    setDebugResults(prev => prev + `\n${'='.repeat(50)}\n🏁 诊断完成\n`);
+    setDebugResults((prev) => prev + `\n${'='.repeat(50)}\n🏁 诊断完成\n`);
     setIsLoading(false);
   };
 
@@ -127,19 +145,26 @@ export default function SubscriptionDebugPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action: 'findUserByEmail', email: email.trim() }),
+        body: JSON.stringify({
+          action: 'findUserByEmail',
+          email: email.trim(),
+        }),
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.found) {
         setUserId(data.user.id);
-        setDebugResults(prev => prev + `✅ 找到用户:\n用户ID: ${data.user.id}\n邮箱: ${data.user.email}\n姓名: ${data.user.name}\n注册时间: ${data.user.createdAt}\n订阅状态: ${data.subscriptionSummary.hasActiveSubscription ? '有活跃订阅' : '无活跃订阅'}\n\n`);
+        setDebugResults(
+          (prev) =>
+            prev +
+            `✅ 找到用户:\n用户ID: ${data.user.id}\n邮箱: ${data.user.email}\n姓名: ${data.user.name}\n注册时间: ${data.user.createdAt}\n订阅状态: ${data.subscriptionSummary.hasActiveSubscription ? '有活跃订阅' : '无活跃订阅'}\n\n`
+        );
       } else {
-        setDebugResults(prev => prev + `❌ 未找到用户: ${email}\n\n`);
+        setDebugResults((prev) => prev + `❌ 未找到用户: ${email}\n\n`);
       }
     } catch (error) {
-      setDebugResults(prev => prev + `❌ 查找出错: ${error}\n\n`);
+      setDebugResults((prev) => prev + `❌ 查找出错: ${error}\n\n`);
     } finally {
       setIsLoading(false);
     }
@@ -160,22 +185,33 @@ export default function SubscriptionDebugPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action: 'searchUsers', searchTerm: searchTerm.trim() }),
+        body: JSON.stringify({
+          action: 'searchUsers',
+          searchTerm: searchTerm.trim(),
+        }),
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setFoundUsers(data.users);
-        setDebugResults(prev => prev + `✅ 找到 ${data.totalFound} 个用户:\n`);
+        setDebugResults(
+          (prev) => prev + `✅ 找到 ${data.totalFound} 个用户:\n`
+        );
         data.users.forEach((user: any, index: number) => {
-          setDebugResults(prev => prev + `${index + 1}. ${user.name} (${user.email})\n   ID: ${user.id}\n   订阅: ${user.subscriptionSummary.hasActiveSubscription ? '活跃' : '无'}\n\n`);
+          setDebugResults(
+            (prev) =>
+              prev +
+              `${index + 1}. ${user.name} (${user.email})\n   ID: ${user.id}\n   订阅: ${user.subscriptionSummary.hasActiveSubscription ? '活跃' : '无'}\n\n`
+          );
         });
       } else {
-        setDebugResults(prev => prev + `❌ 搜索失败: ${JSON.stringify(data, null, 2)}\n\n`);
+        setDebugResults(
+          (prev) => prev + `❌ 搜索失败: ${JSON.stringify(data, null, 2)}\n\n`
+        );
       }
     } catch (error) {
-      setDebugResults(prev => prev + `❌ 搜索出错: ${error}\n\n`);
+      setDebugResults((prev) => prev + `❌ 搜索出错: ${error}\n\n`);
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +220,11 @@ export default function SubscriptionDebugPage() {
   const selectUser = (user: any) => {
     setUserId(user.id);
     setEmail(user.email);
-    setDebugResults(prev => prev + `👤 已选择用户: ${user.name} (${user.email})\n用户ID: ${user.id}\n\n`);
+    setDebugResults(
+      (prev) =>
+        prev +
+        `👤 已选择用户: ${user.name} (${user.email})\n用户ID: ${user.id}\n\n`
+    );
   };
 
   const quickCheck = async () => {
@@ -194,11 +234,13 @@ export default function SubscriptionDebugPage() {
     }
 
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch(`/api/debug/subscription-status?userId=${encodeURIComponent(userId.trim())}`);
+      const response = await fetch(
+        `/api/debug/subscription-status?userId=${encodeURIComponent(userId.trim())}`
+      );
       const data = await response.json();
-      
+
       if (response.ok) {
         setDebugResults(`🚀 快速检查结果:\n${JSON.stringify(data, null, 2)}\n`);
       } else {
@@ -237,7 +279,7 @@ export default function SubscriptionDebugPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                 />
-                <Button 
+                <Button
                   onClick={findUserByEmail}
                   disabled={isLoading}
                   variant="outline"
@@ -258,7 +300,7 @@ export default function SubscriptionDebugPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   disabled={isLoading}
                 />
-                <Button 
+                <Button
                   onClick={searchUsers}
                   disabled={isLoading}
                   variant="outline"
@@ -283,9 +325,14 @@ export default function SubscriptionDebugPage() {
                     disabled={isLoading}
                   >
                     <div className="flex flex-col items-start">
-                      <div className="font-medium">{user.name} ({user.email})</div>
+                      <div className="font-medium">
+                        {user.name} ({user.email})
+                      </div>
                       <div className="text-xs text-muted-foreground">
-                        ID: {user.id} | 订阅: {user.subscriptionSummary.hasActiveSubscription ? '活跃' : '无'}
+                        ID: {user.id} | 订阅:{' '}
+                        {user.subscriptionSummary.hasActiveSubscription
+                          ? '活跃'
+                          : '无'}
                       </div>
                     </div>
                   </Button>
@@ -313,22 +360,15 @@ export default function SubscriptionDebugPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button 
-              onClick={quickCheck}
-              disabled={isLoading}
-              variant="outline"
-            >
+            <Button onClick={quickCheck} disabled={isLoading} variant="outline">
               快速检查
             </Button>
-            
-            <Button 
-              onClick={runFullDiagnostic}
-              disabled={isLoading}
-            >
+
+            <Button onClick={runFullDiagnostic} disabled={isLoading}>
               完整诊断
             </Button>
 
-            <Button 
+            <Button
               onClick={() => runDiagnostic('getActiveSubscription')}
               disabled={isLoading}
               variant="outline"
@@ -336,7 +376,7 @@ export default function SubscriptionDebugPage() {
               检查活跃订阅
             </Button>
 
-            <Button 
+            <Button
               onClick={() => runDiagnostic('getAllPayments')}
               disabled={isLoading}
               variant="outline"
@@ -344,7 +384,7 @@ export default function SubscriptionDebugPage() {
               查看支付记录
             </Button>
 
-            <Button 
+            <Button
               onClick={() => runDiagnostic('checkStripeStatus')}
               disabled={isLoading}
               variant="outline"
@@ -352,7 +392,7 @@ export default function SubscriptionDebugPage() {
               验证Stripe状态
             </Button>
 
-            <Button 
+            <Button
               onClick={clearResults}
               disabled={isLoading}
               variant="destructive"
@@ -414,7 +454,7 @@ debugSubscriptionStatus('${userId || '用户ID'}');`}
                 <li>确认没有多个活跃订阅记录</li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold">2. 数据库与Stripe状态不一致</h4>
               <ul className="list-disc list-inside text-muted-foreground">

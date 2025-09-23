@@ -550,6 +550,9 @@
       },
       "tools": {
         "title": "Performance & Tools"
+      },
+      "debug": {
+        "title": "Debug Subscription"
       }
     },
     "settings": {

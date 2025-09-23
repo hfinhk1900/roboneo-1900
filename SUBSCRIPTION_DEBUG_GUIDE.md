@@ -71,7 +71,7 @@ debugSubscriptionStatus('用户ID');
 - `findUserByEmail`: 根据邮箱查找用户ID和基本信息
 - `searchUsers`: 模糊搜索用户（邮箱、姓名、ID）
 - `getActiveSubscription`: 获取活跃订阅
-- `getAllPayments`: 获取所有支付记录  
+- `getAllPayments`: 获取所有支付记录
 - `checkStripeStatus`: 验证Stripe实时状态
 
 **示例请求**:
@@ -148,9 +148,9 @@ GET /api/debug/subscription-status?userId=USER_ID
 
 ### 修复1: 手动更新订阅状态
 ```sql
-UPDATE payment 
+UPDATE payment
 SET status = 'canceled', updated_at = NOW()
-WHERE user_id = 'USER_ID' 
+WHERE user_id = 'USER_ID'
   AND subscription_id = 'SUBSCRIPTION_ID';
 ```
 
@@ -170,9 +170,9 @@ window.location.reload();
 fetch('/api/debug/subscription-status', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    userId: 'USER_ID', 
-    action: 'checkStripeStatus' 
+  body: JSON.stringify({
+    userId: 'USER_ID',
+    action: 'checkStripeStatus'
   })
 });
 ```
@@ -204,18 +204,18 @@ fetch('/api/debug/subscription-status', {
 ### 1. 批量同步Stripe状态
 ```sql
 -- 查找所有可能有问题的记录
-SELECT user_id, subscription_id 
-FROM payment 
-WHERE status = 'active' 
+SELECT user_id, subscription_id
+FROM payment
+WHERE status = 'active'
   AND updated_at < NOW() - INTERVAL '1 day';
 ```
 
 ### 2. 批量更新过期订阅
 ```sql
 -- 更新已过期但状态仍为active的订阅
-UPDATE payment 
+UPDATE payment
 SET status = 'canceled', updated_at = NOW()
-WHERE status = 'active' 
+WHERE status = 'active'
   AND period_end < NOW();
 ```
 

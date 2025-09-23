@@ -4,6 +4,7 @@ import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
   BellIcon,
+  BugIcon,
   CircleUserRoundIcon,
   CreditCardIcon,
   LayoutDashboardIcon,
@@ -54,6 +55,12 @@ export function getSidebarLinks(): NestedMenuItem[] {
           title: t('admin.tools.title'),
           icon: <WrenchIcon className="size-4 shrink-0" />,
           href: Routes.AdminTools,
+          external: false,
+        },
+        {
+          title: t('admin.debug.title'),
+          icon: <BugIcon className="size-4 shrink-0" />,
+          href: Routes.AdminDebugSubscription,
           external: false,
         },
       ],
