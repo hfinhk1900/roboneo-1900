@@ -37,8 +37,8 @@ export async function applyCornerWatermark(
     fill = '#FFFFFF',
     stroke = 'rgba(0,0,0,0.35)',
     strokeWidth = 2,
-    fontFamily = 'Inter, Arial, Helvetica, sans-serif',
-    fontWeight = 700,
+    fontFamily = 'Arial, sans-serif',
+    fontWeight = 'bold',
   } = options;
 
   const fontSize = Math.max(

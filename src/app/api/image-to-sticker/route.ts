@@ -451,15 +451,27 @@ export async function POST(req: NextRequest) {
       console.log('⭐ Subscribed user - no watermark applied');
     }
     const filename = `${style}-${nanoid()}.png`;
+    console.log('📤 Starting R2 upload...', {
+      filename,
+      folder: 'all-generated-images/stickers',
+      bufferSize: uploadBuffer.length
+    });
+    
     const uploadResult = await uploadFile(
       uploadBuffer,
       filename,
       'image/png',
       'all-generated-images/stickers'
     );
+    
     const r2Url = uploadResult.url;
     const storageKey = uploadResult.key || r2Url;
-    console.log(`✅ Upload successful! URL: ${r2Url}`);
+    
+    console.log('✅ R2 Upload successful!', {
+      url: r2Url,
+      key: storageKey,
+      uploadResult
+    });
 
     // 5. Already pre-deducted
 
