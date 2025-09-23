@@ -44,6 +44,142 @@ export async function POST(request: NextRequest) {
     console.log(`🔍 Debugging subscription status for user ${userId}, action: ${action}`);
 
     switch (action) {
+      case 'findUserByEmail': {
+        console.log('🔍 Finding user by email...');
+        const { email } = body;
+        
+        if (!email) {
+          return NextResponse.json(
+            { error: 'Email is required for findUserByEmail action' },
+            { status: 400 }
+          );
+        }
+
+        const db = await getDb();
+        const { user } = await import('@/db/schema');
+        const users = await db
+          .select({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: user.createdAt,
+          })
+          .from(user)
+          .where(eq(user.email, email.toLowerCase().trim()));
+
+        if (users.length === 0) {
+          return NextResponse.json({
+            success: true,
+            action: 'findUserByEmail',
+            email,
+            found: false,
+            message: 'No user found with this email',
+          });
+        }
+
+        const foundUser = users[0];
+        
+        // 同时获取该用户的订阅信息
+        const userPayments = await db
+          .select()
+          .from(payment)
+          .where(eq(payment.userId, foundUser.id))
+          .orderBy(desc(payment.createdAt));
+
+        return NextResponse.json({
+          success: true,
+          action: 'findUserByEmail',
+          email,
+          found: true,
+          user: {
+            id: foundUser.id,
+            email: foundUser.email,
+            name: foundUser.name,
+            role: foundUser.role,
+            createdAt: foundUser.createdAt.toISOString(),
+          },
+          subscriptionSummary: {
+            totalPayments: userPayments.length,
+            latestStatus: userPayments[0]?.status || 'none',
+            hasActiveSubscription: userPayments.some(p => 
+              p.status === 'active' || p.status === 'trialing'
+            ),
+          },
+        });
+      }
+
+      case 'searchUsers': {
+        console.log('🔍 Searching users...');
+        const { searchTerm } = body;
+        
+        if (!searchTerm || searchTerm.length < 2) {
+          return NextResponse.json(
+            { error: 'Search term must be at least 2 characters' },
+            { status: 400 }
+          );
+        }
+
+        const db = await getDb();
+        const { user } = await import('@/db/schema');
+        const { ilike, or } = await import('drizzle-orm');
+        
+        const users = await db
+          .select({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            createdAt: user.createdAt,
+          })
+          .from(user)
+          .where(
+            or(
+              ilike(user.email, `%${searchTerm}%`),
+              ilike(user.name, `%${searchTerm}%`),
+              eq(user.id, searchTerm) // 也支持直接搜索ID
+            )
+          )
+          .limit(10)
+          .orderBy(desc(user.createdAt));
+
+        // 为每个用户获取订阅摘要
+        const usersWithSubscriptions = await Promise.all(
+          users.map(async (user) => {
+            const userPayments = await db
+              .select()
+              .from(payment)
+              .where(eq(payment.userId, user.id))
+              .orderBy(desc(payment.createdAt))
+              .limit(5);
+
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              createdAt: user.createdAt.toISOString(),
+              subscriptionSummary: {
+                totalPayments: userPayments.length,
+                latestStatus: userPayments[0]?.status || 'none',
+                hasActiveSubscription: userPayments.some(p => 
+                  p.status === 'active' || p.status === 'trialing'
+                ),
+                latestSubscriptionId: userPayments[0]?.subscriptionId || null,
+              },
+            };
+          })
+        );
+
+        return NextResponse.json({
+          success: true,
+          action: 'searchUsers',
+          searchTerm,
+          totalFound: users.length,
+          users: usersWithSubscriptions,
+        });
+      }
+
       case 'getActiveSubscription': {
         console.log('📋 Fetching active subscription...');
         const result = await getActiveSubscriptionAction({ userId });

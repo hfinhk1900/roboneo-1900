@@ -1,26 +1,59 @@
 -- 订阅状态调试SQL查询
 -- 用于直接在数据库中检查用户订阅状态
 
+-- 0. 根据邮箱查找用户ID
+-- 替换 'USER_EMAIL' 为实际的用户邮箱
+SELECT 
+    id as user_id,
+    email,
+    name,
+    role,
+    created_at as user_created,
+    (SELECT COUNT(*) FROM payment WHERE user_id = "user".id) as total_payments,
+    (SELECT COUNT(*) FROM payment WHERE user_id = "user".id AND status IN ('active', 'trialing')) as active_subscriptions
+FROM "user" 
+WHERE email = 'USER_EMAIL';
+
+-- 0.1 模糊搜索用户（根据邮箱或姓名）
+-- 替换 'SEARCH_TERM' 为搜索关键词
+SELECT 
+    id as user_id,
+    email,
+    name,
+    role,
+    created_at as user_created,
+    (SELECT COUNT(*) FROM payment WHERE user_id = "user".id) as total_payments,
+    (SELECT COUNT(*) FROM payment WHERE user_id = "user".id AND status IN ('active', 'trialing')) as active_subscriptions
+FROM "user" 
+WHERE email ILIKE '%SEARCH_TERM%' 
+   OR name ILIKE '%SEARCH_TERM%'
+   OR id = 'SEARCH_TERM'
+ORDER BY created_at DESC
+LIMIT 10;
+
 -- 1. 查看特定用户的所有支付记录
 -- 替换 'USER_ID' 为实际的用户ID
 SELECT 
-    id,
-    subscription_id,
-    customer_id,
-    price_id,
-    status,
-    type,
-    interval,
-    period_start,
-    period_end,
-    cancel_at_period_end,
-    trial_start,
-    trial_end,
-    created_at,
-    updated_at
-FROM payment 
-WHERE user_id = 'USER_ID' 
-ORDER BY created_at DESC;
+    p.id,
+    p.subscription_id,
+    p.customer_id,
+    p.price_id,
+    p.status,
+    p.type,
+    p.interval,
+    p.period_start,
+    p.period_end,
+    p.cancel_at_period_end,
+    p.trial_start,
+    p.trial_end,
+    p.created_at,
+    p.updated_at,
+    u.email as user_email,
+    u.name as user_name
+FROM payment p
+JOIN "user" u ON p.user_id = u.id
+WHERE p.user_id = 'USER_ID' 
+ORDER BY p.created_at DESC;
 
 -- 2. 查看所有活跃状态的订阅
 SELECT 

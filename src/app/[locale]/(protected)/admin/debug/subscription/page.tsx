@@ -15,8 +15,11 @@ import { useState } from 'react';
 export default function SubscriptionDebugPage() {
   const currentUser = useCurrentUser();
   const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [debugResults, setDebugResults] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [foundUsers, setFoundUsers] = useState<any[]>([]);
 
   // 检查是否为管理员
   if (!currentUser || currentUser.role !== 'admin') {
@@ -109,6 +112,81 @@ export default function SubscriptionDebugPage() {
     setDebugResults('');
   };
 
+  const findUserByEmail = async () => {
+    if (!email.trim()) {
+      alert('请输入邮箱地址');
+      return;
+    }
+
+    setIsLoading(true);
+    setDebugResults('正在根据邮箱查找用户...\n');
+
+    try {
+      const response = await fetch('/api/debug/subscription-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'findUserByEmail', email: email.trim() }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.found) {
+        setUserId(data.user.id);
+        setDebugResults(prev => prev + `✅ 找到用户:\n用户ID: ${data.user.id}\n邮箱: ${data.user.email}\n姓名: ${data.user.name}\n注册时间: ${data.user.createdAt}\n订阅状态: ${data.subscriptionSummary.hasActiveSubscription ? '有活跃订阅' : '无活跃订阅'}\n\n`);
+      } else {
+        setDebugResults(prev => prev + `❌ 未找到用户: ${email}\n\n`);
+      }
+    } catch (error) {
+      setDebugResults(prev => prev + `❌ 查找出错: ${error}\n\n`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const searchUsers = async () => {
+    if (!searchTerm.trim() || searchTerm.trim().length < 2) {
+      alert('请输入至少2个字符的搜索词');
+      return;
+    }
+
+    setIsLoading(true);
+    setDebugResults('正在搜索用户...\n');
+
+    try {
+      const response = await fetch('/api/debug/subscription-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'searchUsers', searchTerm: searchTerm.trim() }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setFoundUsers(data.users);
+        setDebugResults(prev => prev + `✅ 找到 ${data.totalFound} 个用户:\n`);
+        data.users.forEach((user: any, index: number) => {
+          setDebugResults(prev => prev + `${index + 1}. ${user.name} (${user.email})\n   ID: ${user.id}\n   订阅: ${user.subscriptionSummary.hasActiveSubscription ? '活跃' : '无'}\n\n`);
+        });
+      } else {
+        setDebugResults(prev => prev + `❌ 搜索失败: ${JSON.stringify(data, null, 2)}\n\n`);
+      }
+    } catch (error) {
+      setDebugResults(prev => prev + `❌ 搜索出错: ${error}\n\n`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const selectUser = (user: any) => {
+    setUserId(user.id);
+    setEmail(user.email);
+    setDebugResults(prev => prev + `👤 已选择用户: ${user.name} (${user.email})\n用户ID: ${user.id}\n\n`);
+  };
+
   const quickCheck = async () => {
     if (!userId.trim()) {
       alert('请输入用户ID');
@@ -144,7 +222,83 @@ export default function SubscriptionDebugPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>调试设置</CardTitle>
+          <CardTitle>用户查找</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="email">通过邮箱查找用户</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="输入用户邮箱"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
+                <Button 
+                  onClick={findUserByEmail}
+                  disabled={isLoading}
+                  variant="outline"
+                  size="default"
+                >
+                  查找
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="searchTerm">搜索用户</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="searchTerm"
+                  placeholder="邮箱、姓名或用户ID"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  disabled={isLoading}
+                />
+                <Button 
+                  onClick={searchUsers}
+                  disabled={isLoading}
+                  variant="outline"
+                  size="default"
+                >
+                  搜索
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {foundUsers.length > 0 && (
+            <div>
+              <Label>搜索结果 (点击选择用户)</Label>
+              <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-y-auto">
+                {foundUsers.map((user, index) => (
+                  <Button
+                    key={user.id}
+                    variant="ghost"
+                    className="h-auto p-3 justify-start text-left"
+                    onClick={() => selectUser(user)}
+                    disabled={isLoading}
+                  >
+                    <div className="flex flex-col items-start">
+                      <div className="font-medium">{user.name} ({user.email})</div>
+                      <div className="text-xs text-muted-foreground">
+                        ID: {user.id} | 订阅: {user.subscriptionSummary.hasActiveSubscription ? '活跃' : '无'}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>订阅调试</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

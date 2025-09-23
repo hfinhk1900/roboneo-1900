@@ -11,32 +11,55 @@
 **访问路径**: `/admin/debug/subscription`
 
 **功能**:
-- 快速检查用户订阅状态
-- 查看用户所有支付记录
-- 对比本地数据库与Stripe实时状态
-- 一键完整诊断
+- **用户查找**: 根据邮箱查找用户ID，支持模糊搜索
+- **订阅诊断**: 快速检查用户订阅状态
+- **数据对比**: 查看用户所有支付记录
+- **状态验证**: 对比本地数据库与Stripe实时状态
+- **一键诊断**: 完整的订阅状态分析
 
 **使用方法**:
 1. 以管理员身份登录
 2. 访问 `/admin/debug/subscription`
-3. 输入要调试的用户ID
-4. 点击"完整诊断"或选择特定检查项
+3. **方式A**: 在"用户查找"区域输入邮箱或搜索词，点击查找
+4. **方式B**: 直接在"订阅调试"区域输入用户ID
+5. 点击"完整诊断"或选择特定检查项
+
+**用户查找功能**:
+- 通过邮箱精确查找用户
+- 模糊搜索（支持邮箱、姓名、用户ID）
+- 显示搜索结果列表，点击选择用户
+- 自动填充用户ID到调试区域
 
 ### 2. 浏览器控制台调试
 
+#### 2A. 用户查找脚本
+**脚本文件**: `user-lookup.js`
+
+**使用方法**:
+```javascript
+// 1. 加载用户查找脚本
+const script = document.createElement('script');
+script.src = '/user-lookup.js';
+document.head.appendChild(script);
+
+// 2. 使用各种查找功能:
+findUserByEmail('user@example.com');           // 根据邮箱查找用户ID
+searchUsers('john');                           // 模糊搜索用户
+quickDiagnose('user@example.com');            // 快速诊断（支持邮箱或ID）
+batchFindUsers(['email1@example.com', 'email2@example.com']); // 批量查找
+```
+
+#### 2B. 订阅诊断脚本
 **脚本文件**: `debug-subscription-status.js`
 
 **使用方法**:
 ```javascript
-// 1. 在浏览器中打开网站
-// 2. 按F12打开开发者工具
-// 3. 在控制台中执行:
-
+// 1. 加载订阅诊断脚本
 const script = document.createElement('script');
 script.src = '/debug-subscription-status.js';
 document.head.appendChild(script);
 
-// 4. 脚本加载后执行诊断:
+// 2. 执行完整诊断:
 debugSubscriptionStatus('用户ID');
 ```
 
@@ -45,12 +68,25 @@ debugSubscriptionStatus('用户ID');
 **端点**: `/api/debug/subscription-status`
 
 **支持的操作**:
+- `findUserByEmail`: 根据邮箱查找用户ID和基本信息
+- `searchUsers`: 模糊搜索用户（邮箱、姓名、ID）
 - `getActiveSubscription`: 获取活跃订阅
 - `getAllPayments`: 获取所有支付记录  
 - `checkStripeStatus`: 验证Stripe实时状态
 
 **示例请求**:
 ```bash
+# 根据邮箱查找用户
+curl -X POST /api/debug/subscription-status \
+  -H "Content-Type: application/json" \
+  -d '{"action": "findUserByEmail", "email": "user@example.com"}'
+
+# 搜索用户
+curl -X POST /api/debug/subscription-status \
+  -H "Content-Type: application/json" \
+  -d '{"action": "searchUsers", "searchTerm": "john"}'
+
+# 检查订阅状态
 curl -X POST /api/debug/subscription-status \
   -H "Content-Type: application/json" \
   -d '{"userId": "用户ID", "action": "getActiveSubscription"}'
