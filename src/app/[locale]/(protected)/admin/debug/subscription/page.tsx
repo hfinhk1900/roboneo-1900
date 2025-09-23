@@ -1,0 +1,286 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { useState } from 'react';
+
+/**
+ * 订阅状态调试页面
+ * 仅限管理员使用
+ */
+export default function SubscriptionDebugPage() {
+  const currentUser = useCurrentUser();
+  const [userId, setUserId] = useState('');
+  const [debugResults, setDebugResults] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 检查是否为管理员
+  if (!currentUser || currentUser.role !== 'admin') {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-600">访问被拒绝</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>此页面仅限管理员访问。</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const runDiagnostic = async (action: string) => {
+    if (!userId.trim()) {
+      alert('请输入用户ID');
+      return;
+    }
+
+    setIsLoading(true);
+    setDebugResults('正在执行诊断...\n');
+
+    try {
+      const response = await fetch('/api/debug/subscription-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: userId.trim(), action }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setDebugResults(prev => prev + `\n✅ ${action} 执行成功:\n${JSON.stringify(data, null, 2)}\n\n`);
+      } else {
+        setDebugResults(prev => prev + `\n❌ ${action} 执行失败:\n${JSON.stringify(data, null, 2)}\n\n`);
+      }
+    } catch (error) {
+      setDebugResults(prev => prev + `\n❌ ${action} 执行出错:\n${error}\n\n`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const runFullDiagnostic = async () => {
+    if (!userId.trim()) {
+      alert('请输入用户ID');
+      return;
+    }
+
+    setIsLoading(true);
+    setDebugResults(`🔍 开始完整诊断用户: ${userId}\n${'='.repeat(50)}\n`);
+
+    const actions = ['getActiveSubscription', 'getAllPayments', 'checkStripeStatus'];
+    
+    for (const action of actions) {
+      setDebugResults(prev => prev + `\n📋 执行 ${action}...\n`);
+      
+      try {
+        const response = await fetch('/api/debug/subscription-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId.trim(), action }),
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          setDebugResults(prev => prev + `✅ 成功:\n${JSON.stringify(data, null, 2)}\n\n`);
+        } else {
+          setDebugResults(prev => prev + `❌ 失败:\n${JSON.stringify(data, null, 2)}\n\n`);
+        }
+      } catch (error) {
+        setDebugResults(prev => prev + `❌ 出错:\n${error}\n\n`);
+      }
+    }
+
+    setDebugResults(prev => prev + `\n${'='.repeat(50)}\n🏁 诊断完成\n`);
+    setIsLoading(false);
+  };
+
+  const clearResults = () => {
+    setDebugResults('');
+  };
+
+  const quickCheck = async () => {
+    if (!userId.trim()) {
+      alert('请输入用户ID');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(`/api/debug/subscription-status?userId=${encodeURIComponent(userId.trim())}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setDebugResults(`🚀 快速检查结果:\n${JSON.stringify(data, null, 2)}\n`);
+      } else {
+        setDebugResults(`❌ 快速检查失败:\n${JSON.stringify(data, null, 2)}\n`);
+      }
+    } catch (error) {
+      setDebugResults(`❌ 快速检查出错:\n${error}\n`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">订阅状态调试工具</h1>
+        <p className="text-muted-foreground">
+          用于诊断用户订阅状态问题，检查数据库记录与Stripe状态的一致性。
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>调试设置</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="userId">用户ID</Label>
+            <Input
+              id="userId"
+              placeholder="输入要调试的用户ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={quickCheck}
+              disabled={isLoading}
+              variant="outline"
+            >
+              快速检查
+            </Button>
+            
+            <Button 
+              onClick={runFullDiagnostic}
+              disabled={isLoading}
+            >
+              完整诊断
+            </Button>
+
+            <Button 
+              onClick={() => runDiagnostic('getActiveSubscription')}
+              disabled={isLoading}
+              variant="outline"
+            >
+              检查活跃订阅
+            </Button>
+
+            <Button 
+              onClick={() => runDiagnostic('getAllPayments')}
+              disabled={isLoading}
+              variant="outline"
+            >
+              查看支付记录
+            </Button>
+
+            <Button 
+              onClick={() => runDiagnostic('checkStripeStatus')}
+              disabled={isLoading}
+              variant="outline"
+            >
+              验证Stripe状态
+            </Button>
+
+            <Button 
+              onClick={clearResults}
+              disabled={isLoading}
+              variant="destructive"
+              size="sm"
+            >
+              清除结果
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>诊断结果</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            value={debugResults}
+            readOnly
+            placeholder="诊断结果将显示在这里..."
+            className="h-96 font-mono text-sm"
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>浏览器控制台调试</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            你也可以在浏览器控制台中直接运行诊断脚本：
+          </p>
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+            <code className="text-sm">
+              {`// 1. 加载调试脚本
+const script = document.createElement('script');
+script.src = '/debug-subscription-status.js';
+document.head.appendChild(script);
+
+// 2. 运行诊断
+debugSubscriptionStatus('${userId || '用户ID'}');`}
+            </code>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>常见问题排查</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4 text-sm">
+            <div>
+              <h4 className="font-semibold">1. 用户取消订阅后仍享受福利</h4>
+              <ul className="list-disc list-inside text-muted-foreground">
+                <li>检查数据库中的status字段是否为"canceled"</li>
+                <li>验证Stripe webhook是否正常工作</li>
+                <li>确认没有多个活跃订阅记录</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold">2. 数据库与Stripe状态不一致</h4>
+              <ul className="list-disc list-inside text-muted-foreground">
+                <li>检查webhook处理日志</li>
+                <li>手动同步Stripe状态</li>
+                <li>检查网络连接和API密钥</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold">3. 订阅检查逻辑问题</h4>
+              <ul className="list-disc list-inside text-muted-foreground">
+                <li>验证getActiveSubscriptionAction的查询条件</li>
+                <li>检查是否有缓存问题</li>
+                <li>确认时区和时间戳处理</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

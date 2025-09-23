@@ -26,11 +26,7 @@ const renderTextWithEmailLinks = (text: string) => {
   return parts.map((part, index) => {
     if (emailRegex.test(part)) {
       return (
-        <a
-          key={index}
-          href="/contact"
-          className="text-primary hover:underline"
-        >
+        <a key={index} href="/contact" className="text-primary hover:underline">
           {part}
         </a>
       );
