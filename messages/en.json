@@ -552,7 +552,13 @@
         "title": "Performance & Tools"
       },
       "debug": {
-        "title": "Debug Subscription"
+        "title": "Debug & Diagnostics",
+        "subscription": {
+          "title": "Debug Subscription"
+        },
+        "userIntegrity": {
+          "title": "User Integrity"
+        }
       }
     },
     "settings": {

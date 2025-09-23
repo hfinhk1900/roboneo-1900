@@ -7,6 +7,7 @@ import {
   BugIcon,
   CircleUserRoundIcon,
   CreditCardIcon,
+  DatabaseIcon,
   LayoutDashboardIcon,
   LockKeyholeIcon,
   Settings2Icon,
@@ -60,8 +61,20 @@ export function getSidebarLinks(): NestedMenuItem[] {
         {
           title: t('admin.debug.title'),
           icon: <BugIcon className="size-4 shrink-0" />,
-          href: Routes.AdminDebugSubscription,
-          external: false,
+          items: [
+            {
+              title: t('admin.debug.subscription.title'),
+              icon: <CreditCardIcon className="size-4 shrink-0" />,
+              href: Routes.AdminDebugSubscription,
+              external: false,
+            },
+            {
+              title: t('admin.debug.userIntegrity.title'),
+              icon: <DatabaseIcon className="size-4 shrink-0" />,
+              href: Routes.AdminDebugUserIntegrity,
+              external: false,
+            },
+          ],
         },
       ],
     },

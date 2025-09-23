@@ -57,6 +57,7 @@ export enum Routes {
   // admin routes
   AdminTools = '/admin/tools',
   AdminDebugSubscription = '/admin/debug/subscription',
+  AdminDebugUserIntegrity = '/admin/debug/user-integrity',
 
   // block routes
   MagicuiBlocks = '/magicui',
@@ -102,6 +103,7 @@ export const adminOnlyRoutes = [
   Routes.AdminUsers,
   Routes.AdminTools,
   Routes.AdminDebugSubscription,
+  Routes.AdminDebugUserIntegrity,
 ];
 
 /**

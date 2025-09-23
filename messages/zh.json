@@ -552,7 +552,13 @@
         "title": "性能与工具面板"
       },
       "debug": {
-        "title": "订阅状态调试"
+        "title": "调试和诊断",
+        "subscription": {
+          "title": "订阅状态调试"
+        },
+        "userIntegrity": {
+          "title": "用户完整性"
+        }
       }
     },
     "settings": {
