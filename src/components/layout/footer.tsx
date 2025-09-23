@@ -139,6 +139,14 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 className="h-6 w-auto"
               />
             </a>
+            <a
+              href="https://www.deepbluedirectory.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Deep Blue Directory.com
+            </a>
           </div>
         </Container>
       </div>
