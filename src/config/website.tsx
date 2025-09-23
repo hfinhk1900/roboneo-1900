@@ -202,7 +202,7 @@ export const websiteConfig: WebsiteConfig = {
         prices: proPlanPrices,
         isFree: false,
         isLifetime: false,
-        recommended: paymentProvider === 'paypal' ? true : false,
+        recommended: paymentProvider === 'paypal',
         disabled: paymentProvider === 'paypal' && !isPayPalReady,
       },
       ultimate: {

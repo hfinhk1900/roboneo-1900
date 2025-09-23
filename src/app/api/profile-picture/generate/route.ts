@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
 
     const result = await provider.generateProductShot({
       ...generationParams,
-      storageFolder: 'profile-pictures', // 使用专门的存储文件夹
+      storageFolder: 'all-generated-images/profile-pictures', // 使用专门的存储文件夹
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
@@ -307,7 +307,8 @@ export async function POST(request: NextRequest) {
 
     if (errorMessage.includes('AI service is temporarily unavailable')) {
       statusCode = 503;
-      userMessage = 'AI service is temporarily unavailable, please try again later';
+      userMessage =
+        'AI service is temporarily unavailable, please try again later';
     } else if (
       errorMessage.includes('timeout') ||
       errorMessage.includes('AbortError')
@@ -324,7 +325,8 @@ export async function POST(request: NextRequest) {
         error: userMessage,
         details: errorMessage,
         provider: 'SiliconFlow',
-        suggestion: 'If the problem persists, please try again later or contact technical support',
+        suggestion:
+          'If the problem persists, please try again later or contact technical support',
       },
       { status: statusCode }
     );

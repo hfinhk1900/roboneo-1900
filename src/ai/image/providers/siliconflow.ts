@@ -74,7 +74,7 @@ export class SiliconFlowProvider {
     output_format?: 'jpeg' | 'png' | 'webp';
     image_input?: string; // base64 encoded image for image-to-image
     reference_image?: string; // NEW: base64 encoded reference image for dual-image generation
-    storageFolder?: string; // NEW: custom storage folder (default: 'productshots')
+    storageFolder?: string; // NEW: custom storage folder (default: 'all-generated-images/productshots')
     watermarkText?: string; // NEW: apply bottom-right watermark text before upload
   }): Promise<ProductShotResult> {
     console.log('🎯 SiliconFlow ProductShot generation starting...');
@@ -187,7 +187,9 @@ export class SiliconFlowProvider {
 
         // 特殊处理500错误和60000错误代码
         if (response.status === 500) {
-          console.warn('⚠️ SiliconFlow API server error, possibly a temporary issue');
+          console.warn(
+            '⚠️ SiliconFlow API server error, possibly a temporary issue'
+          );
           throw new Error(
             'AI service is temporarily unavailable, please try again later. This may be due to high server load or temporary maintenance.'
           );
@@ -320,7 +322,8 @@ export class SiliconFlowProvider {
       }
 
       // 上传到 R2
-      const storageFolder = params.storageFolder || 'productshots';
+      const storageFolder =
+        params.storageFolder || 'all-generated-images/productshots';
       console.log(`☁️ Uploading to R2 ${storageFolder} folder...`);
       let publicUrl: string;
       let storageKey: string | undefined;
@@ -469,7 +472,7 @@ export class SiliconFlowProvider {
               imageBuffer,
               filename,
               'image/png',
-              'productshots' // 保存到 R2 的 productshots 文件夹
+              'all-generated-images/productshots' // 保存到 R2 的 productshots 文件夹
             );
 
             console.log('✅ Image saved to R2:', uploadResult.url);
@@ -602,7 +605,7 @@ export class SiliconFlowProvider {
               imageBuffer,
               filename,
               'image/png',
-              'productshots' // 保存到 R2 的 productshots 文件夹
+              'all-generated-images/productshots' // 保存到 R2 的 productshots 文件夹
             );
 
             console.log('✅ Image saved to R2:', uploadResult.url);

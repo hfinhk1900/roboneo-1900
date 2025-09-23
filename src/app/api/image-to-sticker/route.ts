@@ -424,7 +424,7 @@ export async function POST(req: NextRequest) {
       uploadBuffer,
       filename,
       'image/png',
-      'stickers'
+      'all-generated-images/stickers'
     );
     const r2Url = uploadResult.url;
     const storageKey = uploadResult.key || r2Url;

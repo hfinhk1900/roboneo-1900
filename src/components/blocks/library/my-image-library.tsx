@@ -77,7 +77,7 @@ const SORT_OPTIONS: Record<SortOption, string> = {
 export default function MyImageLibrary() {
   // 获取当前用户（用于数据隔离）
   const currentUser = useCurrentUser();
-  
+
   // 状态管理
   const [isLoading, setIsLoading] = useState(true);
   const [images, setImages] = useState<ImageRecord[]>([]);
@@ -119,8 +119,14 @@ export default function MyImageLibrary() {
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
 
   // 管理器实例 - 基于用户ID隔离数据
-  const dbManager = useMemo(() => IndexedDBManager.getInstance(currentUser?.id), [currentUser?.id]);
-  const migrationManager = useMemo(() => MigrationManager.getInstance(currentUser?.id), [currentUser?.id]);
+  const dbManager = useMemo(
+    () => IndexedDBManager.getInstance(currentUser?.id),
+    [currentUser?.id]
+  );
+  const migrationManager = useMemo(
+    () => MigrationManager.getInstance(currentUser?.id),
+    [currentUser?.id]
+  );
   const thumbnailCache = useMemo(() => getThumbnailCache(), []);
   const fullImageCache = useMemo(() => getFullImageCache(), []);
   const batchDownloadManager = useMemo(() => new BatchDownloadManager(), []);
@@ -1061,12 +1067,16 @@ export default function MyImageLibrary() {
       </Dialog>
 
       {/* 单张图片删除确认对话框 */}
-      <Dialog open={showSingleDeleteConfirm} onOpenChange={setShowSingleDeleteConfirm}>
+      <Dialog
+        open={showSingleDeleteConfirm}
+        onOpenChange={setShowSingleDeleteConfirm}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Image</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this image? This action cannot be undone.
+              Are you sure you want to delete this image? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2">

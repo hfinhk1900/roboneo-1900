@@ -46,15 +46,15 @@ export async function POST(request: NextRequest) {
     const imageBuffer = Buffer.from(base64Data, 'base64');
 
     // 上传到 R2 使用现有的存储系统
-    let uploadResult;
-    let storageKey;
+    let uploadResult: any;
+    let storageKey: string;
 
     try {
       uploadResult = await uploadFile(
         imageBuffer,
         filename,
         contentType,
-        'aibg' // 指定文件夹
+        'all-generated-images/ai-backgrounds-solid' // 指定文件夹
       );
 
       // 使用上传结果中的信息

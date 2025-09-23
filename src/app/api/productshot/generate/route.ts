@@ -806,7 +806,8 @@ export async function POST(request: NextRequest) {
 
     if (errorMessage.includes('AI service is temporarily unavailable')) {
       statusCode = 503;
-      userMessage = 'AI service is temporarily unavailable, please try again later';
+      userMessage =
+        'AI service is temporarily unavailable, please try again later';
     } else if (
       errorMessage.includes('timeout') ||
       errorMessage.includes('AbortError')
@@ -815,7 +816,8 @@ export async function POST(request: NextRequest) {
       userMessage = 'Request timed out, please try again';
     } else if (errorMessage.includes('网络')) {
       statusCode = 503;
-      userMessage = 'Network connection issue, please check your network and try again';
+      userMessage =
+        'Network connection issue, please check your network and try again';
     }
 
     // 回滚预扣费
@@ -877,7 +879,8 @@ export async function POST(request: NextRequest) {
         error: userMessage,
         details: errorMessage,
         provider: 'SiliconFlow',
-        suggestion: 'If the problem persists, please try again later or contact technical support',
+        suggestion:
+          'If the problem persists, please try again later or contact technical support',
       },
       { status: statusCode }
     );
