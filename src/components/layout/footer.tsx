@@ -140,6 +140,20 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               />
             </a>
             <a
+              href="https://yo.directory/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://cdn.prod.website-files.com/65c1546fa73ea974db789e3d/65e1e171f89ebfa7bd0129ac_yodirectory-featured.png"
+                alt="yo.directory"
+                width="150"
+                height="54"
+                className="h-6 w-auto"
+              />
+            </a>
+            <a
               href="https://www.deepbluedirectory.com/"
               target="_blank"
               rel="noopener noreferrer"
