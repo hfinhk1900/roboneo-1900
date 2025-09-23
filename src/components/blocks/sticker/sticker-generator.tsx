@@ -218,6 +218,110 @@ export default function StickerGenerator() {
     loadHistory();
   }, [currentUser, isMounted]);
 
+  // 历史记录操作函数
+  const pushHistory = useCallback(
+    async (item: StickerHistoryItem) => {
+      const db = IndexedDBManager.getInstance(currentUser?.id);
+      // 已登录：写入服务端
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/history/sticker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: item.asset_id, // 优先传asset_id
+              url: item.url, // 兼容旧数据
+              style: item.style,
+            }),
+          });
+          if (res.ok) {
+            const created = await res.json();
+            const createdItem: StickerHistoryItem = {
+              id: created.id,
+              asset_id: created.asset_id,
+              url: created.url,
+              style: created.style,
+              createdAt: created.createdAt
+                ? typeof created.createdAt === 'string'
+                  ? new Date(created.createdAt).getTime()
+                  : created.createdAt
+                : Date.now(),
+            };
+            setStickerHistory((prev) => [createdItem, ...prev]);
+            // 保存到本地图片库（IndexedDB）
+            try {
+              let blob: Blob | undefined;
+              try {
+                const resp = await fetch(createdItem.url);
+                if (resp.ok) blob = await resp.blob();
+              } catch {}
+              const thumbnail = blob
+                ? await db.generateThumbnail(blob)
+                : undefined;
+              await db.saveImage({
+                id:
+                  createdItem.id ||
+                  `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                url: createdItem.url,
+                blob,
+                thumbnail,
+                toolType: 'sticker',
+                toolParams: {
+                  style: createdItem.style,
+                },
+                createdAt: createdItem.createdAt,
+                lastAccessedAt: Date.now(),
+                syncStatus: 'synced',
+              });
+            } catch (error) {
+              console.error('Failed to save image to IndexedDB:', error);
+            }
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to save sticker to server:', error);
+        }
+      }
+
+      // 登录失败或未登录：保存到本地
+      setStickerHistory((prev) => [item, ...prev]);
+      // 同时更新本地存储
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const existing = raw ? JSON.parse(raw) : [];
+      const updated = [item, ...existing].slice(0, 50); // 保留最新50条
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+
+      // 保存到本地图片库（IndexedDB）
+      try {
+        let blob: Blob | undefined;
+        try {
+          const resp = await fetch(item.url);
+          if (resp.ok) blob = await resp.blob();
+        } catch {}
+        const thumbnail = blob ? await db.generateThumbnail(blob) : undefined;
+        await db.saveImage({
+          id:
+            item.id ||
+            `sticker_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          url: item.url,
+          blob,
+          thumbnail,
+          toolType: 'sticker',
+          toolParams: {
+            style: item.style,
+          },
+          createdAt: item.createdAt,
+          lastAccessedAt: Date.now(),
+          syncStatus: 'local',
+        });
+      } catch (error) {
+        console.error('Failed to save image to IndexedDB:', error);
+      }
+    },
+    [currentUser]
+  );
+
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
     setFileError(null);
@@ -400,8 +504,14 @@ export default function StickerGenerator() {
         setGeneratedImageUrl(result.data.output_image_url);
         setGenerationProgress(100);
 
-        // 保存到历史记录 - placeholder for now
-        // await pushHistory(historyItem);
+        // 保存到历史记录
+        const historyItem: StickerHistoryItem = {
+          asset_id: result.data.asset_id,
+          url: result.data.output_image_url,
+          style: selectedStyle,
+          createdAt: Date.now(),
+        };
+        await pushHistory(historyItem);
 
         // Update credits (unified)
         try {

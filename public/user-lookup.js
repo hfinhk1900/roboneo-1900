@@ -35,10 +35,10 @@ async function findUserByEmail(email) {
 
       // 返回用户ID以便后续使用
       return data.user.id;
-    } else {
-      console.log(`❌ 未找到邮箱为 ${email} 的用户`);
-      return null;
     }
+
+    console.log(`❌ 未找到邮箱为 ${email} 的用户`);
+    return null;
   } catch (error) {
     console.error('❌ 查找出错:', error);
     return null;
@@ -84,10 +84,10 @@ async function searchUsers(searchTerm) {
       });
 
       return data.users;
-    } else {
-      console.log(`❌ 搜索失败:`, data);
-      return [];
     }
+
+    console.log('❌ 搜索失败:', data);
+    return [];
   } catch (error) {
     console.error('❌ 搜索出错:', error);
     return [];

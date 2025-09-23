@@ -27,10 +27,10 @@ async function checkCurrentUserSubscription() {
       }
 
       return data;
-    } else {
-      console.error('❌ 检查失败:', data);
-      return null;
     }
+
+    console.error('❌ 检查失败:', data);
+    return null;
   } catch (error) {
     console.error('❌ 请求出错:', error);
     return null;
@@ -60,7 +60,7 @@ async function detailedSubscriptionCheck(userId) {
       console.log(JSON.stringify(data, null, 2));
 
       const { subscriptionCheck, explanation } = data;
-      console.log(`\n🎯 关键信息:`);
+      console.log('\n🎯 关键信息:');
       console.log(`   有订阅: ${subscriptionCheck.isSubscribed}`);
       console.log(`   应该添加水印: ${subscriptionCheck.shouldApplyWatermark}`);
       console.log(`   预期结果: ${explanation.expected}`);
