@@ -66,10 +66,9 @@ async function detailedSubscriptionCheck(userId) {
       console.log(`   预期结果: ${explanation.expected}`);
 
       return data;
-    } else {
-      console.error('❌ 详细检查失败:', data);
-      return null;
     }
+    console.error('❌ 详细检查失败:', data);
+    return null;
   } catch (error) {
     console.error('❌ 详细检查出错:', error);
     return null;
@@ -105,10 +104,9 @@ async function testWatermarkFunction(userId) {
       }
 
       return data;
-    } else {
-      console.error('❌ 水印函数测试失败:', data);
-      return null;
     }
+    console.error('❌ 水印函数测试失败:', data);
+    return null;
   } catch (error) {
     console.error('❌ 水印函数测试出错:', error);
     return null;
@@ -190,10 +188,9 @@ async function quickCheckUserByEmail(email) {
       );
 
       return data.user.id;
-    } else {
-      console.log('❌ 未找到用户或查找失败');
-      return null;
     }
+    console.log('❌ 未找到用户或查找失败');
+    return null;
   } catch (error) {
     console.error('❌ 查找出错:', error);
     return null;

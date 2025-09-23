@@ -111,7 +111,7 @@ export default function FaqSection() {
       {/* JSON-LD structured data for FAQ rich results */}
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data for SEO
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(faqJsonLd),
         }}
@@ -154,13 +154,12 @@ export default function FaqSection() {
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div
+                    <section
                       className="text-base text-muted-foreground ml-6"
-                      role="region"
                       aria-label={`Answer to: ${item.question}`}
                     >
                       {renderTextWithEmailLinks(item.answer)}
-                    </div>
+                    </section>
                   </AccordionContent>
                 </AccordionItem>
               ))}
