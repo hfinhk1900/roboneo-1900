@@ -111,6 +111,20 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
           <div className="flex items-center gap-x-4">
             {/* <ThemeSelector /> */}
             <ModeSwitcherHorizontal />
+            <a
+              href="https://startupfa.me/s/roboneo?utm_source=roboneo.art"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://startupfa.me/badges/featured-badge-small.webp"
+                alt="Featured on Startup Fame"
+                width="218"
+                height="30"
+                className="h-6 w-auto"
+              />
+            </a>
           </div>
         </Container>
       </div>
