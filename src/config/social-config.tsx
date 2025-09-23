@@ -30,7 +30,7 @@ export function getSocialLinks(): MenuItem[] {
   return [
     {
       title: 'Email',
-      href: 'mailto:hi@roboneo.art',
+      href: '/contact',
       icon: <MailIcon className="size-4 shrink-0" />,
     },
   ];
