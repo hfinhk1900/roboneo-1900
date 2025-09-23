@@ -18,7 +18,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   const pathname = useLocalePathname();
 
   return (
-    <footer role="contentinfo" className={cn('border-t', className)}>
+    <footer className={cn('border-t', className)}>
       <Container className="px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 py-16">
           <div className="flex flex-col items-start col-span-full md:col-span-2">
@@ -122,6 +122,20 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on Startup Fame"
                 width="218"
                 height="30"
+                className="h-6 w-auto"
+              />
+            </a>
+            <a
+              href="https://twelve.tools"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://twelve.tools/badge0-light.svg"
+                alt="Featured on Twelve Tools"
+                width="200"
+                height="54"
                 className="h-6 w-auto"
               />
             </a>
