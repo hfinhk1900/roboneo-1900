@@ -124,8 +124,8 @@
   },
   "ContactPage": {
     "title": "联系我们",
-    "description": "我们帮助您找到合适的计划",
-    "subtitle": "我们帮助您找到合适的计划",
+    "description": "如有任何问题或需要支持，请联系我们",
+    "subtitle": "如有任何问题或需要支持，请联系我们",
     "form": {
       "title": "联系我们",
       "description": "如果您有任何问题或反馈，请随时联系我们的团队",
