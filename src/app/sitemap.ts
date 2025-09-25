@@ -1,6 +1,5 @@
 import { getLocalePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { blogSource, categorySource, source } from '@/lib/source';
 import { Routes } from '@/routes';
 import type { MetadataRoute } from 'next';
 import type { Locale } from 'next-intl';
@@ -27,8 +26,29 @@ const staticRoutes: Href[] = [
   Routes.AIBackground,
   Routes.RemoveWatermark,
   Routes.ProfilePictureMaker,
-  Routes.Login,
-  Routes.Register,
+  '/my-library' as Href,
+  Routes.MagicuiBlocks,
+  Routes.AIText,
+  Routes.AIVideo,
+  Routes.AIAudio,
+  // Block library category pages
+  Routes.HeroBlocks,
+  Routes.LogoCloudBlocks,
+  Routes.FeaturesBlocks,
+  Routes.IntegrationsBlocks,
+  Routes.ContentBlocks,
+  Routes.StatsBlocks,
+  Routes.TeamBlocks,
+  Routes.TestimonialsBlocks,
+  Routes.CallToActionBlocks,
+  Routes.FooterBlocks,
+  Routes.PricingBlocks,
+  Routes.ComparatorBlocks,
+  Routes.FAQBlocks,
+  Routes.LoginBlocks,
+  Routes.SignupBlocks,
+  Routes.ForgotPasswordBlocks,
+  Routes.ContactBlocks,
 ];
 
 /**
@@ -60,58 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // blog disabled for MVP: skip posts
 
-  // add docs (filtered to exclude unwanted pages)
-  const docsParams = source.generateParams();
-  const excludedDocsPaths = [
-    'comparisons',
-    'customisation',
-    '', // root docs page
-    'internationalization',
-    'manual-installation',
-    'markdown',
-    'search',
-    'static-export',
-    'theme',
-    'what-is-fumadocs',
-    'components/accordion',
-    'components/banner',
-    'components/dynamic-codeblock',
-    'components/files',
-    'components/github-info',
-    'components/image-zoom',
-    'components',
-    'components/inline-toc',
-    'components/root-toggle',
-    'components/steps',
-    'components/tabs',
-    'components/type-table',
-    'layouts/docs',
-    'layouts/home-layout',
-    'layouts/notebook',
-    'layouts/page',
-    'layouts/root-provider',
-    'mdx/callout',
-    'mdx/card',
-    'mdx/codeblock',
-    'mdx/heading',
-    'mdx',
-  ];
-
-  const filteredDocsParams = docsParams.filter((param) => {
-    const slugPath = param.slug.join('/');
-    return !excludedDocsPaths.includes(slugPath);
-  });
-
-  sitemapList.push(
-    ...filteredDocsParams.flatMap((param) =>
-      routing.locales.map((locale) => ({
-        url: getUrl(`/docs/${param.slug.join('/')}`, locale),
-        lastModified: new Date(),
-        priority: 0.8,
-        changeFrequency: 'weekly' as const,
-      }))
-    )
-  );
+  // docs 未上线，暂不生成对应 sitemap 条目，避免返回 404/fallback 页面
 
   return sitemapList;
 }

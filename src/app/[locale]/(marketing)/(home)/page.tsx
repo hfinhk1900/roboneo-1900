@@ -1,6 +1,8 @@
 import AISuperchargeToolsSection from '@/components/blocks/features/ai-supercharge-tools';
 import AllToolsSection from '@/components/blocks/features/all-tools';
 import HomeHeroSection from '@/components/blocks/hero/home-hero';
+import PlatformOverviewSection from '@/components/blocks/platform/platform-overview';
+import UseCasesSection from '@/components/blocks/use-cases/use-cases';
 import dynamic from 'next/dynamic';
 
 // 懒加载非首屏组件
@@ -80,6 +82,10 @@ export default async function HomePage(props: HomePageProps) {
         <PricingSection />
 
         <FaqSection />
+
+        <PlatformOverviewSection />
+
+        <UseCasesSection />
 
         <CallToActionSection />
 

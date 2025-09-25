@@ -840,8 +840,8 @@
       "subtitle": "Get Answers to Your Questions About RoboNeo",
       "items": {
         "item-1": {
-          "question": "Is RoboNeo free to use?",
-          "answer": "Newly registered users receive a one-time grant of 10 credits, which can be spent on creating high-resolution images or stickers. After exhausting the free credits, you can either purchase pay-as-you-go credits or upgrade to a Pro / Ultimate subscription for higher quotas and additional features."
+          "question": "Is RoboNeo AI free to use?",
+          "answer": "Our platform provides new users with an initial grant of 10 credits to test system capabilities. These credits allow full access to all features including high-resolution outputs and commercial usage rights. After using initial credits, users can purchase additional credits or subscribe to monthly plans based on their usage patterns and requirements. Each successful image generation consumes one credit regardless of processing complexity, and failed generations don't consume credits."
         },
         "item-2": {
           "question": "Can I use the images or stickers for commercial projects?",
@@ -853,7 +853,7 @@
         },
         "item-4": {
           "question": "What file formats are supported?",
-          "answer": "Input: JPEG and PNG (≤ 4 MB). Output: Transparent PNG (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
+          "answer": "Input: JPG, JPEG, PNG, WEBP (≤ 4 MB). Output: Transparent PNG (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
         },
         "item-5": {
           "question": "How fast is the generation process?",
@@ -869,7 +869,15 @@
         },
         "item-8": {
           "question": "How can I get support or suggest new features?",
-          "answer": "Email support@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
+          "answer": "Email hi@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
+        },
+        "item-9": {
+          "question": "How does RoboNeo AI ensure image quality?",
+          "answer": "Our platform uses specialized AI models trained for each specific task rather than general-purpose image generation. This approach allows optimization for particular use cases like sticker creation or product photography. The system processes images at full resolution and applies task-specific enhancements to maintain professional quality standards."
+        },
+        "item-10": {
+          "question": "What makes RoboNeo AI different from other image tools?",
+          "answer": "Our service focuses on practical creative workflows with specialized tools for real-world applications. Each feature uses dedicated AI models optimized for specific tasks, ensuring consistent, professional results. RoboNeo AI combines multiple image processing capabilities in one place, streamlining creative workflows for content creators, businesses, and marketers."
         }
       }
     },

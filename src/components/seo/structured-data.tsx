@@ -148,6 +148,7 @@ export function StructuredData({
     <Script
       id={`structured-data-${type}`}
       type="application/ld+json"
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe use for JSON-LD structured data
       dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       strategy="afterInteractive"
     />
@@ -173,6 +174,7 @@ export function BreadcrumbSchema({
     <Script
       id="breadcrumb-schema"
       type="application/ld+json"
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: Safe use for JSON-LD structured data
       dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
       strategy="afterInteractive"
     />
