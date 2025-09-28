@@ -91,7 +91,7 @@ export async function applyCornerWatermark(
     });
 
     // 转换回Buffer
-    const watermarkedBuffer = await jimpImage.getBufferAsync(Jimp.MIME_PNG);
+    const watermarkedBuffer = await jimpImage.getBuffer('image/png');
 
     console.log('✅ Watermark applied successfully with Jimp');
     return watermarkedBuffer;
