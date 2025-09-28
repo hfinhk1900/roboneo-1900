@@ -1,5 +1,5 @@
+import { Jimp, loadFont } from 'jimp';
 import sharp from 'sharp';
-import Jimp from 'jimp';
 
 export interface CornerWatermarkOptions {
   fontSizeRatio?: number; // relative to min(width, height)
@@ -50,25 +50,33 @@ export async function applyCornerWatermark(
 
     // 使用Jimp来添加文本水印
     const jimpImage = await Jimp.read(imageBuffer);
-    
+
     // 选择合适的Jimp字体
-    let font;
+    let font: any;
     if (fontSize >= 64) {
-      font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
+      font = await loadFont(
+        'open-sans/open-sans-64-white/open-sans-64-white.fnt'
+      );
     } else if (fontSize >= 32) {
-      font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+      font = await loadFont(
+        'open-sans/open-sans-32-white/open-sans-32-white.fnt'
+      );
     } else if (fontSize >= 16) {
-      font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE);
+      font = await loadFont(
+        'open-sans/open-sans-16-white/open-sans-16-white.fnt'
+      );
     } else {
-      font = await Jimp.loadFont(Jimp.FONT_SANS_8_WHITE);
+      font = await loadFont(
+        'open-sans/open-sans-8-white/open-sans-8-white.fnt'
+      );
     }
 
     console.log('📝 Selected font size tier for:', fontSize);
 
     // 计算文本位置（右下角）
-    const textWidth = Jimp.measureText(font, text);
-    const textHeight = Jimp.measureTextHeight(font, text, textWidth);
-    
+    const textWidth = jimpImage.measureText(font, text);
+    const textHeight = jimpImage.measureTextHeight(font, text, textWidth);
+
     const x = width - textWidth - margin;
     const y = height - textHeight - margin;
 
@@ -82,7 +90,6 @@ export async function applyCornerWatermark(
 
     console.log('✅ Watermark applied successfully with Jimp');
     return watermarkedBuffer;
-
   } catch (error) {
     console.error('❌ Watermark application failed:', error);
     console.log('🔙 Returning original image buffer');
