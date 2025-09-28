@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import Jimp from 'jimp';
 
 export interface CornerWatermarkOptions {
   fontSizeRatio?: number; // relative to min(width, height)
@@ -12,88 +13,30 @@ export interface CornerWatermarkOptions {
   fontWeight?: number | string;
 }
 
-function escapeXml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
 export async function applyCornerWatermark(
   imageBuffer: Buffer<any>,
   text: string,
   options: CornerWatermarkOptions = {}
 ): Promise<Buffer> {
   console.log('🔧 Watermark function called with text:', text);
-  
+
   try {
+    const {
+      fontSizeRatio = 0.045,
+      opacity = 0.9,
+      margin = 18,
+      fill = '#FFFFFF',
+    } = options;
+
+    // 先用Sharp获取图片信息
     const image = sharp(imageBuffer, { failOnError: false });
     const metadata = await image.metadata();
     const width = metadata.width || 1024;
     const height = metadata.height || 1024;
-    
+
     console.log('📐 Image dimensions:', { width, height });
 
-    const {
-      fontSizeRatio = 0.045,
-      opacity = 0.85,
-      margin = 18,
-      fill = '#FFFFFF',
-      stroke = 'rgba(0,0,0,0.35)',
-      strokeOpacity = undefined,
-      strokeWidth = 2,
-      fontFamily = 'sans-serif',
-      fontWeight = 'bold',
-    } = options;
-
-    const parseColor = (
-      color: string,
-      fallback: string,
-      defaultOpacity: number
-    ): { color: string; opacity: number } => {
-      if (!color) {
-        return { color: fallback, opacity: defaultOpacity };
-      }
-
-      const rgbaMatch = color
-        .replace(/\s+/g, '')
-        .match(/^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3})(?:,(\d*\.?\d+))?\)$/i);
-
-      if (rgbaMatch) {
-        const [_, r, g, b, a] = rgbaMatch;
-        const toHex = (value: string) =>
-          Math.max(0, Math.min(Number.parseInt(value, 10), 255))
-            .toString(16)
-            .padStart(2, '0');
-        return {
-          color: `#${toHex(r)}${toHex(g)}${toHex(b)}`,
-          opacity:
-            a !== undefined
-              ? Math.max(0, Math.min(Number.parseFloat(a), 1))
-              : defaultOpacity,
-        };
-      }
-
-      if (/^#[0-9a-f]{3,8}$/i.test(color)) {
-        return { color, opacity: defaultOpacity };
-      }
-
-      return { color, opacity: defaultOpacity };
-    };
-
-    const { color: fillColor, opacity: fillOpacity } = parseColor(
-      fill,
-      '#FFFFFF',
-      opacity
-    );
-    const { color: strokeColor, opacity: strokeOpacityValue } = parseColor(
-      stroke,
-      '#000000',
-      strokeOpacity ?? 0.35
-    );
-
+    // 计算字体大小
     const fontSize = Math.max(
       10,
       Math.round(Math.min(width, height) * fontSizeRatio)
@@ -101,42 +44,45 @@ export async function applyCornerWatermark(
 
     console.log('🎨 Watermark settings:', {
       fontSize,
-      fillColor,
-      strokeColor,
-      position: `${width - margin}, ${height - margin}`
+      fill,
+      position: `${width - margin}, ${height - margin}`,
     });
 
-    const safeText = escapeXml(text);
+    // 使用Jimp来添加文本水印
+    const jimpImage = await Jimp.read(imageBuffer);
     
-    // 使用最简单的SVG，确保兼容性
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <text x="${width - margin}" y="${height - margin}" text-anchor="end" 
-    fill="${fillColor}"
-    stroke="${strokeColor}"
-    stroke-width="${strokeWidth}"
-    font-family="sans-serif"
-    font-weight="bold"
-    font-size="${fontSize}px"
-  >${safeText}</text>
-</svg>`;
+    // 选择合适的Jimp字体
+    let font;
+    if (fontSize >= 64) {
+      font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
+    } else if (fontSize >= 32) {
+      font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+    } else if (fontSize >= 16) {
+      font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE);
+    } else {
+      font = await Jimp.loadFont(Jimp.FONT_SANS_8_WHITE);
+    }
 
-    console.log('📝 Generated SVG length:', svg.length);
-    console.log('🎨 SVG preview:', svg.substring(0, 200) + '...');
+    console.log('📝 Selected font size tier for:', fontSize);
+
+    // 计算文本位置（右下角）
+    const textWidth = Jimp.measureText(font, text);
+    const textHeight = Jimp.measureTextHeight(font, text, textWidth);
     
-    const overlay = Buffer.from(svg);
+    const x = width - textWidth - margin;
+    const y = height - textHeight - margin;
 
-    const composited = await image
-      .composite([
-        {
-          input: overlay,
-          gravity: 'southeast',
-        },
-      ])
-      .toBuffer();
+    console.log('📍 Text position:', { x, y, textWidth, textHeight });
 
-    console.log('✅ Watermark applied successfully');
-    return composited;
-    
+    // 添加文本水印
+    jimpImage.print(font, x, y, text);
+
+    // 转换回Buffer
+    const watermarkedBuffer = await jimpImage.getBufferAsync(Jimp.MIME_PNG);
+
+    console.log('✅ Watermark applied successfully with Jimp');
+    return watermarkedBuffer;
+
   } catch (error) {
     console.error('❌ Watermark application failed:', error);
     console.log('🔙 Returning original image buffer');
