@@ -6,6 +6,7 @@ export interface CornerWatermarkOptions {
   margin?: number; // px
   fill?: string; // text color
   stroke?: string; // stroke color
+  strokeOpacity?: number; // stroke opacity 0..1
   strokeWidth?: number; // stroke width
   fontFamily?: string;
   fontWeight?: number | string;
@@ -36,10 +37,54 @@ export async function applyCornerWatermark(
     margin = 18,
     fill = '#FFFFFF',
     stroke = 'rgba(0,0,0,0.35)',
+    strokeOpacity = undefined,
     strokeWidth = 2,
-    fontFamily = 'Arial, sans-serif',
+    fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight = 'bold',
   } = options;
+
+  const parseColor = (
+    color: string,
+    fallback: string,
+    defaultOpacity: number
+  ): { color: string; opacity: number } => {
+    if (!color) {
+      return { color: fallback, opacity: defaultOpacity };
+    }
+
+    const rgbaMatch = color
+      .replace(/\s+/g, '')
+      .match(/^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3})(?:,(\d*\.?\d+))?\)$/i);
+
+    if (rgbaMatch) {
+      const [_, r, g, b, a] = rgbaMatch;
+      const toHex = (value: string) =>
+        Math.max(0, Math.min(parseInt(value, 10), 255))
+          .toString(16)
+          .padStart(2, '0');
+      return {
+        color: `#${toHex(r)}${toHex(g)}${toHex(b)}`,
+        opacity: a !== undefined ? Math.max(0, Math.min(parseFloat(a), 1)) : defaultOpacity,
+      };
+    }
+
+    if (/^#[0-9a-f]{3,8}$/i.test(color)) {
+      return { color, opacity: defaultOpacity };
+    }
+
+    return { color, opacity: defaultOpacity };
+  };
+
+  const { color: fillColor, opacity: fillOpacity } = parseColor(
+    fill,
+    '#FFFFFF',
+    opacity
+  );
+  const { color: strokeColor, opacity: strokeOpacityValue } = parseColor(
+    stroke,
+    '#000000',
+    strokeOpacity ?? 0.35
+  );
 
   const fontSize = Math.max(
     10,
@@ -49,10 +94,18 @@ export async function applyCornerWatermark(
   const safeText = escapeXml(text);
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <style>
-    .wm { font-family: ${fontFamily}; font-weight: ${String(fontWeight)}; font-size: ${fontSize}px; fill: ${fill}; opacity: ${opacity}; }
-  </style>
-  <text x="${width - margin}" y="${height - margin}" text-anchor="end" dominant-baseline="text-after-edge" class="wm" stroke="${stroke}" stroke-width="${strokeWidth}">${safeText}</text>
+  <text x="${width - margin}" y="${height - margin}" text-anchor="end" dominant-baseline="text-after-edge"
+    fill="${fillColor}"
+    fill-opacity="${fillOpacity}"
+    stroke="${strokeColor}"
+    stroke-opacity="${strokeOpacityValue}"
+    stroke-width="${strokeWidth}"
+    font-family="${fontFamily}"
+    font-weight="${String(fontWeight)}"
+    font-size="${fontSize}px"
+    paint-order="stroke fill"
+    text-rendering="geometricPrecision"
+  >${safeText}</text>
 </svg>`;
 
   const overlay = Buffer.from(svg);
