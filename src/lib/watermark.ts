@@ -1,4 +1,3 @@
-import { Jimp, loadFont, measureText, measureTextHeight } from 'jimp';
 import sharp from 'sharp';
 
 export interface CornerWatermarkOptions {
@@ -26,9 +25,9 @@ export async function applyCornerWatermark(
       opacity = 0.9,
       margin = 18,
       fill = '#FFFFFF',
+      strokeWidth = 2,
     } = options;
 
-    // 先用Sharp获取图片信息
     const image = sharp(imageBuffer, { failOnError: false });
     const metadata = await image.metadata();
     const width = metadata.width || 1024;
@@ -38,7 +37,7 @@ export async function applyCornerWatermark(
 
     // 计算字体大小
     const fontSize = Math.max(
-      10,
+      16,
       Math.round(Math.min(width, height) * fontSizeRatio)
     );
 
@@ -48,53 +47,33 @@ export async function applyCornerWatermark(
       position: `${width - margin}, ${height - margin}`,
     });
 
-    // 使用Jimp来添加文本水印
-    const jimpImage = await Jimp.read(imageBuffer);
+    // 创建一个简单的文本SVG，使用最基础的配置
+    const textSvg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <text x="${width - margin}" y="${height - margin - 5}" 
+        text-anchor="end" 
+        fill="${fill}" 
+        font-size="${fontSize}" 
+        font-family="Arial, sans-serif" 
+        font-weight="bold">${text}</text>
+</svg>`;
 
-    // 选择合适的Jimp字体
-    let font: any;
-    if (fontSize >= 64) {
-      font = await loadFont(
-        'open-sans/open-sans-64-white/open-sans-64-white.fnt'
-      );
-    } else if (fontSize >= 32) {
-      font = await loadFont(
-        'open-sans/open-sans-32-white/open-sans-32-white.fnt'
-      );
-    } else if (fontSize >= 16) {
-      font = await loadFont(
-        'open-sans/open-sans-16-white/open-sans-16-white.fnt'
-      );
-    } else {
-      font = await loadFont(
-        'open-sans/open-sans-8-white/open-sans-8-white.fnt'
-      );
-    }
+    console.log('📝 Generated text SVG length:', textSvg.length);
 
-    console.log('📝 Selected font size tier for:', fontSize);
+    // 使用Sharp合成水印
+    const result = await image
+      .composite([
+        {
+          input: Buffer.from(textSvg),
+          top: 0,
+          left: 0,
+        },
+      ])
+      .png()
+      .toBuffer();
 
-    // 计算文本位置（右下角）
-    const textWidth = measureText(font, text);
-    const textHeight = measureTextHeight(font, text, textWidth);
+    console.log('✅ Watermark applied successfully with Sharp text');
+    return result;
 
-    const x = width - textWidth - margin;
-    const y = height - textHeight - margin;
-
-    console.log('📍 Text position:', { x, y, textWidth, textHeight });
-
-    // 添加文本水印
-    jimpImage.print({
-      font,
-      x,
-      y,
-      text,
-    });
-
-    // 转换回Buffer
-    const watermarkedBuffer = await jimpImage.getBuffer('image/png');
-
-    console.log('✅ Watermark applied successfully with Jimp');
-    return watermarkedBuffer;
   } catch (error) {
     console.error('❌ Watermark application failed:', error);
     console.log('🔙 Returning original image buffer');
