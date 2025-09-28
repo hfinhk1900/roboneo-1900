@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
       );
 
       const watermarkedBuffer = await applyCornerWatermark(testBuffer, 'TEST', {
-        fontSizeRatio: 0.1,
+        widthRatio: 0.5,
+        margin: 8,
       });
 
       watermarkFunctionTest = {

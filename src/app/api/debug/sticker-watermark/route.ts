@@ -80,12 +80,9 @@ export async function POST(request: NextRequest) {
           },
           watermarkConfig: {
             text: 'ROBONEO.ART',
-            fontSizeRatio: 0.05,
-            opacity: 0.9,
-            margin: 18,
-            fill: '#FFFFFF',
-            stroke: 'rgba(0,0,0,0.35)',
-            strokeWidth: 2,
+            widthRatio: 0.32,
+            opacity: 0.95,
+            margin: 24,
           },
           explanation: {
             logic:
@@ -120,12 +117,9 @@ export async function POST(request: NextRequest) {
             testBuffer,
             'ROBONEO.ART',
             {
-              fontSizeRatio: 0.05,
-              opacity: 0.9,
-              margin: 18,
-              fill: '#FFFFFF',
-              stroke: 'rgba(0,0,0,0.35)',
-              strokeWidth: 2,
+              widthRatio: 0.4,
+              margin: 8,
+              opacity: 0.95,
             }
           );
 

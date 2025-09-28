@@ -416,12 +416,9 @@ export async function POST(req: NextRequest) {
           stickerBuffer,
           'ROBONEO.ART',
           {
-            fontSizeRatio: 0.05,
-            opacity: 0.9,
-            margin: 18,
-            fill: '#FFFFFF',
-            stroke: 'rgba(0,0,0,0.35)',
-            strokeWidth: 2,
+            widthRatio: 0.32,
+            margin: 24,
+            opacity: 0.95,
           }
         );
 

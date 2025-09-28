@@ -1,29 +1,42 @@
+import fs from 'fs/promises';
+import path from 'path';
 import sharp from 'sharp';
 
 export interface CornerWatermarkOptions {
-  fontSizeRatio?: number; // relative to min(width, height)
-  opacity?: number; // 0..1
+  widthRatio?: number; // relative to image width
+  fontSizeRatio?: number; // legacy option to maintain API compatibility
   margin?: number; // px
-  fill?: string; // text color
-  stroke?: string; // stroke color
-  strokeOpacity?: number; // stroke opacity 0..1
-  strokeWidth?: number; // stroke width
-  fontFamily?: string;
-  fontWeight?: number | string;
+  opacity?: number; // 0..1 multiplier applied to embedded watermark
 }
 
-function escapeXml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+const WATERMARK_PATH = path.join(
+  process.cwd(),
+  'public',
+  'watermark',
+  'roboneo-watermark.png'
+);
+const BASE_WATERMARK_WIDTH = 512;
+const BASE_WATERMARK_HEIGHT = 120;
+
+let cachedWatermark: Buffer | null = null;
+
+async function getWatermarkBuffer(): Promise<Buffer> {
+  if (cachedWatermark) {
+    return cachedWatermark;
+  }
+
+  try {
+    cachedWatermark = await fs.readFile(WATERMARK_PATH);
+    return cachedWatermark;
+  } catch (error) {
+    console.error('[watermark] Failed to read watermark asset:', error);
+    throw error;
+  }
 }
 
 export async function applyCornerWatermark(
   imageBuffer: Buffer<any>,
-  text: string,
+  _text: string,
   options: CornerWatermarkOptions = {}
 ): Promise<Buffer> {
   const image = sharp(imageBuffer, { failOnError: false });
@@ -31,98 +44,59 @@ export async function applyCornerWatermark(
   const width = metadata.width || 1024;
   const height = metadata.height || 1024;
 
-  const {
-    fontSizeRatio = 0.045,
-    opacity = 0.9,
-    margin = 24,
-    fill = '#FFFFFF',
-    stroke = 'rgba(0,0,0,0.45)',
-    strokeOpacity = 0.45,
-    strokeWidth = 3,
-    fontFamily = 'Arial, Helvetica, sans-serif',
-    fontWeight = '700',
-  } = options;
-
-  const parseColor = (
-    color: string,
-    fallback: string,
-    defaultOpacity: number
-  ): { color: string; opacity: number } => {
-    if (!color) {
-      return { color: fallback, opacity: defaultOpacity };
+  const resolvedWidthRatio = (() => {
+    if (typeof options.widthRatio === 'number') {
+      return options.widthRatio;
     }
-
-    const rgbaMatch = color
-      .replace(/\s+/g, '')
-      .match(/^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3})(?:,(\d*\.?\d+))?\)$/i);
-
-    if (rgbaMatch) {
-      const [_, r, g, b, a] = rgbaMatch;
-      const toHex = (value: string) =>
-        Math.max(0, Math.min(Number.parseInt(value, 10), 255))
-          .toString(16)
-          .padStart(2, '0');
-      return {
-        color: `#${toHex(r)}${toHex(g)}${toHex(b)}`,
-        opacity:
-          a !== undefined
-            ? Math.max(0, Math.min(Number.parseFloat(a), 1))
-            : defaultOpacity,
-      };
+    if (typeof options.fontSizeRatio === 'number') {
+      // Historically, fontSizeRatio defaulted to 0.045 for typography.
+      // Map legacy value to a comparable width coverage (~0.32 when 0.045).
+      return Math.max(0.05, Math.min(options.fontSizeRatio * 7, 0.5));
     }
+    return 0.32;
+  })();
+  const { margin = 24, opacity = 1 } = options;
 
-    if (/^#[0-9a-f]{3,8}$/i.test(color)) {
-      return { color, opacity: defaultOpacity };
-    }
-
-    return { color, opacity: defaultOpacity };
-  };
-
-  const fontSize = Math.max(
-    16,
-    Math.round(Math.min(width, height) * fontSizeRatio)
+  const targetWidth = Math.max(
+    160,
+    Math.round(width * Math.min(Math.max(resolvedWidthRatio, 0.05), 0.5))
+  );
+  const targetHeight = Math.round(
+    (BASE_WATERMARK_HEIGHT / BASE_WATERMARK_WIDTH) * targetWidth
   );
 
-  const { color: fillColor, opacity: fillOpacity } = parseColor(
-    fill,
-    '#FFFFFF',
-    opacity
-  );
-  const { color: strokeColor, opacity: strokeOpacityValue } = parseColor(
-    stroke,
-    '#000000',
-    strokeOpacity
-  );
+  const watermark = await getWatermarkBuffer();
+  const overlaySharp = sharp(watermark)
+    .resize({ width: targetWidth, height: targetHeight, fit: 'inside' })
+    .ensureAlpha();
 
-  const safeText = escapeXml(text);
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
-  <text x="${width - margin}" y="${height - margin}"
-        text-anchor="end"
-        dominant-baseline="text-after-edge"
-        fill="${fillColor}"
-        fill-opacity="${fillOpacity}"
-        stroke="${strokeColor}"
-        stroke-opacity="${strokeOpacityValue}"
-        stroke-width="${strokeWidth}"
-        paint-order="stroke fill"
-        font-family="${fontFamily}"
-        font-weight="${String(fontWeight)}"
-        font-size="${fontSize}px">${safeText}</text>
-</svg>`;
+  let scaledWatermark: Buffer;
+  const normalizedOpacity = Math.max(0, Math.min(opacity, 1));
+  if (normalizedOpacity < 1) {
+    const { data, info } = await overlaySharp
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const alphaIndex = info.channels - 1;
+    for (let i = alphaIndex; i < data.length; i += info.channels) {
+      data[i] = Math.round(data[i] * normalizedOpacity);
+    }
+    scaledWatermark = await sharp(data, { raw: info }).png().toBuffer();
+  } else {
+    scaledWatermark = await overlaySharp.png().toBuffer();
+  }
 
-  const overlay = Buffer.from(svg);
+  const left = Math.max(margin, width - targetWidth - margin);
+  const top = Math.max(margin, height - targetHeight - margin);
 
-  const composited = await image
+  return image
     .composite([
       {
-        input: overlay,
-        gravity: 'southeast',
+        input: scaledWatermark,
+        left,
+        top,
         blend: 'over',
       },
     ])
     .png()
     .toBuffer();
-
-  return composited;
 }
