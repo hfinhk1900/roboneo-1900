@@ -1,4 +1,4 @@
-import { Jimp, loadFont } from 'jimp';
+import { Jimp, loadFont, measureText, measureTextHeight } from 'jimp';
 import sharp from 'sharp';
 
 export interface CornerWatermarkOptions {
@@ -74,8 +74,8 @@ export async function applyCornerWatermark(
     console.log('📝 Selected font size tier for:', fontSize);
 
     // 计算文本位置（右下角）
-    const textWidth = jimpImage.measureText(font, text);
-    const textHeight = jimpImage.measureTextHeight(font, text, textWidth);
+    const textWidth = measureText(font, text);
+    const textHeight = measureTextHeight(font, text, textWidth);
 
     const x = width - textWidth - margin;
     const y = height - textHeight - margin;
@@ -83,7 +83,12 @@ export async function applyCornerWatermark(
     console.log('📍 Text position:', { x, y, textWidth, textHeight });
 
     // 添加文本水印
-    jimpImage.print(font, x, y, text);
+    jimpImage.print({
+      font,
+      x,
+      y,
+      text,
+    });
 
     // 转换回Buffer
     const watermarkedBuffer = await jimpImage.getBufferAsync(Jimp.MIME_PNG);
