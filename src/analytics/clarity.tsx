@@ -8,7 +8,7 @@ export default function ClarityAnalytics() {
   }
 
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
-  if (!clarityId) {
+  if (!clarityId || clarityId.toLowerCase() === 'disabled') {
     return null;
   }
 
