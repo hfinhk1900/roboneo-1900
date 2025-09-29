@@ -161,6 +161,17 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
             >
               Deep Blue Directory.com
             </a>
+            <a
+              href="https://submithunt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              <span role="img" aria-label="rocket" className="text-base">
+                🚀
+              </span>
+              <span>SubmitHunt</span>
+            </a>
           </div>
         </Container>
       </div>
