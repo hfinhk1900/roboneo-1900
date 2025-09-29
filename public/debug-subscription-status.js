@@ -7,7 +7,7 @@
 
 async function debugSubscriptionStatus(userId) {
   console.log('🔍 开始诊断用户订阅状态:', userId);
-  
+
   try {
     // 1. 检查用户的活跃订阅
     console.log('\n1️⃣ 检查活跃订阅...');
@@ -16,9 +16,9 @@ async function debugSubscriptionStatus(userId) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, action: 'getActiveSubscription' })
+      body: JSON.stringify({ userId, action: 'getActiveSubscription' }),
     });
-    
+
     if (activeSubResponse.ok) {
       const activeSubData = await activeSubResponse.json();
       console.log('✅ 活跃订阅查询结果:', activeSubData);
@@ -33,13 +33,13 @@ async function debugSubscriptionStatus(userId) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, action: 'getAllPayments' })
+      body: JSON.stringify({ userId, action: 'getAllPayments' }),
     });
-    
+
     if (allPaymentsResponse.ok) {
       const allPaymentsData = await allPaymentsResponse.json();
       console.log('✅ 所有支付记录:', allPaymentsData);
-      
+
       // 分析支付记录
       if (allPaymentsData.success && allPaymentsData.payments) {
         console.log('\n📊 支付记录分析:');
@@ -52,7 +52,9 @@ async function debugSubscriptionStatus(userId) {
           console.log(`  - 创建时间: ${payment.createdAt}`);
           console.log(`  - 更新时间: ${payment.updatedAt}`);
           console.log(`  - 取消于期末: ${payment.cancelAtPeriodEnd}`);
-          console.log(`  - 期间: ${payment.periodStart} - ${payment.periodEnd}`);
+          console.log(
+            `  - 期间: ${payment.periodStart} - ${payment.periodEnd}`
+          );
           console.log('---');
         });
       }
@@ -67,16 +69,15 @@ async function debugSubscriptionStatus(userId) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, action: 'checkStripeStatus' })
+      body: JSON.stringify({ userId, action: 'checkStripeStatus' }),
     });
-    
+
     if (stripeCheckResponse.ok) {
       const stripeData = await stripeCheckResponse.json();
       console.log('✅ Stripe实时状态:', stripeData);
     } else {
       console.error('❌ Stripe状态查询失败:', await stripeCheckResponse.text());
     }
-
   } catch (error) {
     console.error('❌ 诊断过程中出错:', error);
   }

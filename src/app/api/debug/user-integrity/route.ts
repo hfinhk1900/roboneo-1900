@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
 import { getDb } from '@/db';
+import { auth } from '@/lib/auth';
 import { sql } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       description: 'Duplicate User IDs (should be empty)',
       count: duplicateIds.length,
       data: duplicateIds,
-      status: duplicateIds.length === 0 ? 'OK' : 'ERROR'
+      status: duplicateIds.length === 0 ? 'OK' : 'ERROR',
     };
 
     // 2. 检查NULL或空的user ID
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       description: 'NULL or empty User IDs (should be empty)',
       count: nullIds.length,
       data: nullIds,
-      status: nullIds.length === 0 ? 'OK' : 'ERROR'
+      status: nullIds.length === 0 ? 'OK' : 'ERROR',
     };
 
     // 3. 检查email重复
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       description: 'Duplicate emails (should be empty)',
       count: duplicateEmails.length,
       data: duplicateEmails,
-      status: duplicateEmails.length === 0 ? 'OK' : 'ERROR'
+      status: duplicateEmails.length === 0 ? 'OK' : 'ERROR',
     };
 
     // 4. 检查用户注册完整性
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
       description: 'Users with missing required fields (should be empty)',
       count: incompleteUsers.length,
       data: incompleteUsers,
-      status: incompleteUsers.length === 0 ? 'OK' : 'WARNING'
+      status: incompleteUsers.length === 0 ? 'OK' : 'WARNING',
     };
 
     // 5. 检查孤立的assets
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
       description: 'Assets without corresponding users (should be empty)',
       count: orphanedAssets.length,
       data: orphanedAssets,
-      status: orphanedAssets.length === 0 ? 'OK' : 'WARNING'
+      status: orphanedAssets.length === 0 ? 'OK' : 'WARNING',
     };
 
     // 6. 用户统计概览
@@ -141,8 +141,11 @@ export async function GET(request: NextRequest) {
     diagnostics.userStatistics = {
       description: 'Overall user statistics',
       data: userStats[0],
-      status: userStats[0]?.total_users === userStats[0]?.unique_ids && 
-              userStats[0]?.total_users === userStats[0]?.unique_emails ? 'OK' : 'WARNING'
+      status:
+        userStats[0]?.total_users === userStats[0]?.unique_ids &&
+        userStats[0]?.total_users === userStats[0]?.unique_emails
+          ? 'OK'
+          : 'WARNING',
     };
 
     // 7. ID长度分布
@@ -161,7 +164,7 @@ export async function GET(request: NextRequest) {
     diagnostics.idLengthDistribution = {
       description: 'Distribution of user ID lengths',
       data: idLengthDistribution,
-      status: 'INFO'
+      status: 'INFO',
     };
 
     // 8. 最近注册的用户 (检查ID生成)
@@ -183,7 +186,7 @@ export async function GET(request: NextRequest) {
       description: 'Recent user registrations (last 7 days)',
       count: recentUsers.length,
       data: recentUsers,
-      status: 'INFO'
+      status: 'INFO',
     };
 
     // 9. Better Auth表一致性检查
@@ -194,7 +197,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN "user" u ON s.user_id = u.id
       WHERE u.id IS NULL
     `);
-    
+
     const orphanedAccounts = await db.execute(sql`
       SELECT COUNT(*) as count
       FROM account a
@@ -208,22 +211,32 @@ export async function GET(request: NextRequest) {
         orphanedSessions: orphanedSessions[0]?.count || 0,
         orphanedAccounts: orphanedAccounts[0]?.count || 0,
       },
-      status: ((orphanedSessions[0]?.count || 0) === 0 && (orphanedAccounts[0]?.count || 0) === 0) ? 'OK' : 'WARNING'
+      status:
+        (orphanedSessions[0]?.count || 0) === 0 &&
+        (orphanedAccounts[0]?.count || 0) === 0
+          ? 'OK'
+          : 'WARNING',
     };
 
     // 总体健康评分
-    const errorCount = Object.values(diagnostics).filter((d: any) => d.status === 'ERROR').length;
-    const warningCount = Object.values(diagnostics).filter((d: any) => d.status === 'WARNING').length;
-    
+    const errorCount = Object.values(diagnostics).filter(
+      (d: any) => d.status === 'ERROR'
+    ).length;
+    const warningCount = Object.values(diagnostics).filter(
+      (d: any) => d.status === 'WARNING'
+    ).length;
+
     const overallHealth = {
-      status: errorCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'HEALTHY',
+      status:
+        errorCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'HEALTHY',
       errorCount,
       warningCount,
-      summary: errorCount > 0 
-        ? 'Database integrity issues detected!' 
-        : warningCount > 0 
-        ? 'Minor issues detected, review recommended'
-        : 'Database appears healthy'
+      summary:
+        errorCount > 0
+          ? 'Database integrity issues detected!'
+          : warningCount > 0
+            ? 'Minor issues detected, review recommended'
+            : 'Database appears healthy',
     };
 
     console.log('✅ User integrity diagnostics completed');
@@ -241,16 +254,15 @@ export async function GET(request: NextRequest) {
           `Unique emails: ${userStats[0]?.unique_emails}`,
           `Verified users: ${userStats[0]?.verified_users}`,
           `Recent registrations: ${recentUsers.length}`,
-        ]
-      }
+        ],
+      },
     });
-
   } catch (error) {
     console.error('❌ User integrity diagnostic error:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to run diagnostics',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

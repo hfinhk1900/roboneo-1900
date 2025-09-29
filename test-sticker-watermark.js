@@ -8,7 +8,7 @@
 async function testStickerWatermark(userId) {
   console.log('🧪 测试Sticker水印功能...');
   console.log('用户ID:', userId);
-  
+
   try {
     // 1. 检查用户订阅状态
     console.log('\n1️⃣ 检查用户订阅状态...');
@@ -17,25 +17,28 @@ async function testStickerWatermark(userId) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, action: 'getActiveSubscription' })
+      body: JSON.stringify({ userId, action: 'getActiveSubscription' }),
     });
-    
+
     const subData = await subResponse.json();
     console.log('订阅状态结果:', subData);
-    
+
     const hasActiveSubscription = subData.hasActiveSubscription;
     console.log('🔍 用户是否有活跃订阅:', hasActiveSubscription);
-    console.log('📋 预期水印应用:', hasActiveSubscription ? '❌ 不应该有水印' : '✅ 应该有水印');
-    
+    console.log(
+      '📋 预期水印应用:',
+      hasActiveSubscription ? '❌ 不应该有水印' : '✅ 应该有水印'
+    );
+
     // 2. 检查最近的Sticker生成记录
     console.log('\n2️⃣ 检查最近的Sticker生成记录...');
-    
+
     // 模拟检查最近生成的sticker图片
     // 由于我们无法直接访问生成的图片，我们可以通过API日志来验证
     console.log('💡 提示: 请查看最近生成的sticker图片是否包含水印');
     console.log('💡 免费用户应该看到右下角有 "ROBONEO.ART" 水印');
     console.log('💡 订阅用户应该看到无水印的清洁图片');
-    
+
     // 3. 提供测试建议
     console.log('\n3️⃣ 测试建议:');
     if (hasActiveSubscription) {
@@ -43,9 +46,11 @@ async function testStickerWatermark(userId) {
       console.log('   📝 请用此用户测试sticker生成，确认图片右下角没有水印');
     } else {
       console.log('✅ 当前用户是免费用户，应该生成有水印图片');
-      console.log('   📝 请用此用户测试sticker生成，确认图片右下角有 "ROBONEO.ART" 水印');
+      console.log(
+        '   📝 请用此用户测试sticker生成，确认图片右下角有 "ROBONEO.ART" 水印'
+      );
     }
-    
+
     // 4. 检查watermark函数是否可用
     console.log('\n4️⃣ 检查水印功能...');
     console.log('💡 水印应该应用在右下角，配置:');
@@ -54,20 +59,19 @@ async function testStickerWatermark(userId) {
     console.log('   - 透明度: 0.9');
     console.log('   - 边距: 18px');
     console.log('   - 颜色: 白色文字，黑色描边');
-    
+
     return {
       userId,
       hasActiveSubscription,
       shouldHaveWatermark: !hasActiveSubscription,
-      testPassed: true
+      testPassed: true,
     };
-    
   } catch (error) {
     console.error('❌ 测试出错:', error);
     return {
       userId,
       error: error.message,
-      testPassed: false
+      testPassed: false,
     };
   }
 }
@@ -75,7 +79,7 @@ async function testStickerWatermark(userId) {
 // 创建一个免费用户测试版本
 async function testFreeUserWatermark(email) {
   console.log('🔍 通过邮箱查找用户并测试水印...');
-  
+
   try {
     // 1. 根据邮箱查找用户ID
     const findResponse = await fetch('/api/debug/subscription-status', {
@@ -83,22 +87,21 @@ async function testFreeUserWatermark(email) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ action: 'findUserByEmail', email })
+      body: JSON.stringify({ action: 'findUserByEmail', email }),
     });
-    
+
     const findData = await findResponse.json();
-    
+
     if (!findData.found) {
       console.log('❌ 未找到用户:', email);
       return;
     }
-    
+
     console.log('✅ 找到用户:', findData.user.email);
     console.log('用户ID:', findData.user.id);
-    
+
     // 2. 测试该用户的水印功能
     return await testStickerWatermark(findData.user.id);
-    
   } catch (error) {
     console.error('❌ 邮箱查找测试出错:', error);
   }
@@ -107,35 +110,35 @@ async function testFreeUserWatermark(email) {
 // 批量测试多个用户
 async function batchTestWatermark(userEmails) {
   console.log(`🔄 批量测试 ${userEmails.length} 个用户的水印功能...`);
-  
+
   const results = [];
-  
+
   for (let i = 0; i < userEmails.length; i++) {
     const email = userEmails[i];
     console.log(`\n📧 测试用户 ${i + 1}/${userEmails.length}: ${email}`);
-    
+
     const result = await testFreeUserWatermark(email);
     results.push({
       email,
-      ...result
+      ...result,
     });
-    
+
     // 避免请求过快
     if (i < userEmails.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
-  
+
   console.log('\n📊 批量测试结果汇总:');
   console.table(results);
-  
+
   return results;
 }
 
 // 检查API端点的水印逻辑
 async function checkStickerAPILogic() {
   console.log('🔧 检查Sticker API的水印逻辑...');
-  
+
   console.log(`
 📋 预期的水印应用逻辑 (在 /api/image-to-sticker 中):
 
@@ -189,10 +192,10 @@ checkStickerAPILogic();
 
 // 如果在Node.js环境中运行
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { 
-    testStickerWatermark, 
-    testFreeUserWatermark, 
+  module.exports = {
+    testStickerWatermark,
+    testFreeUserWatermark,
     batchTestWatermark,
-    checkStickerAPILogic 
+    checkStickerAPILogic,
   };
 }

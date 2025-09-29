@@ -45,71 +45,83 @@ import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+const IDENTITY_PRESERVATION_PROMPT =
+  "Preserve the uploaded person's exact facial structure, skin tone, and hairstyle. Blend their face seamlessly into the reference scene without replacing their identity.";
+
+type ProfileStyle = {
+  value: string;
+  label: string;
+  description: string;
+  image: string;
+  referenceImage: string;
+  prompt: string;
+};
+
 // Profile picture styles with their corresponding prompts
-const PROFILE_STYLES = [
+const PROFILE_STYLES: ProfileStyle[] = [
   {
     value: 'man-portrait01',
     label: 'Professional Business',
     description: 'Sharp business portrait with neutral background',
     image: '/protile-maker/man-portrait01.png',
-    prompt:
-      "Transform the uploaded photo into a powerful, modern corporate headshot. Maintain the subject's core identity, but ensure they are wearing a crisp, well-fitted white dress shirt (no blazer, no tie). Replace the original background with a view from a high-rise office window, showing a softly blurred cityscape. The lighting should be professional indoor lighting, with the subject's face clearly lit, while also capturing a subtle backlight from the window to define their silhouette. The subject's expression should be adjusted to be serious, intense, and confident, looking directly into the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a strong sense of authority and leadership.",
+    referenceImage: '/protile-maker/reference/refer-man01.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Match the crisp white dress shirt and modern high-rise office background from the reference image, including the softly blurred city view and confident, chest-up pose. Maintain studio-quality lighting that highlights the subject's face while keeping their natural expression.`,
   },
   {
     value: 'man-portrait02',
     label: 'Outdoor Professional',
     description: 'Modern professional with natural outdoor background',
     image: '/protile-maker/man-portrait02.png',
-    prompt:
-      "Transform the uploaded photo into a professional outdoor portrait. Keep the subject's core identity, but change their attire to a modern dark navy blazer over an open-collared white shirt (no tie). Replace the original background with a beautifully blurred green park path, filled with lush trees and foliage. Adjust the lighting to simulate soft, warm golden hour sunlight, creating a gentle glow on the face. The subject's expression should be adjusted to be confident and serious, looking directly at the camera. Crop to a chest-up view. The final image should be photorealistic, high-detail, and have a polished, professional feel.",
+    referenceImage: '/protile-maker/reference/refer-man02.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Match the dark navy blazer over an open-collared white shirt and the softly blurred green park path from the reference image, completing the warm golden-hour outdoor lighting and confident, chest-up pose. Ensure the subject looks naturally integrated into the scene while retaining their real face.`,
   },
   {
     value: 'man-portrait03',
     label: 'Smart Casual',
     description: 'Smart casual look with outdoor setting',
     image: '/protile-maker/man-portrait03.png',
-    prompt:
-      "Transform the uploaded casual photo into a professional corporate headshot. Maintain the subject's gender and age, but ensure they are wearing a sharp dark navy suit, a light blue dress shirt, and a dark tie. The subject should have a serious and confident expression, looking directly at the camera. Apply soft, natural-looking urban lighting that highlights the face, with a subtly blurred downtown city street as the background. The background should feature soft lights and blurred buildings, reminiscent of late afternoon. Crop to a chest-up portrait. Photorealistic, high detail, professional grade.",
+    referenceImage: '/protile-maker/reference/refer-man03.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Follow the reference image by placing the subject in a softly blurred downtown street with a sharp dark navy suit, light blue dress shirt, and dark tie. Keep the confident, forward-facing expression and late-afternoon lighting exactly as shown while preserving the subject's true features.`,
   },
   {
     value: 'man-portrait04',
     label: 'Modern Office',
     description: 'Contemporary office professional style',
     image: '/protile-maker/man-portrait04.png',
-    prompt:
-      'Transform the uploaded casual photo into a professional corporate headshot, suitable for a resume or LinkedIn. Remove the original background and replace it with a solid light gray. Ensure the subject is wearing a modern navy blue suit, a light blue dress shirt, and a dark tie. The subject should have a serious and confident expression, looking directly at the camera. Apply even, soft studio lighting to the face, removing any harsh shadows. Crop the image to a chest-up portrait. High detail, photorealistic, professional retouching.',
+    referenceImage: '/protile-maker/reference/refer-man04.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Recreate the solid light gray studio background and polished navy suit with light blue shirt and tie from the reference image. Maintain the even studio lighting and composed expression while keeping the subject's real facial identity intact.`,
   },
   {
     value: 'woman-portrait01',
     label: 'Executive Professional',
     description: 'Executive style with warm professional tones',
     image: '/protile-maker/woman-portrait01.png',
-    prompt:
-      "Transform the uploaded photo into a minimalist and intellectual professional headshot. Maintain the subject's core identity, but ensure she is wearing a clean light gray turtleneck sweater. Her hair should be styled in a neat, short blonde bob. Replace the original background with a solid, clean light gray studio backdrop. The lighting should be soft, even, and bright studio lighting, creating a pristine look with no harsh shadows. The subject's expression should be adjusted to be neutral, calm, and thoughtful, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a sense of understated elegance and intellectual professionalism.",
+    referenceImage: '/protile-maker/reference/refer-woman01.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Match the minimalist light gray studio backdrop and clean turtleneck wardrobe from the reference image. Keep the lighting soft and even, gently refining the hairstyle to sit neatly while preserving the subject's natural color and facial identity.`,
   },
   {
     value: 'woman-portrait02',
     label: 'Corporate Blue',
     description: 'Classic corporate look with blue tones',
     image: '/protile-maker/woman-portrait02.png',
-    prompt:
-      "Transform the uploaded photo into a modern professional female headshot. Maintain the subject's core identity, but ensure she is wearing a stylish light gray blazer over a crisp white open-collared shirt. Replace the original background with a softly blurred, contemporary office interior, featuring indistinct modern furniture and subtle architectural elements. Adjust the lighting to simulate soft, even indoor studio light, illuminating the face clearly without harsh shadows. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a polished, approachable corporate professionalism.",
+    referenceImage: '/protile-maker/reference/refer-woman02.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Follow the reference look with a light gray blazer over a crisp white open-collared shirt and a softly blurred contemporary office interior. Encourage a natural, confident smile while keeping the subject's true facial features and coloring.`,
   },
   {
     value: 'woman-portrait03',
     label: 'Modern Office',
     description: 'Modern office environment professional',
     image: '/protile-maker/woman-portrait03.png',
-    prompt:
-      "Transform the uploaded photo into a modern professional female headshot. Maintain the subject's core identity, but ensure she is wearing a stylish light gray blazer. Replace the original background with a softly blurred, bright urban outdoor setting, featuring indistinct modern buildings and some green foliage. Adjust the lighting to simulate soft, even natural daylight, illuminating the face clearly without harsh shadows. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and convey a polished, approachable professionalism.",
+    referenceImage: '/protile-maker/reference/refer-woman03.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Match the reference image's bright urban outdoor backdrop with hints of modern architecture and greenery, and dress the subject in the same tailored light gray blazer. Keep the daylight feel and approachable smile while preserving their authentic face.`,
   },
   {
     value: 'woman-portrait04',
     label: 'Minimalist Professional',
     description: 'Clean minimalist professional style',
     image: '/protile-maker/woman-portrait04.png',
-    prompt:
-      "Transform the uploaded photo into a classic professional studio headshot. Maintain the subject's core identity, but ensure she is wearing a stylish tan or light brown blazer over a crisp white open-collared shirt. Replace the original background with a solid, dark gray textured studio backdrop. Adjust the lighting to professional studio lighting, creating soft, flattering light on the face with subtle shadows to add depth and dimension. The subject's expression should be a friendly and confident smile, looking directly at the camera. Crop to a chest-up portrait. The final image should be photorealistic, high-detail, and have the polished feel of a high-end corporate portrait.",
+    referenceImage: '/protile-maker/reference/refer-woman04.png',
+    prompt: `${IDENTITY_PRESERVATION_PROMPT} Use the dark gray textured studio backdrop and tan blazer with white shirt from the reference image. Maintain soft studio lighting and a composed, welcoming expression while keeping the subject's genuine facial identity.`,
   },
 ];
 
@@ -229,6 +241,7 @@ export default function ProfilePictureMakerGenerator() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingGeneration = useRef(false);
+  const referenceImageCache = useRef<Map<string, string>>(new Map());
 
   // 历史记录本地存储键名
   const HISTORY_KEY = 'roboneo_profile_picture_history_v1';
@@ -554,6 +567,43 @@ export default function ProfilePictureMakerGenerator() {
     });
   };
 
+  const getReferenceImageBase64 = useCallback(async (url: string) => {
+    if (!url) {
+      throw new Error('Reference image URL is missing');
+    }
+
+    const cached = referenceImageCache.current.get(url);
+    if (cached) {
+      return cached;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to load reference image (${response.status})`);
+    }
+
+    const blob = await response.blob();
+
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          const commaIndex = result.indexOf(',');
+          resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
+        } else {
+          reject(new Error('Unexpected reference image data'));
+        }
+      };
+      reader.onerror = () =>
+        reject(new Error('Failed to read reference image data'));
+      reader.readAsDataURL(blob);
+    });
+
+    referenceImageCache.current.set(url, base64);
+    return base64;
+  }, []);
+
   // Convert aspect ratio format for API (copied from AI Background)
   const convertAspectRatioToSize = (aspectRatio: string): string => {
     switch (aspectRatio) {
@@ -737,6 +787,14 @@ export default function ProfilePictureMakerGenerator() {
         throw new Error('Invalid style selected');
       }
 
+      console.log('🖼️ Loading reference image for style:', selectedStyle);
+      const referenceImageBase64 = await getReferenceImageBase64(
+        selectedStyleData.referenceImage
+      );
+      console.log(
+        `✅ Reference image loaded: ${referenceImageBase64.length} characters`
+      );
+
       // Simulate progress
       const progressInterval = setInterval(() => {
         setGenerationProgress((prev) => {
@@ -752,16 +810,15 @@ export default function ProfilePictureMakerGenerator() {
 
       const requestBody = {
         image_input: imageBase64,
+        reference_image: referenceImageBase64,
         prompt: selectedStyleData.prompt,
-        quality: 'hd',
-        steps: 50,
-        size: convertAspectRatioToSize(selectedAspectRatio),
-        output_format: 'png',
+        style: selectedStyle,
+        aspect_ratio: selectedAspectRatio,
       };
 
       console.log('📐 Selected aspect ratio:', selectedAspectRatio);
       console.log(
-        '📐 Converted size:',
+        '📐 Cropping size used for preprocessing:',
         convertAspectRatioToSize(selectedAspectRatio)
       );
 
@@ -822,7 +879,13 @@ export default function ProfilePictureMakerGenerator() {
       pendingGeneration.current = false;
       setGenerationProgress(0);
     }
-  }, [selectedImage, selectedStyle, currentUser]);
+  }, [
+    selectedImage,
+    selectedStyle,
+    selectedAspectRatio,
+    currentUser,
+    getReferenceImageBase64,
+  ]);
 
   // Download generated image
   const handleDownload = useCallback(async () => {

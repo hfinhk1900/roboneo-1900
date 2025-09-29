@@ -13,16 +13,16 @@ interface ProfilePictureRequest {
   // Required: Input image (base64 encoded)
   image_input: string;
 
+  // Required: Reference image (base64 encoded)
+  reference_image: string;
+
   // Required: Profile picture style prompt
   prompt: string;
 
   // Optional generation parameters
-  quality?: 'standard' | 'hd';
-  steps?: number;
   seed?: number;
-  guidance_scale?: number;
-  size?: string;
-  output_format?: 'jpeg' | 'png' | 'webp';
+  style?: string;
+  aspect_ratio?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -44,16 +44,8 @@ export async function POST(request: NextRequest) {
 
     // 2. 解析请求数据
     const body = (await request.json()) as ProfilePictureRequest;
-    const {
-      image_input,
-      prompt,
-      quality = 'hd',
-      steps = 50,
-      seed,
-      guidance_scale = 3.5,
-      size = '1024x1024',
-      output_format = 'png',
-    } = body;
+    const { image_input, reference_image, prompt, seed, style, aspect_ratio } =
+      body;
 
     if (!image_input) {
       return NextResponse.json(
@@ -69,13 +61,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!reference_image) {
+      return NextResponse.json(
+        { error: 'Missing reference_image parameter' },
+        { status: 400 }
+      );
+    }
+
     console.log('📝 Profile picture parameters:', {
-      quality,
-      steps,
-      size,
-      output_format,
       hasImageInput: !!image_input,
+      hasReferenceImage: !!reference_image,
       promptLength: prompt.length,
+      style,
+      aspect_ratio,
+      hasSeed: typeof seed === 'number',
     });
 
     // 3. 检查用户Credits余额
@@ -144,14 +143,12 @@ export async function POST(request: NextRequest) {
 
     // 5. 构建专业头像生成提示词
     const qualityEnhancements = [
-      'professional headshot photography',
-      'high resolution portrait',
-      'studio lighting',
-      'sharp focus on face',
-      'photorealistic',
-      'professional quality',
-      'clean composition',
-      'commercial photography style',
+      "preserve the person's exact facial identity from the uploaded photo",
+      'maintain natural skin tone and hair color',
+      'avoid replacing their face with another person',
+      'seamless facial blending with the reference wardrobe and background',
+      'studio lighting that matches the reference scene',
+      'high resolution photorealistic finishing',
     ];
 
     const enhancedPrompt = `${prompt}, ${qualityEnhancements.join(', ')}`;
@@ -164,21 +161,18 @@ export async function POST(request: NextRequest) {
     const generationParams = {
       prompt: enhancedPrompt,
       model: 'black-forest-labs/FLUX.1-Kontext-dev',
-      size,
-      quality,
-      steps,
       seed,
-      guidance_scale,
-      output_format,
       image_input,
+      reference_image,
     };
 
     console.log('🚀 Generating profile picture with SiliconFlow:', {
       model: generationParams.model,
-      size: generationParams.size,
-      quality: generationParams.quality,
-      steps: generationParams.steps,
       hasImageInput: !!image_input,
+      hasReferenceImage: !!reference_image,
+      seed: generationParams.seed,
+      style,
+      aspectRatio: aspect_ratio,
     });
 
     // 7. 调用 AI 生成 - 使用专门的 profile-pictures 存储文件夹
@@ -226,7 +220,8 @@ export async function POST(request: NextRequest) {
         operation: 'generate',
         provider: result.provider,
         model: result.model,
-        style: prompt.split(',')[0], // Extract style from prompt
+        style: style || 'unknown',
+        aspect_ratio,
         watermarked: !isSubscribed,
       }),
     });

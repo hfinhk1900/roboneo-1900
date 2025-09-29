@@ -41,7 +41,7 @@ const coreRoutes: SitemapEntry[] = [
     changeFrequency: 'monthly',
     priority: 0.6,
   },
-  
+
   // Tool detail pages (long-tail SEO)
   {
     url: `${baseUrl}/sticker`,
@@ -73,7 +73,7 @@ const coreRoutes: SitemapEntry[] = [
     changeFrequency: 'weekly',
     priority: 0.8,
   },
-  
+
   // Policies
   {
     url: `${baseUrl}/privacy`,

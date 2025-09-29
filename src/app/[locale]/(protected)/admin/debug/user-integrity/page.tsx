@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { RefreshCwIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface DiagnosticResult {
@@ -40,11 +40,11 @@ export default function UserIntegrityDebugPage() {
   const fetchDiagnostics = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/debug/user-integrity');
       const result = await response.json();
-      
+
       if (response.ok) {
         setData(result);
         toast.success('诊断完成');
@@ -109,12 +109,14 @@ export default function UserIntegrityDebugPage() {
             检查用户ID重复、注册完整性和数据库一致性问题
           </p>
         </div>
-        <Button 
-          onClick={fetchDiagnostics} 
+        <Button
+          onClick={fetchDiagnostics}
           disabled={loading}
           className="flex items-center gap-2"
         >
-          <RefreshCwIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCwIcon
+            className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+          />
           {loading ? '诊断中...' : '重新诊断'}
         </Button>
       </div>
@@ -211,8 +213,8 @@ export default function UserIntegrityDebugPage() {
                   {diagnostic.data && diagnostic.data.length > 0 ? (
                     <div className="space-y-2">
                       {diagnostic.data.slice(0, 5).map((item, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           className="p-3 bg-gray-50 rounded-lg font-mono text-sm"
                         >
                           <pre>{JSON.stringify(item, null, 2)}</pre>
@@ -226,7 +228,9 @@ export default function UserIntegrityDebugPage() {
                     </div>
                   ) : (
                     <p className="text-muted-foreground">
-                      {diagnostic.status === 'OK' ? '✅ 没有发现问题' : '暂无数据'}
+                      {diagnostic.status === 'OK'
+                        ? '✅ 没有发现问题'
+                        : '暂无数据'}
                     </p>
                   )}
                 </CardContent>
