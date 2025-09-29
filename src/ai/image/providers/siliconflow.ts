@@ -305,9 +305,9 @@ export class SiliconFlowProvider {
             uploadBuffer as any,
             params.watermarkText,
             {
-              widthRatio: 0.3,
-              margin: 24,
-              opacity: 0.95,
+              widthRatio: 0.26,
+              margin: 32,
+              opacity: 0.9,
             }
           )) as any;
         } catch (wmError) {

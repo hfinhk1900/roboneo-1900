@@ -237,9 +237,9 @@ export async function POST(req: NextRequest) {
         const base64Part = result.image.split(',')[1];
         const buffer = Buffer.from(base64Part, 'base64');
         const wmBuffer = await applyCornerWatermark(buffer, 'ROBONEO.ART', {
-          widthRatio: 0.3,
-          margin: 20,
-          opacity: 0.95,
+          widthRatio: 0.26,
+          margin: 32,
+          opacity: 0.9,
         });
         const wmDataUrl = `data:image/png;base64,${wmBuffer.toString('base64')}`;
         watermarkedResult = { ...result, image: wmDataUrl };

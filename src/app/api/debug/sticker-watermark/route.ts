@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
           },
           watermarkConfig: {
             text: 'ROBONEO.ART',
-            widthRatio: 0.32,
-            opacity: 0.95,
-            margin: 24,
+            widthRatio: 0.28,
+            opacity: 0.92,
+            margin: 36,
           },
           explanation: {
             logic:

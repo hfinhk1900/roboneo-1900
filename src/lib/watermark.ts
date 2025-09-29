@@ -15,8 +15,8 @@ const WATERMARK_PATH = path.join(
   'watermark',
   'roboneo-watermark.png'
 );
-const BASE_WATERMARK_WIDTH = 512;
-const BASE_WATERMARK_HEIGHT = 120;
+const BASE_WATERMARK_WIDTH = 640;
+const BASE_WATERMARK_HEIGHT = 160;
 
 let cachedWatermark: Buffer | null = null;
 
@@ -53,9 +53,9 @@ export async function applyCornerWatermark(
       // Map legacy value to a comparable width coverage (~0.32 when 0.045).
       return Math.max(0.05, Math.min(options.fontSizeRatio * 7, 0.5));
     }
-    return 0.32;
+    return 0.28;
   })();
-  const { margin = 24, opacity = 1 } = options;
+  const { margin = 32, opacity = 0.9 } = options;
 
   const targetWidth = Math.max(
     160,
