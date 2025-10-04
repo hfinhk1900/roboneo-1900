@@ -119,7 +119,7 @@ const toolFeatures: ToolFeature[] = [
     id: 'image-to-sticker',
     title: 'Image to Sticker',
     description:
-      'Turn any photo into an iOS-style 3D sticker with a clean outline and transparent PNG, ready for iMessage, WhatsApp, Telegram, and more. Keep pose, expression, clothing, and accessories consistent with the original.',
+      'Turn any photo into an iOS-style 3D sticker with RoboNeo AI. Create clean outline and transparent PNG, ready for iMessage, WhatsApp, Telegram, and more. Keep pose, expression, clothing, and accessories consistent with the original.',
     buttonText: 'Create Sticker',
     buttonLink: '/sticker',
     icon: StickerIcon,
@@ -130,7 +130,7 @@ const toolFeatures: ToolFeature[] = [
     id: 'product-shots',
     title: 'Product Shots',
     description:
-      'Generate studio-quality product photos and lifestyle scenes from a prompt or reference image, perfect for ads, PDPs, and social posts. Consistent lighting and composition, right in your browser.',
+      'Generate studio-quality product photos with RoboNeo AI. Create lifestyle scenes from a prompt or reference image, perfect for ads, PDPs, and social posts. RoboNeo AI ensures consistent lighting and composition, right in your browser.',
     buttonText: 'Generate Product Shot',
     buttonLink: '/productshot',
     icon: PackageIcon,
@@ -142,7 +142,7 @@ const toolFeatures: ToolFeature[] = [
     id: 'ai-backgrounds',
     title: 'AI Backgrounds',
     description:
-      "Place your subject against clean studio backdrops or on-brand lifestyle settings with AI-generated backgrounds that match the scene's lighting and perspective, no manual masking.",
+      "Place your subject against clean studio backdrops with RoboNeo AI. Create on-brand lifestyle settings with AI-generated backgrounds that match the scene's lighting and perspective. RoboNeo AI handles everything, no manual masking needed.",
     buttonText: 'Create AI Background',
     buttonLink: '/aibackgrounds',
     icon: AIBackgroundIcon,
@@ -153,7 +153,7 @@ const toolFeatures: ToolFeature[] = [
     id: 'profile-picture',
     title: 'Profile Picture Maker',
     description:
-      'Turn any selfie into a polished, on-brand profile photo in seconds. Roboneo AI adds gentle retouching, flattering lighting, and clean studio or brand-color backdrops. Generate a consistent set for LinkedIn, Instagram, X, and Discord with platform-ready crops.',
+      'Turn any selfie into a polished, on-brand profile photo in seconds. RoboNeo AI adds gentle retouching, flattering lighting, and clean studio or brand-color backdrops. Generate a consistent set for LinkedIn, Instagram, X, and Discord with platform-ready crops.',
     buttonText: 'Create Profile Picture',
     buttonLink: '/profile-picture-maker',
     icon: ProfileIcon,
@@ -165,7 +165,7 @@ const toolFeatures: ToolFeature[] = [
     id: 'watermark-removal',
     title: 'Watermark Removal',
     description:
-      'Erase watermarks, timestamps, and light logos from images you own or are licensed to edit—no tedious manual retouching. Roboneo AI reconstructs underlying details with context-aware inpainting, preserving texture, edges, and lighting for clean, natural results. Use only on content you have permission to modify.',
+      'Erase watermarks, timestamps, and light logos from images you own or are licensed to edit—no tedious manual retouching. RoboNeo AI reconstructs underlying details with context-aware inpainting, preserving texture, edges, and lighting for clean, natural results. Use only on content you have permission to modify.',
     buttonText: 'Remove Watermark',
     buttonLink: '/remove-watermark',
     icon: WatermarkRemovalIcon,
@@ -186,14 +186,14 @@ export default function AISuperchargeToolsSection() {
           className="text-center mb-16 max-w-4xl mx-auto"
         >
           <h2 className="text-[28px] font-bold text-black mb-6">
-            AI Supercharges Your Photo Creation with Roboneo
+            AI Supercharges Your Photo Creation with RoboNeo
           </h2>
           <p className="text-[16px] text-gray-600 leading-relaxed">
-            Speed up your image workflow with Roboneo AI—focused tools for Image
+            Speed up your image workflow with RoboNeo AI—focused tools for Image
             to Sticker, Product Shots, AI Backgrounds, and Object Cleanup.
             Pre-tuned models automate styling, composition, and rendering to
-            deliver clean, consistent results in seconds—right in your browser.
-            Start with 10 credits, upgrade anytime.
+            deliver clean, consistent results in seconds. Work directly in your
+            browser with RoboNeo AI. Start with 10 credits, upgrade anytime.
           </p>
         </motion.div>
 

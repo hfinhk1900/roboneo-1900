@@ -932,9 +932,9 @@
       }
     },
     "calltoaction": {
-      "title": "开始创作精美艺术作品",
+      "title": "立即使用 RoboNeo AI 开始创作",
       "description": "秒级将您的照片和创意转化为令人惊艳的 AI 生成艺术作品。加入数千名信赖 RoboNeo 的创作者行列，满足您的数字艺术需求。",
-      "primaryButton": "创作您的第一件作品",
+      "primaryButton": "开始使用 RoboNeo",
       "secondaryButton": "查看作品集"
     }
   },

@@ -18,35 +18,35 @@ const tools: ToolCard[] = [
     id: 'image-to-sticker',
     title: 'Image to Sticker',
     image: '/home/all-tools01.png',
-    alt: 'Image to Sticker - Convert photos to stickers',
+    alt: 'RoboNeo Image to Sticker - Convert photos to stickers',
     href: '/sticker',
   },
   {
     id: 'product-shots',
     title: 'Product Shots',
     image: '/home/all-tools02.png',
-    alt: 'Product Shots - AI product photography',
+    alt: 'RoboNeo Product Shots - AI product photography',
     href: '/productshot',
   },
   {
     id: 'ai-backgrounds',
     title: 'AI Backgrounds',
     image: '/home/all-tools03.png',
-    alt: 'AI Backgrounds - Generate stunning backgrounds',
+    alt: 'RoboNeo AI Backgrounds - Generate stunning backgrounds',
     href: '/aibackgrounds',
   },
   {
     id: 'remove-watermark',
     title: 'Remove Watermark',
     image: '/home/all-tools04.png',
-    alt: 'Remove Watermark - Clean your images',
+    alt: 'RoboNeo Remove Watermark - Clean your images',
     href: '/remove-watermark',
   },
   {
     id: 'profile-picture',
     title: 'Profile Picture Maker',
     image: '/home/all-tools05.png',
-    alt: 'Profile Picture Maker - Create professional avatars',
+    alt: 'RoboNeo Profile Picture Maker - Create professional avatars',
     href: '/profile-picture-maker',
   },
 ];
@@ -62,6 +62,10 @@ export default function AllToolsSection() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl font-bold text-black mb-2">All Tools</h2>
+          <p className="text-gray-600 text-base">
+            Explore RoboNeo AI's complete suite of image tools designed to help
+            you create professional visuals effortlessly.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">

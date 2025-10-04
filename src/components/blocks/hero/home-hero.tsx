@@ -34,7 +34,7 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6 }}
             className="text-balance text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900"
           >
-            Roboneo AI Image Suite
+            RoboNeo AI Image Suite
           </motion.h1>
 
           <motion.p
@@ -43,9 +43,9 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-base sm:text-lg leading-7 sm:leading-8 text-gray-600 px-4"
           >
-            From photo to finished visual in one place. Image to Sticker,
-            Product Shots, AI Background, and Watermark Removal, with more tools
-            added regularly.
+            RoboNeo AI transforms your photos into professional visuals in one
+            place. Create Image to Sticker, Product Shots, AI Background, and
+            Watermark Removal, with more RoboNeo AI tools added regularly.
           </motion.p>
 
           {/* Action buttons */}
@@ -97,7 +97,7 @@ export default function HomeHeroSection() {
                 <div className="relative w-[60px] h-[62px] sm:w-[126px] sm:h-[130px] lg:w-[168px] lg:h-[174px] rounded-md sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <Image
                     src="/home/home-hero.png"
-                    alt="AI Image Processing Example"
+                    alt="RoboNeo AI Image Processing Example"
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 60px, (max-width: 1024px) 126px, 168px"
@@ -115,7 +115,7 @@ export default function HomeHeroSection() {
                 <div className="relative w-[120px] h-[60px] sm:w-[252px] sm:h-[126px] lg:w-[336px] lg:h-[168px] rounded-md sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
                   <Image
                     src="/home/home-hero-1.png"
-                    alt="Background Removal Demo"
+                    alt="RoboNeo AI Background Removal Demo"
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 120px, (max-width: 1024px) 252px, 336px"
@@ -134,7 +134,7 @@ export default function HomeHeroSection() {
               <div className="relative w-[96px] h-[128px] sm:w-[202px] sm:h-[268px] lg:w-[270px] lg:h-[358px] rounded-md sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <Image
                   src="/home/home-hero-4.png"
-                  alt="AI Generated Showcase"
+                  alt="RoboNeo AI Generated Showcase"
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 96px, (max-width: 1024px) 202px, 270px"

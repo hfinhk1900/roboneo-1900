@@ -17,7 +17,7 @@ const useCases: UseCase[] = [
     description:
       'Use RoboNeo AI to build consistent brand assets for social media and community engagement.',
     examples: [
-      'Create branded stickers for social media engagement',
+      'Create branded stickers for social media',
       'Generate profile pictures for multiple platforms',
       'Develop visual elements for community building',
     ],
@@ -37,7 +37,7 @@ const useCases: UseCase[] = [
     icon: Camera,
     title: 'Marketing Professionals',
     description:
-      'Rapidly adapt existing imagery for different contexts and platforms.',
+      'Rapidly adapt existing imagery with RoboNeo AI for different contexts and platforms.',
     examples: [
       'Adapt campaign assets for different marketing channels',
       'Remove unwanted elements from licensed imagery',
@@ -48,7 +48,7 @@ const useCases: UseCase[] = [
     icon: Palette,
     title: 'Small Businesses',
     description:
-      'Create professional marketing materials without design expertise or expensive services.',
+      'Create professional marketing materials with RoboNeo AI without design expertise or expensive services.',
     examples: [
       'Generate professional product presentations',
       'Create branded visual content for marketing',
