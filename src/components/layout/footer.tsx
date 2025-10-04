@@ -192,6 +192,20 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               />
             </a>
             {/* productburst-badge-end */}
+            <a
+              href="https://goodaitools.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://goodaitools.com/assets/images/badge.png"
+                alt="Good AI Tools"
+                width="180"
+                height="54"
+                className="h-5 sm:h-6 w-auto"
+              />
+            </a>
           </div>
         </Container>
       </div>
