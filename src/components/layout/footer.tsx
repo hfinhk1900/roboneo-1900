@@ -102,13 +102,13 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
       </Container>
 
       <div className="border-t py-8">
-        <Container className="px-4 flex items-center justify-between gap-x-4">
-          <span className="text-muted-foreground text-sm">
+        <Container className="px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <span className="text-muted-foreground text-sm text-center md:text-left">
             &copy; {new Date().getFullYear()} {t('Metadata.name')} All Rights
             Reserved.
           </span>
 
-          <div className="flex items-center gap-x-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
             {/* <ThemeSelector /> */}
             <ModeSwitcherHorizontal />
             <a
@@ -122,7 +122,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on Startup Fame"
                 width="218"
                 height="30"
-                className="h-6 w-auto"
+                className="h-5 sm:h-6 w-auto"
               />
             </a>
             <a
@@ -136,7 +136,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on Twelve Tools"
                 width="200"
                 height="54"
-                className="h-6 w-auto"
+                className="h-5 sm:h-6 w-auto"
               />
             </a>
             <a
@@ -150,14 +150,14 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="yo.directory"
                 width="150"
                 height="54"
-                className="h-6 w-auto"
+                className="h-5 sm:h-6 w-auto"
               />
             </a>
             <a
               href="https://www.deepbluedirectory.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-shrink-0 text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="flex-shrink-0 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
             >
               Deep Blue Directory.com
             </a>
@@ -165,13 +165,33 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               href="https://submithunt.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="flex-shrink-0 flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
             >
-              <span role="img" aria-label="rocket" className="text-base">
+              <span
+                role="img"
+                aria-label="rocket"
+                className="text-sm sm:text-base"
+              >
                 🚀
               </span>
               <span>SubmitHunt</span>
             </a>
+            {/* productburst-badge-start */}
+            <a
+              href="https://productburst.com/product/roboneo-art"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://3188a5210b07f4ad511bbcdc967bc67b.cdn.bubble.io/f1747781918344x939992978866771600/pB-Badge.png"
+                alt="Featured on ProductBurst"
+                width="160"
+                height="30"
+                className="h-5 sm:h-6 w-auto"
+              />
+            </a>
+            {/* productburst-badge-end */}
           </div>
         </Container>
       </div>
