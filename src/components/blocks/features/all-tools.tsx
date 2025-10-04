@@ -74,7 +74,7 @@ export default function AllToolsSection() {
             >
               <Link
                 href={tool.href}
-                className="group block bg-neutral-100 rounded-3xl p-4 sm:p-6 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[337px] relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                className="group bg-neutral-100 rounded-3xl p-4 sm:p-6 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[337px] overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col items-center justify-center"
               >
                 {/* Tool Title */}
                 <div className="text-center mb-4 sm:mb-6 h-12 sm:h-16 flex items-center justify-center">
@@ -84,7 +84,7 @@ export default function AllToolsSection() {
                 </div>
 
                 {/* Tool Image */}
-                <div className="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] lg:w-[166px] lg:h-[166px] mx-auto mb-0 rounded-2xl overflow-hidden bg-white">
+                <div className="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] lg:w-[166px] lg:h-[166px] mx-auto mb-4 sm:mb-6 rounded-2xl overflow-hidden">
                   <Image
                     src={tool.image}
                     alt={tool.alt}
@@ -95,7 +95,7 @@ export default function AllToolsSection() {
                 </div>
 
                 {/* Arrow Icon */}
-                <div className="absolute bottom-2 sm:bottom-3 left-1/2 transform -translate-x-1/2">
+                <div className="flex items-center justify-center">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-400 rounded-full flex items-center justify-center group-hover:bg-yellow-500 transition-colors duration-300">
                     <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
                   </div>
