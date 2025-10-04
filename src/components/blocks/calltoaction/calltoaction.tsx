@@ -26,7 +26,7 @@ export default function CallToActionSection() {
                 borderColor: 'var(--primary)',
               }}
               onClick={() => {
-                router.push('/#hero');
+                router.push('/#all-tools');
               }}
               className="cursor-pointer"
             >
