@@ -2116,10 +2116,7 @@ export function AIBackgroundGeneratorSection() {
                               : 'border-gray-300 hover:border-gray-400'
                           )}
                           style={{
-                            background:
-                              selectedBackgroundColor === 'custom'
-                                ? customColor
-                                : 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd)',
+                            backgroundColor: customColor,
                           }}
                           title="Custom Color"
                         >
