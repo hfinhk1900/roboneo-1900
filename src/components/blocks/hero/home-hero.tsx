@@ -53,9 +53,9 @@ export default function HomeHeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-base sm:text-lg leading-7 sm:leading-8 text-gray-600 px-4"
+            className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-[20px] leading-7 sm:leading-8 text-gray-600 px-4"
           >
-            AI tools for image, video, and audio creation for creators and brands.
+            AI tools for image, video, and audio creation for creators and brands
           </motion.p>
 
           {/* Action buttons */}
