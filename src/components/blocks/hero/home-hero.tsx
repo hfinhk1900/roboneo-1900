@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { SparklesIcon } from 'lucide-react';
+import type { SVGProps } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,6 +15,18 @@ const PARTNER_LOGOS = [
   { name: 'Partner 5', src: '/home/power05.svg' },
   { name: 'Partner 6', src: '/home/power06.svg' },
 ];
+
+const LightningIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+    focusable="false"
+    {...props}
+  >
+    <path d="M13 2L3 14h7l-2 8L21 10h-7Z" />
+  </svg>
+);
 
 export default function HomeHeroSection() {
   return (
@@ -34,7 +46,7 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6 }}
             className="text-balance text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900"
           >
-            RoboNeo AI Image Suite
+            RoboNeo AI Creative Content Studio
           </motion.h1>
 
           <motion.p
@@ -43,9 +55,7 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-base sm:text-lg leading-7 sm:leading-8 text-gray-600 px-4"
           >
-            RoboNeo AI transforms your photos into professional visuals in one
-            place. Create Image to Sticker, Product Shots, AI Background, and
-            Watermark Removal, with more RoboNeo AI tools added regularly.
+            AI tools for image, video, and audio creation for creators and brands.
           </motion.p>
 
           {/* Action buttons */}
@@ -70,8 +80,8 @@ export default function HomeHeroSection() {
               className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
             >
               <Link href="#all-tools">
-                <SparklesIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Start creating for free
+                <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                Start for free
               </Link>
             </Button>
           </motion.div>
