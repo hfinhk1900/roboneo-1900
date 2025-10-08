@@ -1,12 +1,27 @@
 import { BlogCategoryFilter } from '@/components/blog/blog-category-filter';
 import Container from '@/components/layout/container';
 import { categorySource } from '@/lib/source';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type { PropsWithChildren } from 'react';
 
 interface BlogListLayoutProps extends PropsWithChildren {
   params: Promise<{ locale: string }>;
 }
+
+// Prevent indexing until blog content is ready
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-image-preview': 'none',
+    },
+  },
+};
 
 export default async function BlogListLayout({
   children,
