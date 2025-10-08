@@ -1,107 +1,125 @@
+import { websiteConfig } from '@/config/website';
+import { Routes } from '@/routes';
 import type { MetadataRoute } from 'next';
 import { getBaseUrl } from '../lib/urls/urls';
 
-/**
- * Optimized sitemap focused on core user value pages
- * SEO-friendly with differentiated priorities and change frequencies
- */
+type ChangeFrequency = MetadataRoute.Sitemap[number]['changeFrequency'];
 
-interface SitemapEntry {
-  url: string;
-  lastModified: string;
-  changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+interface RouteConfig {
+  path: Routes;
+  changeFrequency: ChangeFrequency;
   priority: number;
-  alternates?: {
-    languages: {
-      en: string;
-    };
-  };
+  lastModified: string;
 }
 
-const baseUrl = getBaseUrl();
-const lastMod = '2025-09-25';
+const normalizedBaseUrl = getBaseUrl().replace(/\/$/, '');
 
-const coreRoutes: SitemapEntry[] = [
-  // Core pages
+const stableLastModified = '2025-10-08T03:07:59.000Z';
+
+const canonicalRoutes: RouteConfig[] = [
   {
-    url: `${baseUrl}/`,
-    lastModified: lastMod,
-    changeFrequency: 'daily',
-    priority: 1.0,
-  },
-  {
-    url: `${baseUrl}/pricing`,
-    lastModified: lastMod,
+    path: Routes.Root,
     changeFrequency: 'weekly',
-    priority: 0.8,
+    priority: 1,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/about`,
-    lastModified: lastMod,
-    changeFrequency: 'monthly',
-    priority: 0.6,
-  },
-
-  // Tool detail pages (long-tail SEO)
-  {
-    url: `${baseUrl}/sticker`,
-    lastModified: lastMod,
-    changeFrequency: 'daily',
+    path: Routes.AISticker,
+    changeFrequency: 'weekly',
     priority: 0.9,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/productshot`,
-    lastModified: lastMod,
+    path: Routes.ProductShot,
     changeFrequency: 'weekly',
     priority: 0.85,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/aibackgrounds`,
-    lastModified: lastMod,
+    path: Routes.AIBackground,
     changeFrequency: 'weekly',
     priority: 0.8,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/remove-watermark`,
-    lastModified: lastMod,
+    path: Routes.RemoveWatermark,
     changeFrequency: 'weekly',
     priority: 0.8,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/profile-picture-maker`,
-    lastModified: lastMod,
-    changeFrequency: 'weekly',
-    priority: 0.8,
+    path: Routes.ProfilePictureMaker,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+    lastModified: stableLastModified,
   },
-
-  // Policies
   {
-    url: `${baseUrl}/privacy`,
-    lastModified: lastMod,
+    path: Routes.Pricing,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+    lastModified: stableLastModified,
+  },
+  {
+    path: Routes.About,
+    changeFrequency: 'yearly',
+    priority: 0.5,
+    lastModified: stableLastModified,
+  },
+  {
+    path: Routes.PrivacyPolicy,
     changeFrequency: 'yearly',
     priority: 0.3,
+    lastModified: stableLastModified,
   },
   {
-    url: `${baseUrl}/terms`,
-    lastModified: lastMod,
+    path: Routes.TermsOfService,
     changeFrequency: 'yearly',
     priority: 0.3,
+    lastModified: stableLastModified,
+  },
+  {
+    path: Routes.RefundPolicy,
+    changeFrequency: 'yearly',
+    priority: 0.3,
+    lastModified: stableLastModified,
   },
 ];
 
-/**
- * Generate optimized sitemap for RoboNeo AI
- */
+const localeKeys = Object.keys(websiteConfig.i18n.locales);
+const defaultLocale = websiteConfig.i18n.defaultLocale;
+const hasMultipleLocales = localeKeys.length > 1;
+
+function buildAbsoluteUrl(path: string): string {
+  if (!path || path === '/') {
+    return `${normalizedBaseUrl}/`;
+  }
+  return `${normalizedBaseUrl}${path}`;
+}
+
+function buildAlternates(path: string) {
+  if (!hasMultipleLocales) {
+    return undefined;
+  }
+
+  const languages: Record<string, string> = {};
+  const localePath = path === '/' ? '/' : path;
+
+  for (const locale of localeKeys) {
+    const prefix = locale === defaultLocale ? '' : `/${locale}`;
+    languages[locale] = `${normalizedBaseUrl}${prefix}${localePath}`;
+  }
+
+  return { languages };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  return coreRoutes.map((route) => ({
-    url: route.url,
-    lastModified: new Date(route.lastModified),
-    changeFrequency: route.changeFrequency,
-    priority: route.priority,
-    alternates: {
-      languages: {
-        en: route.url,
-      },
-    },
-  }));
+  return canonicalRoutes.map(
+    ({ path, changeFrequency, priority, lastModified }) => ({
+      url: buildAbsoluteUrl(path),
+      lastModified,
+      changeFrequency,
+      priority,
+      alternates: buildAlternates(path),
+    })
+  );
 }

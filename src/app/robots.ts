@@ -16,8 +16,13 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard/*',
           '/admin/*',
           '/*.json$',
-          '/*?*', // Block URLs with query parameters
           '/auth/*',
+          '/ai/*',
+          '/blocks/*',
+          '/magicui',
+          '/waitlist',
+          '/changelog',
+          '/my-library',
         ],
       },
       {
