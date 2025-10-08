@@ -840,44 +840,36 @@
       "subtitle": "Get Answers to Your Questions About RoboNeo",
       "items": {
         "item-1": {
-          "question": "Is RoboNeo AI free to use?",
-          "answer": "Our platform provides new users with an initial grant of 10 credits to test system capabilities. These credits allow full access to all features including high-resolution outputs and commercial usage rights. After using initial credits, users can purchase additional credits or subscribe to monthly plans based on their usage patterns and requirements. Each successful image generation consumes one credit regardless of processing complexity, and failed generations don't consume credits."
+          "question": "What is RoboNeo AI and how does it help my creative workflow?",
+          "answer": "RoboNeo AI bundles sticker making, product photography, background swaps, watermark removal, and profile portraits into one browser studio. Upload a prompt or image and dedicated models handle cutouts, lighting, and exports so your team ships visuals in minutes."
         },
         "item-2": {
-          "question": "Can I use the images or stickers for commercial projects?",
-          "answer": "Absolutely. All content created with any paid plan or credit pack is yours to use commercially—social media, print, merchandising, you name it. Free-tier images are for personal, non-commercial use only."
+          "question": "Do I need design experience or special hardware to use RoboNeo?",
+          "answer": "No. RoboNeo runs entirely in your browser, includes presets for every workflow, and optimizes output automatically. A laptop and a few clicks are enough to create production-ready assets."
         },
         "item-3": {
-          "question": "Will my uploaded photos be used to train the AI?",
-          "answer": "No. Your images are never used to train our models or shared with third parties."
+          "question": "How much does RoboNeo AI cost and what do the plans include?",
+          "answer": "New accounts receive 10 complimentary credits to test every workflow. When you're ready to scale, Pro and Ultimate subscriptions unlock higher resolutions, batch queues, expanded storage, and priority support—see the Pricing page for the latest plan comparison."
         },
         "item-4": {
-          "question": "What file formats are supported?",
-          "answer": "Input: JPG, JPEG, PNG, WEBP (≤ 4 MB). Output: Transparent PNG (stickers default to 512 × 512 px; higher resolutions available on paid plans)"
+          "question": "Can I upload my own brand assets, logos, or product photos?",
+          "answer": "Yes. Upload reference photos, logos, or color palettes to keep generated visuals on-brand. RoboNeo preserves materials and colors while letting you swap scenes, backgrounds, or styles."
         },
         "item-5": {
-          "question": "How fast is the generation process?",
-          "answer": "Most images finish in around 1 minute. Paid users get priority queues and faster speeds, even during peak times."
+          "question": "How fast does RoboNeo generate stickers, product shots, or backgrounds?",
+          "answer": "Most outputs arrive within 30–60 seconds. Paid plans include priority queues and batch generation so you can process entire campaigns without waiting."
         },
         "item-6": {
-          "question": "Can I cancel my subscription anytime?",
-          "answer": "Yes. Pause or cancel with one click in your account dashboard; 7-day money-back guarantee on all new subscriptions."
+          "question": "Where can I use the visuals created with RoboNeo AI?",
+          "answer": "Export ready-to-use PNG and JPG files for Shopify, Amazon, Etsy, social media, messaging apps, print, and internal decks. Paid plans grant full commercial rights to every asset you generate."
         },
         "item-7": {
-          "question": "Is payment secure, and what methods do you accept?",
-          "answer": "All transactions are protected with 256-bit SSL encryption. We accept Visa, Mastercard, and American Express, and we never store your full payment details."
+          "question": "Is my content secure and private when I use RoboNeo AI?",
+          "answer": "All uploads are encrypted, stored in your account, and never used to train shared models. You control retention via My Library, and you can delete assets at any time."
         },
         "item-8": {
-          "question": "How can I get support or suggest new features?",
-          "answer": "Email hi@roboneo.art. We usually reply within 24 hours and love hearing your ideas!"
-        },
-        "item-9": {
-          "question": "How does RoboNeo AI ensure image quality?",
-          "answer": "Our platform uses specialized AI models trained for each specific task rather than general-purpose image generation. This approach allows optimization for particular use cases like sticker creation or product photography. The system processes images at full resolution and applies task-specific enhancements to maintain professional quality standards."
-        },
-        "item-10": {
-          "question": "What makes RoboNeo AI different from other image tools?",
-          "answer": "Our service focuses on practical creative workflows with specialized tools for real-world applications. Each feature uses dedicated AI models optimized for specific tasks, ensuring consistent, professional results. RoboNeo AI combines multiple image processing capabilities in one place, streamlining creative workflows for content creators, businesses, and marketers."
+          "question": "How do I get help or request a new RoboNeo feature?",
+          "answer": "Reach us at hi@roboneo.art or through the in-app support button. We typically respond within 24 hours and log every request to help shape the product roadmap."
         }
       }
     },
