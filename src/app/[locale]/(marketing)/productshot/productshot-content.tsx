@@ -1,6 +1,7 @@
 'use client';
 
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
+import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 const PhotostockGallery = dynamic(
   () => import('@/components/shared/photostock-gallery'),
   {
@@ -37,6 +38,8 @@ export default function ProductShotPageContent() {
 
       {/* Explore More Tools (copied from Image to Sticker section) */}
       <ExploreMoreToolsSection />
+
+      <CallToActionSection />
     </div>
   );
 }

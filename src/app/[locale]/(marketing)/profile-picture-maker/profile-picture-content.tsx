@@ -1,5 +1,6 @@
 'use client';
 
+import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import dynamic from 'next/dynamic';
 
@@ -23,6 +24,7 @@ export default function ProfilePictureMakerPageContent() {
     <main className="min-h-screen bg-[#F5F5F5]">
       <ProfilePictureMakerGenerator />
       <ExploreMoreToolsSection />
+      <CallToActionSection />
     </main>
   );
 }

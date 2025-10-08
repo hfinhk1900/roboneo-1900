@@ -1,6 +1,7 @@
 'use client';
 
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
+import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import dynamic from 'next/dynamic';
 
 const StickerGenerator = dynamic(
@@ -39,6 +40,8 @@ export default function StickerPageContent() {
 
       {/* Explore More AI Tools Section */}
       <ExploreMoreToolsSection />
+
+      <CallToActionSection />
     </div>
   );
 }
