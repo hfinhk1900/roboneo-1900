@@ -67,7 +67,7 @@ export function constructMetadata({
     ...(noIndex && {
       robots: {
         index: false,
-        follow: false,
+        follow: true,
       },
     }),
   };

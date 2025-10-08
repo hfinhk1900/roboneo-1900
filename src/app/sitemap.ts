@@ -65,24 +65,6 @@ const canonicalRoutes: RouteConfig[] = [
     priority: 0.5,
     lastModified: stableLastModified,
   },
-  {
-    path: Routes.PrivacyPolicy,
-    changeFrequency: 'yearly',
-    priority: 0.3,
-    lastModified: stableLastModified,
-  },
-  {
-    path: Routes.TermsOfService,
-    changeFrequency: 'yearly',
-    priority: 0.3,
-    lastModified: stableLastModified,
-  },
-  {
-    path: Routes.RefundPolicy,
-    changeFrequency: 'yearly',
-    priority: 0.3,
-    lastModified: stableLastModified,
-  },
 ];
 
 const localeKeys = Object.keys(websiteConfig.i18n.locales);

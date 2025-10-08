@@ -634,11 +634,12 @@ export default function StickerGenerator() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            Turn Any Photo into a Sticker with RoboNeo AI
+            Sticker Maker – Turn Any Photo into Stickers
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Try our image-to-sticker demo, then explore text-to-image &
-            image-to-image for limitless creativity.
+            Upload selfies, pets, or product shots, choose a style, and RoboNeo
+            AI exports transparent PNG stickers ready for WhatsApp, Telegram,
+            Instagram Stories, and merch drops.
           </p>
         </div>
 

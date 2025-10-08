@@ -931,11 +931,12 @@ export default function ProfilePictureMakerGenerator() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            AI Profile Picture Maker
+            Profile Picture Maker – Create Polished Headshots
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Transform your photos into professional profile pictures with AI.
-            Perfect for LinkedIn, resumes, and social profiles.
+            Import a selfie, choose a professional vibe, and RoboNeo AI refines
+            lighting, crops, and backgrounds for LinkedIn, resumes, and social
+            avatars.
           </p>
         </div>
 

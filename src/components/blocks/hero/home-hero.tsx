@@ -46,7 +46,7 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6 }}
             className="text-balance text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900"
           >
-            RoboNeo AI Creative Content Studio
+            RoboNeo AI – The Creative Automation Studio
           </motion.h1>
 
           <motion.p
@@ -55,7 +55,7 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-[20px] leading-7 sm:leading-8 text-gray-600 px-4"
           >
-            AI tools for image, video, and audio creation for creators and brands
+            Turn prompts, photos, or brand assets into finished visuals faster. RoboNeo AI adapts to campaigns, product launches, marketing kits, and every new tool you ship next.
           </motion.p>
 
           {/* Action buttons */}

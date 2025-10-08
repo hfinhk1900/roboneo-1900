@@ -1827,11 +1827,12 @@ export function AIBackgroundGeneratorSection() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            AI Backgrounds
+            AI Background Generator – Swap Scenes in Seconds
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Upload any photo and generate stunning custom backgrounds with AI -
-            from solid colors to artistic styles.
+            Upload any subject, pick a theme, and RoboNeo AI rebuilds
+            lighting-matched backgrounds for product listings, portraits, and
+            social content.
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">

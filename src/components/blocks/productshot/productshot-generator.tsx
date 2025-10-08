@@ -999,10 +999,12 @@ export default function ProductShotGeneratorSection() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            Product Shots
+            Product Shot Generator – Create Studio-Ready Mockups
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Transform product descriptions into professional scene photography
+            Drop in a product photo or prompt, choose a scene preset, and
+            RoboNeo AI produces lifestyle-ready shots for Shopify, Amazon, and
+            paid campaigns.
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

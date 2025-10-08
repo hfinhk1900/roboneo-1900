@@ -818,11 +818,12 @@ export function RemoveWatermarkGeneratorSection() {
                 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
             }}
           >
-            Remove Image Watermark
+            Watermark Remover – Clean Assets Automatically
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
-            Upload your image and remove watermarks instantly with AI. Simple,
-            fast, and effective.
+            Upload legacy graphics or stock previews and RoboNeo AI erases
+            logos, dates, and text overlays while preserving edges for reuse
+            across campaigns.
           </p>
         </div>
 
