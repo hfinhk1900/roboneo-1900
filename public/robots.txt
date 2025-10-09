@@ -1,0 +1,28 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api
+Disallow: /_next
+Disallow: /settings
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /auth
+Disallow: /blog
+Disallow: /docs
+Disallow: /ai/text
+Disallow: /ai/video
+Disallow: /ai/audio
+Disallow: /ai/image
+Disallow: /changelog
+Disallow: /waitlist
+Disallow: /magicui
+Disallow: /blocks
+Disallow: /my-library
+Disallow: /cookie
+Disallow: /test-bg-removal
+
+# Host
+Host: https://roboneo.art
+
+# Sitemaps
+Sitemap: https://roboneo.art/sitemap.xml

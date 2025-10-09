@@ -23,7 +23,7 @@ export function HighlightDemo() {
               text="RoboNeo"
               inView={true}
               className="bg-gradient-to-r from-yellow-200 to-orange-200 dark:from-yellow-400 dark:to-orange-400 font-bold"
-              transition={{ duration: 1.5, ease: 'easeOut' }}
+              transition={{ duration: 1.5, ease: 'easeOut' as const }}
             />{' '}
             让创作变得简单
           </p>

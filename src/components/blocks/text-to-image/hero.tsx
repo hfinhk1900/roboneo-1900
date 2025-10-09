@@ -107,7 +107,7 @@ export default function TextToImageHeroSection() {
                   transition={{
                     duration: 4,
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: 'easeInOut',
+                    ease: 'easeInOut' as const,
                   }}
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
                 >
@@ -139,7 +139,7 @@ export default function TextToImageHeroSection() {
                   transition={{
                     duration: 5,
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: 'easeInOut',
+                    ease: 'easeInOut' as const,
                   }}
                   className="absolute left-0 top-20"
                 >
@@ -159,7 +159,7 @@ export default function TextToImageHeroSection() {
                   transition={{
                     duration: 6,
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: 'easeInOut',
+                    ease: 'easeInOut' as const,
                   }}
                   className="absolute right-0 top-10"
                 >
@@ -179,7 +179,7 @@ export default function TextToImageHeroSection() {
                   transition={{
                     duration: 4.5,
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: 'easeInOut',
+                    ease: 'easeInOut' as const,
                   }}
                   className="absolute bottom-20 right-10"
                 >

@@ -70,7 +70,7 @@ export function AdvancedHighlighter({
     const baseTransition: Transition = {
       duration,
       delay,
-      ease: 'easeOut'
+      ease: 'easeOut' as const
     };
 
     switch (effect) {
@@ -105,7 +105,7 @@ export function AdvancedHighlighter({
             duration: duration,
             delay,
             repeat: 2,
-            ease: 'easeInOut'
+          ease: 'easeInOut' as const
           }
         };
 
@@ -119,7 +119,7 @@ export function AdvancedHighlighter({
           transition: {
             duration: duration,
             delay,
-            ease: 'easeOut'
+          ease: 'easeOut' as const
           }
         };
 

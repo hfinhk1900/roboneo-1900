@@ -44,7 +44,7 @@ export function InfiniteSlider({
       const transitionDuration = remainingDistance / currentSpeed;
 
       controls = animate(translation, [translation.get(), to], {
-        ease: 'linear',
+        ease: 'linear' as const,
         duration: transitionDuration,
         onComplete: () => {
           setIsTransitioning(false);
@@ -53,7 +53,7 @@ export function InfiniteSlider({
       });
     } else {
       controls = animate(translation, [from, to], {
-        ease: 'linear',
+        ease: 'linear' as const,
         duration: duration,
         repeat: Number.POSITIVE_INFINITY,
         repeatType: 'loop',
