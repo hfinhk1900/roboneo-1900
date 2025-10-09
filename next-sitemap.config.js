@@ -1,7 +1,7 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://roboneo.art',
-  generateRobotsTxt: true,
+  generateRobotsTxt: false,
   sitemapSize: 5000,
   exclude: [
     '/privacy',
@@ -31,34 +31,5 @@ module.exports = {
     return Promise.all(
       importantPaths.map((path) => config.transform(config, path))
     );
-  },
-  robotsTxtOptions: {
-    policies: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/api',
-          '/_next',
-          '/settings',
-          '/dashboard',
-          '/admin',
-          '/auth',
-          '/blog',
-          '/docs',
-          '/ai/text',
-          '/ai/video',
-          '/ai/audio',
-          '/ai/image',
-          '/changelog',
-          '/waitlist',
-          '/magicui',
-          '/blocks',
-          '/my-library',
-          '/cookie',
-          '/test-bg-removal',
-        ],
-      },
-    ],
   },
 };
