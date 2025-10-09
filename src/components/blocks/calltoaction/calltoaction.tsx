@@ -1,5 +1,6 @@
 'use client';
 
+import { RegisterWrapper } from '@/components/auth/register-wrapper';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useLocaleRouter } from '@/i18n/navigation';
@@ -14,15 +15,7 @@ export default function CallToActionSection() {
   const currentUser = useCurrentUser();
 
   const handleClick = () => {
-    if (currentUser) {
-      router.push('/sticker');
-      return;
-    }
-
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('auth:switch-to-register'));
-      window.dispatchEvent(new CustomEvent('auth:modal-opening'));
-    }
+    router.push('/sticker');
   };
 
   return (
@@ -36,18 +29,34 @@ export default function CallToActionSection() {
             {CTA_DESCRIPTION}
           </p>
 
-          <Button
-            size="lg"
-            style={{
-              backgroundColor: 'var(--primary)',
-              color: 'var(--primary-foreground)',
-              borderColor: 'var(--primary)',
-            }}
-            onClick={handleClick}
-            className="cursor-pointer rounded-full px-8"
-          >
-            {CTA_LABEL}
-          </Button>
+          {currentUser ? (
+            <Button
+              size="lg"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderColor: 'var(--primary)',
+              }}
+              onClick={handleClick}
+              className="cursor-pointer rounded-full px-8"
+            >
+              {CTA_LABEL}
+            </Button>
+          ) : (
+            <RegisterWrapper mode="modal" asChild callbackUrl="/sticker">
+              <Button
+                size="lg"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  color: 'var(--primary-foreground)',
+                  borderColor: 'var(--primary)',
+                }}
+                className="cursor-pointer rounded-full px-8"
+              >
+                {CTA_LABEL}
+              </Button>
+            </RegisterWrapper>
+          )}
         </div>
       </div>
     </section>

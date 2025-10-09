@@ -1,6 +1,9 @@
 'use client';
 
+import { RegisterWrapper } from '@/components/auth/register-wrapper';
 import { Button } from '@/components/ui/button';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { useLocaleRouter } from '@/i18n/navigation';
 import { motion } from 'framer-motion';
 import type { SVGProps } from 'react';
 import Image from 'next/image';
@@ -29,6 +32,21 @@ const LightningIcon = (props: SVGProps<SVGSVGElement>) => (
 );
 
 export default function HomeHeroSection() {
+  const currentUser = useCurrentUser();
+  const router = useLocaleRouter();
+
+  const handleCtaClick = () => {
+    if (currentUser) {
+      router.push('/sticker');
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth:switch-to-register'));
+      window.dispatchEvent(new CustomEvent('auth:modal-opening'));
+    }
+  };
+
   return (
     <section
       className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
@@ -74,16 +92,26 @@ export default function HomeHeroSection() {
               <Link href="/sticker">Create Sticker</Link>
             </Button>
 
-            <Button
-              asChild
-              size="lg"
-              className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
-            >
-              <Link href="#all-tools">
+            {currentUser ? (
+              <Button
+                size="lg"
+                className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+                onClick={handleCtaClick}
+              >
                 <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Start for free
-              </Link>
-            </Button>
+                Claim 10 Free Credits
+              </Button>
+            ) : (
+              <RegisterWrapper mode="modal" asChild callbackUrl="/sticker">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+                >
+                  <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  Claim 10 Free Credits
+                </Button>
+              </RegisterWrapper>
+            )}
           </motion.div>
         </div>
 
