@@ -14,6 +14,10 @@ export default function CallToActionSection() {
   const router = useLocaleRouter();
   const currentUser = useCurrentUser();
 
+  if (currentUser) {
+    return null;
+  }
+
   const handleClick = () => {
     router.push('/sticker');
   };
