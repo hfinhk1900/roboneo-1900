@@ -16,7 +16,7 @@ import {
   user,
   watermarkHistory,
 } from '@/db/schema';
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 // Removed demo table data as it is unrelated to dashboard metrics
 
@@ -46,6 +46,7 @@ export default async function DashboardPage() {
     label: string;
     url?: string | null;
     userId: string;
+    userEmail: string | null;
     createdAt: Date;
   }> = [];
   let recentCredits: Array<{
@@ -304,9 +305,11 @@ export default async function DashboardPage() {
           url: aibgHistory.url,
           label: aibgHistory.style,
           userId: aibgHistory.userId,
+          userEmail: user.email,
           createdAt: aibgHistory.createdAt,
         })
         .from(aibgHistory)
+        .leftJoin(user, eq(aibgHistory.userId, user.id))
         .orderBy(desc(aibgHistory.createdAt))
         .limit(limit);
       const p = await db
@@ -315,9 +318,11 @@ export default async function DashboardPage() {
           url: productshotHistory.url,
           label: productshotHistory.scene,
           userId: productshotHistory.userId,
+          userEmail: user.email,
           createdAt: productshotHistory.createdAt,
         })
         .from(productshotHistory)
+        .leftJoin(user, eq(productshotHistory.userId, user.id))
         .orderBy(desc(productshotHistory.createdAt))
         .limit(limit);
       const s = await db
@@ -326,9 +331,11 @@ export default async function DashboardPage() {
           url: stickerHistory.url,
           label: stickerHistory.style,
           userId: stickerHistory.userId,
+          userEmail: user.email,
           createdAt: stickerHistory.createdAt,
         })
         .from(stickerHistory)
+        .leftJoin(user, eq(stickerHistory.userId, user.id))
         .orderBy(desc(stickerHistory.createdAt))
         .limit(limit);
       const w = await db
@@ -337,9 +344,11 @@ export default async function DashboardPage() {
           url: watermarkHistory.processedImageUrl,
           label: watermarkHistory.method,
           userId: watermarkHistory.userId,
+          userEmail: user.email,
           createdAt: watermarkHistory.createdAt,
         })
         .from(watermarkHistory)
+        .leftJoin(user, eq(watermarkHistory.userId, user.id))
         .orderBy(desc(watermarkHistory.createdAt))
         .limit(limit);
       const r = await db
@@ -348,9 +357,11 @@ export default async function DashboardPage() {
           url: profilePictureHistory.url,
           label: profilePictureHistory.style,
           userId: profilePictureHistory.userId,
+          userEmail: user.email,
           createdAt: profilePictureHistory.createdAt,
         })
         .from(profilePictureHistory)
+        .leftJoin(user, eq(profilePictureHistory.userId, user.id))
         .orderBy(desc(profilePictureHistory.createdAt))
         .limit(limit);
       recentGenerations = [

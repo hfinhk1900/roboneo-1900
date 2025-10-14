@@ -20,6 +20,7 @@ type Item = {
   label: string;
   url?: string | null;
   userId: string;
+  userEmail?: string | null;
   createdAt: Date;
 };
 
@@ -36,7 +37,8 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             <TableRow>
               <TableHead>Type</TableHead>
               <TableHead>Label</TableHead>
-              <TableHead>User</TableHead>
+              <TableHead>User ID</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead className="text-right">Time</TableHead>
             </TableRow>
           </TableHeader>
@@ -50,6 +52,12 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
                 <TableCell className="truncate max-w-[12rem]" title={it.userId}>
                   {it.userId}
                 </TableCell>
+                <TableCell
+                  className="truncate max-w-[14rem]"
+                  title={it.userEmail ?? ''}
+                >
+                  {it.userEmail ?? '—'}
+                </TableCell>
                 <TableCell className="text-right text-muted-foreground">
                   {new Date(it.createdAt).toLocaleString()}
                 </TableCell>
@@ -58,7 +66,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             {items.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   className="text-center text-muted-foreground"
                 >
                   No recent items
