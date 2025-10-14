@@ -193,6 +193,14 @@ export default function ProfilePictureMakerGenerator() {
   const [isMounted, setIsMounted] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const requireAuthForUpload = useCallback(() => {
+    if (currentUser) {
+      return true;
+    }
+    toast.error('Please log in to upload images');
+    setShowLoginDialog(true);
+    return false;
+  }, [currentUser, setShowLoginDialog]);
   useEffect(() => {
     const switchToRegister = () => {
       setAuthMode('register');
@@ -619,20 +627,28 @@ export default function ProfilePictureMakerGenerator() {
   };
 
   // Handle file selection
-  const handleFileSelect = useCallback((file: File) => {
-    setFileError(null);
-    setGeneratedImageUrl(null);
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      if (!requireAuthForUpload()) {
+        return false;
+      }
 
-    const validation = validateImageFile(file);
-    if (!validation.isValid) {
-      setFileError(validation.error || 'Invalid file');
-      return;
-    }
+      setFileError(null);
+      setGeneratedImageUrl(null);
 
-    setSelectedImage(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-  }, []);
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setFileError(validation.error || 'Invalid file');
+        return false;
+      }
+
+      setSelectedImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      return true;
+    },
+    [requireAuthForUpload]
+  );
 
   // Handle drag and drop
   const handleDrop = useCallback(
@@ -661,9 +677,13 @@ export default function ProfilePictureMakerGenerator() {
   // Handle file input change
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
+      const input = e.target;
+      const files = input.files;
       if (files && files.length > 0) {
-        handleFileSelect(files[0]);
+        const ok = handleFileSelect(files[0]);
+        if (!ok) {
+          input.value = '';
+        }
       }
     },
     [handleFileSelect]

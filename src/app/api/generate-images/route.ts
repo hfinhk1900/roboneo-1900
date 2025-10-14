@@ -104,6 +104,17 @@ export async function POST(req: NextRequest) {
   const csrf = enforceSameOriginCsrf(req);
   if (csrf) return csrf;
   const requestId = Math.random().toString(36).substring(7);
+  const { auth } = await import('@/lib/auth');
+  const session = await auth.api.getSession({
+    headers: req.headers as any,
+  });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const body = (await req.json()) as GenerateImageRequest & {
+    inputImage?: string; // base64 图片数据
+    editType?: 'generate' | 'edit' | 'variation';
+  };
   const {
     prompt,
     provider,
@@ -116,10 +127,7 @@ export async function POST(req: NextRequest) {
     // 新增：图片编辑相关参数
     inputImage,
     editType = 'generate', // 'generate' | 'edit' | 'variation'
-  } = (await req.json()) as GenerateImageRequest & {
-    inputImage?: string; // base64 图片数据
-    editType?: 'generate' | 'edit' | 'variation';
-  };
+  } = body;
 
   try {
     if (!prompt || !provider || !modelId || !providerConfig[provider]) {

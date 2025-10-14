@@ -220,6 +220,14 @@ export function RemoveWatermarkGeneratorSection() {
   // Dialog states
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const requireAuthForUpload = useCallback(() => {
+    if (currentUser) {
+      return true;
+    }
+    toast.error('Please log in to upload images');
+    setShowLoginDialog(true);
+    return false;
+  }, [currentUser, setShowLoginDialog]);
   useEffect(() => {
     const switchToRegister = () => {
       setAuthMode('register');
@@ -349,42 +357,51 @@ export function RemoveWatermarkGeneratorSection() {
   // File upload handlers
   const handleFileSelect = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        // Validate file type
-        const validTypes = [
-          'image/jpeg',
-          'image/jpg',
-          'image/png',
-          'image/webp',
-        ];
-        if (!validTypes.includes(file.type)) {
-          toast.error('Please upload a valid image file (JPEG, PNG, WebP)');
-          return;
-        }
-
-        // Validate file size (max 10MB)
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        if (file.size > maxSize) {
-          toast.error('Image file size must be less than 10MB');
-          return;
-        }
-
-        setUploadedImage(file);
-
-        // Create preview URL
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          setImagePreview(result);
-        };
-        reader.readAsDataURL(file);
-
-        // Reset processed image
-        setProcessedImage(null);
+      const input = event.target;
+      const file = input.files?.[0];
+      if (!file) {
+        return;
       }
+      if (!requireAuthForUpload()) {
+        input.value = '';
+        return;
+      }
+
+      // Validate file type
+      const validTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
+      ];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a valid image file (JPEG, PNG, WebP)');
+        input.value = '';
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast.error('Image file size must be less than 10MB');
+        input.value = '';
+        return;
+      }
+
+      setUploadedImage(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+
+      // Reset processed image
+      setProcessedImage(null);
     },
-    []
+    [requireAuthForUpload]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {

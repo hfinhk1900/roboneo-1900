@@ -652,6 +652,14 @@ export function AIBackgroundGeneratorSection() {
   } | null>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const requireAuthForUpload = useCallback(() => {
+    if (currentUser) {
+      return true;
+    }
+    toast.error('Please log in to upload images');
+    setShowLoginDialog(true);
+    return false;
+  }, [currentUser, setShowLoginDialog]);
   useEffect(() => {
     const switchToRegister = () => {
       setAuthMode('register');
@@ -689,6 +697,9 @@ export function AIBackgroundGeneratorSection() {
 
   // Image upload handling
   const handleImageUpload = (file: File) => {
+    if (!requireAuthForUpload()) {
+      return;
+    }
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;
@@ -742,10 +753,15 @@ export function AIBackgroundGeneratorSection() {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImageUpload(file);
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
     }
+    if (!currentUser) {
+      input.value = '';
+    }
+    handleImageUpload(file);
   };
 
   const removeImage = () => {

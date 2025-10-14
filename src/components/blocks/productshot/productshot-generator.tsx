@@ -145,6 +145,14 @@ export default function ProductShotGeneratorSection() {
 
   // 获取当前用户
   const currentUser = useCurrentUser();
+  const requireAuthForUpload = useCallback(() => {
+    if (currentUser) {
+      return true;
+    }
+    toast.error('Please log in to upload images');
+    setShowLoginDialog(true);
+    return false;
+  }, [currentUser, setShowLoginDialog]);
 
   // 新增：mounted 状态，避免 hydration 不匹配
   const [isMounted, setIsMounted] = useState(false);
@@ -685,6 +693,9 @@ export default function ProductShotGeneratorSection() {
 
   // 通用文件处理函数
   const processFile = (file: File) => {
+    if (!requireAuthForUpload()) {
+      return false;
+    }
     // 严格验证支持的图片格式
     const supportedFormats = [
       'image/jpeg',
@@ -696,13 +707,13 @@ export default function ProductShotGeneratorSection() {
       toast.error(
         `Unsupported image format: ${file.type}. Please use JPEG, PNG, or WebP format. AVIF is not currently supported.`
       );
-      return;
+      return false;
     }
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size must be less than 5MB');
-      return;
+      return false;
     }
 
     setUploadedImage(file);
@@ -713,13 +724,18 @@ export default function ProductShotGeneratorSection() {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
+    return true;
   };
 
   // Handle image upload from input
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const input = event.target;
+    const file = input.files?.[0];
     if (!file) return;
-    processFile(file);
+    const ok = processFile(file);
+    if (!ok) {
+      input.value = '';
+    }
   };
 
   // Handle drag and drop
@@ -759,6 +775,9 @@ export default function ProductShotGeneratorSection() {
 
   // NEW: Reference image handling functions
   const processReferenceFile = (file: File) => {
+    if (!requireAuthForUpload()) {
+      return false;
+    }
     // 严格验证支持的图片格式
     const supportedFormats = [
       'image/jpeg',
@@ -770,13 +789,13 @@ export default function ProductShotGeneratorSection() {
       toast.error(
         `Unsupported reference image format: ${file.type}. Please use JPEG, PNG, or WebP format. AVIF is not currently supported.`
       );
-      return;
+      return false;
     }
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Reference image size must be less than 5MB');
-      return;
+      return false;
     }
 
     setReferenceImage(file);
@@ -787,14 +806,19 @@ export default function ProductShotGeneratorSection() {
       setReferencePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
+    return true;
   };
 
   const handleReferenceImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
+    const input = event.target;
+    const file = input.files?.[0];
     if (!file) return;
-    processReferenceFile(file);
+    const ok = processReferenceFile(file);
+    if (!ok) {
+      input.value = '';
+    }
   };
 
   // Reference image drag and drop handlers

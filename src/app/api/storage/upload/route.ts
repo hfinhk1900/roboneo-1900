@@ -7,6 +7,13 @@ export async function POST(request: NextRequest) {
   const csrf = enforceSameOriginCsrf(request);
   if (csrf) return csrf;
   try {
+    const { auth } = await import('@/lib/auth');
+    const session = await auth.api.getSession({
+      headers: request.headers as any,
+    });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const folder = formData.get('folder') as string | null;
