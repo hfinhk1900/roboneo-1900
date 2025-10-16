@@ -12,10 +12,12 @@ import {
   creditsTransaction,
   productshotHistory,
   profilePictureHistory,
+  screamAiHistory,
   stickerHistory,
   user,
   watermarkHistory,
 } from '@/db/schema';
+import { SCREAM_PRESET_MAP } from '@/features/scream-ai/constants';
 import { desc, eq, sql } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 // Removed demo table data as it is unrelated to dashboard metrics
@@ -130,12 +132,17 @@ export default async function DashboardPage() {
         .select({ c: sql<number>`CAST(count(*) AS INT)` })
         .from(profilePictureHistory)
         .where(sql`${profilePictureHistory.createdAt} >= ${d30.toISOString()}`);
+      const [cntScream] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(screamAiHistory)
+        .where(sql`${screamAiHistory.createdAt} >= ${d30.toISOString()}`);
       const nA = Number(cntAibg?.c ?? 0);
       const nP = Number(cntProduct?.c ?? 0);
       const nS = Number(cntSticker?.c ?? 0);
       const nW = Number(cntWatermark?.c ?? 0);
       const nR = Number(cntProfile?.c ?? 0);
-      gens30d = nA + nP + nS + nW + nR;
+      const nSc = Number(cntScream?.c ?? 0);
+      gens30d = nA + nP + nS + nW + nR + nSc;
     } catch {}
 
     try {
@@ -202,6 +209,18 @@ export default async function DashboardPage() {
       for (const r of dailyProfile as any)
         merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
 
+      const dailyScream = await db
+        .select({
+          day: sql<string>`to_char(date_trunc('day', ${screamAiHistory.createdAt}), 'YYYY-MM-DD')`,
+          cnt: sql<number>`CAST(count(*) AS INT)`,
+        })
+        .from(screamAiHistory)
+        .where(sql`${screamAiHistory.createdAt} >= ${d90.toISOString()}`)
+        .groupBy(sql`date_trunc('day', ${screamAiHistory.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${screamAiHistory.createdAt})`);
+      for (const r of dailyScream as any)
+        merge.set(r.day, (merge.get(r.day) || 0) + (Number(r.cnt) || 0));
+
       const days = Array.from(merge.keys()).sort();
       chartPoints = days.map((day) => ({
         date: day,
@@ -231,12 +250,17 @@ export default async function DashboardPage() {
         .select({ c: sql<number>`CAST(count(*) AS INT)` })
         .from(profilePictureHistory)
         .where(sql`${profilePictureHistory.createdAt} >= ${d7.toISOString()}`);
+      const [sc7] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(screamAiHistory)
+        .where(sql`${screamAiHistory.createdAt} >= ${d7.toISOString()}`);
       featureShare.d7 = {
         aibg: Number(a7?.c || 0),
         productshot: Number(p7?.c || 0),
         sticker: Number(s7?.c || 0),
         watermark: Number(w7?.c || 0),
         profile: Number(r7?.c || 0),
+        scream: Number(sc7?.c || 0),
       };
 
       const [a30] = await db
@@ -259,12 +283,17 @@ export default async function DashboardPage() {
         .select({ c: sql<number>`CAST(count(*) AS INT)` })
         .from(profilePictureHistory)
         .where(sql`${profilePictureHistory.createdAt} >= ${d30.toISOString()}`);
+      const [sc30] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(screamAiHistory)
+        .where(sql`${screamAiHistory.createdAt} >= ${d30.toISOString()}`);
       featureShare.d30 = {
         aibg: Number(a30?.c || 0),
         productshot: Number(p30?.c || 0),
         sticker: Number(s30?.c || 0),
         watermark: Number(w30?.c || 0),
         profile: Number(r30?.c || 0),
+        scream: Number(sc30?.c || 0),
       };
 
       const [a90] = await db
@@ -287,12 +316,17 @@ export default async function DashboardPage() {
         .select({ c: sql<number>`CAST(count(*) AS INT)` })
         .from(profilePictureHistory)
         .where(sql`${profilePictureHistory.createdAt} >= ${d90.toISOString()}`);
+      const [sc90] = await db
+        .select({ c: sql<number>`CAST(count(*) AS INT)` })
+        .from(screamAiHistory)
+        .where(sql`${screamAiHistory.createdAt} >= ${d90.toISOString()}`);
       featureShare.d90 = {
         aibg: Number(a90?.c || 0),
         productshot: Number(p90?.c || 0),
         sticker: Number(s90?.c || 0),
         watermark: Number(w90?.c || 0),
         profile: Number(r90?.c || 0),
+        scream: Number(sc90?.c || 0),
       };
     } catch {}
 
@@ -364,12 +398,30 @@ export default async function DashboardPage() {
         .leftJoin(user, eq(profilePictureHistory.userId, user.id))
         .orderBy(desc(profilePictureHistory.createdAt))
         .limit(limit);
+      const scream = await db
+        .select({
+          id: screamAiHistory.id,
+          url: screamAiHistory.url,
+          label: screamAiHistory.presetId,
+          userId: screamAiHistory.userId,
+          userEmail: user.email,
+          createdAt: screamAiHistory.createdAt,
+        })
+        .from(screamAiHistory)
+        .leftJoin(user, eq(screamAiHistory.userId, user.id))
+        .orderBy(desc(screamAiHistory.createdAt))
+        .limit(limit);
       recentGenerations = [
         ...a.map((x) => ({ ...x, type: 'aibg' })),
         ...p.map((x) => ({ ...x, type: 'productshot' })),
         ...s.map((x) => ({ ...x, type: 'sticker' })),
         ...w.map((x) => ({ ...x, type: 'watermark' })),
         ...r.map((x) => ({ ...x, type: 'profile' })),
+        ...scream.map((x) => ({
+          ...x,
+          type: 'scream',
+          label: SCREAM_PRESET_MAP.get(x.label || '')?.name || x.label,
+        })),
       ]
         .sort(
           (x, y) =>

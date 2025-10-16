@@ -134,6 +134,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
       Routes.AIBackground,
       Routes.RemoveWatermark,
       Routes.ProfilePictureMaker,
+      Routes.ScreamAI,
       Routes.Pricing,
     ];
     targets.forEach((href) => {

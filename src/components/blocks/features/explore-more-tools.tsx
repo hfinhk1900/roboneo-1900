@@ -53,6 +53,14 @@ const tools: ToolCard[] = [
     imageAlt: 'Profile Picture Maker demo',
     href: '/profile-picture-maker',
   },
+  {
+    title: 'Scream AI',
+    description:
+      'Transform portraits into suspenseful Ghost Face inspired scenes while preserving identity.',
+    image: '/sticker/Explore03.webp',
+    imageAlt: 'Scream AI horror scene demo',
+    href: '/scream-ai',
+  },
 ];
 
 export default function ExploreMoreToolsSection() {

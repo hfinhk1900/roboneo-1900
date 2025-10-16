@@ -174,7 +174,8 @@
   "AuthPage": {
     "login": {
       "title": "Login",
-      "welcomeBack": "Welcome back",
+      "welcomeBack": "Sign in to RoboNeo",
+      "signInTitle": "Sign in to RoboNeo",
       "email": "Email",
       "password": "Password",
       "signIn": "Sign In",
@@ -715,8 +716,8 @@
     "title": "RoboNeo",
     "description": "Create AI-powered stickers, product shots, and marketing visuals with RoboNeo.",
     "hero": {
-    "title": "RoboNeo AI – The Creative Automation Studio",
-    "description": "Turn prompts, photos, or brand assets into finished visuals faster. RoboNeo AI adapts to campaigns, product launches, marketing kits, and every new tool you ship next.",
+      "title": "RoboNeo AI – The Creative Automation Studio",
+      "description": "Turn prompts, photos, or brand assets into finished visuals faster. RoboNeo AI adapts to campaigns, product launches, marketing kits, and every new tool you ship next.",
       "introduction": "Introducing RoboNeo AI Studio",
       "primary": "Get Started",
       "secondary": "See Demo"

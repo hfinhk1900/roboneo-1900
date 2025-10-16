@@ -89,6 +89,17 @@ export const productshotHistory = pgTable("productshot_history", {
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const screamAiHistory = pgTable("scream_ai_history", {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	url: text('url').notNull(),
+	presetId: text('preset_id').notNull(),
+	aspectRatio: text('aspect_ratio'),
+	assetId: text('asset_id'),
+	watermarked: boolean('watermarked').notNull().default(true),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // AI Background generation history (account-scoped, for cross-device sync)
 export const aibgHistory = pgTable("aibg_history", {
 	id: text('id').primaryKey(),

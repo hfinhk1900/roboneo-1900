@@ -16,12 +16,21 @@ import {
 
 type Item = {
   id: string;
-  type: string; // aibg | productshot | sticker | watermark | profile
+  type: string; // aibg | productshot | sticker | watermark | profile | scream
   label: string;
   url?: string | null;
   userId: string;
   userEmail?: string | null;
   createdAt: Date;
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  aibg: 'AI Background',
+  productshot: 'Product Shot',
+  sticker: 'Sticker',
+  watermark: 'Watermark',
+  profile: 'Profile Picture',
+  scream: 'Scream AI',
 };
 
 export default function RecentGenerations({ items }: { items: Item[] }) {
@@ -45,7 +54,9 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
           <TableBody>
             {items.map((it) => (
               <TableRow key={`${it.type}-${it.id}`}>
-                <TableCell className="capitalize">{it.type}</TableCell>
+                <TableCell className="capitalize">
+                  {TYPE_LABELS[it.type] ?? it.type}
+                </TableCell>
                 <TableCell className="truncate max-w-[14rem]" title={it.label}>
                   {it.label}
                 </TableCell>

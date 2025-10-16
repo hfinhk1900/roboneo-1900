@@ -49,6 +49,13 @@ const tools: ToolCard[] = [
     alt: 'RoboNeo Profile Picture Maker - Create professional avatars',
     href: '/profile-picture-maker',
   },
+  {
+    id: 'scream-ai',
+    title: 'Scream AI',
+    image: '/home/all-tools02.png',
+    alt: 'RoboNeo Scream AI - Generate suspenseful horror portraits',
+    href: '/scream-ai',
+  },
 ];
 
 export default function AllToolsSection() {

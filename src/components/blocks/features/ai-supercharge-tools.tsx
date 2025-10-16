@@ -103,6 +103,26 @@ const WatermarkRemovalIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const GhostMaskIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 3c-3.5 0-6.5 2.7-6.5 6v8.5c0 .8.6 1.5 1.4 1.5.9 0 1.6-.7 1.6-1.5 0 .8.7 1.5 1.5 1.5s1.5-.7 1.5-1.5c0 .8.7 1.5 1.5 1.5s1.5-.7 1.5-1.5c0 .8.7 1.5 1.6 1.5.8 0 1.4-.7 1.4-1.5V9c0-3.3-3-6-6-6Z" />
+    <circle cx="9.5" cy="11" r="1" />
+    <circle cx="14.5" cy="11" r="1" />
+    <path d="M10 14c.6.5 1.3.8 2 .8s1.4-.3 2-.8" />
+  </svg>
+);
+
 interface ToolFeature {
   id: string;
   title: string;
@@ -171,6 +191,17 @@ const toolFeatures: ToolFeature[] = [
     icon: WatermarkRemovalIcon,
     demoImage: '/home/tool-list-watermark-removal.png',
     demoImageAlt: 'Watermark Removal demo showing before and after comparison',
+  },
+  {
+    id: 'scream-ai',
+    title: 'Scream AI',
+    description:
+      'Drop any portrait into Scream AI and transform it into a Ghost Face inspired suspense still. Identity-safe prompts maintain expressions, while horror lighting, rain, and VHS texture dial up the tension for campaigns and storytellers.',
+    buttonText: 'Launch Scream AI',
+    buttonLink: '/scream-ai',
+    icon: GhostMaskIcon,
+    demoImage: '/home/all-tools03.png',
+    demoImageAlt: 'Scream AI suspenseful portrait demo',
   },
 ];
 

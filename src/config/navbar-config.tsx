@@ -83,6 +83,13 @@ export function getNavbarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
+          title: 'Scream AI',
+          description: 'Cinematic horror portraits in one click',
+          icon: '/home/all-tools02.png',
+          href: Routes.ScreamAI,
+          external: false,
+        },
+        {
           title: 'Remove Watermark',
           description: 'Advanced watermark remover',
           icon: '/home/all-tools04.png',

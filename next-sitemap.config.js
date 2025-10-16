@@ -21,6 +21,7 @@ module.exports = {
       '/sticker',
       '/productshot',
       '/aibackgrounds',
+      '/scream-ai',
       '/profile-picture-maker',
       '/remove-watermark',
       '/pricing',

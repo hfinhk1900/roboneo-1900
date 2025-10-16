@@ -53,6 +53,7 @@ export enum Routes {
   AIBackground = '/aibackgrounds',
   RemoveWatermark = '/remove-watermark',
   ProfilePictureMaker = '/profile-picture-maker',
+  ScreamAI = '/scream-ai',
 
   // admin routes
   AdminTools = '/admin/tools',

@@ -25,6 +25,7 @@ const chartConfig = {
   sticker: { label: 'Stickers', color: 'hsl(var(--chart-3))' },
   watermark: { label: 'Watermark', color: 'hsl(var(--chart-4))' },
   profile: { label: 'Profile', color: 'hsl(var(--chart-5))' },
+  scream: { label: 'Scream AI', color: 'hsl(var(--chart-6))' },
 } satisfies ChartConfig;
 
 type Totals = {
