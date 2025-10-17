@@ -299,13 +299,13 @@ export default function ScreamAIGenerator() {
       <section
         id="scream-ai-generator"
         ref={sectionRef}
-        className="relative bg-white px-4 py-12 lg:py-16"
+        className="relative bg-[#08080c] px-4 py-12 text-white lg:py-16"
       >
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
+          <div className="space-y-4 text-center">
             <h1
-              className="text-balance text-3xl font-sans font-extrabold md:text-4xl xl:text-5xl"
+              className="text-balance text-3xl font-sans font-extrabold text-white md:text-4xl xl:text-5xl"
               style={{
                 fontFamily:
                   'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
@@ -313,7 +313,7 @@ export default function ScreamAIGenerator() {
             >
               Scream AI Generator – Create Viral Horror Photos
             </h1>
-            <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-4xl text-balance text-lg text-gray-300">
               Upload a portrait, choose a cinematic horror preset, and let
               Scream AI transform it into a suspenseful thriller scene.
               Identity-safe, PG-13, and perfect for campaigns or storytelling.
