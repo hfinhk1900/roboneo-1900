@@ -98,7 +98,7 @@ export function CreditsManager({ user, onUpdate }: CreditsManagerProps) {
 
   const handleSetCredits = async () => {
     const amount = Number.parseInt(setAmount);
-    if (amount < 0 || isNaN(amount)) {
+    if (amount < 0 || Number.isNaN(amount)) {
       toast.error('Please enter a valid amount (0 or more)');
       return;
     }

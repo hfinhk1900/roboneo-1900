@@ -102,7 +102,7 @@ async function testSpecificImage() {
         console.log(
           `   📏 文件大小: ${Math.round(stickerBuffer.length / 1024)}KB`
         );
-        console.log(`   🖼️  格式: PNG (透明背景)`);
+        console.log('   🖼️  格式: PNG (透明背景)');
 
         console.log('\n🎯 对比效果:');
         console.log(

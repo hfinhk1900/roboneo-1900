@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useLocaleRouter } from '@/i18n/navigation';
 import { motion } from 'framer-motion';
-import type { SVGProps } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { SVGProps } from 'react';
 
 // 合作伙伴 logo 数据
 const PARTNER_LOGOS = [
@@ -73,7 +73,9 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto mt-4 sm:mt-6 max-w-2xl lg:max-w-3xl text-[20px] leading-7 sm:leading-8 text-gray-600 px-4"
           >
-            Turn prompts, photos, or brand assets into finished visuals faster. RoboNeo AI adapts to campaigns, product launches, marketing kits, and every new tool you ship next.
+            Turn prompts, photos, or brand assets into finished visuals faster.
+            RoboNeo AI adapts to campaigns, product launches, marketing kits,
+            and every new tool you ship next.
           </motion.p>
 
           {/* Action buttons */}

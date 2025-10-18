@@ -77,7 +77,7 @@
         JSON.stringify(cleanedHistory)
       );
 
-      console.log(`\n🎉 清理完成！`);
+      console.log('\n🎉 清理完成！');
       console.log(`📊 清理前: ${totalRecords} 条记录`);
       console.log(`📊 清理后: ${cleanedHistory.length} 条记录`);
       console.log(`🗑️  删除了: ${totalDuplicates} 条重复记录`);

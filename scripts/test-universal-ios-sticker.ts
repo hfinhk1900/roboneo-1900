@@ -17,7 +17,7 @@ async function testUniversalIOSSticker() {
 
   console.log('🔧 配置信息:');
   console.log(`   📁 测试图片: ${TEST_IMAGE_PATH}`);
-  console.log(`   🎯 目标风格: ios`);
+  console.log('   🎯 目标风格: ios');
   console.log(`   🌐 API 端点: ${API_BASE_URL}/api/image-to-sticker-universal`);
   console.log(`   📤 输出目录: ${OUTPUT_DIR}`);
   console.log('');
@@ -80,7 +80,7 @@ async function testUniversalIOSSticker() {
       }
 
       // 保存生成的贴纸
-      if (data.stickerUrl && data.stickerUrl.startsWith('data:image/')) {
+      if (data.stickerUrl?.startsWith('data:image/')) {
         const base64Data = data.stickerUrl.split(',')[1];
         const imageBuffer = Buffer.from(base64Data, 'base64');
 

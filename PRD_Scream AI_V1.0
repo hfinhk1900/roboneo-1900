@@ -1,0 +1,198 @@
+# Scream AI 功能产品需求文档（最终版）
+
+## 1. 概述
+- **产品名称**：Scream AI（惊悚风格生图工具）
+- **产品定位**：在 RoboNeo 生态内提供恐怖/悬疑氛围的 AI 图像生成体验，延续既有操作流程。
+- **上线目标**：以 “scream ai” 为核心关键词提升 SEO，自然流量 3 个月内增长 ≥30%，同时服务恐怖题材创作者。
+- **支持语言**：当前仅英文；多语言在后续规划。
+- **外部依赖**：Gemini Nano Banana API（https://kie.ai/nano-banana）。
+
+## 2. 背景与目标
+- 丰富生成工具矩阵，在惊悚风格细分领域建立优势。
+- 目标 3 个月内让 “scream ai” 相关关键词进入 Google Top 3，保持 3%-5% 关键词密度的高质量内容。
+- 提供高质量、严格身份一致性的生成效果，兼顾安全与合规。
+- 功能与现有流程一致，降低学习成本，并与订阅体系联动（付费免水印）。
+
+## 3. 目标用户与应用场景
+- 影视/游戏/漫画创作者：概念设定、氛围草图。
+- 数字营销/社媒团队：惊悚活动海报、宣传素材。
+- 内容/短视频创作者：封面、互动内容。
+- 设计练习者：快速获取恐怖风格灵感。
+- 使用场景：万圣节活动、恐怖主题宣传、悬疑剧情营销等。
+
+## 4. 功能范围
+- **范围内**：Scream AI 页面与交互、场景模板、生成流程、历史记录、Dashboard 统计、SEO 内容、Gemini 接入、监控告警、付费水印逻辑、身份一致性控制块。
+- **范围外**：批量生成、高级参数自定义、额外自定义文案、多语言 UI、社交分享、社区化场景库。
+
+## 5. 用户旅程
+1. 从主导航/工具合集/SEO 落地页进入 `/scream-ai`。
+2. 阅读页面介绍、6 个预设场景、FAQ（正文需 >800 字，关键词 “scream ai” 密度 3%-5%）。
+3. 未登录用户点击上传或生成 → 弹出登录模态，阻断后续操作。
+4. 上传图片（JPG/PNG/WebP，大小 ≤10MB）；实时格式与体积校验。
+5. 选择 6 个预设模板之一（单选，不可自定义或多选）；选择输出图片比例（KIE API 支持，如 1:1、3:4、16:9 等）。
+6. 校验 Credits，不足时弹出补充/升级引导。
+7. 触发生成：`POST /api/scream-ai/generate`（CSRF、Session、限流、扣费）→ 调用 Gemini → 上传结果。
+8. 结果展示：预览、下载、保存至 My Library、复制 Prompt；免费用户结果存在水印，付费用户无水印。
+9. 历史记录：自动写入 `scream_ai_history` 与 IndexedDB，可刷新签名 URL、删除条目。
+10. Dashboard：Recent Generations 中显示 `scream-ai`，Credits 账本记录扣费。
+
+## 6. 预设场景与身份控制
+
+### 通用控制块（需追加在每个 Prompt 末尾）
+
+Use the person from the input image as the subject. Keep identity strictly consistent: preserve facial geometry and proportions, skin tone, eye color, hairline and hair length, and any facial hair if present. Do not change gender presentation, age, body shape, hairstyle length, or clothing style; if uncertain, keep neutral, everyday clothing similar to the input photo. Do not add or remove makeup, jewelry, nail polish, long eyelashes, or accessories unless already present. Do not feminize or masculinize the subject. Maintain natural-looking anatomy and hands. No blood, no injuries, no gore, no visible weapons, no violence. The masked figure must remain a distant, dim silhouette only.
+
+
+
+### 场景 Prompt（必须使用下列英文原文）
+
+#### 0）
+Create a dreamy Y2K-style photo of the person from the input image lying on shiny pink satin bedding, holding a large 1990s corded telephone to their ear in a thoughtful, daydream-like pose. The bedroom shows late-90s posters, a bedside lamp as the main light source, and a softly dim nighttime ambience. Use subtle VHS grain, gentle lens bloom, and a cinematic 35mm composition with shallow depth of field. In the doorway of a dim hallway, a masked figure inspired by “Ghost Face” appears as a distant, barely lit silhouette looking toward the subject. Keep the overall mood slightly dark and ominous yet realistic.
+*Append the Identity & Safety Suffix*
+
+#### 1) Suburban Kitchen (Opening-scene vibes)
+Create a moody late-90s film photo of the person from the input image in a small suburban kitchen at night. A pot of popcorn steams on the stove; a corded landline phone is held to their ear. Warm tungsten light spills across tiled countertops and a checkered floor. Add subtle VHS grain, soft lens bloom, and shallow depth of field. Through the dark patio door glass, a masked figure inspired by “Ghost Face” stands outside as a faint silhouette in the rain. Cinematic 35mm composition, realistic lighting and textures.
+Use the person from the input image as the subject...
+
+
+
+#### 2) After-Hours High School Hallway
+Generate a nostalgic 90s hallway scene with the person from the input image leaning near blue metal lockers under flickering fluorescent lights. They hold a translucent 90s-style phone receiver with a spiral cord. Posters peel from the walls and a school banner hangs slightly askew. At the far end of the corridor, a masked figure inspired by “Ghost Face” stands partly in shadow near a door window. Use cool greenish fluorescent tones, light film grain, and subtle chromatic aberration.
+Use the person from the input image as the subject...
+
+
+
+#### 3) Rainy Front Porch at Night
+Create a cinematic, rain-soaked front-porch scene featuring the person from the input image opening a screen door while holding a 90s cordless phone. A porch light casts a warm pool of light; wet leaves glisten on wooden steps; a pumpkin and wind chimes suggest late fall. In the distance under a streetlamp, a masked figure inspired by “Ghost Face” appears as a blurred silhouette through the rain. Add reflective puddles, light mist, and a gentle anamorphic flare.
+Use the person from the input image as the subject...
+
+
+
+#### 4) Empty Movie Theater (Projector Glow)
+Produce a dreamy 90s cinema photo with the person from the input image seated in a red velvet theater seat, holding popcorn and a soda. A bright projector beam cuts through dust in the air; lens bloom and shallow depth of field isolate the subject from the rows of seats. Two rows behind, a masked figure inspired by “Ghost Face” sits motionless in the aisle shadow, barely lit by the screen glow. Keep a cool-blue highlight vs warm-red seats palette and mild film grain.
+Use the person from the input image as the subject...
+
+
+
+#### 5) House Party Living Room (Mirror Reveal)
+Create a late-90s house-party living room scene with the person from the input image lounging on a vintage couch, phone to ear, surrounded by string lights, cassette tapes, and scattered red plastic cups. A CRT TV shows soft static in the corner. In a hallway mirror behind them, a masked figure inspired by “Ghost Face” is reflected standing at the end of the corridor, lit only by a dim lamp. Add disposable-camera flash aesthetics and mild motion blur on background partygoers.
+Use the person from the input image as the subject...
+
+
+
+### 工程建议
+1. Prompt 模板支持可选变量（如 `{film_grain}`, `{light_intensity}`），默认空值不改变人物外观。
+2. 后端在调用 API 前统一追加 Identity & Safety Suffix 与负向提示，确保身份一致性。
+
+## 7. 功能需求
+
+### 前端
+- 构建 `/scream-ai` 页面，沿用现有生成器结构。
+- 未登录操作上传/生成 → `LoginForm` 弹窗。
+- 上传校验：JPG/JPEG/PNG/WebP ≤10MB，提示友好。
+- 预设选择：仅单选 6 个模板之一，不允许自定义文案。
+- 输出比例：下拉或按钮选择，映射到 KIE API 支持的 `aspect_ratio`。
+- 状态反馈：生成中展示进度；超时/失败提供一次重试及明确提示。
+- 结果展示：
+  - 免费用户下载/预览为带水印图；付费用户无水印。
+  - 保存到 My Library；复制完整 Prompt。
+  - 历史记录可刷新签名 URL、删除。
+- 响应式 & 性能：桌面/平板/移动适配，LCP < 3s；水印渲染高效。
+- 错误提示统一（401/402/429/5xx），并记录埋点。
+
+### 后端
+- `POST /api/scream-ai/generate`：
+  - 请求体：`image_input`、`scene_id`、`aspect_ratio`。
+  - 校验：CSRF、Session、限流（5 次/分钟）、Credits 扣减。
+  - Prompt：从模板库取对应文本，拼接 Identity & Safety Suffix、负向提示。
+  - 水印：根据用户订阅状态返回有/无水印版本；保存水印标记。
+  - 调用 Gemini：带 API Key、模型 ID、`aspect_ratio`。
+  - 超时 60s，失败重试 1 次，记录日志。
+  - 成功：上传 R2，返回 `viewUrl`、`downloadUrl`、`scene_meta`、`aspect_ratio`、`watermark`。
+  - 历史记录：写入 `scream_ai_history`（含水印标记）。
+- Dashboard & Credits：Recent Generations 显示 `scream-ai`；creditsTransaction 记录原因、流水、是否水印。
+- 安全：拒绝非法文件、超大文件，记录请求信息防刷。
+
+## 8. 非功能与合规要求
+- **性能**：API P95 < 30s；页面 LCP < 3s。
+- **可靠性**：生成成功率 ≥95%；提供清晰错误提示。
+- **监控**：Sentry + Prometheus；错误率 >5% 或延迟 >60s 告警。
+- **隐私**：图像加密传输，R2 权限控制，用户可删除历史记录，遵循隐私政策。
+- **合规**：Prompt 文案经法务审核；使用 “masked figure inspired by ‘Ghost Face’” 等描述；Identity & Safety Suffix 必须执行。
+- **水印**：免费用户输出带水印，付费用户无水印，全流程一致。
+
+## 9. Gemini Nano Banana 接入
+- 环境变量：`NANO_BANANA_API_KEY`、`NANO_BANANA_BASE_URL`、`NANO_BANANA_MODEL`。
+- 请求示例：
+
+  ```json
+  POST ${NANO_BANANA_BASE_URL}/v1/generate
+  Authorization: Bearer ${API_KEY}
+  {
+    "model": "${NANO_BANANA_MODEL}",
+    "image_base64": "...",
+    "prompt": "<场景 Prompt + Identity & Safety Suffix>",
+    "aspect_ratio": "1:1",
+    "extras": { "scene_id": 0 },
+    "negative_prompt": "No gender changes, no makeup, no jewelry, no gore, no violence, no weapon."
+  }
+响应示例：
+
+json
+
+{
+  "id": "req_123",
+  "image_url": "https://...",
+  "metadata": { ... }
+}
+错误码映射：400（参数）、401/403（鉴权）、429（限流）、5xx（服务异常）。
+
+超时/重试：60s 超时或 5xx → 2 秒后重试一次。
+
+监控：记录 scene_id、aspect_ratio、latency、status_code。
+
+10. SEO 与内容策略
+页面正文 ≥800 字，关键词 “scream ai” 密度 3%-5%。
+结构：Hero → 场景介绍 → 示例 → 流程 → FAQ → CTA。
+Metadata：URL、title、description、OG/Twitter 均含 “scream ai”。
+内部链接：关联其它生成工具、订阅、帮助中心。
+示例图与 alt 文案包含关键词；说明免费/付费水印差异。
+11. 埋点与监控
+前端事件：scene_select, aspect_ratio_select, upload_success/fail, generate_click, generate_success/fail, download_click, save_to_library, login_prompt_shown, watermark_notice_view。
+后端日志：用户 ID、scene_id、aspect_ratio、latency、status_code、watermarkFlag、asset_id、第三方响应码。
+指标：生成量、成功率、错误率、响应时间、Credits 消耗、水印触发、付费转化、SEO 流量。
+告警阈值：错误率 >5%，延迟 >60s，Credits 异常波动。
+12. 验收标准
+/scream-ai 可访问，正文 >800 字且关键词密度 3%-5%，SEO 检查通过。
+上传校验支持 ≤10MB，未登录无法生成。
+用户仅能单选预设模板，并选择输出比例；生成结果符合模板与 Identity & Safety 规范。
+免费输出带水印，付费无水印；历史记录与库中表现一致。
+/api/scream-ai/generate 完成安全校验、限流、扣费，成功率 ≥95%；异常有标准提示。
+Dashboard 展示 scream-ai，Credits 账本记录扣费与水印；监控和告警生效。
+QA 覆盖桌面/移动 10 次成功/失败测试；文档、SEO、运营内容更新完毕并通过复审。
+13. 时间线（示例）
+阶段	任务	负责人	时间
+需求/法务评审	Prompt、PRD 审核	PM + Legal	W0
+设计	页面/交互方案	UX	W1
+开发	FE 单选交互+水印、BE API/限流	FE & BE	W2–W3
+测试	功能/上传/水印/SEO	QA	W4
+内容	文案（800+ 字）、示例、FAQ	Marketing	W4
+上线	部署、监控、告警	DevOps	W5
+复盘	数据分析与优化	PM	W6
+14. 风险与应对
+第三方服务故障 → 重试、维护提示、必要时关闭入口。
+Prompt 合规风险 → 保持性别中立描述，定期法务复查。
+SEO 效果滞后 → 监控排名并调整文案或投放。
+Credits 消耗激增 → 限流、监控，必要时调整扣费/提示增购。
+水印实现复杂 → 评估 R2/前端水印方案，避免性能瓶颈。
+15. 后续迭代方向
+批量生成与变体模式。
+高级参数（光照、噪点等）开放。
+SEO A/B 测试优化转化。
+多语言及本地化内容。
+用户模板分享与社区功能。
+附录：Prompt 原文
+
+场景 0–5 与 Identity & Safety Suffix 如第 6 节所列，须按英文原文执行。
+负向提示示例：No gender changes, no makeup, no jewelry, no gore, no violence, no weapon.
+本文档为 Scream AI 功能落地的最终参考，调整需同步更新并重新评审

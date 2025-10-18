@@ -40,10 +40,9 @@ async function listProductShotFiles() {
 
       console.log(`Total: ${response.Contents.length} files\n`);
       return response.Contents;
-    } else {
-      console.log('No ProductShot files found in R2\n');
-      return [];
     }
+    console.log('No ProductShot files found in R2\n');
+    return [];
   } catch (error) {
     console.error('❌ Error listing files:', error.message);
     return [];
@@ -72,10 +71,9 @@ async function checkFileExists(fileName) {
     if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
       console.log(`❌ File NOT found: ${fileName}\n`);
       return false;
-    } else {
-      console.error(`❌ Error checking file: ${error.message}\n`);
-      return false;
     }
+    console.error(`❌ Error checking file: ${error.message}\n`);
+    return false;
   }
 }
 
@@ -137,12 +135,13 @@ async function main() {
       await checkFileExists(fileName);
       break;
 
-    case 'test':
+    case 'test': {
       const files = await listProductShotFiles();
       generateTestInstructions(files);
       break;
+    }
 
-    default:
+    default: {
       console.log('📖 USAGE:\n');
       console.log('List all files:     node test-productshot-r2-sync.js list');
       console.log(
@@ -158,6 +157,7 @@ async function main() {
       const allFiles = await listProductShotFiles();
       generateTestInstructions(allFiles);
       break;
+    }
   }
 }
 

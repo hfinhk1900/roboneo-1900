@@ -206,7 +206,7 @@ export const LoginForm = ({
 
   return (
     <AuthCard
-      headerLabel={t('welcomeBack')}
+      headerLabel={t('signInTitle')}
       bottomButtonLabel={t('signUpHint')}
       bottomButtonHref={`${Routes.Register}`}
       className={cn('', className)}

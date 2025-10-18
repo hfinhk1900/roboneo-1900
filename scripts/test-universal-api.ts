@@ -93,7 +93,7 @@ async function testUniversalAPI() {
         if (response.ok) {
           const data = await response.json();
           console.log(`✅ 成功! 耗时: ${elapsed}ms`);
-          console.log(`📊 处理信息:`, {
+          console.log('📊 处理信息:', {
             success: data.success,
             style: data.style,
             originalFormat: data.processing?.originalFormat,
@@ -129,7 +129,7 @@ async function testUniversalAPI() {
         }
       } catch (error) {
         console.log(
-          `💥 请求异常:`,
+          '💥 请求异常:',
           error instanceof Error ? error.message : error
         );
       }

@@ -73,19 +73,22 @@ export default function ExploreMoreToolsSection() {
   const displayTools = filtered.length ? filtered : tools;
   const toolCount = displayTools.length;
 
-  // 根据工具数量动态调整网格布局
+  // 根据工具数量动态调整网格布局，确保卡片撑满
   const getGridClasses = (count: number) => {
     if (count <= 2) {
       return 'grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 max-w-2xl mx-auto';
     }
     if (count === 3) {
-      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto';
+      return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto';
     }
     if (count === 4) {
-      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6';
+      return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 lg:gap-6 max-w-3xl mx-auto';
     }
-    // 5个或更多工具时，使用弹性布局避免空缺
-    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-6';
+    if (count === 5) {
+      return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 lg:gap-6';
+    }
+    // 6个工具时，2行3列完美撑满
+    return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 max-w-6xl mx-auto';
   };
 
   return (
@@ -102,18 +105,18 @@ export default function ExploreMoreToolsSection() {
             <LocaleLink
               key={index}
               href={tool.href}
-              className="group bg-gray-50 rounded-3xl overflow-hidden w-full min-h-[400px] sm:min-h-[420px] lg:min-h-[460px] relative hover:shadow-lg transition-all duration-300 flex flex-col"
+              className="group bg-gray-50 rounded-3xl overflow-hidden w-full min-h-[380px] sm:min-h-[420px] md:min-h-[440px] relative hover:shadow-lg transition-all duration-300 flex flex-col"
             >
               {/* Title */}
-              <div className="pt-4 sm:pt-6 px-4">
-                <h3 className="text-base sm:text-lg lg:text-[18px] font-bold text-black text-center leading-tight">
+              <div className="pt-4 sm:pt-5 md:pt-6 px-4">
+                <h3 className="text-base sm:text-lg md:text-[18px] font-bold text-black text-center leading-tight">
                   {tool.title}
                 </h3>
               </div>
 
               {/* Image */}
-              <div className="flex justify-center mt-4 sm:mt-6 mb-4 sm:mb-6">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-[166px] lg:h-[166px] rounded-2xl overflow-hidden">
+              <div className="flex justify-center mt-4 sm:mt-5 md:mt-6 mb-4 sm:mb-5 md:mb-6">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-[166px] md:h-[166px] rounded-2xl overflow-hidden">
                   <Image
                     src={tool.image}
                     alt={tool.imageAlt}
@@ -124,7 +127,7 @@ export default function ExploreMoreToolsSection() {
                     quality={85}
                     placeholder="blur"
                     blurDataURL="data:image/webp;base64,UklGRpoAAABXRUJQVlA4WAoAAAAQAAAADwAABwAAQUxQSDIAAAARL0AmbZurmr57yyIiqE8oiG0bejIYEQTgqiDA9vqnsUSI6H+oAERp2HZ65qP/VIAWAFZQOCBCAAAA8AEAnQEqEAAIAAVAfCWkAALp8sF8rgRgAP7o9FDvMCkMde9PK7euH5M1m6VWoDXf2FkP3BqV0ZYbO6NA/VFIAAAA"
-                    sizes="(max-width: 640px) 128px, (max-width: 1024px) 160px, 166px"
+                    sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 166px"
                   />
                 </div>
               </div>

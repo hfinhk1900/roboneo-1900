@@ -368,12 +368,7 @@ export function RemoveWatermarkGeneratorSection() {
       }
 
       // Validate file type
-      const validTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/webp',
-      ];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         toast.error('Please upload a valid image file (JPEG, PNG, WebP)');
         input.value = '';

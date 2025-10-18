@@ -48,7 +48,7 @@ async function setAdminRole() {
       .where(eq(user.email, email));
 
     console.log(`✅ 用户 ${email} 已成功设置为管理员`);
-    console.log(`现在你可以访问 /[locale]/admin/users 页面`);
+    console.log('现在你可以访问 /[locale]/admin/users 页面');
   } catch (error) {
     console.error('设置管理员失败:', error);
     process.exit(1);

@@ -30,7 +30,7 @@ envFiles.forEach((file) => {
         console.log(`   - ${key}`);
       });
     } else {
-      console.log(`   ⚠️  未找到 R2 相关环境变量`);
+      console.log('   ⚠️  未找到 R2 相关环境变量');
     }
   } else {
     console.log(`❌ ${file} 不存在`);

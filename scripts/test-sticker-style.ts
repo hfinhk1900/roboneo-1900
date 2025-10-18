@@ -60,7 +60,7 @@ async function runTest(style: StickerStyle) {
     console.log('✅ 测试成功!');
 
     if (result.stickerUrl) {
-      console.log(`🖼️  图片已上传到 R2!`);
+      console.log('🖼️  图片已上传到 R2!');
       console.log(`🔗 URL: ${result.stickerUrl}`);
     } else {
       console.warn('⚠️ API 响应中未找到 stickerUrl');
@@ -79,7 +79,7 @@ async function main() {
 
   if (!style) {
     console.error('❌ 请提供一个要测试的风格作为参数。');
-    console.error(`用法: pnpm tsx scripts/test-sticker-style.ts [style]`);
+    console.error('用法: pnpm tsx scripts/test-sticker-style.ts [style]');
     console.error(`支持的风格: ${SUPPORTED_STYLES.join(', ')}`);
     process.exit(1);
   }

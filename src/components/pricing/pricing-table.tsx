@@ -92,7 +92,7 @@ export function PricingTable({
   };
 
   if (!isClient) {
-    return <div className="h-48 w-full"></div>; // Simple placeholder until client-side render
+    return <div className="h-48 w-full" />; // Simple placeholder until client-side render
   }
 
   return (

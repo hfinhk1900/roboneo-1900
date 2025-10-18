@@ -140,10 +140,7 @@ async function runTests() {
       if (result.isValid === testCase.expectedValid) {
         if (!testCase.expectedValid && testCase.expectedError) {
           // 检查错误信息是否包含预期的关键词
-          if (
-            result.error &&
-            result.error.includes(testCase.expectedError.split(' ')[0])
-          ) {
+          if (result.error?.includes(testCase.expectedError.split(' ')[0])) {
             console.log(`✅ ${testCase.name}`);
             console.log(`   预期: 失败 (${testCase.expectedError})`);
             console.log(`   实际: 失败 (${result.error})`);

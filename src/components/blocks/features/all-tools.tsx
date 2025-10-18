@@ -75,7 +75,7 @@ export default function AllToolsSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
           {tools.map((tool, index) => (
             <motion.div
               key={tool.id}
@@ -85,23 +85,23 @@ export default function AllToolsSection() {
             >
               <Link
                 href={tool.href}
-                className="group bg-neutral-100 rounded-3xl p-4 sm:p-6 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[337px] overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col items-center justify-center"
+                className="group bg-neutral-100 rounded-3xl p-4 sm:p-6 md:p-8 h-[260px] sm:h-[300px] md:h-[340px] overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col items-center justify-center"
               >
                 {/* Tool Title */}
-                <div className="text-center mb-4 sm:mb-6 h-12 sm:h-16 flex items-center justify-center">
-                  <h3 className="text-base sm:text-lg font-bold text-black leading-tight px-2">
+                <div className="text-center mb-3 sm:mb-4 md:mb-5 h-12 sm:h-14 md:h-16 flex items-center justify-center">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-black leading-tight px-2">
                     {tool.title}
                   </h3>
                 </div>
 
                 {/* Tool Image */}
-                <div className="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] lg:w-[166px] lg:h-[166px] mx-auto mb-4 sm:mb-6 rounded-2xl overflow-hidden">
+                <div className="relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[166px] md:h-[166px] mx-auto mb-3 sm:mb-4 md:mb-5 rounded-2xl overflow-hidden">
                   <Image
                     src={tool.image}
                     alt={tool.alt}
                     fill
                     className="object-contain transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100px, (max-width: 768px) 120px, (max-width: 1024px) 140px, 166px"
+                    sizes="(max-width: 640px) 110px, (max-width: 768px) 140px, 166px"
                   />
                 </div>
 

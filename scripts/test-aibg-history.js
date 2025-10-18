@@ -44,11 +44,10 @@ async function testCreateHistory() {
       const data = await response.json();
       console.log('✅ POST 成功:', data);
       return data.id; // 返回创建的记录ID用于删除测试
-    } else {
-      console.log('❌ POST 失败:', response.status, response.statusText);
-      const errorData = await response.text();
-      console.log('错误详情:', errorData);
     }
+    console.log('❌ POST 失败:', response.status, response.statusText);
+    const errorData = await response.text();
+    console.log('错误详情:', errorData);
   } catch (error) {
     console.error('❌ POST 请求错误:', error);
   }

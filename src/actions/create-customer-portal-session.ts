@@ -107,7 +107,7 @@ export const createPortalAction = actionClient
               locale,
             };
 
-            console.log(`使用从支付记录中找到的客户ID创建客户门户:`, params);
+            console.log('使用从支付记录中找到的客户ID创建客户门户:', params);
             const result = await createCustomerPortal(params);
             return {
               success: true,
@@ -131,7 +131,7 @@ export const createPortalAction = actionClient
         locale,
       };
 
-      console.log(`创建客户门户的参数:`, params);
+      console.log('创建客户门户的参数:', params);
       const result = await createCustomerPortal(params);
       console.log('创建客户门户的结果:', result);
 

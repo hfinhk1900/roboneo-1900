@@ -227,7 +227,7 @@ export async function OPTIONS(request: NextRequest) {
   const headers: Record<string, string> = {};
   if (origin && allowed.includes(origin)) {
     headers['Access-Control-Allow-Origin'] = origin;
-    headers['Vary'] = 'Origin';
+    headers.Vary = 'Origin';
     headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
     headers['Access-Control-Allow-Headers'] = 'Content-Type';
   }

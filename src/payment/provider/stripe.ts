@@ -197,7 +197,7 @@ export class StripeProvider implements PaymentProvider {
           `StripeProvider: Price ID ${priceId} not found in plan ${planId}`
         );
         console.error(
-          `StripeProvider: Available plans:`,
+          'StripeProvider: Available plans:',
           websiteConfig.price.plans
         );
         if (planId === 'pro') {
@@ -294,7 +294,7 @@ export class StripeProvider implements PaymentProvider {
       }
 
       console.log(
-        `StripeProvider: Creating checkout session with params:`,
+        'StripeProvider: Creating checkout session with params:',
         JSON.stringify(
           {
             mode: checkoutParams.mode,
@@ -374,8 +374,8 @@ export class StripeProvider implements PaymentProvider {
         url: session.url,
       };
     } catch (error) {
-      console.error(`创建客户门户错误:`, error);
-      console.error(`错误详情:`, JSON.stringify(error, null, 2));
+      console.error('创建客户门户错误:', error);
+      console.error('错误详情:', JSON.stringify(error, null, 2));
       throw new Error(
         `Failed to create customer portal: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -529,7 +529,7 @@ export class StripeProvider implements PaymentProvider {
         console.log(`订阅事件: ${eventType}，订阅ID: ${stripeSubscription.id}`);
         console.log(`客户ID: ${stripeSubscription.customer}`);
         console.log(`订阅状态: ${stripeSubscription.status}`);
-        console.log(`订阅元数据:`, stripeSubscription.metadata);
+        console.log('订阅元数据:', stripeSubscription.metadata);
 
         // 根据订阅状态和事件类型处理
         switch (eventType) {
@@ -553,7 +553,7 @@ export class StripeProvider implements PaymentProvider {
         console.log(
           `结账会话完成，模式: ${session.mode}，支付状态: ${session.payment_status}`
         );
-        console.log(`结账会话元数据:`, session.metadata);
+        console.log('结账会话元数据:', session.metadata);
 
         // 处理一次性付款
         if (session.mode === 'payment') {
@@ -583,7 +583,7 @@ export class StripeProvider implements PaymentProvider {
                 console.log(`从客户ID找到用户ID: ${retrievedUserId}`);
                 await this.createPaymentRecord(subscription, retrievedUserId);
               } else {
-                console.error(`无法确定用户ID，无法保存订阅记录`);
+                console.error('无法确定用户ID，无法保存订阅记录');
               }
             } else {
               console.log(`使用元数据中的用户ID: ${userId}`);
