@@ -1,29 +1,29 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
-const STEPS = [
+type Step = {
+  title: string;
+  description: string;
+};
+
+const STEPS: Step[] = [
   {
-    title: '1. Upload a portrait',
+    title: '1. Upload your photo',
     description:
-      'Pick a clear photo (JPG, PNG, or WebP up to 10MB). Front-facing shots with visible facial features produce the best results.',
+      'Drop a selfie or portrait (JPG/PNG/WebP). Scream AI detects faces and prepares your image for clean composition.',
   },
   {
-    title: '2. Choose a preset',
+    title: '2. Pick a preset or describe your scene',
     description:
-      'Select one of the six pre-built horror scenes. Each prompt was tuned to deliver cinematic suspense while keeping identity intact.',
+      'Choose from Y2K bedroom, hallway, porch, theater, or party mirror. You can also write a short prompt—Ghostface AI silhouettes, dim corridors, projector glow, rainy nights.',
   },
   {
-    title: '3. Set aspect ratio',
+    title: '3. Generate & download',
     description:
-      'Match your output to the channel—square for social feeds, 16:9 for video thumbnails, 9:16 for stories, and more.',
-  },
-  {
-    title: '4. Generate & review',
-    description:
-      'Scream AI calls Gemini Nano Banana behind the scenes, applies optional watermarks, and stores results in your library with history entries.',
+      'Click create and let Scream AI render your horror photo. Save in high quality for TikTok, Instagram, or X. No gore, no weapons—just cinematic suspense.',
   },
 ];
 
@@ -37,14 +37,14 @@ export default function ScreamAIStepsShowcase({
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 lg:px-8">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-            Scream AI workflow at a glance
+            How to Create Ghostface AI Photos with Scream AI
           </h2>
           <p className="mx-auto max-w-3xl text-base text-gray-600 md:text-lg">
-            From upload到下载，全流程不到一分钟。保持团队一致的悬疑风格，把更多时间留给创意与分发。
+            Three quick steps to turn any portrait into a suspenseful, Ghostface-inspired image without altering identity or crossing the gore line.
           </p>
         </div>
         <ScrollArea className="w-full rounded-3xl border border-gray-200 bg-gray-50">
-          <ol className="grid gap-6 p-8 md:grid-cols-2">
+          <ol className="grid gap-6 p-8 md:grid-cols-3">
             {STEPS.map((step) => (
               <li
                 key={step.title}
@@ -62,7 +62,7 @@ export default function ScreamAIStepsShowcase({
         </ScrollArea>
         <div className="text-center">
           <Button asChild size="lg">
-            <a href="#scream-ai-generator">Start using Scream AI</a>
+            <a href="#scream-ai-generator">Generate with Scream AI</a>
           </Button>
         </div>
       </div>
