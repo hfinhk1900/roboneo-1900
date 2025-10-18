@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { SparklesIcon, ZapIcon, ShieldIcon } from 'lucide-react';
+import { ShieldIcon, SparklesIcon, ZapIcon } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -31,32 +31,24 @@ export default function ScreamAIFeaturesShowcase({
   className?: string;
 }) {
   return (
-    <section className={cn('bg-[#08080c] text-white py-16', className)}>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 lg:px-8">
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold md:text-4xl">Why teams use Scream AI</h2>
-          <p className="text-base text-gray-300 md:text-lg">
-            Built for marketers, filmmakers, and storytellers who need suspenseful visuals fast—without risking unwanted identity changes.
-          </p>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <Card
-              key={feature.title}
-              className="border-white/10 bg-white/5 text-white transition hover:border-red-400/40 hover:bg-white/10"
-            >
-              <CardContent className="flex flex-col gap-4 p-6">
-                <feature.icon className="h-8 w-8 text-red-400" />
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-sm leading-relaxed text-gray-200">
-                    {feature.description}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+    <section className={cn('bg-[#08080c] py-16 text-white', className)}>
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 lg:grid-cols-3 lg:px-8">
+        {FEATURES.map((feature) => (
+          <Card
+            key={feature.title}
+            className="border-white/10 bg-white/5 text-white transition hover:border-red-400/40 hover:bg-white/10"
+          >
+            <CardContent className="flex flex-col gap-4 p-6">
+              <feature.icon className="h-8 w-8 text-red-400" />
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">{feature.title}</h3>
+                <p className="text-sm leading-relaxed text-gray-200">
+                  {feature.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </section>
   );
