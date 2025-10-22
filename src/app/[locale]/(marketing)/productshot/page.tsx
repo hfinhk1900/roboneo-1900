@@ -22,7 +22,7 @@ export const metadata: Metadata = {
       'Create professional product shots instantly with AI. Perfect for e-commerce.',
   },
   alternates: {
-    canonical: '/productshot',
+    canonical: 'https://roboneo.art/productshot',
   },
 };
 

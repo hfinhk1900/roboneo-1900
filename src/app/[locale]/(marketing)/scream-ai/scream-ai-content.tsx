@@ -2,7 +2,15 @@
 
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
+import { HeaderSection } from '@/components/layout/header-section';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import dynamic from 'next/dynamic';
+import { useMemo } from 'react';
 
 const ScreamAIGenerator = dynamic(
   () => import('@/components/blocks/scream-ai/scream-ai-generator'),
@@ -26,20 +34,126 @@ const ScreamAIFeaturesShowcase = dynamic(
   { ssr: false }
 );
 
-const paragraphs: string[] = [
-  'Scream AI is our dedicated horror-scene generator, built for creators who crave suspenseful visuals with minimal setup. The moment you upload a portrait, Scream AI rewrites the mood around your subject, wrapping them in cinematic tension while keeping their identity intact. Every preset runs on carefully engineered prompt templates plus the mandatory Identity & Safety Suffix, so Scream AI never alters gender presentation, facial features, or styling that anchors the original photo. That balance between spooky atmosphere and faithful likeness keeps Scream AI safe for professional workflows, licensing, and brand storytelling.',
-  'Because Scream AI runs entirely on curated workflows, you spend zero time crafting prompt experiments. Each of the six horror presets—Dreamy Y2K Bedroom, Suburban Kitchen, After-Hours High School Hallway, Rainy Front Porch, Empty Movie Theater, and House Party Mirror Reveal—was hand-authored and then tested with hundreds of face types. The result is that Scream AI consistently produces balanced lighting, authentic era cues, and tasteful dread, even when you use a simple smartphone portrait as input. It feels like a production designer and a cinematographer teamed up inside your browser.',
-  'We engineered Scream AI for cross-discipline teams that must deliver quickly. Marketing managers plug Scream AI into seasonal campaigns to craft spooky teasers and countdown assets. Social media leads turn Scream AI scenes into short-form loops with minimal editing. Indie filmmakers story-board tension beats by dropping actor headshots into Scream AI presets. Illustrators mash Scream AI outputs into collage references. The pipeline is lean: upload, pick a preset, choose an aspect ratio, click generate, and Scream AI takes over. After generation, you instantly know whether the image carries a watermark, and you can save the file to your My Library for reuse.',
-  'Identity compliance is not negotiable for Scream AI. Every prompt ends with the shared Identity & Safety Suffix, instructing Gemini Nano Banana to stay locked on the input subject and avoid accidental feminization or masculinization. Scream AI also blocks gore, weapons, injuries, or anatomical distortion. The masked figure remains a distant silhouette, preserving PG-13 suspense rather than gratuitous horror. That means Scream AI is safe for brand campaigns, young-adult marketing, school theater posters, or public activations where tone must remain suggestive rather than graphic.',
-  'Workflows inside Scream AI are documentable, making team adoption faster. Step one: gather the photos you want to transform, ideally mid-shot or close-up with clear facial detail. Step two: launch Scream AI, upload the image up to the 10MB limit, and confirm the preview. Step three: choose a preset—each includes the phrase “masked figure inspired by Ghost Face” for shared lore without legal ambiguity. Step four: pick an aspect ratio that suits your output, whether square Instagram grids or cinematic 16:9 establishing shots. Step five: hit Generate and watch Scream AI deliver your new still within seconds. Step six: download, copy the URL, or remove watermarks by upgrading your subscription. Repeat the loop and build a consistent collection of horror visuals in minutes.',
-  'To help you strategize content calendars, here are practical use cases. Campaign managers schedule daily uploads to Scream AI leading up to Halloween, turning staff portraits into cliffhanger teasers. Horror podcasters wrap each episode with a Scream AI still that hints at the story location. Cosplayers run selfies through Scream AI to visualize mood boards before building sets. Escape-room companies prototype new rooms by sending cast photos into Scream AI presets to test signage and atmospheric color palettes. Even indie game studios storyboard cutscenes with Scream AI, exporting multiple aspect ratios for social, Steam capsules, and splash art.',
-  'Scream AI also fits into growth marketing. Because every output highlights the original subject, audiences recognize themselves when you invite them to submit selfies for “ghosted” transformations. That recognition drives engagement while the identity safeguards keep Scream AI from crossing brand lines. Meanwhile, our watermarked vs. watermark-free split helps convert free users to paying subscribers. Free-tier users can sample Scream AI with subtle branding applied. Once they upgrade, Scream AI automatically removes the watermark, unlocks higher credit bundles, and preserves the same fast workflow.',
-  'Under the hood, Scream AI relies on Gemini Nano Banana, chosen for stable identity preservation and color grading. We handle API calls, error retries, and R2 uploads, so the only variables you manage are the photos and the preset selection. When Scream AI finishes, the asset stores under your account with metadata describing the preset, aspect ratio, and watermark status. That data flows into the Dashboard, where Scream AI usage contributes to recent generations, feature share charts, and credit history. If your organization audits content pipelines, Scream AI provides clear logs and history endpoints for compliance.',
-  'Getting started with Scream AI is simple: confirm your account, check your credit balance, and open the Scream AI page from the navigation. Read the long-form playbook below the generator for strategy tips, creative prompts, and cross-team workflows. Every paragraph intentionally includes the keyword “Scream AI” so search engines understand the page’s focus, satisfying the 3% to 5% density target. That means you get human-readable instructions alongside optimized metadata. Bookmark the page, share it with colleagues, and let Scream AI become your go-to tool for cinematic tension.',
-  'Scream AI includes a built-in FAQ for fast troubleshooting. You can review how credits work, why watermarks appear on free accounts, and what file formats Scream AI accepts. We also cover multi-language considerations, licensing tips, and recommended lighting in original photos. If you need deeper support, the help center links live below. Scream AI ships with stable APIs, documented history routes, and actionable metrics in the dashboard. Ready to test drive? Scroll up, upload an image, and let Scream AI craft your next suspenseful masterpiece.',
+const faqs = [
+  {
+    question: 'What is Scream AI?',
+    answer:
+      'Scream AI is a web-based photo tool that turns ordinary portraits into cinematic horror scenes in seconds. With Scream AI you upload a selfie, choose a preset, and receive a polished image with authentic 90s lighting and film grain. Many creators use Scream AI for Halloween posts, thumbnails, and quick concept frames because it delivers consistent results with minimal effort.',
+  },
+  {
+    question: 'How does Ghostface AI appear in my image?',
+    answer:
+      'Ghostface AI renders a distant, moody silhouette or presence that complements the subject rather than replacing it. The system balances composition, shadows, and scene depth so Ghostface AI feels like part of a believable photograph. You can place Ghostface AI near a doorway, down a hallway, or in reflective surfaces to create suspenseful storytelling.',
+  },
+  {
+    question: 'What kind of photos work best for Scream AI?',
+    answer:
+      'Front-facing portraits with clear lighting give Scream AI the most reliable results. If the face is sharp and the background is not overly busy, Scream AI can lock onto identity faster and build a cleaner composition. Group photos are allowed, but a single subject helps Scream AI create stronger focus and nicer framing.',
+  },
+  {
+    question: 'How fast is the Scream AI generator?',
+    answer:
+      'Typical turnaround is about 30–60 seconds depending on traffic. Because Scream AI runs in the browser with a lightweight workflow, you can try multiple looks quickly. If a scene feels too dark or too close, ask the generator for a brighter lamp glow or a more distant placement for the silhouette to fine-tune the mood.',
+  },
+  {
+    question: 'Can I customize prompts for Ghostface AI?',
+    answer:
+      'Yes. Choose a preset, then add a short phrase that tells the system where to appear or how the scene should feel. Examples: "dim hallway with tungsten light," "projector glow in an empty theater," or "rainy porch at night." Clear, compact language works best; long paragraphs rarely improve results.',
+  },
+  {
+    question: 'Do I need editing skills to use Scream AI?',
+    answer:
+      'No skills required. The generator handles lighting, color, and grain automatically. If you prefer more control, you can nudge the placement, ask for softer contrast, or adjust atmosphere with a single sentence.',
+  },
+  {
+    question: 'What makes Scream AI different from generic filters?',
+    answer:
+      'Filters change colors; this tool builds composition. Instead of a flat overlay, it creates believable depth, highlights, and shadows. When combined with a restrained silhouette, you get a cinematic frame that feels crafted rather than stamped. This is why images from the generator tend to stand out in feeds and stories.',
+  },
+  {
+    question: 'Can I get multiple looks from the same photo?',
+    answer:
+      'Yes. Duplicate the upload and try several presets. The workflow supports quick variation, so you can explore hallway suspense, Y2K bedroom glow, rainy porch reflections, or theater projector beams. Swap a few words to reposition the figure or to change the distance and angle.',
+  },
+  {
+    question: 'What are practical uses for Ghostface AI photos?',
+    answer:
+      'Creators use Ghostface AI for TikTok trends, Instagram carousels, profile art, cover images, posters, and seasonal announcements. Agencies and marketing teams test Scream AI for fast concept art that sells a mood before a shoot is booked. Indie artists combine Scream AI and Ghostface AI to draft storyboard frames or tease new projects.',
+  },
+  {
+    question: 'Any tips for sharper results with Scream AI?',
+    answer:
+      'Start with a well-lit face and minimal filters. Keep prompts short, then iterate. If details look too soft, try a closer crop. If the background feels empty, ask the tool for a lamp, a doorway, or a reflective surface. When you need more tension, suggest a deeper shadow and let the silhouette appear farther back in the frame.',
+  },
+  {
+    question: 'How do presets help first-time users of Scream AI?',
+    answer:
+      "Presets are curated starting points—each one bakes in lighting, color science, and grain. You choose a preset, run the generator once, and decide whether to refine. They are designed to pair naturally with a distant figure so beginners don't have to study cinematography to get a compelling image.",
+  },
+  {
+    question: 'What file types can I upload to Scream AI?',
+    answer:
+      'JPG, PNG, or WebP. Consistent sizes and clarity help the system analyze the face. Resolution matters less than clean exposure; a well-exposed selfie will often outperform a larger but heavily filtered picture.',
+  },
+  {
+    question: 'Can I use Ghostface AI without uploading a portrait?',
+    answer:
+      'You can generate atmospheric scenes from text alone, but the most popular results combine a real portrait with a subtle figure in the environment. Text-only scenes are useful for mood boards; portrait-plus-scene is where the tool truly shines.',
+  },
+  {
+    question: 'Is there a free option for trying Scream AI?',
+    answer:
+      'Yes. New users can try Scream AI with a small daily allowance. Frequent creators typically upgrade for more generations and higher limits, especially during seasonal spikes when Ghostface AI content trends across platforms.',
+  },
+  {
+    question: "What should I write if my first output isn't perfect?",
+    answer:
+      'Keep it simple. For example: "warm bedside lamp, soft film grain," or "cool school hallway, distant figure at the end." The generator responds best to short phrases. If you need to shift attention, ask the silhouette to appear in a mirror, near a door window, or under a streetlamp.',
+  },
+  {
+    question: 'Can I batch ideas with Scream AI?',
+    answer:
+      'Yes. Prepare a handful of short prompts and run them back to back. The workflow handles fast iteration well, and you can pin the best takes for comparison. Many creators keep a prompt list with favorite placements for Ghostface AI so they can reproduce a style on demand.',
+  },
+  {
+    question: 'What output quality can I expect?',
+    answer:
+      'High-quality social-ready images. On supported plans you can export larger sizes for thumbnails and posters. Because the system composes light and depth first, results often need little or no post-processing even when a distant figure appears in challenging spots like glass reflections or stair landings.',
+  },
+  {
+    question: 'How do I share or repurpose Scream AI images?',
+    answer:
+      'Save and post instantly, or pair sequences into short reels. Many users turn a single portrait into a small series by running Scream AI through several presets and prompt variations. Ghostface AI creates the linking theme across the set, so the grid looks intentional rather than random.',
+  },
+  {
+    question: "What's trending with Scream AI and Ghostface AI right now?",
+    answer:
+      "Y2K bedroom color palettes, hallway fluorescents, rainy porch highlights, and projector beams. The fastest-moving posts usually show a confident subject, a strong leading light, and a restrained Ghostface AI presence. Keep captions short and let Scream AI's visuals do the talking.",
+  },
+  {
+    question: "Where do I start if I'm new to Scream AI?",
+    answer:
+      'Upload a clear portrait, choose a preset, and keep your first prompt under eight words. Run Scream AI once, then duplicate the job to try a second angle or placement for Ghostface AI. Two or three quick iterations are typically enough to find a look you love.',
+  },
 ];
 
 export default function ScreamAIPageContent() {
+  // Generate JSON-LD structured data for FAQ rich results
+  const faqJsonLd = useMemo(() => {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer,
+        },
+      })),
+    };
+  }, []);
+
   return (
     <div className="flex flex-col">
       {/* Main Scream AI Generator Section */}
@@ -51,22 +165,69 @@ export default function ScreamAIPageContent() {
       {/* Features & FAQ Section */}
       <ScreamAIFeaturesShowcase />
 
-      {/* SEO Content Section */}
-      <section className="bg-gray-50 px-4 py-16">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 leading-7 tracking-wide">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-            Scream AI Playbook: How to Build Suspenseful Visuals in Minutes
-          </h2>
-          {paragraphs.map((paragraph, index) => (
-            <p key={`paragraph-${index}`} className="text-base text-gray-700">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-      </section>
-
       {/* Explore More AI Tools Section */}
       <ExploreMoreToolsSection />
+
+      {/* FAQ Section */}
+      <section id="scream-ai-faqs" className="px-4 py-16">
+        {/* JSON-LD structured data for FAQ rich results */}
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data for SEO
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqJsonLd),
+          }}
+        />
+
+        <div className="mx-auto max-w-4xl">
+          <HeaderSection
+            title="Frequently Asked Questions"
+            titleAs="h2"
+            subtitle="Scream AI Generator — FAQ"
+            subtitleAs="h2"
+            subtitleClassName="text-balance text-[32px] font-bold text-foreground"
+          />
+
+          <div className="mx-auto max-w-4xl mt-12">
+            <Accordion
+              type="single"
+              collapsible
+              className="ring-muted w-full rounded-2xl border px-8 py-3 shadow-sm ring-4 dark:ring-0"
+            >
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={`faq-${index}`}
+                  value={`item-${index}`}
+                  className="border-dashed"
+                >
+                  <AccordionTrigger
+                    className="cursor-pointer text-base hover:no-underline"
+                    aria-label={`Question ${index + 1}: ${faq.question}`}
+                  >
+                    <span className="flex items-start gap-3">
+                      <span
+                        className="flex-shrink-0 text-primary font-semibold"
+                        aria-hidden="true"
+                      >
+                        {index + 1}.
+                      </span>
+                      <span className="flex-1 text-left">{faq.question}</span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <section
+                      className="text-base text-muted-foreground ml-6"
+                      aria-label={`Answer to: ${faq.question}`}
+                    >
+                      {faq.answer}
+                    </section>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
 
       <CallToActionSection />
     </div>

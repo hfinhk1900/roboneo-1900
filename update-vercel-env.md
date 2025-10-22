@@ -19,7 +19,7 @@ NEXT_PUBLIC_CREEM_PRICE_ULTIMATE_YEARLY=prod_4R24ChuSuPcH7CVz9qf3YR
 NEXT_PUBLIC_PAYMENT_PROVIDER=creem
 
 # Base URL (如果还没设置)
-NEXT_PUBLIC_BASE_URL=https://roboneo-art.vercel.app
+NEXT_PUBLIC_BASE_URL=https://roboneo.art
 
 # Creem API 密钥 (使用您的测试密钥)
 CREEM_API_KEY=creem_test_your_api_key_here

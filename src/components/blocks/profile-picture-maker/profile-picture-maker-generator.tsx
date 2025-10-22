@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {
   AlertCircleIcon,
+  CheckCircle2,
   DownloadIcon,
   ImageIcon,
   ImagePlusIcon,
@@ -1078,6 +1079,12 @@ export default function ProfilePictureMakerGenerator() {
                             sizes="(max-width: 768px) 25vw, 15vw"
                             className="object-contain"
                           />
+                          {/* Check icon for selected state */}
+                          {selectedStyle === style.value && (
+                            <div className="absolute top-1 right-1 bg-yellow-400 rounded-full p-0.5">
+                              <CheckCircle2 className="h-4 w-4 text-white" />
+                            </div>
+                          )}
                         </div>
                       </button>
                     ))}

@@ -97,7 +97,7 @@ export default function HomeHeroSection() {
             {currentUser ? (
               <Button
                 size="lg"
-                className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+                className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
                 onClick={handleCtaClick}
               >
                 <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -107,7 +107,7 @@ export default function HomeHeroSection() {
               <RegisterWrapper mode="modal" asChild callbackUrl="/sticker">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+                  className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
                 >
                   <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Claim 10 Free Credits

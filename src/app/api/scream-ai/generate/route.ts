@@ -26,6 +26,7 @@ interface GenerateRequestBody {
   image_input: string;
   preset_id: string;
   aspect_ratio?: string;
+  custom_prompt?: string;
 }
 
 interface GenerateResponse {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as GenerateRequestBody;
-    const { image_input, preset_id, aspect_ratio } = body;
+    const { image_input, preset_id, aspect_ratio, custom_prompt } = body;
 
     if (!image_input) {
       return NextResponse.json(
@@ -150,7 +151,12 @@ export async function POST(request: NextRequest) {
       console.warn('Failed to determine subscription for scream-ai:', err);
     }
 
-    const finalPrompt = `${preset.prompt.trim()}\n\n${IDENTITY_SUFFIX}`.trim();
+    // Build final prompt with optional custom prompt
+    let finalPrompt = preset.prompt.trim();
+    if (custom_prompt && custom_prompt.trim().length > 0) {
+      finalPrompt = `${finalPrompt}\n\nAdditional details: ${custom_prompt.trim()}`;
+    }
+    finalPrompt = `${finalPrompt}\n\n${IDENTITY_SUFFIX}`.trim();
     const aspectRatio = aspect_ratio || '1:1';
 
     const generation = await provider.generateImage({

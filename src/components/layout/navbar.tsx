@@ -233,7 +233,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
           <div className="flex items-center">
             <LocaleLink
               href={Routes.Root}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 cursor-pointer"
               aria-label="RoboNeo – AI Image Generator"
               prefetch={false}
             >
@@ -281,7 +281,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                         }
                         className={cn(
                           customNavigationMenuTriggerStyle,
-                          'flex items-center gap-1'
+                          'flex items-center gap-1 cursor-pointer'
                         )}
                       >
                         {item.title}
@@ -306,127 +306,66 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                         <div
                           onMouseEnter={clearCloseTimeout}
                           onMouseLeave={scheduleCloseMenus}
-                          className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[820px] max-h-[80vh] overflow-y-auto"
+                          className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1.5 min-w-[400px] rounded-2xl border bg-white shadow-[0px_4px_4px_0px_rgba(170,170,170,0.25)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 w-[430px] max-h-[80vh] overflow-y-auto"
                         >
                           {/* Check if this is AI Tools menu */}
                           {item.title.includes('AI Tools') ||
                           item.title.includes('AI 工具') ? (
-                            <div className="p-6 flex flex-col gap-6">
-                              {/* Two columns layout for 4 tools (no top standalone row) */}
-                              <div className="flex gap-6 w-full">
-                                {/* Left Column */}
-                                <div className="flex flex-col gap-6 w-[378px]">
-                                  {item.items
-                                    ?.slice(0, 2)
-                                    .map((subItem, subIndex) => {
-                                      return (
-                                        <LocaleLink
-                                          key={subIndex}
-                                          href={subItem.href || '#'}
-                                          target={
-                                            subItem.external
-                                              ? '_blank'
-                                              : undefined
-                                          }
-                                          rel={
-                                            subItem.external
-                                              ? 'noopener noreferrer'
-                                              : undefined
-                                          }
-                                          onClick={() => closeAllMenus()}
-                                          prefetch={false}
-                                          className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
-                                        >
-                                          {/* Image */}
-                                          <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                            {subItem.icon ? (
-                                              typeof subItem.icon ===
-                                              'string' ? (
-                                                <Image
-                                                  src={subItem.icon}
-                                                  alt=""
-                                                  width={70}
-                                                  height={70}
-                                                  className="size-full object-cover"
-                                                />
-                                              ) : (
-                                                subItem.icon
-                                              )
-                                            ) : null}
-                                          </div>
+                            <div className="p-6">
+                              {/* Single column layout for 5 tools */}
+                              <div className="flex flex-col gap-6 w-full">
+                                {item.items
+                                  ?.slice(0, 5)
+                                  .map((subItem, subIndex) => {
+                                    return (
+                                      <LocaleLink
+                                        key={subIndex}
+                                        href={subItem.href || '#'}
+                                        target={
+                                          subItem.external
+                                            ? '_blank'
+                                            : undefined
+                                        }
+                                        rel={
+                                          subItem.external
+                                            ? 'noopener noreferrer'
+                                            : undefined
+                                        }
+                                        onClick={() => closeAllMenus()}
+                                        prefetch={false}
+                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline cursor-pointer"
+                                      >
+                                        {/* Image */}
+                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                          {subItem.icon ? (
+                                            typeof subItem.icon === 'string' ? (
+                                              <Image
+                                                src={subItem.icon}
+                                                alt=""
+                                                width={70}
+                                                height={70}
+                                                className="size-full object-cover"
+                                              />
+                                            ) : (
+                                              subItem.icon
+                                            )
+                                          ) : null}
+                                        </div>
 
-                                          {/* Text content */}
-                                          <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                            <div className="font-bold leading-normal">
-                                              {subItem.title}
+                                        {/* Text content */}
+                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
+                                          <div className="font-bold leading-normal">
+                                            {subItem.title}
+                                          </div>
+                                          {subItem.description && (
+                                            <div className="font-normal leading-normal text-gray-600">
+                                              {subItem.description}
                                             </div>
-                                            {subItem.description && (
-                                              <div className="font-normal leading-normal text-gray-600">
-                                                {subItem.description}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </LocaleLink>
-                                      );
-                                    })}
-                                </div>
-
-                                {/* Right Column */}
-                                <div className="flex flex-col gap-6 w-[378px]">
-                                  {item.items
-                                    ?.slice(2, 4)
-                                    .map((subItem, subIndex) => {
-                                      return (
-                                        <LocaleLink
-                                          key={subIndex + 2}
-                                          href={subItem.href || '#'}
-                                          target={
-                                            subItem.external
-                                              ? '_blank'
-                                              : undefined
-                                          }
-                                          rel={
-                                            subItem.external
-                                              ? 'noopener noreferrer'
-                                              : undefined
-                                          }
-                                          onClick={() => closeAllMenus()}
-                                          prefetch={false}
-                                          className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline"
-                                        >
-                                          {/* Image */}
-                                          <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                            {subItem.icon ? (
-                                              typeof subItem.icon ===
-                                              'string' ? (
-                                                <Image
-                                                  src={subItem.icon}
-                                                  alt=""
-                                                  width={70}
-                                                  height={70}
-                                                  className="size-full object-cover"
-                                                />
-                                              ) : (
-                                                subItem.icon
-                                              )
-                                            ) : null}
-                                          </div>
-
-                                          {/* Text content */}
-                                          <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                            <div className="font-bold leading-normal">
-                                              {subItem.title}
-                                            </div>
-                                            {subItem.description && (
-                                              <div className="font-normal leading-normal text-gray-600">
-                                                {subItem.description}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </LocaleLink>
-                                      );
-                                    })}
-                                </div>
+                                          )}
+                                        </div>
+                                      </LocaleLink>
+                                    );
+                                  })}
                               </div>
                             </div>
                           ) : (
@@ -454,7 +393,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                                       onClick={() => closeAllMenus()}
                                       prefetch
                                       className={cn(
-                                        'group flex select-none flex-row items-start gap-2 rounded-xl flex-1 h-full overflow-hidden',
+                                        'group flex select-none flex-row items-start gap-2 rounded-xl flex-1 h-full overflow-hidden cursor-pointer',
                                         'p-2.5 leading-none no-underline outline-hidden transition-colors',
                                         'hover:bg-accent hover:text-accent-foreground',
                                         'focus:bg-accent focus:text-accent-foreground',
@@ -566,6 +505,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                             item.external ? 'noopener noreferrer' : undefined
                           }
                           prefetch={false}
+                          className="cursor-pointer"
                         >
                           {item.title}
                         </LocaleLink>

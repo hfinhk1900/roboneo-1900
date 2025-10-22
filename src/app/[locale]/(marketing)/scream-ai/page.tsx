@@ -22,7 +22,7 @@ export const metadata: Metadata = {
       'Generate cinematic horror portraits with Scream AI. Upload, select a preset, and download your suspenseful still.',
   },
   alternates: {
-    canonical: '/scream-ai',
+    canonical: 'https://roboneo.art/scream-ai',
   },
 };
 

@@ -94,7 +94,7 @@ export function NavbarMobile({
         {/* navbar left shows logo */}
         <LocaleLink
           href={Routes.Root}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
           aria-label="RoboNeo – AI Image Generator"
           prefetch={false}
         >

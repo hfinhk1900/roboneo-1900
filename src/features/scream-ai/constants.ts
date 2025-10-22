@@ -17,42 +17,42 @@ export const SCREAM_PRESETS: ScreamPreset[] = [
     name: 'Dreamy Y2K Bedroom',
     prompt:
       'Create a dreamy Y2K-style photo of the person from the input image lying on shiny pink satin bedding, holding a large 1990s corded telephone to their ear in a thoughtful, daydream-like pose. The bedroom shows late-90s posters, a bedside lamp as the main light source, and a softly dim nighttime ambience. Use subtle VHS grain, gentle lens bloom, and a cinematic 35mm composition with shallow depth of field. In the doorway of a dim hallway, a masked figure inspired by "Ghost Face" appears as a distant, barely lit silhouette looking toward the subject. Keep the overall mood slightly dark and ominous yet realistic.',
-    icon: '/scream-preset-bedroom.webp',
+    icon: '/scream-ai/y2k-style-min.png',
   },
   {
     id: '1',
     name: 'Suburban Kitchen',
     prompt:
       'Create a moody late-90s film photo of the person from the input image in a small suburban kitchen at night. A pot of popcorn steams on the stove; a corded landline phone is held to their ear. Warm tungsten light spills across tiled countertops and a checkered floor. Add subtle VHS grain, soft lens bloom, and shallow depth of field. Through the dark patio door glass, a masked figure inspired by "Ghost Face" stands outside as a faint silhouette in the rain. Cinematic 35mm composition, realistic lighting and textures.',
-    icon: '/scream-preset-kitchen.webp',
+    icon: '/scream-ai/suburban-kitchen-min.png',
   },
   {
     id: '2',
     name: 'School Hallway',
     prompt:
       'Generate a nostalgic 90s hallway scene with the person from the input image leaning near blue metal lockers under flickering fluorescent lights. They hold a translucent 90s-style phone receiver with a spiral cord. Posters peel from the walls and a school banner hangs slightly askew. At the far end of the corridor, a masked figure inspired by "Ghost Face" stands partly in shadow near a door window. Use cool greenish fluorescent tones, light film grain, and subtle chromatic aberration.',
-    icon: '/scream-preset-hallway.webp',
+    icon: '/scream-ai/school-hallway-min.png',
   },
   {
     id: '3',
     name: 'Rainy Front Porch',
     prompt:
       'Create a cinematic, rain-soaked front-porch scene featuring the person from the input image opening a screen door while holding a 90s cordless phone. A porch light casts a warm pool of light; wet leaves glisten on wooden steps; a pumpkin and wind chimes suggest late fall. In the distance under a streetlamp, a masked figure inspired by "Ghost Face" appears as a blurred silhouette through the rain. Add reflective puddles, light mist, and a gentle anamorphic flare.',
-    icon: '/scream-preset-porch.webp',
+    icon: '/scream-ai/rainy-front-porch-min.png',
   },
   {
     id: '4',
     name: 'Movie Theater',
     prompt:
       'Produce a dreamy 90s cinema photo with the person from the input image seated in a red velvet theater seat, holding popcorn and a soda. A bright projector beam cuts through dust in the air; lens bloom and shallow depth of field isolate the subject from the rows of seats. Two rows behind, a masked figure inspired by "Ghost Face" sits motionless in the aisle shadow, barely lit by the screen glow. Keep a cool-blue highlight vs warm-red seats palette and mild film grain.',
-    icon: '/scream-preset-theater.webp',
+    icon: '/scream-ai/movie-theater-min.png',
   },
   {
     id: '5',
     name: 'House Party',
     prompt:
       'Create a late-90s house-party living room scene with the person from the input image lounging on a vintage couch, phone to ear, surrounded by string lights, cassette tapes, and scattered red plastic cups. A CRT TV shows soft static in the corner. In a hallway mirror behind them, a masked figure inspired by "Ghost Face" is reflected standing at the end of the corridor, lit only by a dim lamp. Add disposable-camera flash aesthetics and mild motion blur on background partygoers.',
-    icon: '/scream-preset-party.webp',
+    icon: '/scream-ai/party-room-min.png',
   },
 ];
 

@@ -4,32 +4,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ShieldIcon, SparklesIcon, ZapIcon } from 'lucide-react';
 
-const FEATURES = [
-  {
-    title: 'Identity Safe',
-    description:
-      'Every Scream AI preset appends the Identity & Safety Suffix, so faces, hair, and outfits stay true to your upload while only the atmosphere changes.',
-    icon: ShieldIcon,
-  },
-  {
-    title: 'Preset Crafted',
-    description:
-      'Six cinematic horror prompts tuned for Ghost Face inspired suspense. No prompt engineering required—just select a preset and generate.',
-    icon: SparklesIcon,
-  },
-  {
-    title: 'Watermark Control',
-    description:
-      'Free accounts receive a subtle RoboNeo watermark; upgrade to produce clean, watermark-free stills for campaigns and storytelling.',
-    icon: ZapIcon,
-  },
-];
+const FEATURES = [];
 
 export default function ScreamAIFeaturesShowcase({
   className,
 }: {
   className?: string;
 }) {
+  // Return null if no features to display
+  if (FEATURES.length === 0) {
+    return null;
+  }
+
   return (
     <section className={cn('bg-[#08080c] py-16 text-white', className)}>
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 lg:grid-cols-3 lg:px-8">

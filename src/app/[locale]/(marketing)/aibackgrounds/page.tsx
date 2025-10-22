@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     description:
       'Intelligently remove image backgrounds with support for transparent and custom color backgrounds',
   },
+  alternates: {
+    canonical: 'https://roboneo.art/aibackgrounds',
+  },
 };
 
 export default function AIBackgroundPage() {

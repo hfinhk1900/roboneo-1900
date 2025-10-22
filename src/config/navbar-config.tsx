@@ -69,6 +69,13 @@ export function getNavbarLinks(): NestedMenuItem[] {
       title: 'AI Tools',
       items: [
         {
+          title: 'Scream AI',
+          description: 'Cinematic horror portraits in one click',
+          icon: '/scream-ai/y2k-style-min.png',
+          href: Routes.ScreamAI,
+          external: false,
+        },
+        {
           title: 'Product Shots',
           description: 'AI product photography studio',
           icon: '/home/all-tools02.png',
@@ -80,13 +87,6 @@ export function getNavbarLinks(): NestedMenuItem[] {
           description: 'Intelligent background editor',
           icon: '/home/all-tools03.png',
           href: Routes.AIBackground,
-          external: false,
-        },
-        {
-          title: 'Scream AI',
-          description: 'Cinematic horror portraits in one click',
-          icon: '/home/all-tools02.png',
-          href: Routes.ScreamAI,
           external: false,
         },
         {

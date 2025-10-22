@@ -27,6 +27,11 @@ export function getFooterLinks(): NestedMenuItem[] {
           external: false,
         },
         {
+          title: 'Scream AI',
+          href: Routes.ScreamAI,
+          external: false,
+        },
+        {
           title: 'Product Shots',
           href: Routes.ProductShot,
           external: false,

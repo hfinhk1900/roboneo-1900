@@ -2,27 +2,66 @@ import { websiteConfig } from '@/config/website';
 import { routing } from '@/i18n/routing';
 import type { Locale } from 'next-intl';
 
+const PRODUCTION_BASE_URL = 'https://roboneo.art';
+
+function normalizeBaseUrl(candidate: string): string {
+  try {
+    const parsed = new URL(candidate);
+    let hostname = parsed.hostname.toLowerCase();
+
+    if (hostname === 'www.roboneo.art') {
+      parsed.hostname = 'roboneo.art';
+      hostname = 'roboneo.art';
+    }
+
+    const shouldForceHttps =
+      hostname === 'roboneo.art' ||
+      (parsed.protocol === 'http:' &&
+        hostname !== 'localhost' &&
+        !hostname.endsWith('.local'));
+
+    if (shouldForceHttps) {
+      parsed.protocol = 'https:';
+    }
+
+    parsed.pathname = '';
+    parsed.search = '';
+    parsed.hash = '';
+
+    return parsed.toString().replace(/\/$/, '');
+  } catch {
+    return candidate.replace(/\/$/, '');
+  }
+}
+
 /**
  * Get the base URL of the application
  */
 export function getBaseUrl(): string {
   // On client side, use window.location.origin if available
   if (typeof window !== 'undefined') {
-    return window.location.origin;
+    return normalizeBaseUrl(window.location.origin);
   }
 
   // Check for explicit base URL first
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL;
+  const envBaseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL;
+
+  if (envBaseUrl) {
+    return normalizeBaseUrl(envBaseUrl);
   }
 
-  // In Vercel, try to use VERCEL_URL
+  if (process.env.NODE_ENV === 'production') {
+    return PRODUCTION_BASE_URL;
+  }
+
+  // In Vercel preview/development, fall back to deployment URL
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+    return normalizeBaseUrl(`https://${process.env.VERCEL_URL}`);
   }
 
   // Fallback to localhost for development
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  return normalizeBaseUrl(`http://localhost:${process.env.PORT ?? 3000}`);
 }
 
 /**

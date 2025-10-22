@@ -184,7 +184,7 @@ async function testActualProductCheckout() {
       customer: {
         email: 'test@example.com',
       },
-      successUrl: 'https://roboneo-art.vercel.app/success',
+      successUrl: 'https://roboneo.art/success',
     };
 
     const response = await makeRequest('POST', '/v1/checkouts', checkoutData);

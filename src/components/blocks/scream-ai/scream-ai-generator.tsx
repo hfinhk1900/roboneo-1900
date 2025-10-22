@@ -33,6 +33,7 @@ import { creditsCache } from '@/lib/credits-cache';
 import { cn } from '@/lib/utils';
 import {
   AlertCircleIcon,
+  CheckCircle2,
   DownloadIcon,
   Ghost,
   ImagePlusIcon,
@@ -45,11 +46,11 @@ import Image from 'next/image';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const ASPECT_RATIOS = [
-  { id: '1:1', label: 'Square 1:1' },
-  { id: '3:4', label: 'Portrait 3:4' },
-  { id: '4:3', label: 'Landscape 4:3' },
-  { id: '9:16', label: 'Tall 9:16' },
-  { id: '16:9', label: 'Widescreen 16:9' },
+  { id: '1:1', label: 'Square 1:1', icon: '/icons/square.svg' },
+  { id: '3:4', label: 'Portrait 3:4', icon: '/icons/tall.svg' },
+  { id: '4:3', label: 'Landscape 4:3', icon: '/icons/wide.svg' },
+  { id: '9:16', label: 'Tall 9:16', icon: '/icons/tall.svg' },
+  { id: '16:9', label: 'Widescreen 16:9', icon: '/icons/wide.svg' },
 ];
 
 type GenerateResult = {
@@ -84,6 +85,7 @@ export default function ScreamAIGenerator() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState<string>('');
 
   const selectedPreset = useMemo(
     () => SCREAM_PRESET_MAP.get(selectedPresetId) ?? SCREAM_PRESETS[0],
@@ -243,6 +245,7 @@ export default function ScreamAIGenerator() {
           image_input: uploadedBase64,
           preset_id: selectedPresetId,
           aspect_ratio: aspectRatio,
+          custom_prompt: customPrompt.trim() || undefined,
         }),
       });
 
@@ -413,52 +416,65 @@ export default function ScreamAIGenerator() {
                   </div>
 
                   {/* Preset Selector */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <Label className="text-sm font-medium">Horror Preset</Label>
-                    <Select
-                      value={selectedPresetId}
-                      onValueChange={setSelectedPresetId}
-                    >
-                      <SelectTrigger
-                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
-                        style={{ height: '50px', padding: '0px 12px' }}
-                      >
-                        <SelectValue placeholder="Choose a preset">
-                          {selectedPreset && (
-                            <div className="flex items-center gap-2">
-                              <Image
-                                src={selectedPreset.icon}
-                                alt={selectedPreset.name}
-                                width={20}
-                                height={20}
-                                className="rounded"
-                              />
-                              <span>{selectedPreset.name}</span>
-                            </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {SCREAM_PRESETS.map((preset) => (
+                        <button
+                          type="button"
+                          key={preset.id}
+                          className={cn(
+                            'relative flex flex-col items-center justify-center p-2 rounded-2xl transition-all hover:scale-105 text-center overflow-hidden cursor-pointer',
+                            selectedPresetId === preset.id
+                              ? 'ring-2 ring-primary scale-[1.01] bg-yellow-100/50'
+                              : 'hover:ring-1 hover:ring-primary/50'
                           )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SCREAM_PRESETS.map((preset) => (
-                          <SelectItem
-                            key={preset.id}
-                            value={preset.id}
-                            className="cursor-pointer py-3 px-3 hover:bg-muted/50 focus:bg-muted/50 data-[highlighted]:bg-muted/50"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Image
-                                src={preset.icon}
-                                alt={preset.name}
-                                width={20}
-                                height={20}
-                                className="rounded"
-                              />
-                              <span>{preset.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          onClick={() => setSelectedPresetId(preset.id)}
+                          title={preset.name}
+                        >
+                          {/* Background image */}
+                          <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
+                            <Image
+                              src={preset.icon}
+                              alt={preset.name}
+                              fill
+                              sizes="(max-width: 768px) 33vw, 15vw"
+                              className="object-cover"
+                            />
+                            {/* Check icon for selected state */}
+                            {selectedPresetId === preset.id && (
+                              <div className="absolute top-1 right-1 bg-yellow-400 rounded-full p-0.5">
+                                <CheckCircle2 className="h-4 w-4 text-white" />
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Prompt Input */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      Custom Prompt (Optional)
+                    </Label>
+                    <div className="relative">
+                      <textarea
+                        value={customPrompt}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.length <= 200) {
+                            setCustomPrompt(value);
+                          }
+                        }}
+                        placeholder="Add your own creative details..."
+                        className="w-full min-h-[80px] px-3 py-2 rounded-2xl border border-input bg-white resize-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                        maxLength={200}
+                      />
+                      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
+                        {customPrompt.length}/200
+                      </div>
+                    </div>
                   </div>
 
                   {/* Aspect Ratio Selector */}
@@ -467,25 +483,59 @@ export default function ScreamAIGenerator() {
                       Output Aspect Ratio
                     </Label>
                     <Select value={aspectRatio} onValueChange={setAspectRatio}>
-                      <SelectTrigger className="w-full h-[50px] px-3 rounded-2xl bg-white border border-input hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-                        <SelectValue placeholder="Select aspect ratio">
-                          {ASPECT_RATIOS.find((o) => o.id === aspectRatio)?.label ||
-                            'Select aspect ratio'}
+                      <SelectTrigger
+                        className="w-full rounded-2xl bg-white border border-input cursor-pointer"
+                        style={{ height: '50px', padding: '0px 12px' }}
+                      >
+                        <SelectValue placeholder="Aspect Ratio (Default Square)">
+                          {ASPECT_RATIOS.find((o) => o.id === aspectRatio) ? (
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={
+                                  ASPECT_RATIOS.find(
+                                    (o) => o.id === aspectRatio
+                                  )?.icon
+                                }
+                                alt="aspect"
+                                className="w-6 h-6"
+                              />
+                              <div className="text-left">
+                                <div className="font-medium">
+                                  {
+                                    ASPECT_RATIOS.find(
+                                      (o) => o.id === aspectRatio
+                                    )?.label
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              Aspect Ratio (Default Square)
+                            </span>
+                          )}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="z-[9999] max-h-[300px] overflow-y-auto">
+                      <SelectContent
+                        align="start"
+                        className="w-full min-w-[--radix-select-trigger-width] bg-white border border-input rounded-2xl shadow-lg"
+                      >
                         {ASPECT_RATIOS.map((ratio) => (
                           <SelectItem
                             key={ratio.id}
                             value={ratio.id}
-                            className={cn(
-                              'cursor-pointer py-3 px-3 transition-colors',
-                              'hover:bg-muted/50 hover:text-foreground',
-                              'focus:bg-muted/50 focus:text-foreground',
-                              'data-[highlighted]:bg-muted/50 data-[highlighted]:text-foreground'
-                            )}
+                            className="rounded-xl cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
                           >
-                            {ratio.label}
+                            <div className="flex items-center gap-3 py-2">
+                              <img
+                                src={ratio.icon}
+                                alt={ratio.label}
+                                className="w-6 h-6"
+                              />
+                              <div className="text-left">
+                                <div className="font-medium">{ratio.label}</div>
+                              </div>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>

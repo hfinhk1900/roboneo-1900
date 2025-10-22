@@ -54,10 +54,10 @@ const tools: ToolCard[] = [
     href: '/profile-picture-maker',
   },
   {
-    title: 'Scream AI',
+    title: 'Scream AI Horror',
     description:
       'Transform portraits into suspenseful Ghost Face inspired scenes while preserving identity.',
-    image: '/sticker/Explore03.webp',
+    image: '/scream-ai/y2k-style-min.png',
     imageAlt: 'Scream AI horror scene demo',
     href: '/scream-ai',
   },
@@ -105,17 +105,20 @@ export default function ExploreMoreToolsSection() {
             <LocaleLink
               key={index}
               href={tool.href}
-              className="group bg-gray-50 rounded-3xl overflow-hidden w-full min-h-[380px] sm:min-h-[420px] md:min-h-[440px] relative hover:shadow-lg transition-all duration-300 flex flex-col"
+              className="group bg-gray-50 rounded-3xl overflow-hidden w-full hover:shadow-lg transition-all duration-300 grid"
+              style={{
+                gridTemplateRows: '80px 230px 1fr 70px',
+              }}
             >
-              {/* Title */}
-              <div className="pt-4 sm:pt-5 md:pt-6 px-4">
-                <h3 className="text-base sm:text-lg md:text-[18px] font-bold text-black text-center leading-tight">
+              {/* Title - Fixed height 80px */}
+              <div className="px-4 pt-4 pb-2 flex items-center justify-center min-h-[80px]">
+                <h3 className="text-base sm:text-lg md:text-[18px] font-bold text-black text-center leading-tight line-clamp-2">
                   {tool.title}
                 </h3>
               </div>
 
-              {/* Image */}
-              <div className="flex justify-center mt-4 sm:mt-5 md:mt-6 mb-4 sm:mb-5 md:mb-6">
+              {/* Image - Fixed height 230px */}
+              <div className="flex justify-center items-center min-h-[230px] py-4">
                 <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-[166px] md:h-[166px] rounded-2xl overflow-hidden">
                   <Image
                     src={tool.image}
@@ -125,22 +128,25 @@ export default function ExploreMoreToolsSection() {
                     className="w-full h-full object-cover"
                     loading="lazy"
                     quality={85}
-                    placeholder="blur"
-                    blurDataURL="data:image/webp;base64,UklGRpoAAABXRUJQVlA4WAoAAAAQAAAADwAABwAAQUxQSDIAAAARL0AmbZurmr57yyIiqE8oiG0bejIYEQTgqiDA9vqnsUSI6H+oAERp2HZ65qP/VIAWAFZQOCBCAAAA8AEAnQEqEAAIAAVAfCWkAALp8sF8rgRgAP7o9FDvMCkMde9PK7euH5M1m6VWoDXf2FkP3BqV0ZYbO6NA/VFIAAAA"
+                    {...(tool.image.endsWith('.webp') && {
+                      placeholder: 'blur' as const,
+                      blurDataURL:
+                        'data:image/webp;base64,UklGRpoAAABXRUJQVlA4WAoAAAAQAAAADwAABwAAQUxQSDIAAAARL0AmbZurmr57yyIiqE8oiG0bejIYEQTgqiDA9vqnsUSI6H+oAERp2HZ65qP/VIAWAFZQOCBCAAAA8AEAnQEqEAAIAAVAfCWkAALp8sF8rgRgAP7o9FDvMCkMde9PK7euH5M1m6VWoDXf2FkP3BqV0ZYbO6NA/VFIAAAA',
+                    })}
                     sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 166px"
                   />
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="flex-1 px-3 sm:px-4 pb-14 sm:pb-16">
+              {/* Description - Flexible area (1fr) */}
+              <div className="px-3 sm:px-4 py-3 flex items-start justify-center">
                 <p className="text-xs sm:text-sm lg:text-[14px] text-black text-center leading-relaxed">
                   {tool.description}
                 </p>
               </div>
 
-              {/* Arrow Button */}
-              <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2">
+              {/* Arrow Button - Fixed height 70px */}
+              <div className="flex justify-center items-center min-h-[70px] pb-4">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-400 rounded-full flex items-center justify-center group-hover:bg-yellow-500 transition-colors duration-300">
                   <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-black" />
                 </div>

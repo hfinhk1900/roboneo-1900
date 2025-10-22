@@ -301,3 +301,4 @@ text-white, text-gray-300, text-gray-400
 
 🎉 **Scream AI 已成功切换到浅色主题！**
 
+

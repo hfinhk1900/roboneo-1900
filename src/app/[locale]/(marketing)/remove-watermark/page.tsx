@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     description:
       'Intelligently remove watermarks from images with AI-powered precision. Support for text watermarks, logos, and complex overlays.',
   },
+  alternates: {
+    canonical: 'https://roboneo.art/remove-watermark',
+  },
 };
 
 export default function RemoveWatermarkPage() {

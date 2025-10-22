@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           customer: {
             email: 'test@example.com',
           },
-          successUrl: 'https://roboneo-art.vercel.app/success',
+          successUrl: 'https://roboneo.art/success',
         },
       });
       testResults.tests.actualProductCheckout = {
