@@ -1,458 +1,293 @@
-# Scream AI 功能测试指南
+# Scream AI API 测试指南
 
-## 1. 前置准备
+## 📋 修复总结
 
-### 1.1 环境配置检查
+### 已修复的 Prompt 问题
 
-✅ **已完成的配置**：
-- 数据库迁移已执行（`scream_ai_history` 表已创建）
-- Lint 错误已修复
-- 环境变量模板已添加到 `.env` 文件
+根据 PRD 文档检查，修复了以下2个场景的 prompt：
 
-⚠️ **需要手动配置**：
+#### 1. Scene 3 - Rainy Front Porch
+**问题**：使用了简化版本，缺少关键细节指令
+**修复**：更新为 PRD 完整版本，包含：
+- 明确的人物位置（站在门廊上，门的前面）
+- 门的角度（20-30度）
+- 构图要求（右三分位、腰部以上、3/4角度）
+- 手部动作（一只手拿电话，另一只手放松或轻触门把手）
+- 技术要求（避免肢体变形、不与门框线条相交）
 
-在 `.env` 文件中填写以下环境变量（目前为空）：
+#### 2. Scene 5 - House Party
+**问题**：最后包含 "background partygoers"，违反了 PRD 的 "No other people anywhere" 要求
+**修复**：更新为 PRD 完整版本，强调：
+- SOLO 肖像（只有一个人）
+- 明确说明不要其他人（No other people anywhere）
+- 走廊和门口物理上是空的
+- Ghostface 只作为镜子反射出现
+- 强调人物占据画面大部分（60-70%宽度）
+
+### 验证内容
+
+所有6个场景的 prompt 现在都：
+✅ 符合 PRD 原文要求
+✅ 在末尾自动追加 `IDENTITY_SUFFIX`
+✅ 使用统一的 `NEGATIVE_PROMPT`
+✅ 支持可选的 `custom_prompt` 功能
+
+---
+
+## 🧪 测试脚本
+
+提供了2个测试脚本：
+
+### 1. 完整测试套件 (`test-scream-ai-api.js`)
+
+自动化测试所有场景、长宽比和自定义 prompt。
+
+**功能**：
+- ✅ 测试所有6个预设场景
+- ✅ 测试所有5个长宽比（1:1, 3:4, 4:3, 9:16, 16:9）
+- ✅ 测试自定义 prompt 功能
+- ✅ 验证响应结构
+- ✅ 生成测试报告
+
+**使用方法**：
 
 ```bash
-NANO_BANANA_API_KEY="your-api-key-here"
-```
+# 1. 设置 session token
+export SESSION_TOKEN="your-session-token-here"
 
-**获取 API Key**：
-- 访问：https://kie.ai/nano-banana
-- 注册/登录 Nano Banana 账户
-- 在 Dashboard 中获取 API Key
-- 将 API Key 填入 `.env` 文件的 `NANO_BANANA_API_KEY`
-
-**默认配置**（无需修改，除非有特殊需求）：
-```bash
-NANO_BANANA_BASE_URL="https://kie.ai/nano-banana"
-NANO_BANANA_MODEL="gemini-nano-banana-latest"
-```
-
-### 1.2 重启开发服务器
-
-配置完成后，重启开发服务器以加载新的环境变量：
-
-```bash
-# 停止当前服务器（Ctrl+C）
-# 重新启动
+# 2. 确保开发服务器运行
 pnpm dev
+
+# 3. 运行测试
+node test-scream-ai-api.js
+```
+
+**如何获取 SESSION_TOKEN**：
+1. 在浏览器中登录到应用
+2. 打开 DevTools → Application → Cookies
+3. 找到 `better-auth.session_token` cookie
+4. 复制其值
+5. 运行：`export SESSION_TOKEN="复制的值"`
+
+**输出**：
+- 控制台显示测试结果
+- 生成 `test-scream-ai-results.json` 文件
+
+### 2. 简单测试脚本 (`test-scream-ai-simple.js`)
+
+使用真实图片测试单个场景。
+
+**使用方法**：
+
+```bash
+# 基本用法
+node test-scream-ai-simple.js <图片路径> <预设ID> [长宽比]
+
+# 示例
+node test-scream-ai-simple.js ./test.jpg 0 1:1
+node test-scream-ai-simple.js ./photo.png 3 16:9
+node test-scream-ai-simple.js ./selfie.webp 5
+```
+
+**预设 ID**：
+- `0` - Dreamy Y2K Bedroom
+- `1` - Suburban Kitchen
+- `2` - School Hallway
+- `3` - Rainy Front Porch
+- `4` - Movie Theater
+- `5` - House Party
+
+**长宽比**：
+- `1:1` - 正方形（默认）
+- `3:4` - 竖屏（Portrait）
+- `4:3` - 横屏（Landscape）
+- `9:16` - 竖屏（Tall）
+- `16:9` - 宽屏（Widescreen）
+
+**输出**：
+- 显示生成结果
+- 保存结果到 `scream-ai-result-<timestamp>.json`
+
+---
+
+## 📝 测试清单
+
+### 功能测试
+
+- [ ] **所有预设场景**
+  - [ ] Scene 0: Dreamy Y2K Bedroom
+  - [ ] Scene 1: Suburban Kitchen
+  - [ ] Scene 2: School Hallway
+  - [ ] Scene 3: Rainy Front Porch（已修复）
+  - [ ] Scene 4: Movie Theater
+  - [ ] Scene 5: House Party（已修复）
+
+- [ ] **长宽比测试**
+  - [ ] 1:1 正方形
+  - [ ] 3:4 竖屏
+  - [ ] 4:3 横屏
+  - [ ] 9:16 竖屏
+  - [ ] 16:9 宽屏
+
+- [ ] **自定义 Prompt**
+  - [ ] 添加额外描述
+  - [ ] 验证正确拼接到基础 prompt 后
+
+- [ ] **水印功能**
+  - [ ] 免费用户：生成带水印图片
+  - [ ] 付费用户：生成无水印图片
+
+### 响应验证
+
+- [ ] **成功响应**（200）
+  - [ ] `asset_id` 存在且有效
+  - [ ] `view_url` 可访问
+  - [ ] `download_url` 有签名且可下载
+  - [ ] `preset_id` 和 `preset_name` 匹配
+  - [ ] `aspect_ratio` 正确
+  - [ ] `watermarked` 标记正确
+  - [ ] `credits_used` 正确扣除
+
+- [ ] **错误响应**
+  - [ ] 401: 未登录
+  - [ ] 402: Credits 不足
+  - [ ] 413: 图片过大（>10MB）
+  - [ ] 429: 请求过于频繁
+  - [ ] 400: 参数错误
+
+### Prompt 验证
+
+- [ ] **基础 Prompt**
+  - [ ] 使用 PRD 定义的原文
+  - [ ] Scene 3 使用详细版本
+  - [ ] Scene 5 强调 SOLO 且无其他人
+
+- [ ] **IDENTITY_SUFFIX**
+  - [ ] 所有场景都追加
+  - [ ] 内容完整且准确
+
+- [ ] **NEGATIVE_PROMPT**
+  - [ ] 包含所有安全约束
+  - [ ] 格式正确
+
+### 性能测试
+
+- [ ] **响应时间**
+  - [ ] P95 < 30s
+  - [ ] 平均响应时间合理
+
+- [ ] **成功率**
+  - [ ] ≥95% 生成成功率
+
+---
+
+## 🔍 Prompt 对比
+
+### Scene 3 - Rainy Front Porch
+
+**❌ 旧版本（简化）**：
+```
+Create a cinematic, rain-soaked front-porch scene featuring the person from the input image opening a screen door while holding a 90s cordless phone...
+```
+
+**✅ 新版本（PRD 完整）**：
+```
+Create a cinematic, rain-soaked front-porch night scene. The person from the input image stands fully on the porch, in front of the screen door, not inside the doorway. The screen door is slightly open (about 20–30°) on the left edge of frame; the subject is offset on the right third, waist-up, 3/4 angle toward camera at eye level (≈35mm)...
+```
+
+### Scene 5 - House Party
+
+**❌ 旧版本（包含错误）**：
+```
+...Add disposable-camera flash aesthetics and mild motion blur on background partygoers.
+```
+❌ 提到了 "background partygoers"（背景派对参与者）
+
+**✅ 新版本（PRD 完整）**：
+```
+Create a late-90s house-party living room scene as a SOLO portrait. Show EXACTLY ONE HUMAN: the person from the input image... No other people anywhere... No blood, no weapons, no gore.
+```
+✅ 明确强调只有一个人
+
+---
+
+## 📊 预期结果示例
+
+```json
+{
+  "success": true,
+  "asset_id": "ast_1234567890",
+  "view_url": "/api/assets/ast_1234567890",
+  "download_url": "https://...signed-url...",
+  "expires_at": 1234567890,
+  "preset_id": "0",
+  "preset_name": "Dreamy Y2K Bedroom",
+  "aspect_ratio": "1:1",
+  "credits_used": 1,
+  "remaining_credits": 99,
+  "watermarked": false
+}
 ```
 
 ---
 
-## 2. 功能测试清单
+## 🚀 快速开始
 
-### 2.1 页面访问与 SEO 测试
+```bash
+# 1. 获取 session token（见上方说明）
+export SESSION_TOKEN="your-token-here"
 
-**测试步骤**：
-1. ✅ 访问 `/scream-ai` 页面
-2. ✅ 检查页面是否正常加载
-3. ✅ 确认页面标题：`Scream AI Horror Image Generator | Suspenseful Cinematic Scenes | RoboNeo`
-4. ✅ 检查页面内容字数 >800 字
-5. ✅ 确认 "scream ai" 关键词密度在 3%-5% 之间
-6. ✅ 检查页面底部是否显示 "Explore More Tools" 和 "Call to Action" 区块
+# 2. 准备测试图片
+# 使用任何 JPG/PNG/WebP 图片，大小 ≤10MB
 
-**预期结果**：
-- 页面完整加载，内容符合 SEO 要求
-- 页面结构清晰，包含功能介绍、预设展示、FAQ 等
+# 3. 测试单个场景
+node test-scream-ai-simple.js ./test.jpg 0
 
----
-
-### 2.2 导航与入口测试
-
-**测试步骤**：
-1. ✅ 检查顶部导航栏是否有 "Scream AI" 入口
-2. ✅ 检查首页工具合集区块（All Tools / AI Supercharge Tools / Explore More Tools）是否包含 Scream AI 卡片
-3. ✅ 验证 sitemap 是否包含 `/scream-ai` 路径
-
-**预期结果**：
-- 所有入口都可正常访问 Scream AI 页面
-- 工具卡片显示正确的图标和描述
-
----
-
-### 2.3 未登录用户拦截测试
-
-**测试步骤**：
-1. ✅ 退出登录（如已登录）
-2. ✅ 访问 `/scream-ai` 页面
-3. ✅ 尝试上传图片或点击生成按钮
-4. ✅ 确认是否弹出登录模态框
-
-**预期结果**：
-- 未登录用户无法上传或生成
-- 显示登录提示并引导用户登录
-
----
-
-### 2.4 图片上传与验证测试
-
-**测试步骤**：
-1. ✅ 登录账户
-2. ✅ 测试上传有效图片（JPG/PNG/WebP，≤10MB）
-3. ✅ 测试上传超大图片（>10MB）
-4. ✅ 测试上传不支持的格式（如 GIF、BMP）
-5. ✅ 确认图片预览是否正常显示
-
-**预期结果**：
-- 有效图片可正常上传并预览
-- 超大或不支持格式的图片会显示错误提示
-- 错误提示信息清晰易懂
-
----
-
-### 2.5 预设场景选择测试
-
-**测试步骤**：
-1. ✅ 确认是否显示 6 个预设场景选项：
-   - Dreamy Phone Call
-   - Garage Trap
-   - Isolated Road
-   - Warehouse Showdown
-   - Suburban Driveway
-   - School Hallway
-2. ✅ 测试单选逻辑（只能选择一个预设）
-3. ✅ 确认每个预设的缩略图和描述是否正确
-
-**预期结果**：
-- 6 个预设场景全部显示
-- 单选逻辑正常，选中状态清晰
-- 缩略图和描述准确
-
----
-
-### 2.6 输出比例选择测试
-
-**测试步骤**：
-1. ✅ 确认是否显示输出比例选项（如 1:1、3:4、16:9 等）
-2. ✅ 测试切换不同比例
-3. ✅ 确认选中状态是否正确
-
-**预期结果**：
-- 输出比例选项正常显示
-- 切换逻辑正常
-- 选中状态清晰
-
----
-
-### 2.7 Credits 额度校验测试
-
-**测试步骤**：
-1. ✅ 确认当前账户的 Credits 余额
-2. ✅ 尝试生成图片（每次生成扣除 1 Credit）
-3. ✅ 测试 Credits 不足时的提示
-4. ✅ 确认是否引导用户购买或升级
-
-**预期结果**：
-- Credits 充足时可正常生成
-- Credits 不足时显示提示并引导购买
-- 扣费记录准确
-
----
-
-### 2.8 生成流程测试
-
-**测试步骤**：
-1. ✅ 上传有效图片
-2. ✅ 选择预设场景
-3. ✅ 选择输出比例
-4. ✅ 点击生成按钮
-5. ✅ 观察生成进度提示
-6. ✅ 确认生成结果是否正常显示
-7. ✅ 验证生成的图片质量和内容
-
-**预期结果**：
-- 生成流程顺畅，无卡顿或错误
-- 显示清晰的进度提示
-- 生成结果符合预期（恐怖氛围、身份一致性）
-- 图片质量良好
-
-**注意事项**：
-- 生成时间可能较长（30-90 秒），请耐心等待
-- 如果超时，检查 API Key 是否正确配置
-- 如果返回错误，查看浏览器控制台和服务器日志
-
----
-
-### 2.9 水印逻辑测试
-
-**测试步骤**：
-1. ✅ 使用免费账户生成图片
-2. ✅ 确认生成结果是否带有水印
-3. ✅ 使用付费账户生成图片
-4. ✅ 确认生成结果是否无水印
-
-**预期结果**：
-- 免费用户：生成结果带水印
-- 付费用户：生成结果无水印
-- 水印位置和样式符合设计
-
----
-
-### 2.10 结果操作测试
-
-**测试步骤**：
-1. ✅ 测试预览功能（点击图片放大）
-2. ✅ 测试下载功能（下载生成的图片）
-3. ✅ 测试保存到 My Library 功能
-4. ✅ 测试复制 Prompt 功能（如有）
-
-**预期结果**：
-- 预览正常，图片清晰
-- 下载成功，文件名规范
-- 保存到 My Library 成功
-- 复制 Prompt 成功（如有）
-
----
-
-### 2.11 历史记录测试
-
-**测试步骤**：
-1. ✅ 生成多张图片
-2. ✅ 访问历史记录列表
-3. ✅ 确认历史记录是否包含所有生成结果
-4. ✅ 测试刷新签名 URL 功能（如图片 URL 过期）
-5. ✅ 测试删除单条记录功能
-6. ✅ 确认删除后历史记录是否更新
-
-**预期结果**：
-- 历史记录准确完整
-- 显示预设名称、生成时间、缩略图等信息
-- 刷新 URL 功能正常
-- 删除功能正常，UI 实时更新
-
-**API 端点**：
-- 获取历史：`GET /api/history/scream-ai`
-- 刷新 URL：`PATCH /api/history/scream-ai`
-- 删除记录：`DELETE /api/history/scream-ai/[id]`
-
----
-
-### 2.12 Dashboard 统计测试
-
-**测试步骤**：
-1. ✅ 访问 `/dashboard` 页面
-2. ✅ 检查 "Recent Generations" 区块是否包含 Scream AI 生成记录
-3. ✅ 确认记录显示内容：
-   - 预设名称（如 "Dreamy Phone Call"）
-   - 生成时间
-   - 用户邮箱（如有权限）
-   - 缩略图
-4. ✅ 检查 "Feature Usage Share" 图表是否包含 Scream AI 统计
-5. ✅ 检查时间序列图表是否正确显示 Scream AI 使用趋势
-
-**预期结果**：
-- Dashboard 正确显示 Scream AI 相关数据
-- 统计信息准确
-- 图表展示清晰
-
----
-
-### 2.13 错误处理测试
-
-**测试步骤**：
-1. ✅ 测试网络异常情况（断网后尝试生成）
-2. ✅ 测试 API 返回错误（如 API Key 无效）
-3. ✅ 测试超时情况（模拟慢速网络）
-4. ✅ 测试并发限流（短时间内多次生成）
-5. ✅ 测试 CSRF 校验（如有）
-
-**预期结果**：
-- 所有错误都有清晰的提示信息
-- 错误不会导致页面崩溃
-- 用户可以重试或返回上一步
-- 限流提示友好
-
----
-
-### 2.14 性能与体验测试
-
-**测试步骤**：
-1. ✅ 测试页面首次加载速度
-2. ✅ 测试图片上传响应速度
-3. ✅ 测试生成进度提示是否流畅
-4. ✅ 测试历史记录加载速度
-5. ✅ 测试移动端适配（响应式设计）
-
-**预期结果**：
-- 页面加载速度 < 3 秒
-- 图片上传即时响应
-- 进度提示流畅，无卡顿
-- 历史记录快速加载
-- 移动端显示正常
-
----
-
-## 3. 数据库验证
-
-### 3.1 查询历史记录
-
-```sql
--- 查询所有 Scream AI 历史记录
-SELECT
-  id,
-  user_id,
-  preset_id,
-  aspect_ratio,
-  watermarked,
-  created_at
-FROM scream_ai_history
-ORDER BY created_at DESC
-LIMIT 10;
-```
-
-### 3.2 查询 Credits 扣费记录
-
-```sql
--- 查询 Scream AI 相关的 Credits 记录
-SELECT
-  user_id,
-  amount,
-  action,
-  created_at
-FROM credits
-WHERE action LIKE '%scream-ai%'
-ORDER BY created_at DESC
-LIMIT 10;
+# 4. 测试所有场景（需要较多 credits）
+node test-scream-ai-api.js
 ```
 
 ---
 
-## 4. 常见问题排查
+## ⚠️ 注意事项
 
-### 4.1 生成失败
-
-**可能原因**：
-- API Key 未配置或无效
-- 网络连接问题
-- API 服务不可用
-- Credits 不足
-
-**排查步骤**：
-1. 检查 `.env` 文件中的 `NANO_BANANA_API_KEY` 是否正确
-2. 检查服务器日志：查看 `/api/scream-ai/generate` 的错误信息
-3. 检查浏览器控制台是否有错误
-4. 验证 API Key 是否有效（访问 Nano Banana Dashboard）
-5. 确认账户 Credits 余额
-
-### 4.2 历史记录不显示
-
-**可能原因**：
-- 数据库迁移未执行
-- IndexedDB 存储失败
-- 签名 URL 过期
-
-**排查步骤**：
-1. 确认数据库表 `scream_ai_history` 是否存在
-2. 查询数据库确认记录是否已写入
-3. 检查浏览器 IndexedDB 存储
-4. 尝试刷新签名 URL
-
-### 4.3 水印未显示
-
-**可能原因**：
-- 订阅状态未正确识别
-- 水印逻辑配置错误
-- R2 上传失败
-
-**排查步骤**：
-1. 确认用户订阅状态（Free / Pro / Premium）
-2. 检查生成 API 中的水印逻辑
-3. 查看 R2 存储是否成功
-4. 检查服务器日志
-
-### 4.4 Dashboard 统计不更新
-
-**可能原因**：
-- 历史记录未写入数据库
-- Dashboard 查询逻辑错误
-- 缓存问题
-
-**排查步骤**：
-1. 确认数据库中有 Scream AI 历史记录
-2. 检查 Dashboard 查询 SQL
-3. 清除浏览器缓存并刷新页面
+1. **Credits 消耗**：每次生成消耗 1 个 credit
+2. **频率限制**：5次/分钟（每个用户）
+3. **图片大小**：≤10MB
+4. **支持格式**：JPG, PNG, WebP
+5. **响应时间**：通常 30-60 秒，取决于服务器负载
 
 ---
 
-## 5. 生产环境部署检查清单
+## 📞 问题排查
 
-在部署到生产环境前，请确认以下事项：
+### 401 Unauthorized
+- 检查 SESSION_TOKEN 是否正确
+- 确认用户已登录
+- Token 可能已过期，重新获取
 
-- [ ] `.env` 文件已正确配置（包括 `NANO_BANANA_API_KEY`）
-- [ ] 数据库迁移已执行（`scream_ai_history` 表已创建）
-- [ ] 所有 lint 错误已修复
-- [ ] 功能测试全部通过
-- [ ] Credits 扣费逻辑正确
-- [ ] 水印逻辑正确（免费带水印，付费无水印）
-- [ ] 历史记录正常保存和显示
-- [ ] Dashboard 统计正确
-- [ ] SEO 内容符合要求（>800 字，关键词密度 3%-5%）
-- [ ] 所有入口（导航、工具合集、sitemap）已配置
-- [ ] 错误处理和用户提示友好
-- [ ] 性能和体验符合预期
-- [ ] 移动端适配正常
+### 402 Insufficient Credits
+- 检查用户 credits 余额
+- 购买更多 credits 或升级订阅
 
----
+### 413 Image Too Large
+- 图片超过 10MB 限制
+- 压缩图片后重试
 
-## 6. 监控与告警
+### 429 Too Many Requests
+- 等待 60 秒后重试
+- 降低请求频率
 
-### 6.1 建议监控的指标
-
-- API 调用成功率
-- 生成时间（p50、p95、p99）
-- 错误率（按错误类型分类）
-- Credits 扣费准确性
-- 历史记录写入成功率
-- R2 上传成功率
-
-### 6.2 建议配置的告警
-
-- API 调用失败率 > 5%
-- 生成时间 p95 > 90 秒
-- 错误率 > 10%
-- R2 上传失败率 > 5%
+### 503 Service Unavailable
+- 检查 NANO_BANANA_API_KEY 环境变量
+- 确认 AI 服务可用
 
 ---
 
-## 7. 下一步优化建议
+## 📄 相关文件
 
-1. **性能优化**：
-   - 考虑添加生成队列，避免并发峰值
-   - 优化图片上传体验（预压缩、断点续传）
-
-2. **功能增强**：
-   - 多语言支持（中文、日文等）
-   - 批量生成功能
-   - 社交分享功能
-   - 社区化场景库
-
-3. **SEO 优化**：
-   - 定期更新内容，保持新鲜度
-   - 添加用户生成案例（UGC）
-   - 建立外链和内链
-
-4. **用户体验**：
-   - 添加更多预设场景
-   - 支持自定义 Prompt
-   - 提供生成建议和最佳实践
-
----
-
-## 8. 联系与支持
-
-如有问题或需要支持，请联系：
-- 开发团队：[开发者邮箱]
-- Nano Banana 支持：https://kie.ai/support
-
----
-
-**测试完成日期**：_____________
-
-**测试人员**：_____________
-
-**测试结果**：[ ] 通过 [ ] 部分通过 [ ] 未通过
-
-**备注**：
-
+- `src/features/scream-ai/constants.ts` - Prompt 定义
+- `src/app/api/scream-ai/generate/route.ts` - API 实现
+- `PRD_Scream AI_V1.0` - 产品需求文档
+- `test-scream-ai-api.js` - 完整测试套件
+- `test-scream-ai-simple.js` - 简单测试脚本

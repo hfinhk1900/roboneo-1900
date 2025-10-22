@@ -37,7 +37,7 @@ export const SCREAM_PRESETS: ScreamPreset[] = [
     id: '3',
     name: 'Rainy Front Porch',
     prompt:
-      'Create a cinematic, rain-soaked front-porch scene featuring the person from the input image opening a screen door while holding a 90s cordless phone. A porch light casts a warm pool of light; wet leaves glisten on wooden steps; a pumpkin and wind chimes suggest late fall. In the distance under a streetlamp, a masked figure inspired by "Ghost Face" appears as a blurred silhouette through the rain. Add reflective puddles, light mist, and a gentle anamorphic flare.',
+      'Create a cinematic, rain-soaked front-porch night scene. The person from the input image stands fully on the porch, in front of the screen door, not inside the doorway. The screen door is slightly open (about 20–30°) on the left edge of frame; the subject is offset on the right third, waist-up, 3/4 angle toward camera at eye level (≈35mm). Hold a 1990s cordless phone naturally to the ear with the nearer hand; the other hand relaxed or lightly touching the door handle. Warm porch light casts a clean pool of light on wet wooden boards; rain streaks glow; wet leaves on the steps; a pumpkin and wind chimes suggest late fall. Beyond the yard, under a streetlamp, a masked figure inspired by "Ghost Face" reads only as a faint, blurred silhouette in the rain. Add reflective puddles, light mist, subtle rim light, and a gentle anamorphic flare. Keep all limbs natural and unwarped; the subject must not intersect or align with doorframe lines.',
     icon: '/scream-ai/rainy-front-porch-min.png',
   },
   {
@@ -51,7 +51,7 @@ export const SCREAM_PRESETS: ScreamPreset[] = [
     id: '5',
     name: 'House Party',
     prompt:
-      'Create a late-90s house-party living room scene with the person from the input image lounging on a vintage couch, phone to ear, surrounded by string lights, cassette tapes, and scattered red plastic cups. A CRT TV shows soft static in the corner. In a hallway mirror behind them, a masked figure inspired by "Ghost Face" is reflected standing at the end of the corridor, lit only by a dim lamp. Add disposable-camera flash aesthetics and mild motion blur on background partygoers.',
+      'Create a late-90s house-party living room scene as a SOLO portrait. Show EXACTLY ONE HUMAN: the person from the input image lounging on a vintage couch, phone to ear. No other people anywhere. Use party props only (no guests): string lights across the wall, a few cassette tapes and scattered red plastic cups on the coffee table. A CRT TV in the corner shows soft static. The hallway and its doorway in the background are physically EMPTY. Show ONE masked figure inspired by "Ghost Face" as a faint reflection INSIDE a hallway wall mirror ONLY — the figure must NOT exist in real space. Outside the mirror there is NO masked figure. Tight mid-shot at eye level (~35mm); the subject occupies most of the frame (≈60–70% width). Shallow depth of field; disposable-camera flash aesthetic with subtle film grain. Keep identity consistent with the input (facial proportions, hairline/length, skin tone). No blood, no weapons, no gore.',
     icon: '/scream-ai/party-room-min.png',
   },
 ];
