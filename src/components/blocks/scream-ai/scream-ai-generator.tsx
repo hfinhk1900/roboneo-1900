@@ -29,16 +29,21 @@ import {
 } from '@/features/scream-ai/constants';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useToast } from '@/hooks/use-toast';
+import { LocaleLink } from '@/i18n/navigation';
 import { creditsCache } from '@/lib/credits-cache';
+import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { cn } from '@/lib/utils';
+import type { ToolParams } from '@/types/image-library';
 import {
   AlertCircleIcon,
   CheckCircle2,
   DownloadIcon,
   Ghost,
+  ImageIcon,
   ImagePlusIcon,
   Loader2Icon,
   SparklesIcon,
+  Trash2Icon,
   XIcon,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -64,6 +69,17 @@ type GenerateResult = {
   remaining_credits?: number;
 };
 
+type ScreamHistoryItem = {
+  id: string;
+  url: string;
+  downloadUrl: string;
+  presetId: string;
+  aspectRatio?: string | null;
+  assetId?: string | null;
+  watermarked?: boolean;
+  createdAt: number;
+};
+
 export default function ScreamAIGenerator() {
   const currentUser = useCurrentUser();
   const { toast } = useToast();
@@ -86,6 +102,74 @@ export default function ScreamAIGenerator() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [customPrompt, setCustomPrompt] = useState<string>('');
+  const [historyItems, setHistoryItems] = useState<ScreamHistoryItem[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] =
+    useState<ScreamHistoryItem | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showClearAllDialog, setShowClearAllDialog] = useState(false);
+  const [isClearingHistory, setIsClearingHistory] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [showHistoryPreview, setShowHistoryPreview] = useState(false);
+  const [previewHistoryItem, setPreviewHistoryItem] =
+    useState<ScreamHistoryItem | null>(null);
+
+  const syncHistoryToLibrary = useCallback(
+    async (items: ScreamHistoryItem[]) => {
+      if (items.length === 0) return;
+      if (typeof window === 'undefined') return;
+
+      try {
+        const db = IndexedDBManager.getInstance(currentUser?.id);
+
+        for (const item of items) {
+          try {
+            const existing = await db.getImage(item.id);
+            if (existing) continue;
+
+            const response = await fetch(item.downloadUrl || item.url, {
+              credentials: 'include',
+            });
+            if (!response.ok) continue;
+
+            const blob = await response.blob();
+            let thumbnail: Blob | undefined;
+            try {
+              thumbnail = await db.generateThumbnail(blob);
+            } catch (err) {
+              console.warn(
+                'Failed to generate thumbnail for scream-ai image:',
+                err
+              );
+            }
+
+            await db.saveImage({
+              id: item.id,
+              url: item.url,
+              blob,
+              thumbnail,
+              toolType: 'scream-ai',
+              toolParams: {
+                presetId: item.presetId,
+                aspectRatio: item.aspectRatio ?? '1:1',
+                watermarked: item.watermarked ?? false,
+              } as ToolParams,
+              createdAt: item.createdAt,
+              lastAccessedAt: Date.now(),
+              fileSize: blob.size,
+              syncStatus: item.id ? 'synced' : 'local',
+              serverId: item.id,
+            } as any);
+          } catch (error) {
+            console.warn('Failed to sync scream-ai history item:', error);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to sync scream-ai history to library:', error);
+      }
+    },
+    [currentUser?.id]
+  );
 
   const selectedPreset = useMemo(
     () => SCREAM_PRESET_MAP.get(selectedPresetId) ?? SCREAM_PRESETS[0],
@@ -112,6 +196,55 @@ export default function ScreamAIGenerator() {
       window.removeEventListener('auth:switch-to-login', switchToLogin);
     };
   }, []);
+
+  const fetchHistory = useCallback(async () => {
+    if (!currentUser) {
+      setHistoryItems([]);
+      return;
+    }
+    try {
+      const res = await fetch('/api/history/scream-ai?refresh_urls=true', {
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      const mapped: ScreamHistoryItem[] = (data.items ?? []).map(
+        (item: any) => {
+          const createdAt = item.createdAt
+            ? new Date(item.createdAt).getTime()
+            : Date.now();
+          const downloadUrl =
+            item.download_url || item.downloadUrl || item.url || '';
+          return {
+            id: item.id,
+            url: item.url || downloadUrl,
+            downloadUrl,
+            presetId: item.presetId || item.preset_id || 'unknown',
+            aspectRatio: item.aspectRatio ?? item.aspect_ratio ?? null,
+            assetId: item.assetId ?? item.asset_id ?? null,
+            watermarked: item.watermarked,
+            createdAt,
+          };
+        }
+      );
+      mapped.sort((a, b) => b.createdAt - a.createdAt);
+      setHistoryItems(mapped);
+      void syncHistoryToLibrary(mapped);
+    } catch (error) {
+      console.error('Failed to load scream-ai history:', error);
+    }
+  }, [currentUser, syncHistoryToLibrary]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    if (!currentUser) {
+      setHistoryItems([]);
+      return;
+    }
+    void fetchHistory();
+  }, [currentUser, fetchHistory, isMounted]);
 
   const requireAuth = useCallback(() => {
     if (!currentUser) {
@@ -261,6 +394,7 @@ export default function ScreamAIGenerator() {
 
       creditsCache.set(data.remaining_credits ?? 0);
       setResult(data);
+      void fetchHistory();
 
       toast({
         title: 'Success!',
@@ -285,6 +419,8 @@ export default function ScreamAIGenerator() {
     selectedPresetId,
     aspectRatio,
     toast,
+    customPrompt,
+    fetchHistory,
   ]);
 
   const handleDownload = useCallback(() => {
@@ -297,6 +433,112 @@ export default function ScreamAIGenerator() {
     document.body.removeChild(link);
   }, [result]);
 
+  const handleHistoryDownload = useCallback(
+    async (item: ScreamHistoryItem) => {
+      try {
+        const url = item.downloadUrl || item.url;
+        const response = await fetch(url, { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = `scream-ai-${item.presetId}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(objectUrl);
+
+        toast({
+          title: 'Download started',
+          description: 'Your Scream AI scene is downloading.',
+        });
+      } catch (error) {
+        console.error('Failed to download scream-ai history item:', error);
+        toast({
+          title: 'Download failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'Unable to download image.',
+          variant: 'destructive',
+        });
+      }
+    },
+    [toast]
+  );
+
+  const confirmDeleteHistoryItem = useCallback(async () => {
+    if (!pendingDeleteItem) return;
+    try {
+      const res = await fetch(
+        `/api/history/scream-ai/${pendingDeleteItem.id}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      setHistoryItems((prev) =>
+        prev.filter((item) => item.id !== pendingDeleteItem.id)
+      );
+      toast({
+        title: 'History item removed',
+        description: 'The selected scene has been removed from your history.',
+      });
+    } catch (error) {
+      console.error('Failed to delete scream-ai history item:', error);
+      toast({
+        title: 'Delete failed',
+        description:
+          error instanceof Error ? error.message : 'Unable to delete item.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPendingDeleteItem(null);
+      setShowDeleteDialog(false);
+    }
+  }, [pendingDeleteItem, toast]);
+
+  const confirmClearHistory = useCallback(async () => {
+    if (!currentUser || historyItems.length === 0) {
+      setShowClearAllDialog(false);
+      return;
+    }
+    try {
+      setIsClearingHistory(true);
+      await Promise.allSettled(
+        historyItems.map((item) =>
+          fetch(`/api/history/scream-ai/${item.id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          })
+        )
+      );
+      setHistoryItems([]);
+      toast({
+        title: 'History cleared',
+        description: 'Your Scream AI history has been cleared.',
+      });
+    } catch (error) {
+      console.error('Failed to clear scream-ai history:', error);
+      toast({
+        title: 'Clear failed',
+        description:
+          error instanceof Error ? error.message : 'Unable to clear history.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsClearingHistory(false);
+      setShowClearAllDialog(false);
+    }
+  }, [currentUser, historyItems, toast]);
+
   return (
     <>
       <section
@@ -305,7 +547,7 @@ export default function ScreamAIGenerator() {
         className="relative px-4 py-12 lg:py-16"
         style={{ backgroundColor: '#F5F5F5' }}
       >
-        <div className="mx-auto max-w-6xl space-y-8">
+        <div className="mx-auto max-w-7xl space-y-8">
           {/* Header */}
           <div className="space-y-4 text-center">
             <h1
@@ -408,7 +650,7 @@ export default function ScreamAIGenerator() {
                     </div>
 
                     {fileError && (
-                      <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg">
+                      <div className="flex items-center gap-2 p-3 bg-yellow-50 text-yellow-700 rounded-lg">
                         <AlertCircleIcon className="h-5 w-5 flex-shrink-0" />
                         <span className="text-sm">{fileError}</span>
                       </div>
@@ -581,7 +823,7 @@ export default function ScreamAIGenerator() {
                   {isGenerating ? (
                     <div className="flex items-center justify-center p-8 relative w-full h-full">
                       <div className="relative flex flex-col items-center justify-center">
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-purple-400/20 blur-3xl" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                         <div className="relative flex items-center justify-center">
                           <div className="relative flex items-center justify-center">
                             {previewUrl ? (
@@ -602,7 +844,7 @@ export default function ScreamAIGenerator() {
                               </div>
                               <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
                                 <div
-                                  className="h-full bg-red-500 transition-all duration-300 ease-out"
+                                  className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                                   style={{ width: `${generationProgress}%` }}
                                 />
                               </div>
@@ -675,6 +917,103 @@ export default function ScreamAIGenerator() {
           </div>
         </div>
       </section>
+      {historyItems.length > 0 && (
+        <div className="mx-auto mt-10 max-w-7xl px-4 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-semibold">Your Scream AI History</h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="cursor-pointer flex-shrink-0"
+              >
+                <LocaleLink
+                  href="/my-library"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ImageIcon className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">View All Images</span>
+                  <span className="sm:hidden">View All</span>
+                </LocaleLink>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer flex-shrink-0"
+                onClick={() => setShowClearAllDialog(true)}
+                disabled={historyItems.length === 0 || isClearingHistory}
+              >
+                Clear All
+              </Button>
+            </div>
+          </div>
+
+          {historyItems.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {historyItems.map((item) => {
+                const presetName =
+                  SCREAM_PRESET_MAP.get(item.presetId)?.name || 'Custom Scene';
+                return (
+                  <div key={item.id} className="group relative">
+                    <div className="relative w-full aspect-square bg-gray-50 border rounded-lg overflow-hidden">
+                      <Image
+                        src={item.url}
+                        alt={presetName}
+                        width={200}
+                        height={200}
+                        className="w-full h-full cursor-pointer object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                        onClick={() => {
+                          setPreviewHistoryItem(item);
+                          setPreviewImageUrl(item.url);
+                          setShowHistoryPreview(true);
+                        }}
+                        draggable={false}
+                      />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="truncate max-w-[60%]">{presetName}</span>
+                      <span>
+                        {new Date(item.createdAt).toISOString().slice(0, 10)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Download image"
+                        onClick={() => void handleHistoryDownload(item)}
+                      >
+                        <DownloadIcon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
+                        title="Remove image"
+                        onClick={() => {
+                          setPendingDeleteItem(item);
+                          setShowDeleteDialog(true);
+                        }}
+                      >
+                        <Trash2Icon className="h-4 w-4 text-gray-600" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-xl border bg-white py-12 text-center shadow-sm">
+              <p className="text-sm text-muted-foreground">
+                Generate your first horror scene to start building history.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
         <DialogContent className="sm:max-w-md">
@@ -703,6 +1042,155 @@ export default function ScreamAIGenerator() {
               }
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showHistoryPreview}
+        onOpenChange={(open) => {
+          setShowHistoryPreview(open);
+          if (!open) {
+            setPreviewImageUrl(null);
+            setPreviewHistoryItem(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-7xl w-[95vw] h-[85vh] p-0 bg-gradient-to-br from-black/90 to-black/95 border-none backdrop-blur-md overflow-hidden">
+          <DialogHeader className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+                  <Ghost className="w-5 h-5 text-yellow-400" />
+                  Scream AI Preview
+                </DialogTitle>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowHistoryPreview(false);
+                  setPreviewHistoryItem(null);
+                  setPreviewImageUrl(null);
+                }}
+                className="text-white/80 hover:text-white transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/10"
+                title="Close preview (ESC)"
+              >
+                <XIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </DialogHeader>
+
+          <div
+            className="relative w-full h-full flex items-center justify-center cursor-pointer group"
+            onClick={() => {
+              setShowHistoryPreview(false);
+              setPreviewHistoryItem(null);
+              setPreviewImageUrl(null);
+            }}
+          >
+            {previewImageUrl && (
+              <div className="relative max-w-[95%] max-h-[90%] transition-transform duration-300 group-hover:scale-[1.02]">
+                <Image
+                  src={previewImageUrl}
+                  alt="Scream AI preview"
+                  width={1600}
+                  height={1600}
+                  className="object-contain w-full h-full rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+                  quality={100}
+                  priority
+                  draggable={false}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/60 to-transparent px-6 py-6">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (previewHistoryItem) {
+                    await handleHistoryDownload(previewHistoryItem);
+                  }
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
+                size="lg"
+              >
+                <DownloadIcon className="h-5 w-5 mr-2" />
+                Download Full Size
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowHistoryPreview(false);
+                  setPreviewHistoryItem(null);
+                  setPreviewImageUrl(null);
+                }}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm transition-all duration-200"
+                size="lg"
+              >
+                Close Preview
+              </Button>
+            </div>
+            <div className="text-center mt-3 text-gray-400 text-xs">
+              Click anywhere or press ESC to close
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this scene?</DialogTitle>
+            <DialogDescription>
+              This will remove the selected Scream AI scene from your history
+              permanently.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setPendingDeleteItem(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteHistoryItem}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showClearAllDialog} onOpenChange={setShowClearAllDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Clear all Scream AI history?</DialogTitle>
+            <DialogDescription>
+              This action deletes every saved scene. You won&apos;t be able to
+              recover them later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearAllDialog(false)}
+              disabled={isClearingHistory}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmClearHistory}
+              disabled={isClearingHistory}
+            >
+              {isClearingHistory ? 'Clearing…' : 'Clear All'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

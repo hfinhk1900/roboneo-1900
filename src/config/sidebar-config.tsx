@@ -3,6 +3,7 @@
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
+  ArrowLeftIcon,
   BellIcon,
   CircleUserRoundIcon,
   CreditCardIcon,
@@ -33,6 +34,12 @@ export function getSidebarLinks(): NestedMenuItem[] {
   const isDemo = process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true';
 
   return [
+    {
+      title: 'Home',
+      icon: <ArrowLeftIcon className="size-4 shrink-0" />,
+      href: Routes.Root,
+      external: false,
+    },
     {
       title: t('dashboard.title'),
       icon: <LayoutDashboardIcon className="size-4 shrink-0" />,
