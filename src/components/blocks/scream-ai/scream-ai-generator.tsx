@@ -917,8 +917,8 @@ export default function ScreamAIGenerator() {
                             </div>
                           ) : (
                             <div className="text-center space-y-4">
-                              <div className="mx-auto w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Ghost className="h-16 w-16 text-gray-400" />
+                              <div className="flex justify-center">
+                                <Ghost className="h-16 w-16 text-muted-foreground" />
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">
