@@ -697,9 +697,14 @@ export default function ScreamAIGenerator() {
 
                   {/* Custom Prompt Input */}
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">
-                      Custom Prompt (Optional)
-                    </Label>
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Custom Prompt (Optional)
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        e.g. &quot;make it more dramatic with red lighting&quot;
+                      </p>
+                    </div>
                     <div className="relative">
                       <textarea
                         value={customPrompt}
