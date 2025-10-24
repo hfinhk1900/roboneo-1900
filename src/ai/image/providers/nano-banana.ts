@@ -16,6 +16,13 @@ interface GenerateResult {
   model: string;
 }
 
+type NanoBananaTaskCreateResponse = {
+  code?: number;
+  message?: string;
+  msg?: string;
+  data?: { taskId?: string };
+};
+
 /**
  * Provider wrapper for Gemini Nano Banana (https://kie.ai/nano-banana)
  * Using Kie.ai's job-based API with task creation and polling
@@ -183,15 +190,12 @@ export class NanoBananaProvider {
     });
 
     let bodyText: string | null = null;
-    let data: {
-      code?: number;
-      message?: string;
-      msg?: string;
-      data?: { taskId?: string };
-    } | null = null;
+    let data: NanoBananaTaskCreateResponse | null = null;
     try {
       bodyText = await response.text();
-      data = bodyText ? (JSON.parse(bodyText) as typeof data) : null;
+      data = bodyText
+        ? (JSON.parse(bodyText) as NanoBananaTaskCreateResponse)
+        : null;
     } catch (err) {
       console.warn(
         '[Nano Banana] Failed to parse task creation response:',
