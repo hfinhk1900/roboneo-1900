@@ -9,7 +9,8 @@ export type ToolType =
   | 'productshot'
   | 'aibackground'
   | 'watermark-removal'
-  | 'profile-picture';
+  | 'profile-picture'
+  | 'scream-ai';
 
 export interface ImageRecord {
   /** 唯一标识符 */
@@ -48,7 +49,8 @@ export type ToolParams =
   | ProductshotParams
   | AIBackgroundParams
   | WatermarkRemovalParams
-  | ProfilePictureParams;
+  | ProfilePictureParams
+  | ScreamAIParams;
 
 export interface StickerParams {
   style: string; // 'ios', 'pixel', 'lego', 'snoopy'
@@ -69,6 +71,12 @@ export interface WatermarkRemovalParams {
 
 export interface ProfilePictureParams {
   style?: string; // 头像风格
+}
+
+export interface ScreamAIParams {
+  presetId: string;
+  aspectRatio?: string | null;
+  watermarked?: boolean;
 }
 
 /**

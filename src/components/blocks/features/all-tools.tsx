@@ -52,7 +52,7 @@ const tools: ToolCard[] = [
   {
     id: 'scream-ai',
     title: 'Scream AI',
-    image: '/home/all-tools02.png',
+    image: '/home/all-tools06.png',
     alt: 'RoboNeo Scream AI - Generate suspenseful horror portraits',
     href: '/scream-ai',
   },
@@ -95,12 +95,12 @@ export default function AllToolsSection() {
                 </div>
 
                 {/* Tool Image */}
-                <div className="relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[166px] md:h-[166px] mx-auto mb-3 sm:mb-4 md:mb-5 rounded-2xl overflow-hidden">
+                <div className="relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[166px] md:h-[166px] mx-auto mb-3 sm:mb-4 md:mb-5 overflow-hidden rounded-2xl">
                   <Image
                     src={tool.image}
                     alt={tool.alt}
                     fill
-                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="object-contain"
                     sizes="(max-width: 640px) 110px, (max-width: 768px) 140px, 166px"
                   />
                 </div>

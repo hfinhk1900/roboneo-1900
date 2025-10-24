@@ -6,9 +6,7 @@ import dynamic from 'next/dynamic';
 
 const RemoveWatermarkGeneratorSection = dynamic(
   () =>
-    import(
-      '@/components/blocks/remove-watermark/remove-watermark-generator'
-    ).then((m) => m.RemoveWatermarkGeneratorSection),
+    import('@/components/blocks/remove-watermark/remove-watermark-generator'),
   {
     ssr: false,
     loading: () => (

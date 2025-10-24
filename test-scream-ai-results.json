@@ -1,0 +1,126 @@
+{
+  "presetTests": [
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "1",
+      "presetName": "Suburban Kitchen",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "2",
+      "presetName": "School Hallway",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "3",
+      "presetName": "Rainy Front Porch",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "4",
+      "presetName": "Movie Theater",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "5",
+      "presetName": "House Party",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    }
+  ],
+  "aspectRatioTests": [
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "1:1",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "3:4",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "4:3",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "9:16",
+      "error": {
+        "error": "Generation failed"
+      }
+    },
+    {
+      "success": false,
+      "presetId": "0",
+      "presetName": "Dreamy Y2K Bedroom",
+      "aspectRatio": "16:9",
+      "error": {
+        "error": "Generation failed"
+      }
+    }
+  ],
+  "customPromptTests": [
+    {
+      "success": false,
+      "presetId": "0",
+      "customPrompt": "Add more dramatic lighting and stronger shadows",
+      "error": "fetch failed"
+    },
+    {
+      "success": false,
+      "presetId": "3",
+      "customPrompt": "Add more dramatic lighting and stronger shadows",
+      "error": "fetch failed"
+    },
+    {
+      "success": false,
+      "presetId": "5",
+      "customPrompt": "Add more dramatic lighting and stronger shadows",
+      "error": "fetch failed"
+    }
+  ],
+  "timestamp": "2025-10-22T11:41:00.709Z"
+}

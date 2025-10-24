@@ -38,6 +38,19 @@ interface AIBackgroundHistoryItem {
   createdAt: number;
 }
 
+interface ScreamAIHistoryItem {
+  id: string;
+  url: string;
+  presetId?: string;
+  preset_id?: string;
+  aspectRatio?: string | null;
+  aspect_ratio?: string | null;
+  watermarked?: boolean;
+  download_url?: string;
+  createdAt?: string;
+  created_at?: string;
+}
+
 // localStorage 键名映射（兼容旧/新键名）
 const STORAGE_KEYS: Record<string, string[]> = {
   // Sticker 历史
@@ -54,9 +67,11 @@ const STORAGE_KEYS: Record<string, string[]> = {
 export class MigrationManager {
   private static instances: Map<string, MigrationManager> = new Map();
   private dbManager: IndexedDBManager;
+  private readonly userId?: string;
 
   private constructor(userId?: string) {
     this.dbManager = IndexedDBManager.getInstance(userId);
+    this.userId = userId;
   }
 
   public static getInstance(userId?: string): MigrationManager {
@@ -95,6 +110,7 @@ export class MigrationManager {
         this.migrateAIBackgroundHistory(),
         this.migrateWatermarkRemovalHistory(),
         this.migrateProfilePictureHistory(),
+        this.migrateScreamAIHistory(),
         // 可以添加更多工具的迁移
       ];
 
@@ -112,6 +128,7 @@ export class MigrationManager {
             'AIBackground',
             'WatermarkRemoval',
             'ProfilePicture',
+            'ScreamAI',
           ];
           status.errors.push(
             `${toolNames[index]} migration failed: ${result.reason}`
@@ -200,6 +217,48 @@ export class MigrationManager {
     }
 
     return { count: records.length, total: data.length };
+  }
+
+  private async migrateScreamAIHistory(): Promise<{
+    count: number;
+    total: number;
+  }> {
+    if (!this.userId) {
+      return { count: 0, total: 0 };
+    }
+
+    try {
+      const res = await fetch('/api/history/scream-ai?refresh_urls=true', {
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        return { count: 0, total: 0 };
+      }
+      const data = await res.json();
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      const records: ImageRecord[] = [];
+
+      for (const item of items) {
+        try {
+          const record = await this.convertScreamAIItem(item);
+          if (record) {
+            records.push(record);
+          }
+        } catch (error) {
+          console.warn('Failed to convert scream-ai item:', item, error);
+        }
+      }
+
+      if (records.length > 0) {
+        await this.dbManager.saveImages(records);
+      }
+
+      return { count: records.length, total: items.length };
+    } catch (error) {
+      console.warn('Failed to migrate scream-ai history:', error);
+      return { count: 0, total: 0 };
+    }
   }
 
   /**
@@ -543,6 +602,63 @@ export class MigrationManager {
     }
   }
 
+  private async convertScreamAIItem(
+    item: ScreamAIHistoryItem
+  ): Promise<ImageRecord | null> {
+    if (!item?.id || !item.url) {
+      return null;
+    }
+
+    try {
+      const existing = await this.dbManager.getImage(item.id);
+      if (existing) {
+        return null;
+      }
+    } catch (error) {
+      console.warn('Failed to check existing scream-ai record:', error);
+    }
+
+    const downloadUrl = item.download_url || item.url;
+    let blob: Blob | undefined;
+    try {
+      blob = await this.downloadImageAsBlob(downloadUrl);
+    } catch (error) {
+      console.warn('Failed to download scream-ai image:', downloadUrl, error);
+    }
+
+    let thumbnail: Blob | undefined;
+    if (blob) {
+      try {
+        thumbnail = await this.dbManager.generateThumbnail(blob);
+      } catch (error) {
+        console.warn('Failed to generate scream-ai thumbnail:', error);
+      }
+    }
+
+    const createdAtRaw = item.createdAt || item.created_at;
+    const createdAt = createdAtRaw
+      ? new Date(createdAtRaw).getTime()
+      : Date.now();
+
+    return {
+      id: item.id,
+      url: item.url,
+      blob: blob ?? undefined,
+      thumbnail,
+      toolType: 'scream-ai',
+      toolParams: {
+        presetId: item.presetId || item.preset_id || 'unknown',
+        aspectRatio: item.aspectRatio ?? item.aspect_ratio ?? '1:1',
+        watermarked: item.watermarked ?? false,
+      } as ToolParams,
+      createdAt,
+      lastAccessedAt: Date.now(),
+      fileSize: blob?.size,
+      syncStatus: 'synced',
+      serverId: item.id,
+    };
+  }
+
   /**
    * 从 localStorage 获取数据
    */
@@ -589,7 +705,7 @@ export class MigrationManager {
    */
   private async downloadImageAsBlob(url: string): Promise<Blob | null> {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }

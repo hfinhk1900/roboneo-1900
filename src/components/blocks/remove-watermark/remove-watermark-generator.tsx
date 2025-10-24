@@ -177,7 +177,7 @@ interface RemovalHistoryItem {
   createdAt: number;
 }
 
-export function RemoveWatermarkGeneratorSection() {
+export default function RemoveWatermarkGeneratorSection() {
   // Get current user
   const currentUser = useCurrentUser();
 

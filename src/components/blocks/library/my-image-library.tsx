@@ -63,6 +63,7 @@ const TOOL_LABELS: Record<ToolType, string> = {
   aibackground: 'AI Backgrounds',
   'watermark-removal': 'Watermark Removal',
   'profile-picture': 'Profile Picture Maker',
+  'scream-ai': 'Scream AI',
 };
 
 // 排序选项映射

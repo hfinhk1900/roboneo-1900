@@ -268,7 +268,7 @@ export default function AISuperchargeToolsSection() {
 
                 {/* Demo Image */}
                 <div className="relative">
-                  <div className="relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden">
+                  <div className="relative w-full h-[280px] md:h-[350px] rounded-2xl overflow-hidden">
                     <Image
                       src={tool.demoImage}
                       alt={tool.demoImageAlt}

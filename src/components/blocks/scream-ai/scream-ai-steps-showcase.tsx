@@ -99,7 +99,7 @@ export default function ScreamAIStepsShowcase() {
                 key={step.id}
                 onClick={() => handleStepClick(step.id)}
                 className={cn(
-                  'group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-md h-32 flex items-center',
+                  'group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-md flex flex-col sm:flex-row sm:items-start gap-4',
                   activeStep === step.id
                     ? 'shadow-sm'
                     : 'border-border bg-white hover:border-primary/50'
@@ -116,7 +116,7 @@ export default function ScreamAIStepsShowcase() {
                     : {}
                 }
               >
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 w-full">
                   {/* Step Number */}
                   <div
                     className={cn(

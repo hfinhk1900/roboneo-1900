@@ -912,7 +912,8 @@ export default function ScreamAIGenerator() {
                                 className="object-contain rounded-lg shadow-lg max-w-full max-h-96"
                               />
                               <div className="text-sm text-muted-foreground">
-                                Your portrait is ready! Select a preset and click generate.
+                                Your portrait is ready! Select a preset and
+                                click generate.
                               </div>
                             </div>
                           ) : (
