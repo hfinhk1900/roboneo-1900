@@ -26,6 +26,7 @@ export class NanoBananaProvider {
   private readonly timeoutMs: number;
   private readonly pollIntervalMs: number;
   private readonly model: string;
+  private readonly requiresImageUrl: boolean;
   private readonly inlineImageLimitBytes: number;
 
   constructor(apiKey: string, baseUrl?: string, timeoutMs?: number) {
@@ -38,7 +39,9 @@ export class NanoBananaProvider {
     this.timeoutMs =
       timeoutMs ?? Number(process.env.NANO_BANANA_TIMEOUT_MS || 60000);
     this.pollIntervalMs = 2000; // Poll every 2 seconds
-    this.model = process.env.NANO_BANANA_MODEL?.trim() || 'google/nano-banana';
+    this.model =
+      process.env.NANO_BANANA_MODEL?.trim() || 'google/nano-banana-edit';
+    this.requiresImageUrl = this.model.includes('nano-banana-edit');
     this.inlineImageLimitBytes = Number(
       process.env.NANO_BANANA_INLINE_IMAGE_LIMIT_BYTES || 15000
     );
@@ -59,7 +62,10 @@ export class NanoBananaProvider {
     return input;
   }
 
-  private async prepareImageInput(imageBase64: string): Promise<{
+  private async prepareImageInput(
+    imageBase64: string,
+    forceUpload = false
+  ): Promise<{
     inline?: { image_base64: string; image_data_url: string };
     imageUrl?: string;
   }> {
@@ -74,7 +80,7 @@ export class NanoBananaProvider {
       throw new Error('Invalid image data provided');
     }
 
-    if (buffer.byteLength <= this.inlineImageLimitBytes) {
+    if (!forceUpload && buffer.byteLength <= this.inlineImageLimitBytes) {
       return {
         inline: {
           image_base64: rawBase64,
@@ -143,8 +149,18 @@ export class NanoBananaProvider {
     }
 
     if (params.imageBase64) {
-      const imageInput = await this.prepareImageInput(params.imageBase64);
-      if (imageInput.inline) {
+      const imageInput = await this.prepareImageInput(
+        params.imageBase64,
+        this.requiresImageUrl
+      );
+
+      if (this.requiresImageUrl) {
+        if (!imageInput.imageUrl) {
+          throw new Error('Failed to prepare image URL for edit request');
+        }
+        inputPayload.image_urls = [imageInput.imageUrl];
+        inputPayload.num_images = 1;
+      } else if (imageInput.inline) {
         inputPayload.image_base64 = imageInput.inline.image_base64;
         inputPayload.image_data_url = imageInput.inline.image_data_url;
       } else if (imageInput.imageUrl) {
