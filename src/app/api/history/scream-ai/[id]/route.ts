@@ -5,10 +5,7 @@ import { and, eq } from 'drizzle-orm';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const session = await auth.api.getSession({
       headers: request.headers as any,
@@ -19,7 +16,7 @@ export async function DELETE(
     }
 
     const db = await getDb();
-    const { id } = params;
+    const { id } = (context?.params ?? {}) as { id: string };
 
     await db
       .delete(screamAiHistory)
