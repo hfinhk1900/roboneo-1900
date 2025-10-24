@@ -900,18 +900,36 @@ export default function ScreamAIGenerator() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center w-full h-full">
-                      <div className="text-center space-y-4">
-                        <div className="mx-auto w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <Ghost className="h-16 w-16 text-gray-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Your horror scene will appear here
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Upload an image and generate to see the result
-                          </p>
+                    <div className="flex items-center justify-center min-h-[604px] p-8">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+                        <div className="relative flex items-center justify-center">
+                          {previewUrl ? (
+                            <div className="text-center space-y-4">
+                              <img
+                                src={previewUrl}
+                                alt="Your uploaded portrait"
+                                className="object-contain rounded-lg shadow-lg max-w-full max-h-96"
+                              />
+                              <div className="text-sm text-muted-foreground">
+                                Your portrait is ready! Select a preset and click generate.
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center space-y-4">
+                              <div className="mx-auto w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <Ghost className="h-16 w-16 text-gray-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">
+                                  Your horror scene will appear here
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Upload an image and generate to see the result
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
