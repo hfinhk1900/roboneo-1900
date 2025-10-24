@@ -97,6 +97,36 @@ export function StructuredData({
           ],
         };
 
+      case 'article':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: 'RoboNeo AI — Build Viral AI Tools Fast',
+          description:
+            'Learn how RoboNeo AI helps you launch AI-powered creators and marketing workflows in minutes with ready-to-use SaaS foundations.',
+          image: ['https://roboneo.art/og.png'],
+          datePublished: '2024-01-01T00:00:00.000Z',
+          dateModified: '2024-01-01T00:00:00.000Z',
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': 'https://roboneo.art',
+          },
+          author: {
+            '@type': 'Organization',
+            name: 'RoboNeo',
+            url: 'https://roboneo.art',
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'RoboNeo',
+            url: 'https://roboneo.art',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://roboneo.art/favicon.svg',
+            },
+          },
+        };
+
       case 'faq':
         return {
           '@context': 'https://schema.org',
@@ -138,11 +168,11 @@ export function StructuredData({
         };
 
       default:
-        return data || {};
+        return {};
     }
   };
 
-  const structuredData = getStructuredData();
+  const structuredData = data ?? getStructuredData();
 
   return (
     <Script
