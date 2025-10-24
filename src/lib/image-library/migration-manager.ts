@@ -621,7 +621,10 @@ export class MigrationManager {
     const downloadUrl = item.download_url || item.url;
     let blob: Blob | undefined;
     try {
-      blob = await this.downloadImageAsBlob(downloadUrl);
+      const downloaded = await this.downloadImageAsBlob(downloadUrl);
+      if (downloaded) {
+        blob = downloaded;
+      }
     } catch (error) {
       console.warn('Failed to download scream-ai image:', downloadUrl, error);
     }
