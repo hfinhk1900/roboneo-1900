@@ -328,7 +328,7 @@ export class NanoBananaProvider {
     }
 
     const arrayBuffer = await imageRes.arrayBuffer();
-    let uploadBuffer = Buffer.from(arrayBuffer);
+    let uploadBuffer: Buffer = Buffer.from(arrayBuffer);
 
     if (params.watermarkText) {
       try {
