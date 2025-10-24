@@ -2,9 +2,15 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ShieldIcon, SparklesIcon, ZapIcon } from 'lucide-react';
+import { type ShieldIcon, SparklesIcon, ZapIcon } from 'lucide-react';
 
-const FEATURES = [];
+type FeatureCard = {
+  title: string;
+  description: string;
+  icon: typeof ShieldIcon;
+};
+
+const FEATURES: FeatureCard[] = [];
 
 export default function ScreamAIFeaturesShowcase({
   className,
