@@ -22,6 +22,8 @@
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+  --bkg: #fff;
+  --clr: #000;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(0.985 0 0);
@@ -102,6 +104,8 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+  --bkg: #000;
+  --clr: #fff;
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.269 0 0);
@@ -430,8 +434,6 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
 [class*="fd-secondary"]:empty:not([data-banner-content]) {
   display: none !important;
 }
-
-/* 移除全局按钮样式覆盖 - 让组件自己处理样式 */
 
 /* Smooth scrolling for in-page anchor navigation */
 html {

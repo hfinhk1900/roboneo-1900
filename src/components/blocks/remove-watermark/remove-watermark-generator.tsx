@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ImageGenerationLoader } from '@/components/ui/loader-2';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
@@ -981,28 +982,12 @@ export default function RemoveWatermarkGeneratorSection() {
                             <div className="w-[400px] h-[300px] bg-gray-200 rounded-lg shadow-lg opacity-30" />
                           )}
                           {/* Progress overlay */}
-                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
-                            {/* Processing icon */}
-                            <div className="flex items-center space-x-2 text-white">
-                              <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">
-                                Creating...
-                              </span>
-                            </div>
-
-                            {/* Progress bar - consistent with AI Background */}
-                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
-                                style={{ width: '100%' }}
-                              />
-                            </div>
-
-                            {/* 页面刷新提示 */}
-                            <div className="text-white text-xs opacity-80 text-center">
-                              Don't refresh the page until the image is
-                              generated.
-                            </div>
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex items-center justify-center">
+                            <ImageGenerationLoader
+                              label="Creating..."
+                              helperText="Don't refresh the page until the image is generated."
+                              size="lg"
+                            />
                           </div>
                         </div>
                       </div>

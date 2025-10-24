@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ImageGenerationLoader } from '@/components/ui/loader-2';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import {
   SCREAM_PRESETS,
@@ -840,26 +841,13 @@ export default function ScreamAIGenerator() {
                             ) : (
                               <div className="w-96 h-72 bg-gray-200 rounded-lg shadow-lg opacity-30" />
                             )}
-                            <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
-                              <div className="flex items-center space-x-2 text-white">
-                                <Loader2Icon className="h-6 w-6 animate-spin" />
-                                <span className="text-lg font-medium">
-                                  Creating...
-                                </span>
-                              </div>
-                              <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
-                                <div
-                                  className="h-full bg-yellow-400 transition-all duration-300 ease-out"
-                                  style={{ width: `${generationProgress}%` }}
-                                />
-                              </div>
-                              <div className="text-white text-sm font-medium">
-                                {Math.round(generationProgress)}%
-                              </div>
-                              <div className="text-white text-xs opacity-80 text-center">
-                                Don't refresh the page until generation is
-                                complete.
-                              </div>
+                            <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex items-center justify-center">
+                              <ImageGenerationLoader
+                                label="Creating..."
+                                progress={generationProgress}
+                                helperText="Don't refresh the page until generation is complete."
+                                size="lg"
+                              />
                             </div>
                           </div>
                         </div>

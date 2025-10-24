@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ImageGenerationLoader } from '@/components/ui/loader-2';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { creditsCache } from '@/lib/credits-cache';
@@ -2626,35 +2627,17 @@ export function AIBackgroundGeneratorSection() {
                             />
                           )}
                           {/* 进度遮罩层 */}
-                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center space-y-4">
-                            {/* 生成中图标 */}
-                            <div className="flex items-center space-x-2 text-white">
-                              <LoaderIcon className="h-6 w-6 animate-spin" />
-                              <span className="text-lg font-medium">
-                                {backgroundMode === 'color'
+                          <div className="absolute inset-0 bg-gray-900/50 rounded-lg flex items-center justify-center">
+                            <ImageGenerationLoader
+                              label={
+                                backgroundMode === 'color'
                                   ? 'Removing Background...'
-                                  : 'Generating AI Background...'}
-                              </span>
-                            </div>
-
-                            {/* 进度条 - 与其他功能保持一致的黄色主题 */}
-                            <div className="w-full max-w-[320px] bg-gray-700 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="h-full bg-yellow-400 transition-all duration-300 ease-out"
-                                style={{ width: `${generationProgress}%` }}
-                              />
-                            </div>
-
-                            {/* 进度百分比 */}
-                            <div className="text-white text-sm font-medium">
-                              {Math.round(generationProgress)}%
-                            </div>
-
-                            {/* 页面刷新提示 */}
-                            <div className="text-white text-xs opacity-80 text-center">
-                              Don't refresh the page until the image is
-                              generated.
-                            </div>
+                                  : 'Generating AI Background...'
+                              }
+                              progress={generationProgress}
+                              helperText="Don't refresh the page until the image is generated."
+                              size="lg"
+                            />
                           </div>
                         </div>
                       </div>
