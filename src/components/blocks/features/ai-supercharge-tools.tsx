@@ -200,7 +200,7 @@ const toolFeatures: ToolFeature[] = [
     buttonText: 'Launch Scream AI',
     buttonLink: '/scream-ai',
     icon: GhostMaskIcon,
-    demoImage: '/home/all-tools03.png',
+    demoImage: '/home/tool-list-scream-ai.png',
     demoImageAlt: 'Scream AI suspenseful portrait demo',
   },
 ];
