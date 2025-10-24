@@ -900,7 +900,7 @@ export default function ScreamAIGenerator() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center min-h-[604px] p-8">
+                    <div className="flex items-center justify-center w-full h-full p-8">
                       <div className="relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
                         <div className="relative flex items-center justify-center">
