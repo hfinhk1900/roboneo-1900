@@ -1,7 +1,8 @@
-'use client';
-
 import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
+import ScreamAIFeaturesShowcase from '@/components/blocks/scream-ai/scream-ai-features-showcase';
+import ScreamAIGenerator from '@/components/blocks/scream-ai/scream-ai-generator';
+import ScreamAIStepsShowcase from '@/components/blocks/scream-ai/scream-ai-steps-showcase';
 import { HeaderSection } from '@/components/layout/header-section';
 import {
   Accordion,
@@ -9,30 +10,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
-
-const ScreamAIGenerator = dynamic(
-  () => import('@/components/blocks/scream-ai/scream-ai-generator'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        Loading…
-      </div>
-    ),
-  }
-);
-
-const ScreamAIStepsShowcase = dynamic(
-  () => import('@/components/blocks/scream-ai/scream-ai-steps-showcase'),
-  { ssr: false }
-);
-
-const ScreamAIFeaturesShowcase = dynamic(
-  () => import('@/components/blocks/scream-ai/scream-ai-features-showcase'),
-  { ssr: false }
-);
 
 const faqs = [
   {
@@ -139,20 +116,18 @@ const faqs = [
 
 export default function ScreamAIPageContent() {
   // Generate JSON-LD structured data for FAQ rich results
-  const faqJsonLd = useMemo(() => {
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: faqs.map((faq) => ({
-        '@type': 'Question',
-        name: faq.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.answer,
-        },
-      })),
-    };
-  }, []);
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
 
   return (
     <div className="flex flex-col">
