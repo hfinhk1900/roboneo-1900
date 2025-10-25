@@ -2,6 +2,33 @@ import CallToActionSection from '@/components/blocks/calltoaction/calltoaction';
 import ExploreMoreToolsSection from '@/components/blocks/features/explore-more-tools-lazy';
 import ScreamAIFeaturesShowcase from '@/components/blocks/scream-ai/scream-ai-features-showcase';
 import ScreamAIGenerator from '@/components/blocks/scream-ai/scream-ai-generator';
+import { Suspense } from 'react';
+
+function GeneratorFallback() {
+  return (
+    <section
+      id="scream-ai-generator"
+      className="relative px-4 py-12 lg:py-16"
+      style={{ backgroundColor: '#F5F5F5' }}
+    >
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-2">
+        {[0, 1].map((column) => (
+          <div
+            key={`scream-loading-${column}`}
+            className="min-h-[320px] rounded-2xl border border-dashed border-gray-200 bg-white/60 p-6"
+          >
+            <div className="mx-auto flex h-full w-full max-w-lg flex-col items-center justify-center gap-4">
+              <div className="h-8 w-3/4 animate-pulse rounded-lg bg-gray-200" />
+              <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+              <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200" />
+              <div className="mt-6 h-48 w-full animate-pulse rounded-2xl bg-gray-100" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 import ScreamAIStepsShowcase from '@/components/blocks/scream-ai/scream-ai-steps-showcase';
 import { HeaderSection } from '@/components/layout/header-section';
 import {
@@ -132,7 +159,9 @@ export default function ScreamAIPageContent() {
   return (
     <div className="flex flex-col">
       {/* Main Scream AI Generator Section */}
-      <ScreamAIGenerator />
+      <Suspense fallback={<GeneratorFallback />}>
+        <ScreamAIGenerator />
+      </Suspense>
 
       {/* Steps Showcase Section */}
       <ScreamAIStepsShowcase />

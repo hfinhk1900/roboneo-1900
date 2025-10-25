@@ -1,0 +1,9 @@
+
+> roboneo art webapp@0.1.0 build /Users/hf/Desktop/Web Template/Products/roboneo art
+> next build
+
+   ▲ Next.js 15.2.1
+   - Environments: .env.local, .env.production, .env
+
+[MDX] updated map file in 90.30327299999999ms
+   Creating an optimized production build ...

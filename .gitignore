@@ -53,4 +53,4 @@ next-env.d.ts
 .wrangler
 .dev.vars
 .dev.vars*
-!.dev.vars.example
+!.dev.vars.examplebuild.log

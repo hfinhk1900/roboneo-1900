@@ -86,7 +86,7 @@ type ScreamAIGeneratorClientProps = {
   showHeader?: boolean;
 };
 
-export default function ScreamAIGeneratorClient({
+function ScreamAIGeneratorClient({
   withWrapper = true,
   showHeader = true,
 }: ScreamAIGeneratorClientProps) {
@@ -1233,3 +1233,5 @@ export default function ScreamAIGeneratorClient({
     </>
   );
 }
+
+export default ScreamAIGeneratorClient;

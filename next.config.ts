@@ -106,4 +106,11 @@ const withNextIntl = createNextIntlPlugin();
  */
 const withMDX = createMDX();
 
-export default withBundleAnalyzer(withMDX(withNextIntl(nextConfig)));
+const mergedConfig = withBundleAnalyzer(withMDX(withNextIntl(nextConfig)));
+
+// 兼容 Next.js 15：部分插件会附带已废弃的 `turbopack` 配置，显式清理以避免警告
+if ('turbopack' in mergedConfig) {
+  delete (mergedConfig as Record<string, unknown>).turbopack;
+}
+
+export default mergedConfig;
