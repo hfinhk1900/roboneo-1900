@@ -503,7 +503,14 @@ export default function StickerGenerator() {
             clearInterval(progressInterval);
             return 90;
           }
-          return prev + Math.random() * 15;
+
+          const next = Math.min(prev + Math.random() * 15, 90);
+          if (next >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+
+          return next;
         });
       }, 500);
 
