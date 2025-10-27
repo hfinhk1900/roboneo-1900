@@ -36,7 +36,7 @@ const STYLE_CONFIGS = {
   ios: {
     name: 'iOS Sticker',
     userPrompt:
-      "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove all background completely, making it fully transparent. Include only the full figures with no background elements, ensuring the final image looks like an official iOS emoji sticker with transparent background.",
+      'Create an iOS emoji sticker from the object in the uploaded image. Depict it as a smooth, vibrant 3D cartoon object, with a clean white edge. Render it against a pure white background.',
     imageUrl: '/styles/ios.png',
   },
   pixel: {
@@ -88,18 +88,16 @@ async function preprocessToSquareRGBA(inputBuffer: Buffer): Promise<{
     const processedImage = image
       .resize(targetSize, targetSize, {
         fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
       .png({
         compressionLevel: 6,
         adaptiveFiltering: true,
         force: true,
-      });
+      })
+      .flatten({ background: { r: 255, g: 255, b: 255 } });
 
-    const finalBuffer = await (metadata.hasAlpha
-      ? processedImage
-      : processedImage.ensureAlpha()
-    ).toBuffer();
+    const finalBuffer = await processedImage.toBuffer();
 
     if (finalBuffer.length > 4 * 1024 * 1024) {
       throw new Error('Image is too large after processing (> 4MB)');
@@ -503,12 +501,31 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     if (typeof idStoreKey === 'string') clearKey(idStoreKey);
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Internal server error',
-      },
-      { status: 500 }
-    );
+
+    const errorMessage =
+      error instanceof Error ? error.message : 'Internal server error';
+    let statusCode = 500;
+    let userMessage = errorMessage;
+
+    if (
+      errorMessage.includes(
+        'Client network socket disconnected before secure TLS connection was established'
+      )
+    ) {
+      statusCode = 503;
+      userMessage =
+        'Sticker service connection failed. Please verify network/firewall settings or retry shortly.';
+    } else if (
+      errorMessage.toLowerCase().includes('timeout') ||
+      errorMessage.includes('AbortError')
+    ) {
+      statusCode = 408;
+      userMessage = 'Sticker generation timeout. Please try again.';
+    }
+
+    return NextResponse.json({ error: userMessage, details: errorMessage }, {
+      status: statusCode,
+    });
   }
 }
 

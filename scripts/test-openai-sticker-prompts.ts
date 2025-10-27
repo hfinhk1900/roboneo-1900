@@ -13,9 +13,9 @@ const API_BASE =
     ? 'https://your-domain.com'
     : 'http://localhost:3000';
 
-// 贴纸风格提示词配置（基于 laozhang-config.ts）
+// 贴纸风格提示词配置（保持与实际 API 一致）
 const STICKER_STYLE_PROMPTS = {
-  ios: "Learn the Apple iOS emoji style and turn the people in the photo into 3D sticker avatars that match that style. Recreate people's body shapes, face shapes, skin tones, facial features, and expressions. Keep every detail—facial accessories, hairstyles and hair accessories, clothing, other accessories, facial expressions, and pose—exactly the same as in the original photo. Remove background and include only the full figures, ensuring the final image looks like an official iOS emoji sticker.",
+  ios: "Create an iOS emoji sticker from the object in the uploaded image. Depict it as a smooth, vibrant 3D cartoon object, with a clean white edge. Render it against a pure white background.",
   pixel:
     'Transform into pixel art style sticker: 8-bit retro aesthetic, blocky pixels, limited color palette, bold white outline, transparent background',
   lego: 'Convert to LEGO minifigure style sticker: blocky construction, plastic appearance, bright primary colors, simplified features, bold white outline, transparent background',

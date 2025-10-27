@@ -18,6 +18,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Providers } from './providers';
+import AnalyticsClient from '@/components/AnalyticsClient';
 
 import '@/styles/globals.css';
 
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
             <Toaster richColors position="top-right" offset={64} />
             <TailwindIndicator />
             <Analytics />
+            <AnalyticsClient />
           </Providers>
         </NextIntlClientProvider>
       </body>

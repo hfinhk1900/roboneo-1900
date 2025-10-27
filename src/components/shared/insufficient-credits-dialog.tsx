@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Events, track } from '@/lib/analytics';
 import { CreditCardIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -30,6 +31,11 @@ export function InsufficientCreditsDialog({
   }, [open]);
 
   const handleUpgrade = () => {
+    track(Events.UpgradeCtaClicked, {
+      placement: 'insufficient_credits_dialog',
+      required,
+      current,
+    });
     window.open('/pricing', '_blank');
     setIsOpen(false);
   };

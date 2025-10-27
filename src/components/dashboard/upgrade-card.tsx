@@ -11,6 +11,7 @@ import {
 import { websiteConfig } from '@/config/website';
 import { usePayment } from '@/hooks/use-payment';
 import { LocaleLink } from '@/i18n/navigation';
+import { Events, track } from '@/lib/analytics';
 import { Routes } from '@/routes';
 import { SparklesIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -36,6 +37,12 @@ export function UpgradeCard() {
     return null;
   }
 
+  const handleUpgradeClick = () => {
+    track(Events.UpgradeCtaClicked, {
+      placement: 'dashboard_sidebar',
+    });
+  };
+
   return (
     <Card className="shadow-none">
       <CardHeader className="gap-2">
@@ -46,7 +53,11 @@ export function UpgradeCard() {
         <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button className="cursor-pointer w-full shadow-none" size="sm">
+        <Button
+          className="cursor-pointer w-full shadow-none"
+          size="sm"
+          onClick={handleUpgradeClick}
+        >
           <LocaleLink href={Routes.SettingsBilling}>{t('button')}</LocaleLink>
         </Button>
       </CardContent>

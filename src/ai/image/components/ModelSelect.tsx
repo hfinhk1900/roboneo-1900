@@ -46,8 +46,6 @@ const PROVIDER_ICONS: Partial<
   // vertex: VertexIcon,
   fireworks: FireworksIcon,
   fal: falAILogo,
-  // Fallback icons for custom providers
-  laozhang: OpenAIIcon,
   siliconflow: FireworksIcon,
 } as const;
 
@@ -57,7 +55,6 @@ const PROVIDER_LINKS: Partial<Record<ProviderKey, string>> = {
   // vertex: 'google-vertex',
   fireworks: 'fireworks',
   fal: 'fal',
-  laozhang: 'openai',
   siliconflow: 'fireworks',
 } as const;
 

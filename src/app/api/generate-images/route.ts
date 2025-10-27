@@ -81,11 +81,6 @@ const providerConfig: Record<ProviderKey, ProviderConfig> = {
     }),
     dimensionFormat: 'size',
   },
-  // Laozhang 使用自定义实现，暂时不在此配置
-  laozhang: {
-    createImageModel: openai.image, // 临时使用 OpenAI 作为备选
-    dimensionFormat: 'size',
-  },
 };
 
 const withTimeout = <T>(

@@ -3,6 +3,7 @@
 import { createCheckoutAction } from '@/actions/create-checkout-session';
 import { Button } from '@/components/ui/button';
 import { websiteConfig } from '@/config/website';
+import { Events, track } from '@/lib/analytics';
 import { Loader2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -55,6 +56,10 @@ export function CheckoutButton({
   }, []);
 
   const handleClick = async () => {
+    track(Events.CheckoutStarted, {
+      plan: planId,
+      price_id: priceId,
+    });
     try {
       setIsLoading(true);
       console.log('Creating checkout with:', { userId, planId, priceId });

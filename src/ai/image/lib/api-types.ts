@@ -60,35 +60,6 @@ export interface ImageToStickerResponse {
   error?: string;
 }
 
-// Laozhang AI specific types
-export interface LaozhangChatCompletionRequest {
-  model: string;
-  messages: Array<{
-    role: string;
-    content: Array<{
-      type: string;
-      text?: string;
-      image_url?: {
-        url: string;
-      };
-    }>;
-  }>;
-  max_tokens: number;
-}
-
-export interface LaozhangChatCompletionResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
 // Style configuration
 export type StickerStyle = 'ios' | 'pixel' | 'lego' | 'snoopy';
 

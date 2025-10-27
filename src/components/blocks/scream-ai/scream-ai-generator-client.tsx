@@ -31,6 +31,7 @@ import {
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useToast } from '@/hooks/use-toast';
 import { LocaleLink } from '@/i18n/navigation';
+import { ensureDeviceId, Events, track } from '@/lib/analytics';
 import { creditsCache } from '@/lib/credits-cache';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import { cn } from '@/lib/utils';
@@ -371,6 +372,22 @@ function ScreamAIGeneratorClient({
       return;
     }
 
+    const trimmedPrompt = customPrompt.trim();
+    const planLabel = currentUser.role ?? 'guest';
+    const deviceId = ensureDeviceId();
+    const startAt = Date.now();
+
+    track(Events.GenerationStarted, {
+      feature: 'scream-ai',
+      preset_id: selectedPresetId,
+      aspect_ratio: aspectRatio,
+      source_type: 'upload',
+      prompt_len: trimmedPrompt.length,
+      has_custom_prompt: trimmedPrompt.length > 0,
+      plan: planLabel,
+      device_id: deviceId,
+    });
+
     setIsGenerating(true);
     setGenerationProgress(0);
 
@@ -385,7 +402,7 @@ function ScreamAIGeneratorClient({
           image_input: uploadedBase64,
           preset_id: selectedPresetId,
           aspect_ratio: aspectRatio,
-          custom_prompt: customPrompt.trim() || undefined,
+          custom_prompt: trimmedPrompt || undefined,
         }),
       });
 
@@ -399,6 +416,18 @@ function ScreamAIGeneratorClient({
       const data: GenerateResult = await res.json();
       setGenerationProgress(100);
 
+      track(Events.GenerationResultViewed, {
+        feature: 'scream-ai',
+        preset_id: data.preset_id,
+        aspect_ratio: data.aspect_ratio,
+        latency_ms: Date.now() - startAt,
+        images_returned: 1,
+        resolution: data.aspect_ratio,
+        plan: planLabel,
+        device_id: deviceId,
+        watermarked: data.watermarked,
+      });
+
       creditsCache.set(data.remaining_credits ?? 0);
       setResult(data);
       void fetchHistory();
@@ -409,6 +438,16 @@ function ScreamAIGeneratorClient({
       });
     } catch (error) {
       console.error('Generation failed:', error);
+      track(Events.GenerationFailed, {
+        feature: 'scream-ai',
+        preset_id: selectedPresetId,
+        aspect_ratio: aspectRatio,
+        latency_ms: Date.now() - startAt,
+        error_code:
+          error instanceof Error ? error.message : 'unknown_generation_error',
+        plan: planLabel,
+        device_id: deviceId,
+      });
       toast({
         title: 'Generation failed',
         description:
@@ -432,13 +471,21 @@ function ScreamAIGeneratorClient({
 
   const handleDownload = useCallback(() => {
     if (!result) return;
+    const planLabel = currentUser?.role ?? 'guest';
+    track(Events.DownloadClicked, {
+      feature: 'scream-ai',
+      asset_id: result.asset_id,
+      preset_id: result.preset_id,
+      plan: planLabel,
+      origin: 'result',
+    });
     const link = document.createElement('a');
     link.href = result.download_url;
     link.download = `scream-ai-${result.preset_id}-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [result]);
+  }, [currentUser?.role, result]);
 
   const handleHistoryDownload = useCallback(
     async (item: ScreamHistoryItem) => {
@@ -459,6 +506,15 @@ function ScreamAIGeneratorClient({
         document.body.removeChild(link);
         URL.revokeObjectURL(objectUrl);
 
+        const planLabel = currentUser?.role ?? 'guest';
+        track(Events.DownloadClicked, {
+          feature: 'scream-ai',
+          asset_id: item.assetId,
+          preset_id: item.presetId,
+          plan: planLabel,
+          origin: 'history',
+        });
+
         toast({
           title: 'Download started',
           description: 'Your Scream AI scene is downloading.',
@@ -475,7 +531,7 @@ function ScreamAIGeneratorClient({
         });
       }
     },
-    [toast]
+    [currentUser?.role, toast]
   );
 
   const confirmDeleteHistoryItem = useCallback(async () => {
@@ -596,6 +652,7 @@ function ScreamAIGeneratorClient({
                         isDragging && 'bg-muted/50 border-primary'
                       )}
                       onClick={() => fileInputRef.current?.click()}
+                      data-clarity-mask="true"
                     >
                       <input
                         ref={fileInputRef}
@@ -705,7 +762,7 @@ function ScreamAIGeneratorClient({
                         e.g. &quot;make it more dramatic with red lighting&quot;
                       </p>
                     </div>
-                    <div className="relative">
+                    <div className="relative" data-clarity-mask="true">
                       <textarea
                         value={customPrompt}
                         onChange={(e) => {

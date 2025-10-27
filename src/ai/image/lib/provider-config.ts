@@ -4,7 +4,6 @@ export type ProviderKey =
   | 'openai'
   | 'fireworks'
   | 'fal'
-  | 'laozhang' // 新增 Laozhang AI 提供商
   | 'siliconflow'; // 新增 SiliconFlow AI 提供商
 
 export type ModelMode = 'performance' | 'quality';
@@ -91,17 +90,6 @@ export const PROVIDERS: Record<
       // 'fal-ai/stable-diffusion-3.5-large',
     ],
   },
-  // Laozhang AI provider for image-to-sticker functionality
-  laozhang: {
-    displayName: 'Laozhang AI',
-    iconPath: '/provider-icons/laozhang.svg',
-    color: 'from-red-500 to-pink-500',
-    models: [
-      'gpt-4o-image',
-      'gpt-4-vision-preview',
-      'gpt-image-1', // for image editing API
-    ],
-  },
   // SiliconFlow AI provider for FLUX.1-Kontext models
   siliconflow: {
     displayName: 'SiliconFlow',
@@ -126,7 +114,6 @@ export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
     openai: 'gpt-image-1', // 更新为新模型
     fireworks: 'accounts/fireworks/models/flux-1-schnell-fp8',
     fal: 'fal-ai/flux/dev',
-    laozhang: 'gpt-4o-image',
     siliconflow: 'black-forest-labs/FLUX.1-Kontext-dev', // 性能优先：Kontext-dev
   },
   quality: {
@@ -135,7 +122,6 @@ export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
     openai: 'gpt-image-1', // 更新为新模型
     fireworks: 'accounts/fireworks/models/flux-1-dev-fp8',
     fal: 'fal-ai/flux-pro/v1.1-ultra',
-    laozhang: 'gpt-4-vision-preview',
     siliconflow: 'black-forest-labs/FLUX.1-Kontext-max', // 质量优先：Kontext-max
   },
 };
@@ -146,7 +132,6 @@ export const PROVIDER_ORDER: ProviderKey[] = [
   'openai',
   'fireworks',
   'fal',
-  'laozhang',
   'siliconflow', // 添加 SiliconFlow
 ];
 

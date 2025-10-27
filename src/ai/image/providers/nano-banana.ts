@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { Agent } from 'undici';
 
 interface GenerateParams {
   imageBase64: string;
@@ -39,6 +40,7 @@ export class NanoBananaProvider {
   private readonly model: string;
   private readonly requiresImageUrl: boolean;
   private readonly inlineImageLimitBytes: number;
+  private readonly agent?: Agent;
 
   constructor(apiKey: string, baseUrl?: string, timeoutMs?: number) {
     this.apiKey = apiKey;
@@ -56,6 +58,17 @@ export class NanoBananaProvider {
     this.inlineImageLimitBytes = Number(
       process.env.NANO_BANANA_INLINE_IMAGE_LIMIT_BYTES || 15000
     );
+
+    if (process.env.NANO_BANANA_INSECURE_TLS === 'true') {
+      this.agent = new Agent({
+        connect: {
+          rejectUnauthorized: false,
+        },
+      });
+      console.warn(
+        '[Nano Banana] TLS verification disabled via NANO_BANANA_INSECURE_TLS'
+      );
+    }
   }
 
   private sanitizeBase64(input: string): string {
@@ -71,6 +84,13 @@ export class NanoBananaProvider {
       return input.slice(commaIndex + 1);
     }
     return input;
+  }
+
+  private withAgent(init?: RequestInit): RequestInit {
+    if (!this.agent) {
+      return init ?? {};
+    }
+    return { ...(init ?? {}), dispatcher: this.agent } as RequestInit;
   }
 
   private async prepareImageInput(
@@ -232,14 +252,17 @@ export class NanoBananaProvider {
       input: inputPayload,
     };
 
-    const response = await fetch(`${this.baseUrl}/api/v1/jobs/createTask`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/jobs/createTask`,
+      this.withAgent({
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+    );
 
     let bodyText: string | null = null;
     let data: NanoBananaTaskCreateResponse | null = null;
@@ -293,12 +316,12 @@ export class NanoBananaProvider {
     while (Date.now() - startTime < timeoutMs) {
       const response = await fetch(
         `${this.baseUrl}/api/v1/jobs/recordInfo?taskId=${taskId}`,
-        {
+        this.withAgent({
           method: 'GET',
           headers: {
             Authorization: `Bearer ${this.apiKey}`,
           },
-        }
+        })
       );
 
       if (!response.ok) {
@@ -372,7 +395,7 @@ export class NanoBananaProvider {
     const imageUrl = imageUrls[0];
 
     // Download the generated image
-    const imageRes = await fetch(imageUrl);
+    const imageRes = await fetch(imageUrl, this.withAgent());
     if (!imageRes.ok) {
       throw new Error(
         `Failed to download generated image: ${imageRes.status} ${imageRes.statusText}`

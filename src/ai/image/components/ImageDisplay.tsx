@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Events, track } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 import { AlertCircle, Download, ImageIcon, Share } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -75,8 +76,20 @@ export function ImageDisplay({
     provider: string
   ) => {
     e.stopPropagation();
+    const supportsShare =
+      typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+    track(Events.ShareClicked, {
+      feature: 'ai-image',
+      provider,
+      supports_share: supportsShare,
+    });
     imageHelpers.shareOrDownload(imageData, provider).catch((error) => {
       console.error('Failed to share/download image:', error);
+      track(Events.DownloadClicked, {
+        feature: 'ai-image',
+        provider,
+        fallback: true,
+      });
     });
   };
 
