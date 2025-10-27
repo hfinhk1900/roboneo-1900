@@ -1,0 +1,10 @@
+{
+  "generation_started": ["preset_id", "aspect_ratio", "source_type", "prompt_len", "plan", "device_id"],
+  "generation_result_viewed": ["preset_id", "aspect_ratio", "latency_ms", "images_returned", "resolution", "plan", "watermarked"],
+  "generation_failed": ["preset_id", "aspect_ratio", "latency_ms", "error_code", "plan"],
+  "upgrade_cta_clicked": ["placement"],
+  "checkout_started": ["plan", "price_id"],
+  "signup_completed": ["method"],
+  "download_clicked": ["origin", "preset_id", "plan"],
+  "share_clicked": ["provider", "supports_share"]
+}
