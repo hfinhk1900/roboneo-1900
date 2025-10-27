@@ -6,6 +6,10 @@ interface GenerateParams {
   aspectRatio?: string;
   negativePrompt?: string;
   watermarkText?: string;
+  seed?: number;
+  storageFolder?: string;
+  sourceFolder?: string;
+  referenceImageBase64?: string;
 }
 
 interface GenerateResult {
@@ -71,11 +75,12 @@ export class NanoBananaProvider {
 
   private async prepareImageInput(
     imageBase64: string,
-    forceUpload = false
+    options: { forceUpload?: boolean; sourceFolder?: string } = {}
   ): Promise<{
     inline?: { image_base64: string; image_data_url: string };
     imageUrl?: string;
   }> {
+    const { forceUpload = false, sourceFolder } = options;
     const sanitized = this.sanitizeBase64(imageBase64);
     const rawBase64 = this.stripBase64Prefix(sanitized);
 
@@ -99,6 +104,7 @@ export class NanoBananaProvider {
     try {
       const filename = `${crypto.randomUUID()}.png`;
       const storageFolder =
+        sourceFolder?.replace(/\/$/, '') ||
         process.env.NANO_BANANA_SOURCE_FOLDER ||
         'all-generated-images/scream-ai/source';
       const { uploadFile } = await import('@/storage');
@@ -155,11 +161,15 @@ export class NanoBananaProvider {
       inputPayload.negative_prompt = params.negativePrompt;
     }
 
+    if (typeof params.seed === 'number') {
+      inputPayload.seed = params.seed;
+    }
+
     if (params.imageBase64) {
-      const imageInput = await this.prepareImageInput(
-        params.imageBase64,
-        this.requiresImageUrl
-      );
+      const imageInput = await this.prepareImageInput(params.imageBase64, {
+        forceUpload: this.requiresImageUrl,
+        sourceFolder: params.sourceFolder,
+      });
 
       if (this.requiresImageUrl) {
         if (!imageInput.imageUrl) {
@@ -167,9 +177,51 @@ export class NanoBananaProvider {
         }
         inputPayload.image_urls = [imageInput.imageUrl];
         inputPayload.num_images = 1;
+        if (params.referenceImageBase64) {
+          try {
+            const referenceInput = await this.prepareImageInput(
+              params.referenceImageBase64,
+              { forceUpload: true, sourceFolder: params.sourceFolder }
+            );
+            if (referenceInput.imageUrl) {
+              inputPayload.reference_image_url = referenceInput.imageUrl;
+            } else if (referenceInput.inline) {
+              inputPayload.reference_image_base64 =
+                referenceInput.inline.image_base64;
+              inputPayload.reference_image_data_url =
+                referenceInput.inline.image_data_url;
+            }
+          } catch (err) {
+            console.warn(
+              '[Nano Banana] Failed to prepare reference image, continuing without it:',
+              err
+            );
+          }
+        }
       } else if (imageInput.inline) {
         inputPayload.image_base64 = imageInput.inline.image_base64;
         inputPayload.image_data_url = imageInput.inline.image_data_url;
+        if (params.referenceImageBase64) {
+          try {
+            const referenceInput = await this.prepareImageInput(
+              params.referenceImageBase64,
+              { forceUpload: false, sourceFolder: params.sourceFolder }
+            );
+            if (referenceInput.inline) {
+              inputPayload.reference_image_base64 =
+                referenceInput.inline.image_base64;
+              inputPayload.reference_image_data_url =
+                referenceInput.inline.image_data_url;
+            } else if (referenceInput.imageUrl) {
+              inputPayload.reference_image_url = referenceInput.imageUrl;
+            }
+          } catch (err) {
+            console.warn(
+              '[Nano Banana] Failed to inline reference image, continuing without it:',
+              err
+            );
+          }
+        }
       } else if (imageInput.imageUrl) {
         inputPayload.image_url = imageInput.imageUrl;
       }
@@ -352,7 +404,9 @@ export class NanoBananaProvider {
 
     // Upload to storage
     const filename = `${crypto.randomUUID()}.png`;
-    const storageFolder = 'all-generated-images/scream-ai';
+    const storageFolder =
+      params.storageFolder?.replace(/\/$/, '') ||
+      'all-generated-images/scream-ai';
 
     const { uploadFile } = await import('@/storage');
     const uploadResult = await uploadFile(

@@ -1,13 +1,14 @@
 /**
- * Production-grade Sticker API - based on OpenAI best practices
+ * Production-grade Sticker API - Nano Banana (KIE) integration
  * Endpoint: /api/image-to-sticker
  *
  * Tech Stack:
- * - GPT Image 1 (DALL-E 3): High-quality style transfer with built-in safety moderation
+ * - KIE Nano Banana Edit API: 高质量图像风格化，支持 job 轮询
  * - R2 Storage: For persisting generated images
  * - Sharp: For server-side image pre-processing
- */
+*/
 
+import { NanoBananaProvider } from '@/ai/image/providers/nano-banana';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
@@ -28,8 +29,6 @@ import {
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getLocalTimestr } from '@/lib/time-utils';
-import { uploadFile } from '@/storage';
-import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // Style configurations mapping user request to a high-quality, direct-use prompt
@@ -125,59 +124,6 @@ async function preprocessToSquareRGBA(inputBuffer: Buffer): Promise<{
     };
   } catch (error) {
     console.error('❌ Preprocessing failed:', error);
-    return null;
-  }
-}
-
-/**
- * Core style transfer using GPT Image 1
- */
-async function gptStyleTransfer(
-  base64Data: string,
-  prompt: string,
-  apiKey: string
-): Promise<string | null> {
-  try {
-    console.log('🎨 Calling GPT Image 1 for style transfer...');
-    const formData = new FormData();
-    const imageBuffer = Buffer.from(base64Data.split(',')[1], 'base64');
-    formData.append(
-      'image',
-      new Blob([imageBuffer], { type: 'image/png' }),
-      'image.png'
-    );
-    formData.append('prompt', prompt);
-    formData.append('model', 'gpt-image-1');
-    formData.append('n', '1');
-    formData.append('size', '1024x1024');
-    formData.append('quality', 'medium'); // Medium quality for balanced performance and cost
-    formData.append('background', 'transparent'); // Ensure transparent background
-
-    const response = await fetch('https://api.openai.com/v1/images/edits', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ GPT Image 1 API failed:', errorText);
-      return null;
-    }
-
-    const data = await response.json();
-    const stickerBase64 = data.data?.[0]?.b64_json;
-
-    if (!stickerBase64) {
-      console.error('❌ No sticker b64_json data received.');
-      console.error('Full OpenAI response:', JSON.stringify(data, null, 2));
-      return null;
-    }
-
-    console.log('✅ GPT Image 1 generation successful.');
-    return stickerBase64;
-  } catch (error) {
-    console.error('❌ GPT Image 1 exception:', error);
     return null;
   }
 }
@@ -288,11 +234,11 @@ export async function POST(req: NextRequest) {
       remainingAfterDeduct = deduct?.data?.data?.remainingCredits;
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.NANO_BANANA_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
-        { status: 500 }
+        { error: 'AI service temporarily unavailable' },
+        { status: 503 }
       );
     }
 
@@ -369,24 +315,7 @@ export async function POST(req: NextRequest) {
     const prompt = STYLE_CONFIGS[style as StickerStyle].userPrompt;
     console.log(`✅ Using direct prompt for style: ${style}`);
 
-    // 3. Style Transfer
-    const stickerBase64 = await gptStyleTransfer(
-      preprocessed.base64Data,
-      prompt,
-      apiKey
-    );
-    if (!stickerBase64) {
-      return NextResponse.json(
-        { error: 'Failed to generate sticker with GPT Image 1' },
-        { status: 500 }
-      );
-    }
-
-    // 4. Upload to R2 (with optional watermark for free users)
-    console.log('☁️ Uploading sticker to R2...');
-    const stickerBuffer = Buffer.from(stickerBase64, 'base64');
-
-    // 4.1 Subscription check
+    // 3. Determine subscription for watermark handling
     let isSubscribed = false;
     try {
       const { getActiveSubscriptionAction } = await import(
@@ -405,96 +334,59 @@ export async function POST(req: NextRequest) {
       // Keep isSubscribed = false as default for safety
     }
 
-    let uploadBuffer = Buffer.from(stickerBuffer);
-
-    // 4.2 Apply watermark for free users
-    if (!isSubscribed) {
-      console.log('🎨 Applying watermark for free user...');
-      try {
-        const { applyCornerWatermark } = await import('@/lib/watermark');
-        const watermarkedBuffer = await applyCornerWatermark(
-          stickerBuffer,
-          'ROBONEO.ART',
-          {
-            widthRatio: 0.28,
-            margin: 36,
-            opacity: 0.92,
-          }
-        );
-
-        if (watermarkedBuffer && watermarkedBuffer.length > 0) {
-          uploadBuffer = Buffer.from(watermarkedBuffer);
-          console.log('✅ Watermark applied successfully');
-          console.log(
-            `📊 Buffer sizes - Original: ${stickerBuffer.length}, Watermarked: ${watermarkedBuffer.length}`
-          );
-        } else {
-          console.error('❌ Watermark function returned empty buffer');
-        }
-      } catch (wmError) {
-        console.error('❌ Sticker watermark application failed:', wmError);
-        console.error('📋 Error details:', {
-          errorName: wmError instanceof Error ? wmError.name : 'Unknown',
-          errorMessage:
-            wmError instanceof Error ? wmError.message : String(wmError),
-          stack:
-            wmError instanceof Error
-              ? wmError.stack?.substring(0, 200)
-              : undefined,
-        });
-        // Continue with original buffer if watermark fails
-      }
-    } else {
-      console.log('⭐ Subscribed user - no watermark applied');
-    }
-    const filename = `${style}-${nanoid()}.png`;
-    console.log('📤 Starting R2 upload...', {
-      filename,
-      folder: 'all-generated-images/stickers',
-      bufferSize: uploadBuffer.length,
+    // 4. 调用 Nano Banana (KIE) 生成贴纸
+    const provider = new NanoBananaProvider(apiKey);
+    console.log('🎨 Sending sticker request to Nano Banana (KIE)...');
+    const generation = await provider.generateImage({
+      prompt,
+      imageBase64: preprocessed.base64Data,
+      aspectRatio: '1:1',
+      storageFolder: 'all-generated-images/stickers',
+      sourceFolder: 'all-generated-images/stickers/source',
+      watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
-    const uploadResult = await uploadFile(
-      uploadBuffer,
-      filename,
-      'image/png',
-      'all-generated-images/stickers'
-    );
+    if (!generation.resultUrl) {
+      return NextResponse.json(
+        { error: 'Failed to generate sticker with AI service' },
+        { status: 500 }
+      );
+    }
 
-    const r2Url = uploadResult.url;
-    const storageKey = uploadResult.key || r2Url;
-
-    console.log('✅ R2 Upload successful!', {
-      url: r2Url,
-      key: storageKey,
-      uploadResult,
+    console.log('✅ Nano Banana generation complete:', {
+      provider: generation.provider,
+      model: generation.model,
+      storageKey: generation.storageKey,
+      sizeBytes: generation.sizeBytes,
     });
 
     // 5. Already pre-deducted
 
     // 6. 创建资产记录
-    if (!r2Url) {
-      throw new Error('Failed to generate image URL');
-    }
-
     const assetId = generateAssetId();
-    const fileName = filename;
+    const assetKey =
+      generation.storageKey ||
+      generation.resultUrl.split('/').pop() ||
+      `${assetId}.png`;
+    const assetFilename = `${assetId}.png`;
 
     // 写入 assets 表
     const db = await getDb();
     await db.insert(assets).values({
       id: assetId,
-      key: storageKey,
-      filename: fileName,
+      key: assetKey,
+      filename: assetFilename,
       content_type: 'image/png',
-      size: uploadBuffer.length,
+      size: generation.sizeBytes ?? 0,
       user_id: session.user.id,
       metadata: JSON.stringify({
         source: 'image-to-sticker',
-        style: style,
+        style,
         original_size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         created_at: getLocalTimestr(),
         watermarked: !isSubscribed,
+        provider: generation.provider,
+        model: generation.model,
       }),
     });
 
@@ -509,7 +401,9 @@ export async function POST(req: NextRequest) {
     console.log('✅ Image to Sticker asset created:', {
       asset_id: assetId,
       user_id: session.user.id,
-      file_name: fileName,
+      storage_key: assetKey,
+      result_url: generation.resultUrl,
+      file_name: assetFilename,
       expires_at: downloadUrl.expires_at,
     });
 

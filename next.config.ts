@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
 
+  // 确保 Fumadocs 相关依赖被正确编译，避免本地 dev 模式缺失 vendor chunk
+  transpilePackages: ['fumadocs-core', 'fumadocs-ui'],
+
   // Set development server port to 3000
   experimental: {
     // serverComponentsExternalPackages has been moved to serverExternalPackages

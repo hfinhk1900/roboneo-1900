@@ -1,4 +1,4 @@
-import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
+import { NanoBananaProvider } from '@/ai/image/providers/nano-banana';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
@@ -129,17 +129,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. 初始化 SiliconFlow 提供商
-    const apiKey = process.env.SILICONFLOW_API_KEY;
+    // 5. 初始化 Nano Banana (KIE) 提供商
+    const apiKey = process.env.NANO_BANANA_API_KEY;
     if (!apiKey) {
-      console.warn('SiliconFlow API key not configured');
+      console.warn('Nano Banana API key not configured');
       return NextResponse.json(
         { error: 'AI service temporarily unavailable' },
         { status: 503 }
       );
     }
 
-    const provider = new SiliconFlowProvider(apiKey);
+    const provider = new NanoBananaProvider(apiKey);
 
     // 5. 构建专业头像生成提示词
     const qualityEnhancements = [
@@ -157,25 +157,15 @@ export async function POST(request: NextRequest) {
       prompt: enhancedPrompt.substring(0, 100) + '...',
     });
 
-    // 6. 设置生成参数
-    const generationParams = {
-      prompt: enhancedPrompt,
-      model: 'black-forest-labs/FLUX.1-Kontext-dev',
-      seed,
-      image_input,
-      reference_image,
-    };
-
-    console.log('🚀 Generating profile picture with SiliconFlow:', {
-      model: generationParams.model,
+    console.log('🚀 Generating profile picture with Nano Banana (KIE):', {
       hasImageInput: !!image_input,
       hasReferenceImage: !!reference_image,
-      seed: generationParams.seed,
+      seed,
       style,
       aspectRatio: aspect_ratio,
     });
 
-    // 7. 调用 AI 生成 - 使用专门的 profile-pictures 存储文件夹
+    // 6. 调用 AI 生成 - 使用专门的 profile-pictures 存储文件夹
     // 订阅检查：未订阅加水印
     let isSubscribed = false;
     try {
@@ -188,10 +178,15 @@ export async function POST(request: NextRequest) {
       isSubscribed = !!sub?.data?.data;
     } catch {}
 
-    const result = await provider.generateProductShot({
-      ...generationParams,
-      storageFolder: 'all-generated-images/profile-pictures', // 使用专门的存储文件夹
+    const result = await provider.generateImage({
+      prompt: enhancedPrompt,
+      imageBase64: image_input,
+      aspectRatio: aspect_ratio,
+      seed,
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
+      storageFolder: 'all-generated-images/profile-pictures',
+      sourceFolder: 'all-generated-images/profile-pictures/source',
+      referenceImageBase64: reference_image,
     });
 
     console.log(
@@ -319,7 +314,7 @@ export async function POST(request: NextRequest) {
       {
         error: userMessage,
         details: errorMessage,
-        provider: 'SiliconFlow',
+        provider: 'NanoBanana',
         suggestion:
           'If the problem persists, please try again later or contact technical support',
       },
