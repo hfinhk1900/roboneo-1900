@@ -61,13 +61,15 @@ export function getNavbarLinks(): NestedMenuItem[] {
       external: false,
     },
     {
-      title: 'Sticker',
-      href: Routes.AISticker,
-      external: false,
-    },
-    {
       title: 'AI Tools',
       items: [
+        {
+          title: 'Sticker',
+          description: 'Turn photos into expressive stickers',
+          icon: '/home/all-tools01.png',
+          href: Routes.AISticker,
+          external: false,
+        },
         {
           title: 'Scream AI',
           description: 'Cinematic horror portraits in one click',
