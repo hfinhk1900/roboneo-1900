@@ -80,7 +80,7 @@ export default function HomeHeroSection() {
 
   if (!isLoggedIn) {
     secondaryLabel = 'Explore All Tools';
-    secondaryHref = '#tools';
+    secondaryHref = '#all-tools';
   } else if (isFreePlanUser) {
     secondaryLabel = 'Upgrade to Pro';
     secondaryHref = Routes.Pricing;
