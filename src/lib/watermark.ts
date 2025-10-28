@@ -41,6 +41,19 @@ export async function applyCornerWatermark(
 ): Promise<Buffer> {
   const image = sharp(imageBuffer, { failOnError: false });
   const metadata = await image.metadata();
+
+  // Determine average luminance to decide watermark color
+  let useDarkWatermark = false;
+  try {
+    const stats = await image.clone().stats();
+    const r = stats.channels[0]?.mean ?? 255;
+    const g = stats.channels[1]?.mean ?? 255;
+    const b = stats.channels[2]?.mean ?? 255;
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    useDarkWatermark = luminance > 180; // bright background → dark watermark
+  } catch (error) {
+    console.warn('[watermark] Failed to compute image luminance:', error);
+  }
   const width = metadata.width || 1024;
   const height = metadata.height || 1024;
 
@@ -70,20 +83,29 @@ export async function applyCornerWatermark(
     .resize({ width: targetWidth, height: targetHeight, fit: 'inside' })
     .ensureAlpha();
 
-  let scaledWatermark: Buffer;
   const normalizedOpacity = Math.max(0, Math.min(opacity, 1));
+  const { data, info } = await overlaySharp
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const alphaIndex = info.channels - 1;
+
+  // Adjust watermark color (RGB) based on background brightness
+  for (let i = 0; i < data.length; i += info.channels) {
+    if (info.channels >= 3) {
+      const colorValue = useDarkWatermark ? 24 : 245; // dark gray vs light
+      data[i] = colorValue; // R
+      data[i + 1] = colorValue; // G
+      data[i + 2] = colorValue; // B
+    }
+  }
+
   if (normalizedOpacity < 1) {
-    const { data, info } = await overlaySharp
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-    const alphaIndex = info.channels - 1;
     for (let i = alphaIndex; i < data.length; i += info.channels) {
       data[i] = Math.round(data[i] * normalizedOpacity);
     }
-    scaledWatermark = await sharp(data, { raw: info }).png().toBuffer();
-  } else {
-    scaledWatermark = await overlaySharp.png().toBuffer();
   }
+
+  const scaledWatermark = await sharp(data, { raw: info }).png().toBuffer();
 
   const left = Math.max(margin, width - targetWidth - margin);
   const top = Math.max(margin, height - targetHeight - margin);
