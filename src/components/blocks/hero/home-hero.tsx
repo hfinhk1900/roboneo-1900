@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { SVGProps } from 'react';
+import { Routes } from '@/routes';
+import { usePaymentStore } from '@/stores/payment-store';
 
 // 合作伙伴 logo 数据
 const PARTNER_LOGOS = [
@@ -34,10 +36,11 @@ const LightningIcon = (props: SVGProps<SVGSVGElement>) => (
 export default function HomeHeroSection() {
   const currentUser = useCurrentUser();
   const router = useLocaleRouter();
+  const currentPlan = usePaymentStore((state) => state.currentPlan);
 
   const handleCtaClick = () => {
     if (currentUser) {
-      router.push('/sticker');
+      router.push(Routes.AISticker);
       return;
     }
 
@@ -46,6 +49,53 @@ export default function HomeHeroSection() {
       window.dispatchEvent(new CustomEvent('auth:modal-opening'));
     }
   };
+
+  const isLoggedIn = Boolean(currentUser);
+  const hasPaidPlan = Boolean(isLoggedIn && currentPlan && !currentPlan.isFree);
+  const isFreePlanUser = Boolean(isLoggedIn && !hasPaidPlan);
+
+  const primaryButton = !isLoggedIn ? (
+    <RegisterWrapper mode="modal" asChild callbackUrl={Routes.AISticker}>
+      <Button
+        size="lg"
+        className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
+      >
+        <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+        Claim 10 Free Credits
+      </Button>
+    </RegisterWrapper>
+  ) : (
+    <Button
+      size="lg"
+      className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
+      onClick={handleCtaClick}
+    >
+      <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+      Start Creating
+    </Button>
+  );
+
+  let secondaryLabel = 'Explore New Features';
+  let secondaryHref: string = Routes.Changelog;
+
+  if (!isLoggedIn) {
+    secondaryLabel = 'Explore All Tools';
+    secondaryHref = '#tools';
+  } else if (isFreePlanUser) {
+    secondaryLabel = 'Upgrade to Pro';
+    secondaryHref = Routes.Pricing;
+  }
+
+  const secondaryButton = (
+    <Button
+      asChild
+      variant="outline"
+      size="lg"
+      className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px]"
+    >
+      <Link href={secondaryHref}>{secondaryLabel}</Link>
+    </Button>
+  );
 
   return (
     <section
@@ -85,35 +135,8 @@ export default function HomeHeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6"
           >
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px]"
-            >
-              <Link href="/sticker">Create Sticker</Link>
-            </Button>
-
-            {currentUser ? (
-              <Button
-                size="lg"
-                className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
-                onClick={handleCtaClick}
-              >
-                <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Claim 10 Free Credits
-              </Button>
-            ) : (
-              <RegisterWrapper mode="modal" asChild callbackUrl="/sticker">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto rounded-full text-[14px] px-6 sm:px-8 h-[48px] sm:h-[50px] bg-yellow-400 hover:bg-yellow-500 text-black font-semibold cursor-pointer"
-                >
-                  <LightningIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Claim 10 Free Credits
-                </Button>
-              </RegisterWrapper>
-            )}
+            {primaryButton}
+            {secondaryButton}
           </motion.div>
         </div>
 
