@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
       expiresIn: 300,
       displayMode: 'inline',
     });
-    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
+    const responseUrl = assetLinks.stableUrl;
 
     console.log('✅ Watermark removal asset created:', {
       asset_id: assetId,
@@ -251,10 +251,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       asset_id: assetId,
-      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      download_url: assetLinks.signedDownloadUrl,
       public_url: responseUrl,
       stable_url: assetLinks.stableUrl,
-      direct_url: assetLinks.directUrl,
       expires_at: assetLinks.expiresAt,
       operation: 'watermark_removal',
       credits_used: CREDITS_PER_IMAGE,

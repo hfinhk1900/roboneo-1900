@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
       expiresIn: 300,
       displayMode: 'inline',
     });
-    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
+    const responseUrl = assetLinks.stableUrl;
 
     console.log('✅ Profile picture asset created:', {
       asset_id: assetId,
@@ -242,10 +242,9 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         asset_id: assetId,
-        output_image_url: responseUrl,
-        download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+        output_image_url: assetLinks.stableUrl,
+        download_url: assetLinks.signedDownloadUrl,
         stable_url: assetLinks.stableUrl,
-        direct_url: assetLinks.directUrl,
         expires_at: assetLinks.expiresAt,
       },
       operation: 'profile_picture_generation',

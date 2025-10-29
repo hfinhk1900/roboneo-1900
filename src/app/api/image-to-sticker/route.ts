@@ -369,7 +369,7 @@ export async function POST(req: NextRequest) {
       expiresIn: 300,
       displayMode: 'inline',
     });
-    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
+    const responseUrl = assetLinks.stableUrl;
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -393,16 +393,14 @@ export async function POST(req: NextRequest) {
         asset_id: assetId,
         expires_at: assetLinks.expiresAt,
         stable_url: assetLinks.stableUrl,
-        direct_url: assetLinks.directUrl,
         style,
         size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         credits_used: CREDITS_PER_IMAGE,
         remaining_credits: remainingAfterDeduct ?? undefined,
       },
       url: responseUrl,
-      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      download_url: assetLinks.signedDownloadUrl,
       stable_url: assetLinks.stableUrl,
-      direct_url: assetLinks.directUrl,
       credits_sufficient: true,
       from_cache: false,
     } as const;

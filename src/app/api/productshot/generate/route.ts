@@ -786,7 +786,7 @@ export async function POST(request: NextRequest) {
       expiresIn: 300,
       displayMode: 'inline',
     });
-    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
+    const responseUrl = assetLinks.stableUrl;
 
     console.log('✅ ProductShot asset created:', {
       asset_id: assetId,
@@ -799,10 +799,9 @@ export async function POST(request: NextRequest) {
     const payload = {
       success: true,
       asset_id: assetId,
-      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      download_url: assetLinks.signedDownloadUrl,
       public_url: responseUrl,
       stable_url: assetLinks.stableUrl,
-      direct_url: assetLinks.directUrl,
       expires_at: assetLinks.expiresAt,
       scene: sceneType
         ? SCENE_PRESETS[sceneType].name

@@ -33,7 +33,6 @@ interface GenerateResponse {
   view_url: string;
   download_url: string;
   stable_url?: string;
-  direct_url?: string | null;
   expires_at: number;
   preset_id: string;
   preset_name: string;
@@ -208,7 +207,7 @@ export async function POST(request: NextRequest) {
       displayMode: 'inline',
     });
     const viewUrl = assetLinks.stableUrl;
-    const downloadUrl = assetLinks.directUrl ?? assetLinks.signedDownloadUrl;
+    const downloadUrl = assetLinks.signedDownloadUrl;
 
     await db.insert(screamAiHistory).values({
       id: randomUUID(),
@@ -240,7 +239,6 @@ export async function POST(request: NextRequest) {
       view_url: viewUrl,
       download_url: downloadUrl,
       stable_url: assetLinks.stableUrl,
-      direct_url: assetLinks.directUrl,
       expires_at: assetLinks.expiresAt,
       preset_id: preset.id,
       preset_name: preset.name,
