@@ -9,6 +9,7 @@ import {
 } from '@/assets/fonts';
 import AffonsoScript from '@/components/affiliate/affonso';
 import PromotekitScript from '@/components/affiliate/promotekit';
+import { BackToTopButton } from '@/components/layout/back-to-top-button';
 import { TailwindIndicator } from '@/components/layout/tailwind-indicator';
 import { routing } from '@/i18n/routing';
 import { getSession } from '@/lib/server';
@@ -68,6 +69,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <Providers locale={locale} currentUser={currentUser}>
             {children}
+            <BackToTopButton />
 
             <Toaster richColors position="top-right" offset={64} />
             <TailwindIndicator />
