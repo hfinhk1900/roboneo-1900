@@ -9,10 +9,8 @@ import {
   NEGATIVE_PROMPT,
   SCREAM_PRESET_MAP,
 } from '@/features/scream-ai/constants';
-import {
-  generateAssetId,
-  generateSignedDownloadUrl,
-} from '@/lib/asset-management';
+import { generateAssetId } from '@/lib/asset-management';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
@@ -34,6 +32,8 @@ interface GenerateResponse {
   asset_id: string;
   view_url: string;
   download_url: string;
+  stable_url?: string;
+  direct_url?: string | null;
   expires_at: number;
   preset_id: string;
   preset_name: string;
@@ -195,8 +195,19 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    const viewUrl = `/api/assets/${assetId}`;
-    const signed = generateSignedDownloadUrl(assetId, 'inline', 3600);
+    const assetLinks = await buildAssetUrls({
+      assetId,
+      assetKey:
+        generation.storageKey ||
+        generation.resultUrl.split('/').pop() ||
+        `${assetId}.png`,
+      filename: `${assetId}.png`,
+      contentType: 'image/png',
+      expiresIn: 300,
+      displayMode: 'inline',
+    });
+    const viewUrl = assetLinks.stableUrl;
+    const downloadUrl = assetLinks.directUrl ?? assetLinks.signedDownloadUrl;
 
     await db.insert(screamAiHistory).values({
       id: randomUUID(),
@@ -226,8 +237,10 @@ export async function POST(request: NextRequest) {
       success: true,
       asset_id: assetId,
       view_url: viewUrl,
-      download_url: signed.url,
-      expires_at: signed.expires_at,
+      download_url: downloadUrl,
+      stable_url: assetLinks.stableUrl,
+      direct_url: assetLinks.directUrl,
+      expires_at: assetLinks.expiresAt,
       preset_id: preset.id,
       preset_name: preset.name,
       aspect_ratio: aspectRatio,

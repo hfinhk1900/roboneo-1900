@@ -2,10 +2,8 @@ import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import {
-  generateAssetId,
-  generateSignedDownloadUrl,
-} from '@/lib/asset-management';
+import { generateAssetId } from '@/lib/asset-management';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -207,23 +205,33 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // 10. 生成签名下载URL
-    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+    // 10. 生成访问链接
+    const assetLinks = await buildAssetUrls({
+      assetId,
+      assetKey: result.storageKey || fileName,
+      filename: fileName,
+      contentType: 'image/png',
+      expiresIn: 300,
+      displayMode: 'inline',
+    });
+    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
 
     console.log('✅ Watermark removal asset created:', {
       asset_id: assetId,
       user_id: session.user.id,
       file_name: fileName,
-      expires_at: downloadUrl.expires_at,
+      expires_at: assetLinks.expiresAt,
     });
 
     // 11. 返回结果（完全脱敏）
     return NextResponse.json({
       success: true,
       asset_id: assetId,
-      download_url: downloadUrl.url,
-      public_url: downloadUrl.url, // 兼容前端显示
-      expires_at: downloadUrl.expires_at,
+      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      public_url: responseUrl,
+      stable_url: assetLinks.stableUrl,
+      direct_url: assetLinks.directUrl,
+      expires_at: assetLinks.expiresAt,
       operation: 'watermark_removal',
       credits_used: CREDITS_PER_IMAGE,
       remaining_credits: deduct?.data?.data?.remainingCredits ?? 0,

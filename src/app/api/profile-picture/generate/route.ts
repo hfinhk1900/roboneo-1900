@@ -2,10 +2,8 @@ import { NanoBananaProvider } from '@/ai/image/providers/nano-banana';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import {
-  generateAssetId,
-  generateSignedDownloadUrl,
-} from '@/lib/asset-management';
+import { generateAssetId } from '@/lib/asset-management';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -221,14 +219,22 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // 10. 生成签名下载URL
-    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+    // 10. 生成访问链接
+    const assetLinks = await buildAssetUrls({
+      assetId,
+      assetKey: result.storageKey || fileName,
+      filename: fileName,
+      contentType: 'image/png',
+      expiresIn: 300,
+      displayMode: 'inline',
+    });
+    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
 
     console.log('✅ Profile picture asset created:', {
       asset_id: assetId,
       user_id: session.user.id,
       file_name: fileName,
-      expires_at: downloadUrl.expires_at,
+      expires_at: assetLinks.expiresAt,
     });
 
     // 11. 返回结果
@@ -236,9 +242,11 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         asset_id: assetId,
-        output_image_url: downloadUrl.url,
-        download_url: downloadUrl.url,
-        expires_at: downloadUrl.expires_at,
+        output_image_url: responseUrl,
+        download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+        stable_url: assetLinks.stableUrl,
+        direct_url: assetLinks.directUrl,
+        expires_at: assetLinks.expiresAt,
       },
       operation: 'profile_picture_generation',
       credits_used: CREDITS_PER_IMAGE,

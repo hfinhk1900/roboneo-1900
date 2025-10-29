@@ -12,10 +12,8 @@ import { NanoBananaProvider } from '@/ai/image/providers/nano-banana';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import {
-  generateAssetId,
-  generateSignedDownloadUrl,
-} from '@/lib/asset-management';
+import { generateAssetId } from '@/lib/asset-management';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -362,8 +360,16 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    // 7. 生成签名下载URL
-    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+    // 7. 生成可用于客户端的访问链接
+    const assetLinks = await buildAssetUrls({
+      assetId,
+      assetKey,
+      filename: assetFilename,
+      contentType: 'image/png',
+      expiresIn: 300,
+      displayMode: 'inline',
+    });
+    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -376,23 +382,27 @@ export async function POST(req: NextRequest) {
       storage_key: assetKey,
       result_url: generation.resultUrl,
       file_name: assetFilename,
-      expires_at: downloadUrl.expires_at,
+      expires_at: assetLinks.expiresAt,
     });
 
     // 8. 返回结果（完全脱敏）
     const payload = {
       success: true,
       data: {
-        output_image_url: downloadUrl.url,
+        output_image_url: responseUrl,
         asset_id: assetId,
-        expires_at: downloadUrl.expires_at,
+        expires_at: assetLinks.expiresAt,
+        stable_url: assetLinks.stableUrl,
+        direct_url: assetLinks.directUrl,
         style,
         size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         credits_used: CREDITS_PER_IMAGE,
         remaining_credits: remainingAfterDeduct ?? undefined,
       },
-      url: downloadUrl.url,
-      download_url: downloadUrl.url,
+      url: responseUrl,
+      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      stable_url: assetLinks.stableUrl,
+      direct_url: assetLinks.directUrl,
       credits_sufficient: true,
       from_cache: false,
     } as const;

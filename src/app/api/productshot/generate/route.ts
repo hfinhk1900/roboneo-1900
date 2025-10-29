@@ -3,10 +3,8 @@ import { SiliconFlowProvider } from '@/ai/image/providers/siliconflow';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets, user } from '@/db/schema';
-import {
-  generateAssetId,
-  generateSignedDownloadUrl,
-} from '@/lib/asset-management';
+import { generateAssetId } from '@/lib/asset-management';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -755,22 +753,33 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // 10. 生成签名下载URL
-    const downloadUrl = generateSignedDownloadUrl(assetId, 'inline', 3600);
+    // 10. 生成访问链接
+    const assetLinks = await buildAssetUrls({
+      assetId,
+      assetKey: result.storageKey || fileName,
+      filename: fileName,
+      contentType: 'image/png',
+      expiresIn: 300,
+      displayMode: 'inline',
+    });
+    const responseUrl = assetLinks.directUrl ?? assetLinks.stableUrl;
 
     console.log('✅ ProductShot asset created:', {
       asset_id: assetId,
       user_id: userId,
       file_name: fileName,
-      expires_at: downloadUrl.expires_at,
+      expires_at: assetLinks.expiresAt,
     });
 
     // 11. 返回结果（完全脱敏）
     const payload = {
       success: true,
       asset_id: assetId,
-      download_url: downloadUrl.url,
-      expires_at: downloadUrl.expires_at,
+      download_url: assetLinks.directUrl ?? assetLinks.signedDownloadUrl,
+      public_url: responseUrl,
+      stable_url: assetLinks.stableUrl,
+      direct_url: assetLinks.directUrl,
+      expires_at: assetLinks.expiresAt,
       scene: sceneType
         ? SCENE_PRESETS[sceneType].name
         : 'Reference Image Guided',
