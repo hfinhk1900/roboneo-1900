@@ -92,6 +92,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.prod.website-files.com',
+      },
     ],
   },
 };
@@ -112,8 +116,6 @@ const withMDX = createMDX();
 const mergedConfig = withBundleAnalyzer(withMDX(withNextIntl(nextConfig)));
 
 // 兼容 Next.js 15：部分插件会附带已废弃的 `turbopack` 配置，显式清理以避免警告
-if ('turbopack' in mergedConfig) {
-  delete (mergedConfig as Record<string, unknown>).turbopack;
-}
+const { turbopack, ...finalConfig } = mergedConfig as any;
 
-export default mergedConfig;
+export default finalConfig;

@@ -206,6 +206,20 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 className="h-5 sm:h-6 w-auto"
               />
             </a>
+            <a
+              href="https://dang.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
+                alt="Dang.ai"
+                width="150"
+                height="54"
+                className="h-5 sm:h-6 w-auto"
+              />
+            </a>
           </div>
         </Container>
       </div>
