@@ -9,6 +9,7 @@ import StorageUsageCard from '@/components/dashboard/storage-usage-card';
 import { getDb } from '@/db';
 import {
   aibgHistory,
+  assets,
   creditsTransaction,
   productshotHistory,
   profilePictureHistory,
@@ -56,6 +57,7 @@ export default async function DashboardPage() {
     previewUrl?: string | null;
     userId: string;
     userEmail: string | null;
+    ipAddress: string | null;
     createdAt: Date;
   }> = [];
   let recentCredits: Array<{
@@ -111,6 +113,17 @@ export default async function DashboardPage() {
       return SCREAM_PRESET_MAP.get(rawLabel ?? '')?.prompt ?? '';
     }
     return '';
+  };
+
+  const parseMetadata = (
+    meta: string | null | undefined
+  ): Record<string, unknown> | null => {
+    if (!meta) return null;
+    try {
+      return JSON.parse(meta);
+    } catch {
+      return null;
+    }
   };
 
   const resolveAssetUrl = (url?: string | null, assetId?: string | null) => {
@@ -387,7 +400,7 @@ export default async function DashboardPage() {
 
     // Recent generations (merge last records from all feature tables)
     try {
-      const limit = 20;
+      const limit = 120;
       const selectWithFallback = async <T,>(
         primary: () => Promise<T>,
         fallback: () => Promise<T>,
@@ -415,9 +428,11 @@ export default async function DashboardPage() {
               userId: aibgHistory.userId,
               userEmail: user.email,
               createdAt: aibgHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(aibgHistory)
             .leftJoin(user, eq(aibgHistory.userId, user.id))
+            .leftJoin(assets, eq(aibgHistory.assetId, assets.id))
             .orderBy(desc(aibgHistory.createdAt))
             .limit(limit),
         () =>
@@ -430,6 +445,7 @@ export default async function DashboardPage() {
               userId: aibgHistory.userId,
               userEmail: user.email,
               createdAt: aibgHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(aibgHistory)
             .leftJoin(user, eq(aibgHistory.userId, user.id))
@@ -449,9 +465,11 @@ export default async function DashboardPage() {
               userId: productshotHistory.userId,
               userEmail: user.email,
               createdAt: productshotHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(productshotHistory)
             .leftJoin(user, eq(productshotHistory.userId, user.id))
+            .leftJoin(assets, eq(productshotHistory.assetId, assets.id))
             .orderBy(desc(productshotHistory.createdAt))
             .limit(limit),
         () =>
@@ -464,6 +482,7 @@ export default async function DashboardPage() {
               userId: productshotHistory.userId,
               userEmail: user.email,
               createdAt: productshotHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(productshotHistory)
             .leftJoin(user, eq(productshotHistory.userId, user.id))
@@ -483,9 +502,11 @@ export default async function DashboardPage() {
               userId: stickerHistory.userId,
               userEmail: user.email,
               createdAt: stickerHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(stickerHistory)
             .leftJoin(user, eq(stickerHistory.userId, user.id))
+            .leftJoin(assets, eq(stickerHistory.assetId, assets.id))
             .orderBy(desc(stickerHistory.createdAt))
             .limit(limit),
         () =>
@@ -498,6 +519,7 @@ export default async function DashboardPage() {
               userId: stickerHistory.userId,
               userEmail: user.email,
               createdAt: stickerHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(stickerHistory)
             .leftJoin(user, eq(stickerHistory.userId, user.id))
@@ -517,9 +539,11 @@ export default async function DashboardPage() {
               userId: watermarkHistory.userId,
               userEmail: user.email,
               createdAt: watermarkHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(watermarkHistory)
             .leftJoin(user, eq(watermarkHistory.userId, user.id))
+            .leftJoin(assets, eq(watermarkHistory.assetId, assets.id))
             .orderBy(desc(watermarkHistory.createdAt))
             .limit(limit),
         () =>
@@ -532,6 +556,7 @@ export default async function DashboardPage() {
               userId: watermarkHistory.userId,
               userEmail: user.email,
               createdAt: watermarkHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(watermarkHistory)
             .leftJoin(user, eq(watermarkHistory.userId, user.id))
@@ -551,9 +576,11 @@ export default async function DashboardPage() {
               userId: profilePictureHistory.userId,
               userEmail: user.email,
               createdAt: profilePictureHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(profilePictureHistory)
             .leftJoin(user, eq(profilePictureHistory.userId, user.id))
+            .leftJoin(assets, eq(profilePictureHistory.assetId, assets.id))
             .orderBy(desc(profilePictureHistory.createdAt))
             .limit(limit),
         () =>
@@ -566,6 +593,7 @@ export default async function DashboardPage() {
               userId: profilePictureHistory.userId,
               userEmail: user.email,
               createdAt: profilePictureHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(profilePictureHistory)
             .leftJoin(user, eq(profilePictureHistory.userId, user.id))
@@ -585,9 +613,11 @@ export default async function DashboardPage() {
               userId: screamAiHistory.userId,
               userEmail: user.email,
               createdAt: screamAiHistory.createdAt,
+              metadata: assets.metadata,
             })
             .from(screamAiHistory)
             .leftJoin(user, eq(screamAiHistory.userId, user.id))
+            .leftJoin(assets, eq(screamAiHistory.assetId, assets.id))
             .orderBy(desc(screamAiHistory.createdAt))
             .limit(limit),
         () =>
@@ -600,6 +630,7 @@ export default async function DashboardPage() {
               userId: screamAiHistory.userId,
               userEmail: user.email,
               createdAt: screamAiHistory.createdAt,
+              metadata: sql<string | null>`NULL`,
             })
             .from(screamAiHistory)
             .leftJoin(user, eq(screamAiHistory.userId, user.id))
@@ -616,23 +647,31 @@ export default async function DashboardPage() {
         ...scream.map((x) => ({ ...x, type: 'scream' })),
       ]
         .map((item) => {
-          const rawLabel = item.rawLabel ?? '';
-          const resolvedUrl = resolveAssetUrl(item.url, item.assetId ?? null);
+          const { metadata: rawMetadata, ...rest } = item as typeof item & {
+            metadata?: string | null;
+          };
+          const rawLabel = rest.rawLabel ?? '';
+          const resolvedUrl = resolveAssetUrl(rest.url, rest.assetId ?? null);
+          const metadata = parseMetadata(rawMetadata ?? null);
+          const metadataPrompt = typeof metadata?.prompt === 'string' ? metadata.prompt : null;
+          const ipAddress = typeof metadata?.client_ip === 'string' ? metadata.client_ip : null;
+
           return {
-            ...item,
+            ...rest,
             rawLabel,
-            label: resolveLabel(item.type, rawLabel),
-            prompt: resolvePrompt(item.type, rawLabel),
-            route: FEATURE_ROUTES[item.type] ?? null,
+            label: resolveLabel(rest.type, rawLabel),
+            prompt: metadataPrompt ?? resolvePrompt(rest.type, rawLabel),
+            route: FEATURE_ROUTES[rest.type] ?? null,
             previewUrl: resolvedUrl,
-            url: resolvedUrl ?? item.url ?? null,
+            url: resolvedUrl ?? rest.url ?? null,
+            ipAddress,
           };
         })
         .sort(
           (x, y) =>
             (y.createdAt?.getTime?.() || 0) - (x.createdAt?.getTime?.() || 0)
         )
-        .slice(0, 10);
+        .slice(0, 100);
     } catch {}
 
     // Recent credits
@@ -763,12 +802,12 @@ export default async function DashboardPage() {
               <FeatureUsageShare totals={featureShare} />
               <StorageUsageCard usage={storageUsage} />
             </div>
-            <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
+            <div className="px-4 lg:px-6">
               <RecentGenerations items={recentGenerations} />
-              <div className="grid grid-rows-2 gap-4">
-                <RecentCredits items={recentCredits} />
-                <LowCreditsUsers users={lowCredits} />
-              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
+              <RecentCredits items={recentCredits} />
+              <LowCreditsUsers users={lowCredits} />
             </div>
           </div>
         </div>

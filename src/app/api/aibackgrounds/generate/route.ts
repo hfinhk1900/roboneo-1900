@@ -21,6 +21,7 @@ import {
   setSuccess,
 } from '@/lib/idempotency';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-ip';
 import { eq, sql } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
   let userId: string | undefined;
   let backgroundMode: 'background' | undefined;
   let idStoreKey: string | null = null;
+  const clientIp = getClientIp(request);
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -388,6 +390,7 @@ export async function POST(request: NextRequest) {
         model: result.model,
         watermarked: !isSubscribed,
         upload_asset_id: uploadSource?.assetId ?? null,
+        client_ip: clientIp,
       }),
     });
 

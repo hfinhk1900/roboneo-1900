@@ -15,6 +15,7 @@ import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-ip';
 import { eq, sql } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -385,6 +386,7 @@ export async function POST(request: NextRequest) {
   const idStoreKey: string | null = null;
   let userIdRef: string | null = null;
   let sceneTypeRef: SceneType | null = null;
+  const clientIp = getClientIp(request);
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(request);
@@ -770,6 +772,8 @@ export async function POST(request: NextRequest) {
         model: result.model,
         watermarked: !isSubscribed,
         upload_asset_id: uploadSource?.assetId ?? null,
+        prompt: finalPrompt,
+        client_ip: clientIp,
       }),
     });
 

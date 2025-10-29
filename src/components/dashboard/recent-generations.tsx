@@ -24,6 +24,7 @@ type Item = {
   previewUrl?: string | null;
   userId: string;
   userEmail?: string | null;
+  ipAddress?: string | null;
   createdAt: Date;
 };
 
@@ -41,7 +42,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
     <Card className="@container/card">
       <CardHeader>
         <CardTitle>Recent Generations</CardTitle>
-        <CardDescription>Last 10 operations</CardDescription>
+        <CardDescription>Last 100 operations</CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <Table>
@@ -54,6 +55,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
               <TableHead>Source</TableHead>
               <TableHead>User ID</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>IP</TableHead>
               <TableHead className="text-right">Time</TableHead>
             </TableRow>
           </TableHeader>
@@ -104,6 +106,9 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
                 >
                   {it.userEmail ?? '—'}
                 </TableCell>
+                <TableCell className="truncate max-w-[12rem]" title={it.ipAddress ?? ''}>
+                  {it.ipAddress ?? '—'}
+                </TableCell>
                 <TableCell className="text-right text-muted-foreground">
                   {new Date(it.createdAt).toLocaleString()}
                 </TableCell>
@@ -111,10 +116,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center text-muted-foreground"
-                >
+                <TableCell colSpan={9} className="text-center text-muted-foreground">
                   No recent items
                 </TableCell>
               </TableRow>

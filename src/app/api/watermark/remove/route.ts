@@ -10,6 +10,7 @@ import {
   storeUploadedImage,
   type StoreUploadedImageResult,
 } from '@/lib/uploaded-image';
+import { getClientIp } from '@/lib/request-ip';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
   let session: any = null;
   const csrf = enforceSameOriginCsrf(request);
   if (csrf) return csrf;
+  const clientIp = getClientIp(request);
   try {
     // 1. 验证用户身份
     const { auth } = await import('@/lib/auth');
@@ -222,6 +224,7 @@ export async function POST(request: NextRequest) {
         provider: result.provider,
         model: result.model,
         upload_asset_id: uploadSource?.assetId ?? null,
+        client_ip: clientIp,
       }),
     });
 

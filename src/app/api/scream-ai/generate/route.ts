@@ -11,6 +11,7 @@ import {
 } from '@/features/scream-ai/constants';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
+import { getClientIp } from '@/lib/request-ip';
 import { auth } from '@/lib/auth';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
@@ -59,6 +60,8 @@ export async function POST(request: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const clientIp = getClientIp(request);
     const userId = session.user.id;
     userIdRef = userId;
 
@@ -192,6 +195,7 @@ export async function POST(request: NextRequest) {
         model: generation.model,
         aspectRatio,
         watermarked: !isSubscribed,
+        client_ip: clientIp,
       }),
     });
 

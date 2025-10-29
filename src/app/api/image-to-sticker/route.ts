@@ -27,6 +27,7 @@ import {
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getLocalTimestr } from '@/lib/time-utils';
+import { getClientIp } from '@/lib/request-ip';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
   STICKER_STYLE_CONFIGS,
@@ -103,6 +104,7 @@ async function preprocessToSquareRGBA(inputBuffer: Buffer): Promise<{
  */
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
+  const clientIp = getClientIp(req);
   let preDeducted = false;
   let remainingAfterDeduct: number | undefined = undefined;
   let idStoreKey: string | null = null;
@@ -357,6 +359,7 @@ export async function POST(req: NextRequest) {
         watermarked: !isSubscribed,
         provider: generation.provider,
         model: generation.model,
+        client_ip: clientIp,
       }),
     });
 

@@ -5,6 +5,7 @@ import { assets } from '@/db/schema';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import { getClientIp } from '@/lib/request-ip';
 import { type NextRequest, NextResponse } from 'next/server';
 
 interface ProfilePictureRequest {
@@ -37,6 +38,8 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const clientIp = getClientIp(request);
 
     console.log(`🎯 Profile picture request from user: ${session.user.id}`);
 
@@ -216,6 +219,7 @@ export async function POST(request: NextRequest) {
         style: style || 'unknown',
         aspect_ratio,
         watermarked: !isSubscribed,
+        client_ip: clientIp,
       }),
     });
 
