@@ -388,7 +388,7 @@ export default async function DashboardPage() {
     // Recent generations (merge last records from all feature tables)
     try {
       const limit = 20;
-      const selectWithFallback = async <T>(
+      const selectWithFallback = async <T,>(
         primary: () => Promise<T>,
         fallback: () => Promise<T>,
         label: string
