@@ -314,58 +314,54 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                             <div className="p-6">
                               {/* Single column layout for 5 tools */}
                               <div className="flex flex-col gap-6 w-full">
-                                {item.items
-                                  ?.slice(0, 5)
-                                  .map((subItem, subIndex) => {
-                                    return (
-                                      <LocaleLink
-                                        key={subIndex}
-                                        href={subItem.href || '#'}
-                                        target={
-                                          subItem.external
-                                            ? '_blank'
-                                            : undefined
-                                        }
-                                        rel={
-                                          subItem.external
-                                            ? 'noopener noreferrer'
-                                            : undefined
-                                        }
-                                        onClick={() => closeAllMenus()}
-                                        prefetch={false}
-                                        className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline cursor-pointer"
-                                      >
-                                        {/* Image */}
-                                        <div className="shrink-0 size-[70px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
-                                          {subItem.icon ? (
-                                            typeof subItem.icon === 'string' ? (
-                                              <Image
-                                                src={subItem.icon}
-                                                alt=""
-                                                width={70}
-                                                height={70}
-                                                className="size-full object-cover"
-                                              />
-                                            ) : (
-                                              subItem.icon
-                                            )
-                                          ) : null}
-                                        </div>
+                                {item.items?.map((subItem, subIndex) => {
+                                  return (
+                                    <LocaleLink
+                                      key={subIndex}
+                                      href={subItem.href || '#'}
+                                      target={
+                                        subItem.external ? '_blank' : undefined
+                                      }
+                                      rel={
+                                        subItem.external
+                                          ? 'noopener noreferrer'
+                                          : undefined
+                                      }
+                                      onClick={() => closeAllMenus()}
+                                      prefetch={false}
+                                      className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline cursor-pointer"
+                                    >
+                                      {/* Image */}
+                                      <div className="shrink-0 size-[80px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                        {subItem.icon ? (
+                                          typeof subItem.icon === 'string' ? (
+                                            <Image
+                                              src={subItem.icon}
+                                              alt=""
+                                              width={80}
+                                              height={80}
+                                              className="size-full object-cover"
+                                            />
+                                          ) : (
+                                            subItem.icon
+                                          )
+                                        ) : null}
+                                      </div>
 
-                                        {/* Text content */}
-                                        <div className="flex flex-col gap-1 text-black text-[16px] min-w-0 flex-1">
-                                          <div className="font-bold leading-normal">
-                                            {subItem.title}
-                                          </div>
-                                          {subItem.description && (
-                                            <div className="font-normal leading-normal text-gray-600">
-                                              {subItem.description}
-                                            </div>
-                                          )}
+                                      {/* Text content */}
+                                      <div className="flex flex-col gap-1 text-black text-[14px] min-w-0 flex-1">
+                                        <div className="font-bold leading-normal">
+                                          {subItem.title}
                                         </div>
-                                      </LocaleLink>
-                                    );
-                                  })}
+                                        {subItem.description && (
+                                          <div className="font-normal leading-normal text-gray-600">
+                                            {subItem.description}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </LocaleLink>
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : (
