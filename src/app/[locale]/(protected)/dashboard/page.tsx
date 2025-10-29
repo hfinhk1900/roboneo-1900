@@ -18,6 +18,8 @@ import {
   watermarkHistory,
 } from '@/db/schema';
 import { SCREAM_PRESET_MAP } from '@/features/scream-ai/constants';
+import { getStickerPrompt, getStickerStyleName } from '@/features/sticker/style-config';
+import { Routes } from '@/routes';
 import { desc, eq, sql } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 // Removed demo table data as it is unrelated to dashboard metrics
@@ -46,6 +48,9 @@ export default async function DashboardPage() {
     id: string;
     type: string;
     label: string;
+    rawLabel: string;
+    prompt: string;
+    route: string | null;
     url?: string | null;
     userId: string;
     userEmail: string | null;
@@ -76,6 +81,35 @@ export default async function DashboardPage() {
     d30Size: 0,
   };
   let lowCredits: Array<{ id: string; email: string; credits: number }> = [];
+
+  const FEATURE_ROUTES: Record<string, string> = {
+    aibg: Routes.AIBackground,
+    productshot: Routes.ProductShot,
+    sticker: Routes.AISticker,
+    watermark: Routes.RemoveWatermark,
+    profile: Routes.ProfilePictureMaker,
+    scream: Routes.ScreamAI,
+  };
+
+  const resolveLabel = (type: string, rawLabel: string): string => {
+    if (type === 'sticker') {
+      return getStickerStyleName(rawLabel) ?? rawLabel;
+    }
+    if (type === 'scream') {
+      return SCREAM_PRESET_MAP.get(rawLabel ?? '')?.name ?? rawLabel;
+    }
+    return rawLabel;
+  };
+
+  const resolvePrompt = (type: string, rawLabel: string): string => {
+    if (type === 'sticker') {
+      return getStickerPrompt(rawLabel) ?? '';
+    }
+    if (type === 'scream') {
+      return SCREAM_PRESET_MAP.get(rawLabel ?? '')?.prompt ?? '';
+    }
+    return '';
+  };
 
   try {
     const db = await getDb();
@@ -337,7 +371,7 @@ export default async function DashboardPage() {
         .select({
           id: aibgHistory.id,
           url: aibgHistory.url,
-          label: aibgHistory.style,
+          rawLabel: aibgHistory.style,
           userId: aibgHistory.userId,
           userEmail: user.email,
           createdAt: aibgHistory.createdAt,
@@ -350,7 +384,7 @@ export default async function DashboardPage() {
         .select({
           id: productshotHistory.id,
           url: productshotHistory.url,
-          label: productshotHistory.scene,
+          rawLabel: productshotHistory.scene,
           userId: productshotHistory.userId,
           userEmail: user.email,
           createdAt: productshotHistory.createdAt,
@@ -363,7 +397,7 @@ export default async function DashboardPage() {
         .select({
           id: stickerHistory.id,
           url: stickerHistory.url,
-          label: stickerHistory.style,
+          rawLabel: stickerHistory.style,
           userId: stickerHistory.userId,
           userEmail: user.email,
           createdAt: stickerHistory.createdAt,
@@ -376,7 +410,7 @@ export default async function DashboardPage() {
         .select({
           id: watermarkHistory.id,
           url: watermarkHistory.processedImageUrl,
-          label: watermarkHistory.method,
+          rawLabel: watermarkHistory.method,
           userId: watermarkHistory.userId,
           userEmail: user.email,
           createdAt: watermarkHistory.createdAt,
@@ -389,7 +423,7 @@ export default async function DashboardPage() {
         .select({
           id: profilePictureHistory.id,
           url: profilePictureHistory.url,
-          label: profilePictureHistory.style,
+          rawLabel: profilePictureHistory.style,
           userId: profilePictureHistory.userId,
           userEmail: user.email,
           createdAt: profilePictureHistory.createdAt,
@@ -402,7 +436,7 @@ export default async function DashboardPage() {
         .select({
           id: screamAiHistory.id,
           url: screamAiHistory.url,
-          label: screamAiHistory.presetId,
+          rawLabel: screamAiHistory.presetId,
           userId: screamAiHistory.userId,
           userEmail: user.email,
           createdAt: screamAiHistory.createdAt,
@@ -417,12 +451,18 @@ export default async function DashboardPage() {
         ...s.map((x) => ({ ...x, type: 'sticker' })),
         ...w.map((x) => ({ ...x, type: 'watermark' })),
         ...r.map((x) => ({ ...x, type: 'profile' })),
-        ...scream.map((x) => ({
-          ...x,
-          type: 'scream',
-          label: SCREAM_PRESET_MAP.get(x.label || '')?.name || x.label,
-        })),
+        ...scream.map((x) => ({ ...x, type: 'scream' })),
       ]
+        .map((item) => {
+          const rawLabel = item.rawLabel ?? '';
+          return {
+            ...item,
+            rawLabel,
+            label: resolveLabel(item.type, rawLabel),
+            prompt: resolvePrompt(item.type, rawLabel),
+            route: FEATURE_ROUTES[item.type] ?? null,
+          };
+        })
         .sort(
           (x, y) =>
             (y.createdAt?.getTime?.() || 0) - (x.createdAt?.getTime?.() || 0)

@@ -74,3 +74,4 @@ all-generated-images/
 - 使用 `uploadFile()` 函数的第4个参数指定存储文件夹
 - 所有API都通过 `storageFolder` 参数传递文件夹路径
 - SiliconFlow Provider 支持自定义存储文件夹，默认为 productshots
+

@@ -30,36 +30,10 @@ import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getLocalTimestr } from '@/lib/time-utils';
 import { type NextRequest, NextResponse } from 'next/server';
-
-// Style configurations mapping user request to a high-quality, direct-use prompt
-const STYLE_CONFIGS = {
-  ios: {
-    name: 'iOS Sticker',
-    userPrompt:
-      'Create an iOS emoji sticker from the object in the uploaded image. Depict it as a smooth, vibrant 3D cartoon object, with a clean white edge. Render it against a pure white background.',
-    imageUrl: '/styles/ios.png',
-  },
-  pixel: {
-    name: 'Pixel Art',
-    userPrompt:
-      'Learn the Pixel Art style and transform objects in the photo into sticker avatars in this style. Mimic the body shape, face shape, skin tone, facial features and expressions. Keep the facial decorations, hairstyle and hair accessories, clothing, accessories, expressions, and poses consistent with the original image. Remove background and include only the complete figure, ensuring the final image looks like a character in Pixel Art style.',
-    imageUrl: '/styles/pixel.png',
-  },
-  lego: {
-    name: 'LEGO',
-    userPrompt:
-      'Learn the LEGO Minifigure style and turn the people in the photo into sticker avatars in this style. Mimic the body shape, face shape, skin tone, facial features and expressions. Keep the facial decorations, hairstyle and hair accessories, clothing, accessories, expressions, and poses consistent with the original image. Remove background and include only the complete figure, ensuring the final image looks like a character in LEGO Minifigure style.',
-    imageUrl: '/styles/lego.png',
-  },
-  snoopy: {
-    name: 'Snoopy',
-    userPrompt:
-      "Learn the Peanuts comic strip style and turn the person in the photo into a sticker avatar in that style. Recreate the person's body shape, face shape, skin tone, facial features, and expression. Keep all the details in the image—facial accessories, hairstyle and hair accessories, clothing, other accessories, facial expression, and pose—the same. Remove background and include only the full figure to ensure the final image looks like an official Peanuts-style character.",
-    imageUrl: '/styles/snoopy.png',
-  },
-};
-
-type StickerStyle = keyof typeof STYLE_CONFIGS;
+import {
+  STICKER_STYLE_CONFIGS,
+  type StickerStyle,
+} from '@/features/sticker/style-config';
 
 /**
  * Pre-processes an image to be a square RGBA PNG compatible with OpenAI
@@ -290,10 +264,10 @@ export async function POST(req: NextRequest) {
       `✅ File validation passed: ${imageFile.name} (${Math.round(imageFile.size / 1024)}KB, ${imageFile.type})`
     );
 
-    if (!(style in STYLE_CONFIGS)) {
+    if (!(style in STICKER_STYLE_CONFIGS)) {
       return NextResponse.json(
         {
-          error: `Invalid style. Supported: ${Object.keys(STYLE_CONFIGS).join(', ')}`,
+          error: `Invalid style. Supported: ${Object.keys(STICKER_STYLE_CONFIGS).join(', ')}`,
         },
         { status: 400 }
       );
@@ -310,7 +284,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Get pre-defined high-quality prompt (skips GPT-4o optimization)
-    const prompt = STYLE_CONFIGS[style as StickerStyle].userPrompt;
+    const prompt = STICKER_STYLE_CONFIGS[style as StickerStyle].userPrompt;
     console.log(`✅ Using direct prompt for style: ${style}`);
 
     // 3. Determine subscription for watermark handling
@@ -533,6 +507,6 @@ export async function GET() {
   return NextResponse.json({
     name: 'Production-grade Sticker API',
     version: '2.0.0',
-    styles: Object.keys(STYLE_CONFIGS),
+    styles: Object.keys(STICKER_STYLE_CONFIGS),
   });
 }

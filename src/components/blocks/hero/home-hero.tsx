@@ -40,7 +40,7 @@ export default function HomeHeroSection() {
 
   const handleCtaClick = () => {
     if (currentUser) {
-      router.push(Routes.AISticker);
+      router.push(`${Routes.Root}#all-tools`);
       return;
     }
 
@@ -76,7 +76,7 @@ export default function HomeHeroSection() {
   );
 
   let secondaryLabel = 'Explore New Features';
-  let secondaryHref: string = Routes.Changelog;
+  let secondaryHref: string = Routes.ScreamAI;
 
   if (!isLoggedIn) {
     secondaryLabel = 'Explore All Tools';
@@ -84,6 +84,8 @@ export default function HomeHeroSection() {
   } else if (isFreePlanUser) {
     secondaryLabel = 'Upgrade to Pro';
     secondaryHref = Routes.Pricing;
+  } else {
+    secondaryHref = `${Routes.Root}#all-tools`;
   }
 
   const secondaryButton = (

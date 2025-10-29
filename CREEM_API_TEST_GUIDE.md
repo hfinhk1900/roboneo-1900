@@ -133,3 +133,10 @@ CREEM_API_KEY=your_creem_api_key_here node quick-creem-test.js
 1. 根据错误信息调整配置
 2. 检查 Creem Dashboard 设置
 3. 联系 Creem 支持（如需要）
+
+
+
+creem_test_1RgN9IYysdot0UO4kTQRbX
+
+# 替换为您的真实 API 密钥
+CREEM_API_KEY=creem_test_1RgN9IYysdot0UO4kTQRbX node quick-creem-test.js

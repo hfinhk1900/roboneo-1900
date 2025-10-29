@@ -18,6 +18,8 @@ type Item = {
   id: string;
   type: string; // aibg | productshot | sticker | watermark | profile | scream
   label: string;
+  prompt: string;
+  route: string | null;
   url?: string | null;
   userId: string;
   userEmail?: string | null;
@@ -46,6 +48,8 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             <TableRow>
               <TableHead>Type</TableHead>
               <TableHead>Label</TableHead>
+              <TableHead>Prompt</TableHead>
+              <TableHead>Source</TableHead>
               <TableHead>User ID</TableHead>
               <TableHead>Email</TableHead>
               <TableHead className="text-right">Time</TableHead>
@@ -59,6 +63,23 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
                 </TableCell>
                 <TableCell className="truncate max-w-[14rem]" title={it.label}>
                   {it.label}
+                </TableCell>
+                <TableCell className="truncate max-w-[18rem]" title={it.prompt}>
+                  {it.prompt || '—'}
+                </TableCell>
+                <TableCell className="truncate max-w-[10rem]" title={it.route ?? ''}>
+                  {it.route ? (
+                    <a
+                      href={it.route}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {it.route}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
                 </TableCell>
                 <TableCell className="truncate max-w-[12rem]" title={it.userId}>
                   {it.userId}
@@ -77,7 +98,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             {items.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={7}
                   className="text-center text-muted-foreground"
                 >
                   No recent items
