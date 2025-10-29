@@ -313,7 +313,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                           item.title.includes('AI 工具') ? (
                             <div className="p-6">
                               {/* Single column layout for 5 tools */}
-                              <div className="flex flex-col gap-6 w-full">
+                              <div className="flex flex-col gap-3 w-full">
                                 {item.items?.map((subItem, subIndex) => {
                                   return (
                                     <LocaleLink
@@ -332,14 +332,14 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                                       className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline cursor-pointer"
                                     >
                                       {/* Image */}
-                                      <div className="shrink-0 w-20 h-20 bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                      <div className="shrink-0 w-[60px] h-[60px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
                                         {subItem.icon ? (
                                           typeof subItem.icon === 'string' ? (
                                             <Image
                                               src={subItem.icon}
                                               alt=""
-                                              width={80}
-                                              height={80}
+                                              width={60}
+                                              height={60}
                                               className="size-full object-cover"
                                             />
                                           ) : (
