@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
       seed,
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
       storageFolder: 'all-generated-images/profile-pictures',
-      sourceFolder: 'all-generated-images/profile-pictures/source',
+      sourceFolder: 'all-uploaded-images/profile-pictures',
       referenceImageBase64: reference_image,
     });
 
@@ -201,13 +201,13 @@ export async function POST(request: NextRequest) {
 
     // 写入 assets 表
     const db = await getDb();
-    await db.insert(assets).values({
-      id: assetId,
-      key: result.storageKey || fileName,
-      filename: fileName,
-      content_type: 'image/png',
-      size: result.sizeBytes || 0,
-      user_id: session.user.id,
+  await db.insert(assets).values({
+    id: assetId,
+    key: result.storageKey || fileName,
+    filename: fileName,
+    content_type: 'image/png',
+    size: result.sizeBytes || 0,
+    user_id: session.user.id,
       metadata: JSON.stringify({
         source: 'profile-picture',
         operation: 'generate',

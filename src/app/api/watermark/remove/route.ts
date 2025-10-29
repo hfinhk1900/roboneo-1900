@@ -4,6 +4,12 @@ import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
+import {
+  decodeBase64Image,
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -116,6 +122,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let uploadSource: StoreUploadedImageResult | null = null;
+    try {
+      const decodedUpload = decodeBase64Image(image_input, 'image/png');
+      uploadSource = await storeUploadedImage({
+        buffer: decodedUpload.buffer,
+        contentType: decodedUpload.contentType,
+        userId: session.user.id,
+        tool: 'watermarks',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded watermark removal image:', error);
+    }
+
     // 5. 初始化 SiliconFlow 提供商
     const apiKey = process.env.SILICONFLOW_API_KEY;
     if (!apiKey) {
@@ -202,8 +221,13 @@ export async function POST(request: NextRequest) {
         operation: 'remove',
         provider: result.provider,
         model: result.model,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
+
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
 
     // 10. 生成访问链接
     const assetLinks = await buildAssetUrls({
@@ -237,6 +261,7 @@ export async function POST(request: NextRequest) {
       remaining_credits: deduct?.data?.data?.remainingCredits ?? 0,
       credits_sufficient: true,
       from_cache: false,
+      upload_asset_id: uploadSource?.assetId ?? null,
     });
   } catch (error) {
     console.warn('Watermark removal error:', error);

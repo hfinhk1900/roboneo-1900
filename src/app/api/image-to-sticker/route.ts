@@ -312,7 +312,7 @@ export async function POST(req: NextRequest) {
       imageBase64: preprocessed.base64Data,
       aspectRatio: '1:1',
       storageFolder: 'all-generated-images/stickers',
-      sourceFolder: 'all-generated-images/stickers/source',
+      sourceFolder: 'all-uploaded-images/stickers',
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 

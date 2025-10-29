@@ -165,6 +165,7 @@ export async function POST(request: NextRequest) {
       aspectRatio,
       negativePrompt: NEGATIVE_PROMPT,
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
+      sourceFolder: 'all-uploaded-images/scream-ai',
     });
 
     if (!generation.resultUrl) {

@@ -4,6 +4,12 @@ import { getDb } from '@/db';
 import { assets, user } from '@/db/schema';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
+import {
+  decodeBase64Image,
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -187,6 +193,19 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
+    let uploadSource: StoreUploadedImageResult | null = null;
+    try {
+      const decodedUpload = decodeBase64Image(image_input, 'image/png');
+      uploadSource = await storeUploadedImage({
+        buffer: decodedUpload.buffer,
+        contentType: decodedUpload.contentType,
+        userId,
+        tool: 'ai-backgrounds',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded AI background source:', error);
+    }
+
     if (!backgroundMode || backgroundMode !== 'background') {
       return NextResponse.json(
         { error: 'Invalid background mode. Must be "background"' },
@@ -368,8 +387,13 @@ export async function POST(request: NextRequest) {
         provider: result.provider,
         model: result.model,
         watermarked: !isSubscribed,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
+
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
 
     // 12. 生成访问链接
     const assetLinks = await buildAssetUrls({
@@ -416,6 +440,7 @@ export async function POST(request: NextRequest) {
       remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
       credits_sufficient: true,
       from_cache: false,
+      upload_asset_id: uploadSource?.assetId ?? null,
     } as const;
     if (idStoreKey) setSuccess(idStoreKey, payload);
     return NextResponse.json(payload);

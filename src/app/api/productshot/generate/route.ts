@@ -5,6 +5,12 @@ import { getDb } from '@/db';
 import { assets, user } from '@/db/schema';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
+import {
+  decodeBase64Image,
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -454,6 +460,19 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
+    let uploadSource: StoreUploadedImageResult | null = null;
+    try {
+      const decodedUpload = decodeBase64Image(image_input, 'image/png');
+      uploadSource = await storeUploadedImage({
+        buffer: decodedUpload.buffer,
+        contentType: decodedUpload.contentType,
+        userId,
+        tool: 'productshots',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded product shot image:', error);
+    }
+
     // 场景验证：允许空场景（双图模式），但如果提供了场景必须有效
     if (sceneType && !SCENE_PRESETS[sceneType]) {
       return NextResponse.json(
@@ -750,8 +769,13 @@ export async function POST(request: NextRequest) {
         provider: result.provider,
         model: result.model,
         watermarked: !isSubscribed,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
+
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
 
     // 10. 生成访问链接
     const assetLinks = await buildAssetUrls({
@@ -787,6 +811,7 @@ export async function POST(request: NextRequest) {
       remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
       credits_sufficient: true,
       from_cache: false,
+      upload_asset_id: uploadSource?.assetId ?? null,
     } as const;
     try {
       const { logAIOperation } = await import('@/lib/ai-log');
