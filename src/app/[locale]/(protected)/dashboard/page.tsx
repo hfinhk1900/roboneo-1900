@@ -388,90 +388,225 @@ export default async function DashboardPage() {
     // Recent generations (merge last records from all feature tables)
     try {
       const limit = 20;
-      const a = await db
-        .select({
-          id: aibgHistory.id,
-          url: aibgHistory.url,
-          assetId: aibgHistory.assetId,
-          rawLabel: aibgHistory.style,
-          userId: aibgHistory.userId,
-          userEmail: user.email,
-          createdAt: aibgHistory.createdAt,
-        })
-        .from(aibgHistory)
-        .leftJoin(user, eq(aibgHistory.userId, user.id))
-        .orderBy(desc(aibgHistory.createdAt))
-        .limit(limit);
-      const p = await db
-        .select({
-          id: productshotHistory.id,
-          url: productshotHistory.url,
-          assetId: productshotHistory.assetId,
-          rawLabel: productshotHistory.scene,
-          userId: productshotHistory.userId,
-          userEmail: user.email,
-          createdAt: productshotHistory.createdAt,
-        })
-        .from(productshotHistory)
-        .leftJoin(user, eq(productshotHistory.userId, user.id))
-        .orderBy(desc(productshotHistory.createdAt))
-        .limit(limit);
-      const s = await db
-        .select({
-          id: stickerHistory.id,
-          url: stickerHistory.url,
-          assetId: stickerHistory.assetId,
-          rawLabel: stickerHistory.style,
-          userId: stickerHistory.userId,
-          userEmail: user.email,
-          createdAt: stickerHistory.createdAt,
-        })
-        .from(stickerHistory)
-        .leftJoin(user, eq(stickerHistory.userId, user.id))
-        .orderBy(desc(stickerHistory.createdAt))
-        .limit(limit);
-      const w = await db
-        .select({
-          id: watermarkHistory.id,
-          url: watermarkHistory.processedImageUrl,
-          assetId: watermarkHistory.assetId,
-          rawLabel: watermarkHistory.method,
-          userId: watermarkHistory.userId,
-          userEmail: user.email,
-          createdAt: watermarkHistory.createdAt,
-        })
-        .from(watermarkHistory)
-        .leftJoin(user, eq(watermarkHistory.userId, user.id))
-        .orderBy(desc(watermarkHistory.createdAt))
-        .limit(limit);
-      const r = await db
-        .select({
-          id: profilePictureHistory.id,
-          url: profilePictureHistory.url,
-          assetId: profilePictureHistory.assetId,
-          rawLabel: profilePictureHistory.style,
-          userId: profilePictureHistory.userId,
-          userEmail: user.email,
-          createdAt: profilePictureHistory.createdAt,
-        })
-        .from(profilePictureHistory)
-        .leftJoin(user, eq(profilePictureHistory.userId, user.id))
-        .orderBy(desc(profilePictureHistory.createdAt))
-        .limit(limit);
-      const scream = await db
-        .select({
-          id: screamAiHistory.id,
-          url: screamAiHistory.url,
-          assetId: screamAiHistory.assetId,
-          rawLabel: screamAiHistory.presetId,
-          userId: screamAiHistory.userId,
-          userEmail: user.email,
-          createdAt: screamAiHistory.createdAt,
-        })
-        .from(screamAiHistory)
-        .leftJoin(user, eq(screamAiHistory.userId, user.id))
-        .orderBy(desc(screamAiHistory.createdAt))
-        .limit(limit);
+      const selectWithFallback = async <T>(
+        primary: () => Promise<T>,
+        fallback: () => Promise<T>,
+        label: string
+      ): Promise<T> => {
+        try {
+          return await primary();
+        } catch (error) {
+          console.warn(
+            `[Dashboard] Failed to load ${label} with assetId column, falling back.`,
+            error
+          );
+          return fallback();
+        }
+      };
+
+      const a = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: aibgHistory.id,
+              url: aibgHistory.url,
+              assetId: aibgHistory.assetId,
+              rawLabel: aibgHistory.style,
+              userId: aibgHistory.userId,
+              userEmail: user.email,
+              createdAt: aibgHistory.createdAt,
+            })
+            .from(aibgHistory)
+            .leftJoin(user, eq(aibgHistory.userId, user.id))
+            .orderBy(desc(aibgHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: aibgHistory.id,
+              url: aibgHistory.url,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: aibgHistory.style,
+              userId: aibgHistory.userId,
+              userEmail: user.email,
+              createdAt: aibgHistory.createdAt,
+            })
+            .from(aibgHistory)
+            .leftJoin(user, eq(aibgHistory.userId, user.id))
+            .orderBy(desc(aibgHistory.createdAt))
+            .limit(limit),
+        'AI Background history'
+      );
+
+      const p = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: productshotHistory.id,
+              url: productshotHistory.url,
+              assetId: productshotHistory.assetId,
+              rawLabel: productshotHistory.scene,
+              userId: productshotHistory.userId,
+              userEmail: user.email,
+              createdAt: productshotHistory.createdAt,
+            })
+            .from(productshotHistory)
+            .leftJoin(user, eq(productshotHistory.userId, user.id))
+            .orderBy(desc(productshotHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: productshotHistory.id,
+              url: productshotHistory.url,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: productshotHistory.scene,
+              userId: productshotHistory.userId,
+              userEmail: user.email,
+              createdAt: productshotHistory.createdAt,
+            })
+            .from(productshotHistory)
+            .leftJoin(user, eq(productshotHistory.userId, user.id))
+            .orderBy(desc(productshotHistory.createdAt))
+            .limit(limit),
+        'ProductShot history'
+      );
+
+      const s = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: stickerHistory.id,
+              url: stickerHistory.url,
+              assetId: stickerHistory.assetId,
+              rawLabel: stickerHistory.style,
+              userId: stickerHistory.userId,
+              userEmail: user.email,
+              createdAt: stickerHistory.createdAt,
+            })
+            .from(stickerHistory)
+            .leftJoin(user, eq(stickerHistory.userId, user.id))
+            .orderBy(desc(stickerHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: stickerHistory.id,
+              url: stickerHistory.url,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: stickerHistory.style,
+              userId: stickerHistory.userId,
+              userEmail: user.email,
+              createdAt: stickerHistory.createdAt,
+            })
+            .from(stickerHistory)
+            .leftJoin(user, eq(stickerHistory.userId, user.id))
+            .orderBy(desc(stickerHistory.createdAt))
+            .limit(limit),
+        'Sticker history'
+      );
+
+      const w = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: watermarkHistory.id,
+              url: watermarkHistory.processedImageUrl,
+              assetId: watermarkHistory.assetId,
+              rawLabel: watermarkHistory.method,
+              userId: watermarkHistory.userId,
+              userEmail: user.email,
+              createdAt: watermarkHistory.createdAt,
+            })
+            .from(watermarkHistory)
+            .leftJoin(user, eq(watermarkHistory.userId, user.id))
+            .orderBy(desc(watermarkHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: watermarkHistory.id,
+              url: watermarkHistory.processedImageUrl,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: watermarkHistory.method,
+              userId: watermarkHistory.userId,
+              userEmail: user.email,
+              createdAt: watermarkHistory.createdAt,
+            })
+            .from(watermarkHistory)
+            .leftJoin(user, eq(watermarkHistory.userId, user.id))
+            .orderBy(desc(watermarkHistory.createdAt))
+            .limit(limit),
+        'Watermark history'
+      );
+
+      const r = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: profilePictureHistory.id,
+              url: profilePictureHistory.url,
+              assetId: profilePictureHistory.assetId,
+              rawLabel: profilePictureHistory.style,
+              userId: profilePictureHistory.userId,
+              userEmail: user.email,
+              createdAt: profilePictureHistory.createdAt,
+            })
+            .from(profilePictureHistory)
+            .leftJoin(user, eq(profilePictureHistory.userId, user.id))
+            .orderBy(desc(profilePictureHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: profilePictureHistory.id,
+              url: profilePictureHistory.url,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: profilePictureHistory.style,
+              userId: profilePictureHistory.userId,
+              userEmail: user.email,
+              createdAt: profilePictureHistory.createdAt,
+            })
+            .from(profilePictureHistory)
+            .leftJoin(user, eq(profilePictureHistory.userId, user.id))
+            .orderBy(desc(profilePictureHistory.createdAt))
+            .limit(limit),
+        'Profile picture history'
+      );
+
+      const scream = await selectWithFallback(
+        () =>
+          db
+            .select({
+              id: screamAiHistory.id,
+              url: screamAiHistory.url,
+              assetId: screamAiHistory.assetId,
+              rawLabel: screamAiHistory.presetId,
+              userId: screamAiHistory.userId,
+              userEmail: user.email,
+              createdAt: screamAiHistory.createdAt,
+            })
+            .from(screamAiHistory)
+            .leftJoin(user, eq(screamAiHistory.userId, user.id))
+            .orderBy(desc(screamAiHistory.createdAt))
+            .limit(limit),
+        () =>
+          db
+            .select({
+              id: screamAiHistory.id,
+              url: screamAiHistory.url,
+              assetId: sql<string | null>`NULL`,
+              rawLabel: screamAiHistory.presetId,
+              userId: screamAiHistory.userId,
+              userEmail: user.email,
+              createdAt: screamAiHistory.createdAt,
+            })
+            .from(screamAiHistory)
+            .leftJoin(user, eq(screamAiHistory.userId, user.id))
+            .orderBy(desc(screamAiHistory.createdAt))
+            .limit(limit),
+        'Scream AI history'
+      );
       recentGenerations = [
         ...a.map((x) => ({ ...x, type: 'aibg' })),
         ...p.map((x) => ({ ...x, type: 'productshot' })),
