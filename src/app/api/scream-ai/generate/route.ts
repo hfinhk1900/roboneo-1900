@@ -13,6 +13,12 @@ import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { getClientIp } from '@/lib/request-ip';
 import { auth } from '@/lib/auth';
+import {
+  decodeBase64Image,
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -161,6 +167,19 @@ export async function POST(request: NextRequest) {
     finalPrompt = `${finalPrompt}\n\n${IDENTITY_SUFFIX}`.trim();
     const aspectRatio = aspect_ratio || '1:1';
 
+    let uploadSource: StoreUploadedImageResult | null = null;
+    try {
+      const decodedUpload = decodeBase64Image(image_input, 'image/png');
+      uploadSource = await storeUploadedImage({
+        buffer: decodedUpload.buffer,
+        contentType: decodedUpload.contentType,
+        userId,
+        tool: 'scream-ai',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded scream-ai image:', error);
+    }
+
     const generation = await provider.generateImage({
       prompt: finalPrompt,
       imageBase64: image_input,
@@ -196,8 +215,13 @@ export async function POST(request: NextRequest) {
         aspectRatio,
         watermarked: !isSubscribed,
         client_ip: clientIp,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
+
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
 
     const assetLinks = await buildAssetUrls({
       assetId,

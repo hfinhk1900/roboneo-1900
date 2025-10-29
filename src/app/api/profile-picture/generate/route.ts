@@ -5,6 +5,12 @@ import { assets } from '@/db/schema';
 import { generateAssetId } from '@/lib/asset-management';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import {
+  decodeBase64Image,
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { getClientIp } from '@/lib/request-ip';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -40,6 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const clientIp = getClientIp(request);
+    let uploadSource: StoreUploadedImageResult | null = null;
 
     console.log(`🎯 Profile picture request from user: ${session.user.id}`);
 
@@ -179,6 +186,18 @@ export async function POST(request: NextRequest) {
       isSubscribed = !!sub?.data?.data;
     } catch {}
 
+    try {
+      const decodedUpload = decodeBase64Image(image_input, 'image/png');
+      uploadSource = await storeUploadedImage({
+        buffer: decodedUpload.buffer,
+        contentType: decodedUpload.contentType,
+        userId: session.user.id,
+        tool: 'profile-pictures',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded profile picture:', error);
+    }
+
     const result = await provider.generateImage({
       prompt: enhancedPrompt,
       imageBase64: image_input,
@@ -204,13 +223,13 @@ export async function POST(request: NextRequest) {
 
     // 写入 assets 表
     const db = await getDb();
-  await db.insert(assets).values({
-    id: assetId,
-    key: result.storageKey || fileName,
-    filename: fileName,
-    content_type: 'image/png',
-    size: result.sizeBytes || 0,
-    user_id: session.user.id,
+    await db.insert(assets).values({
+      id: assetId,
+      key: result.storageKey || fileName,
+      filename: fileName,
+      content_type: 'image/png',
+      size: result.sizeBytes || 0,
+      user_id: session.user.id,
       metadata: JSON.stringify({
         source: 'profile-picture',
         operation: 'generate',
@@ -220,8 +239,13 @@ export async function POST(request: NextRequest) {
         aspect_ratio,
         watermarked: !isSubscribed,
         client_ip: clientIp,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
+
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
 
     // 10. 生成访问链接
     const assetLinks = await buildAssetUrls({
@@ -250,6 +274,7 @@ export async function POST(request: NextRequest) {
         download_url: assetLinks.signedDownloadUrl,
         stable_url: assetLinks.stableUrl,
         expires_at: assetLinks.expiresAt,
+        upload_asset_id: uploadSource?.assetId ?? null,
       },
       operation: 'profile_picture_generation',
       credits_used: CREDITS_PER_IMAGE,

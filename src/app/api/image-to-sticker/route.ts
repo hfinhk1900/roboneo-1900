@@ -28,6 +28,11 @@ import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getLocalTimestr } from '@/lib/time-utils';
 import { getClientIp } from '@/lib/request-ip';
+import {
+  linkUploadedAsset,
+  storeUploadedImage,
+  type StoreUploadedImageResult,
+} from '@/lib/uploaded-image';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
   STICKER_STYLE_CONFIGS,
@@ -108,6 +113,7 @@ export async function POST(req: NextRequest) {
   let preDeducted = false;
   let remainingAfterDeduct: number | undefined = undefined;
   let idStoreKey: string | null = null;
+  let uploadSource: StoreUploadedImageResult | null = null;
   try {
     ensureProductionEnv();
     const csrf = enforceSameOriginCsrf(req);
@@ -275,6 +281,17 @@ export async function POST(req: NextRequest) {
 
     // 1. Preprocess Image
     const originalBuffer = Buffer.from(await imageFile.arrayBuffer());
+    try {
+      uploadSource = await storeUploadedImage({
+        buffer: originalBuffer,
+        contentType: imageFile.type,
+        originalFilename: imageFile.name,
+        userId: session.user.id,
+        tool: 'stickers',
+      });
+    } catch (error) {
+      console.warn('Failed to store uploaded sticker source image:', error);
+    }
     const preprocessed = await preprocessToSquareRGBA(originalBuffer);
     if (!preprocessed) {
       return NextResponse.json(
@@ -360,6 +377,7 @@ export async function POST(req: NextRequest) {
         provider: generation.provider,
         model: generation.model,
         client_ip: clientIp,
+        upload_asset_id: uploadSource?.assetId ?? null,
       }),
     });
 
@@ -400,6 +418,7 @@ export async function POST(req: NextRequest) {
         size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         credits_used: CREDITS_PER_IMAGE,
         remaining_credits: remainingAfterDeduct ?? undefined,
+        upload_asset_id: uploadSource?.assetId ?? null,
       },
       url: responseUrl,
       download_url: assetLinks.signedDownloadUrl,
@@ -408,6 +427,10 @@ export async function POST(req: NextRequest) {
       from_cache: false,
     } as const;
     if (typeof idStoreKey === 'string') setSuccess(idStoreKey, payload);
+    if (uploadSource) {
+      await linkUploadedAsset(uploadSource.assetId, assetId);
+    }
+
     try {
       const { logAIOperation } = await import('@/lib/ai-log');
       await logAIOperation({
