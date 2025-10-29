@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
       displayMode: 'inline',
     });
     const viewUrl = assetLinks.stableUrl;
-    const downloadUrl = assetLinks.signedDownloadUrl;
+    const downloadUrl = assetLinks.attachmentDownloadUrl;
 
     await db.insert(screamAiHistory).values({
       id: randomUUID(),

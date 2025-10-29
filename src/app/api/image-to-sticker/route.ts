@@ -421,7 +421,7 @@ export async function POST(req: NextRequest) {
         upload_asset_id: uploadSource?.assetId ?? null,
       },
       url: responseUrl,
-      download_url: assetLinks.signedDownloadUrl,
+      download_url: assetLinks.attachmentDownloadUrl,
       stable_url: assetLinks.stableUrl,
       credits_sufficient: true,
       from_cache: false,

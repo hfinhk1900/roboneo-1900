@@ -432,7 +432,7 @@ export async function POST(request: NextRequest) {
     const payload = {
       success: true,
       asset_id: assetId,
-      download_url: assetLinks.signedDownloadUrl,
+      download_url: assetLinks.attachmentDownloadUrl,
       public_url: responseUrl,
       stable_url: assetLinks.stableUrl,
       expires_at: assetLinks.expiresAt,

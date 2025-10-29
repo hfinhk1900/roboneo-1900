@@ -16,6 +16,7 @@ interface AssetUrlResult {
   directUrl: string | null;
   stableUrl: string;
   signedDownloadUrl: string;
+  attachmentDownloadUrl: string;
   expiresAt: number;
   displayMode: DisplayMode;
 }
@@ -41,6 +42,7 @@ export async function buildAssetUrls(
   const stableUrl = `/api/assets/${assetId}`;
 
   const signed = generateSignedDownloadUrl(assetId, displayMode, expiresIn);
+  const attachment = generateSignedDownloadUrl(assetId, 'attachment', expiresIn);
 
   let directUrl: string | null = null;
   if (assetKey) {
@@ -66,6 +68,7 @@ export async function buildAssetUrls(
     directUrl,
     stableUrl,
     signedDownloadUrl: signed.url,
+    attachmentDownloadUrl: attachment.url,
     expiresAt: signed.expires_at,
     displayMode,
   };

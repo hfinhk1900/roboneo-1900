@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
       data: {
         asset_id: assetId,
         output_image_url: assetLinks.stableUrl,
-        download_url: assetLinks.signedDownloadUrl,
+        download_url: assetLinks.attachmentDownloadUrl,
         stable_url: assetLinks.stableUrl,
         expires_at: assetLinks.expiresAt,
         upload_asset_id: uploadSource?.assetId ?? null,
