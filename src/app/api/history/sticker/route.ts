@@ -1,10 +1,9 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { assets, stickerHistory } from '@/db/schema';
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
-import { and, desc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // GET /api/history/sticker?limit=20&refresh_urls=true
@@ -20,8 +19,6 @@ export async function GET(request: NextRequest) {
     const db = await getDb();
     const { searchParams } = new URL(request.url);
     const limitParam = searchParams.get('limit');
-    const refreshUrls = searchParams.get('refresh_urls') === 'true';
-
     const baseQuery = db
       .select()
       .from(stickerHistory)
@@ -52,6 +49,7 @@ export async function GET(request: NextRequest) {
                   ...row,
                   url: `/api/assets/${assetId}`,
                   asset_id: assetId,
+                  assetId,
                 };
               }
             }
@@ -59,7 +57,10 @@ export async function GET(request: NextRequest) {
         } catch (error) {
           console.error('Failed to convert URL for sticker item:', error);
         }
-        return row;
+        return {
+          ...row,
+          asset_id: row.assetId ?? row.asset_id ?? null,
+        };
       })
     );
 
@@ -111,8 +112,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Access denied' }, { status: 403 });
       }
       // 生成新的签名URL，每次都刷新过期时间
-      const signed = generateSignedDownloadUrl(asset_id, 'inline', 3600);
-      finalUrl = signed.url;
+      finalUrl = `/api/assets/${asset_id}`;
       finalAssetId = asset_id;
     } else if (url) {
       // 兼容旧格式，直接使用URL
@@ -132,6 +132,7 @@ export async function POST(request: NextRequest) {
       id,
       userId: session.user.id,
       url: finalUrl,
+      assetId: finalAssetId ?? null,
       style,
       createdAt,
     });

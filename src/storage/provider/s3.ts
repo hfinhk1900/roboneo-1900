@@ -1,4 +1,6 @@
 import { randomUUID } from 'crypto';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl as awsGetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3mini } from 's3mini';
 import { storageConfig } from '../config/storage-config';
 import {
@@ -6,6 +8,7 @@ import {
   type StorageConfig,
   StorageError,
   type StorageProvider,
+  type SignedUrlOptions,
   UploadError,
   type UploadFileParams,
   type UploadFileResult,
@@ -25,6 +28,7 @@ import {
 export class S3Provider implements StorageProvider {
   private config: StorageConfig;
   private s3Client: s3mini | null = null;
+  private s3SignedClient: S3Client | null = null;
 
   constructor(config: StorageConfig = storageConfig) {
     this.config = config;
@@ -76,6 +80,43 @@ export class S3Provider implements StorageProvider {
     });
 
     return this.s3Client;
+  }
+
+  /**
+   * Get AWS SDK client for signed URL generation
+   */
+  private getS3SignedClient(): S3Client {
+    if (this.s3SignedClient) {
+      return this.s3SignedClient;
+    }
+
+    const { region, endpoint, accessKeyId, secretAccessKey, bucketName, forcePathStyle } =
+      this.config;
+
+    if (!region) {
+      throw new ConfigurationError('Storage region is not configured');
+    }
+    if (!accessKeyId || !secretAccessKey) {
+      throw new ConfigurationError('Storage credentials are not configured');
+    }
+    if (!endpoint) {
+      throw new ConfigurationError('Storage endpoint is required for signing');
+    }
+    if (!bucketName) {
+      throw new ConfigurationError('Storage bucket name is not configured');
+    }
+
+    this.s3SignedClient = new S3Client({
+      region,
+      endpoint: endpoint.replace(/\/$/, ''),
+      forcePathStyle: forcePathStyle !== false,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+    });
+
+    return this.s3SignedClient;
   }
 
   /**
@@ -187,6 +228,38 @@ export class S3Provider implements StorageProvider {
           ? error.message
           : 'Unknown error occurred during file read';
       console.error('getFile, error', message);
+      throw new StorageError(message);
+    }
+  }
+
+  /**
+   * Generate a signed URL for a stored object
+   */
+  public async getSignedUrl(
+    key: string,
+    options: SignedUrlOptions = {}
+  ): Promise<string> {
+    try {
+      const client = this.getS3SignedClient();
+      const command = new GetObjectCommand({
+        Bucket: this.config.bucketName,
+        Key: key,
+        ResponseContentDisposition: options.responseDisposition,
+        ResponseContentType: options.responseContentType,
+      });
+
+      const expiresIn = Math.max(
+        1,
+        Math.min(options.expiresIn ?? 3600, 60 * 60 * 24)
+      );
+
+      return await awsGetSignedUrl(client, command, { expiresIn });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unknown error occurred during signed URL generation';
+      console.error('getSignedUrl, error', message);
       throw new StorageError(message);
     }
   }

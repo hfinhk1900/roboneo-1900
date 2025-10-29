@@ -1,12 +1,10 @@
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import {
-  generateSignedDownloadUrl,
-  getAssetMetadata,
-} from '@/lib/asset-management';
+import { getAssetMetadata } from '@/lib/asset-management';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getFileSignedUrl } from '@/storage';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -85,22 +83,61 @@ export async function POST(request: NextRequest) {
     }
 
     // 生成新的签名下载URL
-    const signedUrl = generateSignedDownloadUrl(
-      asset_id,
-      display_mode as 'inline' | 'attachment',
-      expires_in
+    const normalizedExpiresIn = Math.max(
+      60,
+      Math.min(Number(expires_in) || 3600, 24 * 60 * 60)
     );
 
-    console.log('✅ Generated new download URL:', {
+    if (record?.key) {
+      try {
+        const signedUrl = await getFileSignedUrl(record.key, {
+          expiresIn: normalizedExpiresIn,
+          responseDisposition:
+            display_mode === 'attachment'
+              ? `attachment; filename="${record.filename}"`
+              : `inline; filename="${record.filename}"`,
+          responseContentType: record.content_type || undefined,
+        });
+
+        const expires_at =
+          Math.floor(Date.now() / 1000) + normalizedExpiresIn;
+
+        console.log('✅ Generated new storage signed URL:', {
+          asset_id,
+          user_id: session.user.id,
+          display_mode,
+          expires_in: normalizedExpiresIn,
+        });
+
+        return NextResponse.json({
+          url: signedUrl,
+          expires_at,
+        });
+      } catch (error) {
+        console.error(
+          'Failed to generate storage signed URL, falling back to legacy flow',
+          error
+        );
+      }
+    }
+
+    // Legacy fallback for local metadata (dev/older records)
+    const legacySigned = (await import('@/lib/asset-management')).generateSignedDownloadUrl(
+      asset_id,
+      display_mode as 'inline' | 'attachment',
+      normalizedExpiresIn
+    );
+
+    console.log('✅ Generated legacy download URL:', {
       asset_id,
       user_id: session.user.id,
       display_mode,
-      expires_in,
+      expires_in: normalizedExpiresIn,
     });
 
     return NextResponse.json({
-      url: signedUrl.url,
-      expires_at: signedUrl.expires_at,
+      url: legacySigned.url,
+      expires_at: legacySigned.expires_at,
     });
   } catch (error) {
     console.error('Sign download URL error:', error);

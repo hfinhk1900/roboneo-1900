@@ -76,6 +76,7 @@ export const stickerHistory = pgTable("sticker_history", {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
+	assetId: text('asset_id'),
 	style: text('style').notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -85,6 +86,7 @@ export const productshotHistory = pgTable("productshot_history", {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
+	assetId: text('asset_id'),
 	scene: text('scene').notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -105,6 +107,7 @@ export const aibgHistory = pgTable("aibg_history", {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
+	assetId: text('asset_id'),
 	mode: text('mode').notNull(), // 'background' or 'color'
 	style: text('style').notNull(), // background style or color value
 	createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -116,6 +119,7 @@ export const watermarkHistory = pgTable("watermark_history", {
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	originalImageUrl: text('original_image_url').notNull(), // 原始图片URL
 	processedImageUrl: text('processed_image_url').notNull(), // 处理后图片URL
+	assetId: text('asset_id'),
 	method: text('method').notNull(), // 'auto', 'inpainting', 'clone', 'blur', 'demo'
 	watermarkType: text('watermark_type'), // 'text', 'logo', 'signature', etc.
 	quality: text('quality'), // 'fast', 'balanced', 'high'
@@ -127,6 +131,7 @@ export const profilePictureHistory = pgTable("profile_picture_history", {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	url: text('url').notNull(),
+	assetId: text('asset_id'),
 	style: text('style').notNull(), // selected profile style (e.g., 'man-portrait01', 'woman-portrait02')
 	aspectRatio: text('aspect_ratio'), // output aspect ratio (e.g., '1:1', '2:3', 'original')
 	createdAt: timestamp("created_at").notNull().defaultNow(),

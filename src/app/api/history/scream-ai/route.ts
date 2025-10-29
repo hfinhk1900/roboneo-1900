@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 
 import { getDb } from '@/db';
 import { assets, screamAiHistory } from '@/db/schema';
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -21,7 +20,6 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const limitParam = searchParams.get('limit');
-    const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
     const db = await getDb();
     const query = db
@@ -33,27 +31,15 @@ export async function GET(request: NextRequest) {
     const rows =
       limitParam !== null ? await query.limit(Number(limitParam)) : await query;
 
-    const items = await Promise.all(
-      rows.map(async (row) => {
-        if (refreshUrls && row.assetId) {
-          const { url } = generateSignedDownloadUrl(
-            row.assetId,
-            'inline',
-            3600
-          );
-          return {
-            ...row,
-            download_url: url,
-          };
-        }
-        return {
-          ...row,
-          download_url: row.assetId
-            ? generateSignedDownloadUrl(row.assetId, 'inline', 3600).url
-            : row.url,
-        };
-      })
-    );
+    const items = rows.map((row) => {
+      const stableUrl = row.assetId ? `/api/assets/${row.assetId}` : row.url;
+      return {
+        ...row,
+        url: stableUrl,
+        download_url: stableUrl,
+        asset_id: row.assetId ?? null,
+      };
+    });
 
     return NextResponse.json({ items });
   } catch (error) {
@@ -126,7 +112,7 @@ export async function POST(request: NextRequest) {
       url: finalUrl,
       presetId: body.preset_id,
       aspectRatio: body.aspect_ratio,
-      assetId: body.asset_id,
+      assetId: body.asset_id ?? null,
       watermarked: body.watermarked ?? true,
       createdAt,
     });
@@ -136,7 +122,7 @@ export async function POST(request: NextRequest) {
       url: finalUrl,
       preset_id: body.preset_id,
       aspect_ratio: body.aspect_ratio,
-      asset_id: body.asset_id,
+      asset_id: body.asset_id ?? null,
       createdAt,
     });
   } catch (error) {

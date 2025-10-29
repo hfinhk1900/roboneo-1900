@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { aibgHistory, assets } from '@/db/schema';
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -20,7 +19,6 @@ export async function GET(request: NextRequest) {
     const db = await getDb();
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
-    const refreshUrls = searchParams.get('refresh_urls') === 'true';
 
     const baseQuery = db
       .select()
@@ -55,6 +53,7 @@ export async function GET(request: NextRequest) {
                   ...item,
                   url: `/api/assets/${assetId}`,
                   asset_id: assetId,
+                  assetId,
                 };
               }
             }
@@ -62,7 +61,10 @@ export async function GET(request: NextRequest) {
             console.error('Failed to convert URL for history item:', error);
           }
         }
-        return item;
+        return {
+          ...item,
+          asset_id: item.assetId ?? item.asset_id ?? null,
+        };
       })
     );
 
@@ -117,8 +119,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 生成新的签名URL
-      const signed = generateSignedDownloadUrl(asset_id, 'inline', 3600);
-      finalUrl = signed.url;
+      finalUrl = `/api/assets/${asset_id}`;
       finalAssetId = asset_id;
     } else if (!url) {
       return NextResponse.json(
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
       id,
       userId: session.user.id,
       url: finalUrl,
+      assetId: finalAssetId ?? null,
       mode,
       style,
       createdAt,

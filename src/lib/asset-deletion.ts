@@ -195,6 +195,10 @@ export function extractAssetIdFromHistoryItem(item: any): string | null {
     return item.asset_id;
   }
 
+  if (item.assetId && typeof item.assetId === 'string') {
+    return item.assetId;
+  }
+
   // 尝试从URL解析asset_id（适用于签名URL或稳定查看URL）
   // 通用字段：url
   if (item.url && typeof item.url === 'string') {

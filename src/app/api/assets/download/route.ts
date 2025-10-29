@@ -2,6 +2,7 @@ import { createHash, createHmac } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { getAssetMetadata as getLocalAssetMetadata } from '@/lib/asset-management';
+import { getFileSignedUrl } from '@/storage';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -93,7 +94,40 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    console.log('✅ Asset download verified:', {
+    let signedUrl: string | null = null;
+
+    // 优先尝试生成直连的存储签名URL，以绕过 Vercel 带宽
+    if (assetMetadata?.key) {
+      try {
+        const expiresIn = Math.max(
+          60,
+          Math.min((expiresAt - currentTime) || 3600, 24 * 60 * 60)
+        );
+        signedUrl = await getFileSignedUrl(assetMetadata.key, {
+          expiresIn,
+          responseDisposition:
+            disp === 'attachment'
+              ? `attachment; filename="${assetMetadata.filename}"`
+              : `inline; filename="${assetMetadata.filename}"`,
+          responseContentType: assetMetadata.content_type || undefined,
+        });
+      } catch (error) {
+        console.error('Asset download: Failed to generate direct signed URL', {
+          asset_id,
+          error,
+        });
+      }
+    }
+
+    if (signedUrl) {
+      console.log('🔁 Redirecting asset download to storage signed URL', {
+        asset_id,
+        display_mode: disp,
+      });
+      return NextResponse.redirect(signedUrl, 302);
+    }
+
+    console.log('✅ Asset download verified (fallback path):', {
       asset_id,
       filename: assetMetadata.filename,
       content_type: assetMetadata.content_type,

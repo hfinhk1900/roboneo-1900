@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
 import { auth } from '@/lib/auth';
-import { getFile } from '@/storage';
+import { getFile, getFileSignedUrl } from '@/storage';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -33,9 +33,25 @@ export async function GET(
       return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
     }
 
-    // Ownership check
-    if (asset.user_id !== session.user.id) {
+    const isOwner = asset.user_id === session.user.id;
+    const isAdmin = session.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
+    // Try to generate direct signed URL for storage
+    if (asset.key) {
+      try {
+        const signedUrl = await getFileSignedUrl(asset.key, {
+          responseDisposition: `inline; filename="${asset.filename}"`,
+          responseContentType: asset.content_type || undefined,
+          expiresIn: 5 * 60,
+        });
+        return NextResponse.redirect(signedUrl, 302);
+      } catch (error) {
+        console.error('Asset view signed URL error:', error);
+      }
     }
 
     // Fetch file content from storage

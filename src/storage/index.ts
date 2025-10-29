@@ -1,7 +1,12 @@
 import { websiteConfig } from '@/config/website';
 import { storageConfig } from './config/storage-config';
 import { S3Provider } from './provider/s3';
-import type { StorageConfig, StorageProvider, UploadFileResult } from './types';
+import type {
+  SignedUrlOptions,
+  StorageConfig,
+  StorageProvider,
+  UploadFileResult,
+} from './types';
 
 /**
  * Default storage configuration
@@ -81,4 +86,18 @@ export const deleteFile = async (key: string): Promise<void> => {
 export const getFile = async (key: string): Promise<Buffer> => {
   const provider = getStorageProvider();
   return provider.getFile(key);
+};
+
+/**
+ * Generate a signed URL for a stored file
+ *
+ * @param key - Storage key of the file
+ * @param options - Signed URL options
+ */
+export const getFileSignedUrl = async (
+  key: string,
+  options?: SignedUrlOptions
+): Promise<string> => {
+  const provider = getStorageProvider();
+  return provider.getSignedUrl(key, options);
 };

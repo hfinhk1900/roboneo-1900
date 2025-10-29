@@ -52,6 +52,8 @@ export default async function DashboardPage() {
     prompt: string;
     route: string | null;
     url?: string | null;
+    assetId?: string | null;
+    previewUrl?: string | null;
     userId: string;
     userEmail: string | null;
     createdAt: Date;
@@ -109,6 +111,25 @@ export default async function DashboardPage() {
       return SCREAM_PRESET_MAP.get(rawLabel ?? '')?.prompt ?? '';
     }
     return '';
+  };
+
+  const resolveAssetUrl = (url?: string | null, assetId?: string | null) => {
+    if (assetId) {
+      return `/api/assets/${assetId}`;
+    }
+    if (!url) {
+      return null;
+    }
+    if (url.startsWith('/api/assets/download')) {
+      try {
+        const urlObj = new URL(url, 'http://localhost');
+        const extracted = urlObj.searchParams.get('asset_id');
+        if (extracted) {
+          return `/api/assets/${extracted}`;
+        }
+      } catch {}
+    }
+    return url;
   };
 
   try {
@@ -371,6 +392,7 @@ export default async function DashboardPage() {
         .select({
           id: aibgHistory.id,
           url: aibgHistory.url,
+          assetId: aibgHistory.assetId,
           rawLabel: aibgHistory.style,
           userId: aibgHistory.userId,
           userEmail: user.email,
@@ -384,6 +406,7 @@ export default async function DashboardPage() {
         .select({
           id: productshotHistory.id,
           url: productshotHistory.url,
+          assetId: productshotHistory.assetId,
           rawLabel: productshotHistory.scene,
           userId: productshotHistory.userId,
           userEmail: user.email,
@@ -397,6 +420,7 @@ export default async function DashboardPage() {
         .select({
           id: stickerHistory.id,
           url: stickerHistory.url,
+          assetId: stickerHistory.assetId,
           rawLabel: stickerHistory.style,
           userId: stickerHistory.userId,
           userEmail: user.email,
@@ -410,6 +434,7 @@ export default async function DashboardPage() {
         .select({
           id: watermarkHistory.id,
           url: watermarkHistory.processedImageUrl,
+          assetId: watermarkHistory.assetId,
           rawLabel: watermarkHistory.method,
           userId: watermarkHistory.userId,
           userEmail: user.email,
@@ -423,6 +448,7 @@ export default async function DashboardPage() {
         .select({
           id: profilePictureHistory.id,
           url: profilePictureHistory.url,
+          assetId: profilePictureHistory.assetId,
           rawLabel: profilePictureHistory.style,
           userId: profilePictureHistory.userId,
           userEmail: user.email,
@@ -436,6 +462,7 @@ export default async function DashboardPage() {
         .select({
           id: screamAiHistory.id,
           url: screamAiHistory.url,
+          assetId: screamAiHistory.assetId,
           rawLabel: screamAiHistory.presetId,
           userId: screamAiHistory.userId,
           userEmail: user.email,
@@ -455,12 +482,15 @@ export default async function DashboardPage() {
       ]
         .map((item) => {
           const rawLabel = item.rawLabel ?? '';
+          const resolvedUrl = resolveAssetUrl(item.url, item.assetId ?? null);
           return {
             ...item,
             rawLabel,
             label: resolveLabel(item.type, rawLabel),
             prompt: resolvePrompt(item.type, rawLabel),
             route: FEATURE_ROUTES[item.type] ?? null,
+            previewUrl: resolvedUrl,
+            url: resolvedUrl ?? item.url ?? null,
           };
         })
         .sort(

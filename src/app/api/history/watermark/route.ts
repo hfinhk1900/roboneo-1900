@@ -1,6 +1,5 @@
 import { getDb } from '@/db';
 import { assets, watermarkHistory } from '@/db/schema';
-import { generateSignedDownloadUrl } from '@/lib/asset-management';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -19,7 +18,6 @@ export async function GET(request: NextRequest) {
 
     const db = await getDb();
     const { searchParams } = new URL(request.url);
-    const refreshUrls = searchParams.get('refresh_urls') === 'true';
     const limit = Number.parseInt(searchParams.get('limit') || '50');
 
     const items = await db
@@ -55,7 +53,10 @@ export async function GET(request: NextRequest) {
             console.error('Failed to convert URL for watermark item:', error);
           }
         }
-        return item;
+        return {
+          ...item,
+          asset_id: item.assetId ?? item.asset_id ?? null,
+        };
       })
     );
 
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
       method,
       watermarkType,
       quality,
+      assetId,
     } = await request.json();
 
     // 验证必需字段
@@ -103,11 +105,34 @@ export async function POST(request: NextRequest) {
     const db = await getDb();
     const historyId = nanoid();
 
+    let finalProcessedUrl = processedImageUrl;
+    let finalAssetId: string | undefined;
+
+    if (assetId) {
+      const assetRows = await db
+        .select()
+        .from(assets)
+        .where(eq(assets.id, assetId))
+        .limit(1);
+
+      if (assetRows.length === 0) {
+        return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+      }
+
+      if (assetRows[0].user_id !== session.user.id) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+
+      finalProcessedUrl = `/api/assets/${assetId}`;
+      finalAssetId = assetId;
+    }
+
     await db.insert(watermarkHistory).values({
       id: historyId,
       userId: session.user.id,
       originalImageUrl,
-      processedImageUrl,
+      processedImageUrl: finalProcessedUrl,
+      assetId: finalAssetId ?? null,
       method,
       watermarkType: watermarkType || null,
       quality: quality || null,
@@ -118,6 +143,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       id: historyId,
+      processedImageUrl: finalProcessedUrl,
+      asset_id: finalAssetId,
     });
   } catch (error) {
     console.error('Error creating watermark history:', error);

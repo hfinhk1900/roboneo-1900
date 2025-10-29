@@ -53,6 +53,12 @@ export interface UploadFileResult {
   key: string;
 }
 
+export interface SignedUrlOptions {
+  expiresIn?: number;
+  responseDisposition?: string;
+  responseContentType?: string;
+}
+
 /**
  * Storage provider interface
  */
@@ -76,4 +82,9 @@ export interface StorageProvider {
    * Read a file from storage and return its binary content as Buffer
    */
   getFile(key: string): Promise<Buffer>;
+
+  /**
+   * Generate a signed URL for a stored object
+   */
+  getSignedUrl(key: string, options?: SignedUrlOptions): Promise<string>;
 }

@@ -21,6 +21,7 @@ type Item = {
   prompt: string;
   route: string | null;
   url?: string | null;
+  previewUrl?: string | null;
   userId: string;
   userEmail?: string | null;
   createdAt: Date;
@@ -46,6 +47,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[90px]">Preview</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Label</TableHead>
               <TableHead>Prompt</TableHead>
@@ -58,6 +60,18 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
           <TableBody>
             {items.map((it) => (
               <TableRow key={`${it.type}-${it.id}`}>
+                <TableCell>
+                  {it.previewUrl ? (
+                    <img
+                      src={it.previewUrl}
+                      alt={it.label || 'Preview'}
+                      className="h-16 w-16 rounded-md object-cover border"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-md border bg-muted" />
+                  )}
+                </TableCell>
                 <TableCell className="capitalize">
                   {TYPE_LABELS[it.type] ?? it.type}
                 </TableCell>
@@ -98,7 +112,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             {items.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="text-center text-muted-foreground"
                 >
                   No recent items
