@@ -332,7 +332,7 @@ export function Navbar({ scroll, currentUser = null }: NavBarProps) {
                                       className="group flex items-center gap-4 p-2 w-full transition-colors hover:bg-gray-200 rounded-xl no-underline cursor-pointer"
                                     >
                                       {/* Image */}
-                                      <div className="shrink-0 size-[80px] bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
+                                      <div className="shrink-0 w-20 h-20 bg-center bg-cover bg-no-repeat rounded-2xl overflow-hidden">
                                         {subItem.icon ? (
                                           typeof subItem.icon === 'string' ? (
                                             <Image
