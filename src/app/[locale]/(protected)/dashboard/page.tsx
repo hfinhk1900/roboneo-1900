@@ -55,6 +55,7 @@ export default async function DashboardPage() {
     url?: string | null;
     assetId?: string | null;
     previewUrl?: string | null;
+    uploadPreviewUrl?: string | null;
     userId: string;
     userEmail: string | null;
     ipAddress: string | null;
@@ -655,6 +656,13 @@ export default async function DashboardPage() {
           const metadata = parseMetadata(rawMetadata ?? null);
           const metadataPrompt = typeof metadata?.prompt === 'string' ? metadata.prompt : null;
           const ipAddress = typeof metadata?.client_ip === 'string' ? metadata.client_ip : null;
+          const uploadAssetId =
+            typeof metadata?.upload_asset_id === 'string'
+              ? metadata.upload_asset_id
+              : null;
+          const uploadPreviewUrl = uploadAssetId
+            ? resolveAssetUrl(null, uploadAssetId)
+            : null;
 
           return {
             ...rest,
@@ -664,6 +672,7 @@ export default async function DashboardPage() {
             route: FEATURE_ROUTES[rest.type] ?? null,
             previewUrl: resolvedUrl,
             url: resolvedUrl ?? rest.url ?? null,
+            uploadPreviewUrl,
             ipAddress,
           };
         })

@@ -22,6 +22,7 @@ type Item = {
   route: string | null;
   url?: string | null;
   previewUrl?: string | null;
+  uploadPreviewUrl?: string | null;
   userId: string;
   userEmail?: string | null;
   ipAddress?: string | null;
@@ -49,6 +50,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[90px]">Preview</TableHead>
+              <TableHead className="w-[90px]">Uploaded</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Label</TableHead>
               <TableHead>Prompt</TableHead>
@@ -67,6 +69,18 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
                     <img
                       src={it.previewUrl}
                       alt={it.label || 'Preview'}
+                      className="h-16 w-16 rounded-md object-cover border"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-md border bg-muted" />
+                  )}
+                </TableCell>
+                <TableCell>
+                  {it.uploadPreviewUrl ? (
+                    <img
+                      src={it.uploadPreviewUrl}
+                      alt={`${it.label || it.type} upload`}
                       className="h-16 w-16 rounded-md object-cover border"
                       loading="lazy"
                     />
@@ -116,7 +130,7 @@ export default function RecentGenerations({ items }: { items: Item[] }) {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={10} className="text-center text-muted-foreground">
                   No recent items
                 </TableCell>
               </TableRow>
