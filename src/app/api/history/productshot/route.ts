@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { assets, productshotHistory } from '@/db/schema';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -35,6 +36,10 @@ export async function GET(request: NextRequest) {
     // Convert legacy signed URLs to stable view URLs
     const converted = await Promise.all(
       items.map(async (item: any) => {
+        let result = { ...item };
+        let assetId: string | null =
+          item.asset_id || item.assetId || null;
+
         if (item.url?.startsWith('/api/assets/download')) {
           try {
             const urlObj = new URL(item.url, 'http://localhost');
@@ -46,7 +51,7 @@ export async function GET(request: NextRequest) {
                 .where(eq(assets.id, assetId))
                 .limit(1);
               if (assetRows[0]?.user_id === session.user.id) {
-                return {
+                result = {
                   ...item,
                   url: `/api/assets/${assetId}`,
                   asset_id: assetId,
@@ -58,9 +63,31 @@ export async function GET(request: NextRequest) {
             console.error('Failed to convert URL for productshot item:', error);
           }
         }
+
+        assetId = result.assetId ?? result.asset_id ?? assetId;
+
+        if (assetId) {
+          try {
+            const links = await buildAssetUrls({
+              assetId,
+              expiresIn: 300,
+              displayMode: 'inline',
+            });
+            return {
+              ...result,
+              asset_id: assetId,
+              assetId,
+              download_url: links.attachmentDownloadUrl,
+              url: `/api/assets/${assetId}`,
+            };
+          } catch (error) {
+            console.warn('Failed to build download URL for productshot history:', error);
+          }
+        }
+
         return {
-          ...item,
-          asset_id: item.assetId ?? item.asset_id ?? null,
+          ...result,
+          asset_id: assetId,
         };
       })
     );

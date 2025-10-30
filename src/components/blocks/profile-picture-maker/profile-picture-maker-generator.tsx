@@ -188,6 +188,7 @@ interface ProfilePictureHistoryItem {
   style: string; // 选择的风格
   aspectRatio?: string; // 输出宽高比
   createdAt: number;
+  download_url?: string | null;
 }
 
 export default function ProfilePictureMakerGenerator() {
@@ -240,6 +241,9 @@ export default function ProfilePictureMakerGenerator() {
   const [profilePictureHistory, setProfilePictureHistory] = useState<
     ProfilePictureHistoryItem[]
   >([]);
+  const lastResultMeta = useRef<
+    { assetId?: string | null; downloadUrl?: string | null } | null
+  >(null);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [showClearAllConfirmDialog, setShowClearAllConfirmDialog] =
     useState(false);
@@ -283,6 +287,7 @@ export default function ProfilePictureMakerGenerator() {
             const data = await res.json();
             const processedItems = data.items.map((item: any) => ({
               ...item,
+              download_url: item.download_url || item.downloadUrl || null,
               createdAt:
                 typeof item.createdAt === 'string'
                   ? new Date(item.createdAt).getTime()
@@ -302,8 +307,12 @@ export default function ProfilePictureMakerGenerator() {
         const raw = localStorage.getItem(HISTORY_KEY);
         if (raw) {
           const parsed = JSON.parse(raw) as ProfilePictureHistoryItem[];
+          const normalized = parsed.map((item) => ({
+            ...item,
+            download_url: item.download_url ?? (item as any).downloadUrl ?? null,
+          }));
           // 确保按时间降序排列（最新的在前）
-          const sortedItems = parsed.sort(
+          const sortedItems = normalized.sort(
             (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
           );
           setProfilePictureHistory(sortedItems);
@@ -347,6 +356,7 @@ export default function ProfilePictureMakerGenerator() {
                   ? new Date(created.createdAt).getTime()
                   : created.createdAt
                 : Date.now(),
+              download_url: item.download_url ?? null,
             };
             setProfilePictureHistory((prev) => [createdItem, ...prev]);
             // 保存到本地图片库（IndexedDB）
@@ -382,7 +392,7 @@ export default function ProfilePictureMakerGenerator() {
 
       // 未登录：写入本地存储
       setProfilePictureHistory((prev) => {
-        const newHistory = [item, ...prev];
+        const newHistory = [{ ...item }, ...prev];
         localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
         // 保存到本地图片库（IndexedDB）
         (async () => {
@@ -637,6 +647,7 @@ export default function ProfilePictureMakerGenerator() {
 
       setFileError(null);
       setGeneratedImageUrl(null);
+      lastResultMeta.current = null;
 
       const validation = validateImageFile(file);
       if (!validation.isValid) {
@@ -696,6 +707,7 @@ export default function ProfilePictureMakerGenerator() {
     setSelectedImage(null);
     setPreviewUrl(null);
     setGeneratedImageUrl(null);
+    lastResultMeta.current = null;
     setFileError(null);
 
     if (fileInputRef.current) {
@@ -711,6 +723,8 @@ export default function ProfilePictureMakerGenerator() {
       if (pendingGeneration.current) {
         return;
       }
+
+      lastResultMeta.current = null;
 
       // Set demo image as preview
       setPreviewUrl(demo.url);
@@ -741,6 +755,7 @@ export default function ProfilePictureMakerGenerator() {
         // Show result after short delay
         setTimeout(async () => {
           setGeneratedImageUrl(demo.resultUrl);
+          lastResultMeta.current = null;
           setIsGenerating(false);
           setGenerationProgress(0);
           pendingGeneration.current = false;
@@ -791,6 +806,7 @@ export default function ProfilePictureMakerGenerator() {
     pendingGeneration.current = true;
     setIsGenerating(true);
     setGenerationProgress(0);
+    lastResultMeta.current = null;
 
     try {
       // Process uploaded image with aspect ratio handling (similar to AI Background)
@@ -873,6 +889,11 @@ export default function ProfilePictureMakerGenerator() {
         setGeneratedImageUrl(result.data.output_image_url);
         setGenerationProgress(100);
 
+        lastResultMeta.current = {
+          assetId: result.data.asset_id ?? null,
+          downloadUrl: result.data.download_url ?? null,
+        };
+
         // 保存到历史记录
         const historyItem: ProfilePictureHistoryItem = {
           asset_id: result.data.asset_id, // 使用API返回的asset_id
@@ -880,6 +901,7 @@ export default function ProfilePictureMakerGenerator() {
           style: selectedStyle,
           aspectRatio: selectedAspectRatio,
           createdAt: Date.now(),
+          download_url: result.data.download_url ?? null,
         };
         await pushHistory(historyItem);
 
@@ -898,6 +920,7 @@ export default function ProfilePictureMakerGenerator() {
       }
     } catch (error) {
       console.error('Generation error:', error);
+      lastResultMeta.current = null;
       toast.error(
         error instanceof Error
           ? error.message
@@ -916,29 +939,97 @@ export default function ProfilePictureMakerGenerator() {
     getReferenceImageBase64,
   ]);
 
+  const downloadProfileImage = useCallback(
+    async (
+      url: string,
+      filename: string,
+      assetId?: string | null,
+      fallbackDownloadUrl?: string | null
+    ) => {
+      try {
+        if (!url && !fallbackDownloadUrl) {
+          toast.error('Download link unavailable');
+          return;
+        }
+
+        let finalUrl = fallbackDownloadUrl || url;
+        let effectiveAssetId = assetId ?? null;
+
+        if (!effectiveAssetId && url?.startsWith('/api/assets/')) {
+          try {
+            const urlObj = new URL(url, window.location.origin);
+            effectiveAssetId = urlObj.pathname.split('/').pop() ?? null;
+          } catch {
+            // ignore parsing errors
+          }
+        }
+
+        if (effectiveAssetId) {
+          try {
+            const refreshRes = await fetch('/api/storage/sign-download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                asset_id: effectiveAssetId,
+                display_mode: 'attachment',
+                expires_in: 3600,
+              }),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              finalUrl = refreshData.url;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch attachment download URL:', error);
+          }
+        }
+
+        if (!finalUrl) {
+          toast.error('Download link unavailable');
+          return;
+        }
+
+        if (finalUrl.startsWith('data:')) {
+          const link = document.createElement('a');
+          link.href = finalUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success('Image downloaded successfully!');
+          return;
+        }
+
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = filename;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Image downloaded successfully!');
+      } catch (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download image');
+      }
+    },
+    []
+  );
+
   // Download generated image
   const handleDownload = useCallback(async () => {
     if (!generatedImageUrl) return;
 
-    try {
-      const response = await fetch(generatedImageUrl);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `profile-picture-${selectedStyle}-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success('Image downloaded successfully!');
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download image');
-    }
-  }, [generatedImageUrl, selectedStyle]);
+    await downloadProfileImage(
+      generatedImageUrl,
+      `profile-picture-${selectedStyle}-${Date.now()}.png`,
+      lastResultMeta.current?.assetId ?? null,
+      lastResultMeta.current?.downloadUrl ?? null
+    );
+  }, [generatedImageUrl, selectedStyle, downloadProfileImage]);
 
   if (!isMounted) {
     return (
@@ -1276,6 +1367,7 @@ export default function ProfilePictureMakerGenerator() {
                       <Button
                         onClick={() => {
                           setGeneratedImageUrl(null);
+                          lastResultMeta.current = null;
                         }}
                         variant="ghost"
                         size="icon"
@@ -1420,14 +1512,14 @@ export default function ProfilePictureMakerGenerator() {
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download profile picture"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = item.url;
-                        link.download = `profile-picture-${item.style}-${Date.now()}.png`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={() =>
+                        downloadProfileImage(
+                          item.url,
+                          `profile-picture-${item.style}-${Date.now()}.png`,
+                          item.asset_id,
+                          item.download_url ?? null
+                        )
+                      }
                     >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -1624,51 +1716,18 @@ export default function ProfilePictureMakerGenerator() {
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (!previewImageUrl) return;
+                  const historyItem = profilePictureHistory.find(
+                    (item) =>
+                      item.url === previewImageUrl ||
+                      item.download_url === previewImageUrl
+                  );
 
-                  try {
-                    let finalUrl = previewImageUrl;
-                    if (finalUrl.startsWith('/api/assets/')) {
-                      try {
-                        const assetId = finalUrl.split('/').pop();
-                        if (assetId) {
-                          const refreshRes = await fetch(
-                            '/api/storage/sign-download',
-                            {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              credentials: 'include',
-                              body: JSON.stringify({
-                                asset_id: assetId,
-                                display_mode: 'inline',
-                                expires_in: 3600,
-                              }),
-                            }
-                          );
-                          if (refreshRes.ok) {
-                            const refreshData = await refreshRes.json();
-                            finalUrl = refreshData.url;
-                          }
-                        }
-                      } catch {}
-                    }
-
-                    const response = await fetch(finalUrl);
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `profile-picture-${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    toast.success('Image downloaded successfully!');
-                  } catch (error) {
-                    console.error('Download error:', error);
-                    toast.error('Failed to download image');
-                  }
+                  await downloadProfileImage(
+                    previewImageUrl,
+                    `profile-picture-${Date.now()}.png`,
+                    historyItem?.asset_id ?? lastResultMeta.current?.assetId ?? null,
+                    historyItem?.download_url ?? lastResultMeta.current?.downloadUrl ?? null
+                  );
                 }}
                 className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
                 size="lg"

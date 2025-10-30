@@ -217,6 +217,7 @@ interface AibgHistoryItem {
   mode: 'background' | 'color';
   style: string;
   createdAt: number;
+  download_url?: string | null;
 }
 
 export function AIBackgroundGeneratorSection() {
@@ -282,6 +283,7 @@ export function AIBackgroundGeneratorSection() {
             const processedItems = data.items.map((item: any) => ({
               id: item.id,
               asset_id: item.asset_id || item.metadata?.asset_id,
+              download_url: item.download_url || item.downloadUrl || null,
               url: item.url,
               mode: item.mode,
               style: item.style,
@@ -342,6 +344,7 @@ export function AIBackgroundGeneratorSection() {
             const createdItem: AibgHistoryItem = {
               id: created.id,
               asset_id: created.asset_id,
+              download_url: item.download_url,
               url: created.url,
               mode: created.mode,
               style: created.style,
@@ -508,71 +511,56 @@ export function AIBackgroundGeneratorSection() {
 
   // 从URL下载图片
   const downloadFromUrl = useCallback(
-    async (url: string, mode: string, style: string) => {
+    async (
+      url: string,
+      mode: string,
+      style: string,
+      assetId?: string | null,
+      fallbackDownloadUrl?: string | null
+    ) => {
       const filename = `aibg-${mode}-${style}-${Date.now()}.png`;
 
-      // 检查并刷新过期的URL
-      let finalUrl = url;
-      if (url.startsWith('/api/assets/')) {
+      let finalUrl = fallbackDownloadUrl || url;
+      let effectiveAssetId = assetId ?? null;
+
+      if (!effectiveAssetId && url.startsWith('/api/assets/')) {
         try {
           const urlObj = new URL(url, window.location.origin);
-          const exp = urlObj.searchParams.get('exp');
-          const assetId = urlObj.searchParams.get('asset_id');
-
-          if (exp && assetId) {
-            const expiryTime = Number.parseInt(exp) * 1000;
-            const currentTime = Date.now();
-
-            // 如果URL即将过期或已过期，刷新它
-            if (expiryTime - currentTime <= 5 * 60 * 1000) {
-              console.log(
-                '🔄 Refreshing expired asset URL for download:',
-                assetId
-              );
-              try {
-                const refreshRes = await fetch('/api/storage/sign-download', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  credentials: 'include',
-                  body: JSON.stringify({
-                    asset_id: assetId,
-                    display_mode: 'inline',
-                    expires_in: 3600,
-                  }),
-                });
-                if (refreshRes.ok) {
-                  const refreshData = await refreshRes.json();
-                  finalUrl = refreshData.url;
-                }
-              } catch (error) {
-                console.error(
-                  'Failed to refresh asset URL for download:',
-                  error
-                );
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error checking URL expiry for download:', error);
+          effectiveAssetId = urlObj.pathname.split('/').pop() ?? null;
+        } catch {
+          // ignore parsing errors
         }
       }
 
-      if (finalUrl.startsWith('/api/assets/')) {
-        // 新资产管理系统
-        const link = document.createElement('a');
-        link.href = finalUrl;
-        link.download = filename;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      if (effectiveAssetId) {
+        try {
+          const refreshRes = await fetch('/api/storage/sign-download', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: effectiveAssetId,
+              display_mode: 'attachment',
+              expires_in: 3600,
+            }),
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            finalUrl = refreshData.url;
+          }
+        } catch (error) {
+          console.error('Failed to fetch attachment download URL:', error);
+        }
+      }
+
+      if (!finalUrl) {
+        toast.error('Download link unavailable');
         return;
       }
 
       if (finalUrl.startsWith('data:')) {
-        // base64 数据
         const link = document.createElement('a');
         link.href = finalUrl;
         link.download = filename;
@@ -583,19 +571,29 @@ export function AIBackgroundGeneratorSection() {
         return;
       }
 
-      // 外部URL
-      try {
-        const response = await fetch(finalUrl);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+      if (finalUrl.startsWith('/api/assets/')) {
         const link = document.createElement('a');
-        link.href = url;
+        link.href = finalUrl;
         link.download = filename;
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        return;
+      }
+
+      try {
+        const response = await fetch(finalUrl);
+        const blob = await response.blob();
+        const objectUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(objectUrl);
       } catch (error) {
         console.error('Failed to download image:', error);
         toast.error('Failed to download image');
@@ -1503,6 +1501,7 @@ export function AIBackgroundGeneratorSection() {
       // 保存到历史记录 - 使用asset_id
       const historyItem: AibgHistoryItem = {
         asset_id: result.asset_id, // 使用API返回的asset_id
+        download_url: result.download_url ?? null,
         url: displayUrl, // 兼容旧数据
         mode: backgroundMode,
         style:
@@ -2778,7 +2777,13 @@ export function AIBackgroundGeneratorSection() {
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download AI background"
                       onClick={() =>
-                        downloadFromUrl(item.url, item.mode, item.style)
+                        downloadFromUrl(
+                          item.url,
+                          item.mode,
+                          item.style,
+                          item.asset_id,
+                          item.download_url
+                        )
                       }
                     >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
@@ -2948,7 +2953,18 @@ export function AIBackgroundGeneratorSection() {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (previewImageUrl) {
-                      downloadFromUrl(previewImageUrl, 'preview', 'full-size');
+                      const historyItem = aibgHistory.find(
+                        (history) =>
+                          history.url === previewImageUrl ||
+                          history.download_url === previewImageUrl
+                      );
+                      downloadFromUrl(
+                        previewImageUrl,
+                        'preview',
+                        'full-size',
+                        historyItem?.asset_id,
+                        historyItem?.download_url
+                      );
                     }
                   }}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"

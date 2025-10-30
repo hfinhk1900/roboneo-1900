@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import { getDb } from '@/db';
 import { assets, screamAiHistory } from '@/db/schema';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -31,15 +32,27 @@ export async function GET(request: NextRequest) {
     const rows =
       limitParam !== null ? await query.limit(Number(limitParam)) : await query;
 
-    const items = rows.map((row) => {
-      const stableUrl = row.assetId ? `/api/assets/${row.assetId}` : row.url;
-      return {
-        ...row,
-        url: stableUrl,
-        download_url: stableUrl,
-        asset_id: row.assetId ?? null,
-      };
-    });
+    const items = await Promise.all(
+      rows.map(async (row) => {
+        const assetId = row.assetId ?? null;
+        const stableUrl = assetId ? `/api/assets/${assetId}` : row.url;
+        let downloadUrl = stableUrl;
+        if (assetId) {
+          try {
+            const links = await buildAssetUrls({ assetId, expiresIn: 300 });
+            downloadUrl = links.attachmentDownloadUrl;
+          } catch (error) {
+            console.warn('Failed to build scream-ai download URL:', error);
+          }
+        }
+        return {
+          ...row,
+          url: stableUrl,
+          download_url: downloadUrl,
+          asset_id: assetId,
+        };
+      })
+    );
 
     return NextResponse.json({ items });
   } catch (error) {

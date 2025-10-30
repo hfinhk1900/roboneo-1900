@@ -62,6 +62,7 @@ interface StickerHistoryItem {
   url: string;
   style: string;
   createdAt: number;
+  download_url?: string | null;
 }
 
 const HISTORY_KEY = 'sticker_history';
@@ -114,6 +115,9 @@ export default function StickerGenerator() {
   } | null>(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string>('');
+  const lastResultMeta = useRef<
+    { assetId?: string | null; downloadUrl?: string | null } | null
+  >(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -194,6 +198,7 @@ export default function StickerGenerator() {
             const data = await res.json();
             const processedItems = data.items.map((item: any) => ({
               ...item,
+              download_url: item.download_url || item.downloadUrl || null,
               createdAt:
                 typeof item.createdAt === 'string'
                   ? new Date(item.createdAt).getTime()
@@ -213,8 +218,12 @@ export default function StickerGenerator() {
         const raw = localStorage.getItem(HISTORY_KEY);
         if (raw) {
           const parsed = JSON.parse(raw) as StickerHistoryItem[];
+          const normalized = parsed.map((item) => ({
+            ...item,
+            download_url: item.download_url ?? (item as any).downloadUrl ?? null,
+          }));
           // 确保按时间降序排列（最新的在前）
-          const sortedItems = parsed.sort(
+          const sortedItems = normalized.sort(
             (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
           );
           setStickerHistory(sortedItems);
@@ -256,6 +265,7 @@ export default function StickerGenerator() {
                   ? new Date(created.createdAt).getTime()
                   : created.createdAt
                 : Date.now(),
+              download_url: item.download_url ?? null,
             };
             setStickerHistory((prev) => [createdItem, ...prev]);
             // 保存到本地图片库（IndexedDB）
@@ -294,7 +304,7 @@ export default function StickerGenerator() {
       }
 
       // 登录失败或未登录：保存到本地
-      setStickerHistory((prev) => [item, ...prev]);
+      setStickerHistory((prev) => [{ ...item }, ...prev]);
       // 同时更新本地存储
       const raw = localStorage.getItem(HISTORY_KEY);
       const existing = raw ? JSON.parse(raw) : [];
@@ -340,6 +350,7 @@ export default function StickerGenerator() {
 
       setFileError(null);
       setGeneratedImageUrl(null);
+      lastResultMeta.current = null;
 
       const validation = validateImageFile(file);
       if (!validation.isValid) {
@@ -399,6 +410,7 @@ export default function StickerGenerator() {
     setSelectedImage(null);
     setPreviewUrl(null);
     setGeneratedImageUrl(null);
+    lastResultMeta.current = null;
     setFileError(null);
 
     if (fileInputRef.current) {
@@ -438,6 +450,7 @@ export default function StickerGenerator() {
     setGenerationProgress(0);
     setIsCompressing(true);
     setCompressionProgress(0);
+    lastResultMeta.current = null;
 
     try {
       console.log('🚀 Starting sticker generation...');
@@ -532,12 +545,18 @@ export default function StickerGenerator() {
         setGeneratedImageUrl(result.data.output_image_url);
         setGenerationProgress(100);
 
+        lastResultMeta.current = {
+          assetId: result.data.asset_id ?? null,
+          downloadUrl: result.data.download_url ?? null,
+        };
+
         // 保存到历史记录
         const historyItem: StickerHistoryItem = {
           asset_id: result.data.asset_id,
           url: result.data.output_image_url,
           style: selectedStyle,
           createdAt: Date.now(),
+          download_url: result.data.download_url ?? null,
         };
         await pushHistory(historyItem);
 
@@ -556,6 +575,7 @@ export default function StickerGenerator() {
       }
     } catch (error) {
       console.error('Generation error:', error);
+      lastResultMeta.current = null;
 
       // Check if error occurred during compression
       if (isCompressing) {
@@ -574,29 +594,98 @@ export default function StickerGenerator() {
     }
   }, [selectedImage, selectedStyle, currentUser]);
 
+  const downloadStickerImage = useCallback(
+    async (
+      url: string,
+      filename: string,
+      assetId?: string | null,
+      fallbackDownloadUrl?: string | null
+    ) => {
+      try {
+        if (!url && !fallbackDownloadUrl) {
+          toast.error('Download link unavailable');
+          return;
+        }
+
+        let finalUrl = fallbackDownloadUrl || url;
+        let effectiveAssetId = assetId ?? null;
+
+        if (!effectiveAssetId && url?.startsWith('/api/assets/')) {
+          try {
+            const urlObj = new URL(url, window.location.origin);
+            effectiveAssetId = urlObj.pathname.split('/').pop() ?? null;
+          } catch {
+            // ignore parsing errors
+          }
+        }
+
+        if (effectiveAssetId) {
+          try {
+            const refreshRes = await fetch('/api/storage/sign-download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                asset_id: effectiveAssetId,
+                display_mode: 'attachment',
+                expires_in: 3600,
+              }),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              finalUrl = refreshData.url;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch attachment download URL:', error);
+          }
+        }
+
+        if (!finalUrl) {
+          toast.error('Download link unavailable');
+          return;
+        }
+
+        if (finalUrl.startsWith('data:')) {
+          const link = document.createElement('a');
+          link.href = finalUrl;
+          link.download = filename;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success('Image downloaded successfully!');
+          return;
+        }
+
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = filename;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Image downloaded successfully!');
+      } catch (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download image');
+      }
+    },
+    []
+  );
+
   // Download generated image
   const handleDownload = useCallback(async () => {
     if (!generatedImageUrl) return;
 
-    try {
-      const response = await fetch(generatedImageUrl);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sticker-${selectedStyle}-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success('Image downloaded successfully!');
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download image');
-    }
-  }, [generatedImageUrl, selectedStyle]);
+    await downloadStickerImage(
+      generatedImageUrl,
+      `sticker-${selectedStyle}-${Date.now()}.png`,
+      lastResultMeta.current?.assetId ?? null,
+      lastResultMeta.current?.downloadUrl ?? null
+    );
+  }, [generatedImageUrl, selectedStyle, downloadStickerImage]);
 
   // 删除单个历史记录
   const deleteHistoryItem = useCallback(
@@ -923,6 +1012,7 @@ export default function StickerGenerator() {
                       <Button
                         onClick={() => {
                           setGeneratedImageUrl(null);
+                          lastResultMeta.current = null;
                         }}
                         variant="ghost"
                         size="icon"
@@ -1038,14 +1128,14 @@ export default function StickerGenerator() {
                       size="icon"
                       className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                       title="Download sticker"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = item.url;
-                        link.download = `sticker-${item.style}-${Date.now()}.png`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={() =>
+                        downloadStickerImage(
+                          item.url,
+                          `sticker-${item.style}-${Date.now()}.png`,
+                          item.asset_id,
+                          item.download_url ?? null
+                        )
+                      }
                     >
                       <DownloadIcon className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -1203,25 +1293,18 @@ export default function StickerGenerator() {
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (!previewImageUrl) return;
+                  const historyItem = stickerHistory.find(
+                    (item) =>
+                      item.url === previewImageUrl ||
+                      item.download_url === previewImageUrl
+                  );
 
-                  try {
-                    const response = await fetch(previewImageUrl);
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `sticker-${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    toast.success('Image downloaded successfully!');
-                  } catch (error) {
-                    console.error('Download error:', error);
-                    toast.error('Failed to download image');
-                  }
+                  await downloadStickerImage(
+                    previewImageUrl,
+                    `sticker-${Date.now()}.png`,
+                    historyItem?.asset_id ?? lastResultMeta.current?.assetId ?? null,
+                    historyItem?.download_url ?? lastResultMeta.current?.downloadUrl ?? null
+                  );
                 }}
                 className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
                 size="lg"

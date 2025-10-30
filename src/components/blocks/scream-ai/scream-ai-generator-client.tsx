@@ -179,6 +179,96 @@ function ScreamAIGeneratorClient({
     [currentUser?.id]
   );
 
+  const triggerDownload = useCallback(
+    async ({
+      url,
+      downloadUrl,
+      assetId,
+      filename,
+    }: {
+      url?: string;
+      downloadUrl?: string;
+      assetId?: string | null;
+      filename: string;
+    }) => {
+      try {
+        if (!url && !downloadUrl) {
+          toast({
+            title: 'Download failed',
+            description: 'Download link unavailable.',
+            variant: 'destructive',
+          });
+          return false;
+        }
+
+        let finalUrl = downloadUrl || url;
+        let effectiveAssetId = assetId ?? null;
+
+        if (!effectiveAssetId && url?.startsWith('/api/assets/')) {
+          try {
+            const urlObj = new URL(url, window.location.origin);
+            effectiveAssetId = urlObj.pathname.split('/').pop() ?? null;
+          } catch {
+            // ignore parsing errors
+          }
+        }
+
+        if (effectiveAssetId) {
+          try {
+            const refreshRes = await fetch('/api/storage/sign-download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                asset_id: effectiveAssetId,
+                display_mode: 'attachment',
+                expires_in: 3600,
+              }),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              finalUrl = refreshData.url;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch attachment download URL:', error);
+          }
+        }
+
+        if (!finalUrl) {
+          toast({
+            title: 'Download failed',
+            description: 'Download link unavailable.',
+            variant: 'destructive',
+          });
+          return false;
+        }
+
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.download = filename;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        return true;
+      } catch (error) {
+        console.error('Failed to trigger download:', error);
+        toast({
+          title: 'Download failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'Unable to download image.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+    },
+    [toast]
+  );
+
   const selectedPreset = useMemo(
     () => SCREAM_PRESET_MAP.get(selectedPresetId) ?? SCREAM_PRESETS[0],
     [selectedPresetId]
@@ -471,41 +561,34 @@ function ScreamAIGeneratorClient({
 
   const handleDownload = useCallback(() => {
     if (!result) return;
-    const planLabel = currentUser?.role ?? 'guest';
-    track(Events.DownloadClicked, {
-      feature: 'scream-ai',
-      asset_id: result.asset_id,
-      preset_id: result.preset_id,
-      plan: planLabel,
-      origin: 'result',
+    triggerDownload({
+      url: result.view_url,
+      downloadUrl: result.download_url,
+      assetId: result.asset_id,
+      filename: `scream-ai-${result.preset_id}-${Date.now()}.png`,
+    }).then((success) => {
+      if (!success) return;
+      const planLabel = currentUser?.role ?? 'guest';
+      track(Events.DownloadClicked, {
+        feature: 'scream-ai',
+        asset_id: result.asset_id,
+        preset_id: result.preset_id,
+        plan: planLabel,
+        origin: 'result',
+      });
     });
-    const link = document.createElement('a');
-    link.href = result.download_url;
-    link.download = `scream-ai-${result.preset_id}-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [currentUser?.role, result]);
+  }, [currentUser?.role, result, triggerDownload]);
 
   const handleHistoryDownload = useCallback(
     async (item: ScreamHistoryItem) => {
-      try {
-        const url = item.downloadUrl || item.url;
-        const response = await fetch(url, { credentials: 'include' });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
+      const success = await triggerDownload({
+        url: item.url,
+        downloadUrl: item.downloadUrl,
+        assetId: item.assetId,
+        filename: `scream-ai-${item.presetId}-${Date.now()}.png`,
+      });
 
-        const link = document.createElement('a');
-        link.href = objectUrl;
-        link.download = `scream-ai-${item.presetId}-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(objectUrl);
-
+      if (success) {
         const planLabel = currentUser?.role ?? 'guest';
         track(Events.DownloadClicked, {
           feature: 'scream-ai',
@@ -519,19 +602,9 @@ function ScreamAIGeneratorClient({
           title: 'Download started',
           description: 'Your Scream AI scene is downloading.',
         });
-      } catch (error) {
-        console.error('Failed to download scream-ai history item:', error);
-        toast({
-          title: 'Download failed',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'Unable to download image.',
-          variant: 'destructive',
-        });
       }
     },
-    [currentUser?.role, toast]
+    [currentUser?.role, toast, triggerDownload]
   );
 
   const confirmDeleteHistoryItem = useCallback(async () => {

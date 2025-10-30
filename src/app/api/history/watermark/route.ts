@@ -1,5 +1,6 @@
 import { getDb } from '@/db';
 import { assets, watermarkHistory } from '@/db/schema';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -60,7 +61,26 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items: processedItems });
+    const enriched = await Promise.all(
+      processedItems.map(async (item: any) => {
+        const assetId = item.asset_id || item.assetId;
+        if (assetId) {
+          try {
+            const links = await buildAssetUrls({ assetId, expiresIn: 300 });
+            return {
+              ...item,
+              asset_id: assetId,
+              download_url: links.attachmentDownloadUrl,
+            };
+          } catch (error) {
+            console.warn('Failed to build watermark download URL:', error);
+          }
+        }
+        return item;
+      })
+    );
+
+    return NextResponse.json({ items: enriched });
   } catch (error) {
     console.error('Error fetching watermark history:', error);
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { getDb } from '@/db';
 import { assets, stickerHistory } from '@/db/schema';
+import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
@@ -63,8 +64,29 @@ export async function GET(request: NextRequest) {
         };
       })
     );
+    const enriched = await Promise.all(
+      items.map(async (item: any) => {
+        const assetId = item.asset_id || item.assetId;
+        if (assetId) {
+          try {
+            const links = await buildAssetUrls({
+              assetId,
+              expiresIn: 300,
+            });
+            return {
+              ...item,
+              asset_id: assetId,
+              download_url: links.attachmentDownloadUrl,
+            };
+          } catch (error) {
+            console.warn('Failed to build sticker download URL:', error);
+          }
+        }
+        return item;
+      })
+    );
 
-    return NextResponse.json({ items });
+    return NextResponse.json({ items: enriched });
   } catch (error) {
     console.error('GET /api/history/sticker error:', error);
     return NextResponse.json(

@@ -140,6 +140,7 @@ export default function ProductShotGeneratorSection() {
     url: string; // 仍保留以兼容旧数据
     scene: string;
     createdAt: number;
+    download_url?: string | null;
   }
 
   const HISTORY_KEY = 'roboneo_productshot_history_v1'; // 未登录时回退
@@ -215,9 +216,13 @@ export default function ProductShotGeneratorSection() {
             // 处理每个历史记录项，检查并刷新过期的URL
             const processedItems = await Promise.all(
               (data.items || []).map(async (it: any) => {
+                const assetId = it.asset_id || it.assetId || null;
+                const downloadUrl =
+                  it.download_url || it.downloadUrl || null;
+
                 let finalUrl = it.url;
-                if (it.asset_id) {
-                  finalUrl = `/api/assets/${it.asset_id}`;
+                if (assetId) {
+                  finalUrl = `/api/assets/${assetId}`;
                 }
 
                 // 如果是资产下载URL，检查是否过期
@@ -269,6 +274,8 @@ export default function ProductShotGeneratorSection() {
 
                 return {
                   id: it.id,
+                  asset_id: assetId ?? undefined,
+                  download_url: downloadUrl ?? undefined,
                   url: finalUrl,
                   scene: it.scene,
                   createdAt: it.createdAt
@@ -302,9 +309,17 @@ export default function ProductShotGeneratorSection() {
             // 处理本地历史记录，检查并刷新过期的URL
             const processedItems = await Promise.all(
               parsed.map(async (item) => {
+                const legacyAssetId =
+                  (item as any).asset_id || (item as any).assetId || null;
+                const localDownloadUrl =
+                  (item as any).download_url ||
+                  (item as any).downloadUrl ||
+                  item.download_url ||
+                  null;
+
                 let finalUrl = item.url;
-                if ((item as any).asset_id) {
-                  finalUrl = `/api/assets/${(item as any).asset_id}`;
+                if (legacyAssetId) {
+                  finalUrl = `/api/assets/${legacyAssetId}`;
                 }
 
                 // 如果是资产下载URL，检查是否过期
@@ -356,6 +371,8 @@ export default function ProductShotGeneratorSection() {
 
                 return {
                   ...item,
+                  asset_id: legacyAssetId ?? item.asset_id,
+                  download_url: localDownloadUrl ?? item.download_url,
                   url: finalUrl,
                 };
               })
@@ -435,6 +452,8 @@ export default function ProductShotGeneratorSection() {
             const created = await res.json();
             const createdItem: ProductshotHistoryItem = {
               id: created.id,
+              asset_id: created.asset_id ?? item.asset_id,
+              download_url: item.download_url,
               url: created.url,
               scene: created.scene,
               createdAt: created.createdAt
@@ -594,56 +613,46 @@ export default function ProductShotGeneratorSection() {
   }, [currentUser]);
 
   // 从URL下载图片
-  const downloadFromUrl = useCallback(async (url: string, scene: string) => {
-    const filename = `productshot-${scene}-${Date.now()}.png`;
+  const downloadFromUrl = useCallback(
+    async (
+      url: string,
+      scene: string,
+      assetId?: string | null,
+      fallbackDownloadUrl?: string | null
+    ) => {
+      const filename = `productshot-${scene}-${Date.now()}.png`;
 
-    // 检查并刷新过期的URL
-    let finalUrl = url;
-    if (url.startsWith('/api/assets/')) {
-      try {
-        const urlObj = new URL(url, window.location.origin);
-        const exp = urlObj.searchParams.get('exp');
-        const assetId = urlObj.searchParams.get('asset_id');
+      let finalUrl = fallbackDownloadUrl || url;
+      const effectiveAssetId = assetId;
 
-        if (exp && assetId) {
-          const expiryTime = Number.parseInt(exp) * 1000;
-          const currentTime = Date.now();
-
-          // 如果URL即将过期或已过期，刷新它
-          if (expiryTime - currentTime <= 5 * 60 * 1000) {
-            console.log(
-              '🔄 Refreshing expired asset URL for download:',
-              assetId
-            );
-            try {
-              const refreshRes = await fetch('/api/storage/sign-download', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                  asset_id: assetId,
-                  display_mode: 'inline',
-                  expires_in: 3600,
-                }),
-              });
-              if (refreshRes.ok) {
-                const refreshData = await refreshRes.json();
-                finalUrl = refreshData.url;
-              }
-            } catch (error) {
-              console.error('Failed to refresh asset URL for download:', error);
-            }
+      if (effectiveAssetId) {
+        try {
+          const refreshRes = await fetch('/api/storage/sign-download', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              asset_id: effectiveAssetId,
+              display_mode: 'attachment',
+              expires_in: 3600,
+            }),
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            finalUrl = refreshData.url;
           }
+        } catch (error) {
+          console.error('Failed to fetch attachment download URL:', error);
         }
-      } catch (error) {
-        console.error('Error checking URL expiry for download:', error);
       }
-    }
 
-    if (finalUrl.startsWith('/api/assets/')) {
-      // 新资产管理系统
+      if (!finalUrl) {
+        toast.error('Download link unavailable');
+        return;
+      }
+
       const link = document.createElement('a');
       link.href = finalUrl;
       link.download = filename;
@@ -651,34 +660,9 @@ export default function ProductShotGeneratorSection() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      return;
-    }
-
-    if (finalUrl.startsWith('data:')) {
-      // base64 数据
-      const link = document.createElement('a');
-      link.href = finalUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
-
-    if (finalUrl.startsWith('http')) {
-      // HTTP URL，使用代理
-      const downloadUrl = `/api/image-proxy?${new URLSearchParams({ url: finalUrl, filename })}`;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
-  }, []);
+    },
+    []
+  );
 
   // 初始化时获取可用场景
   useEffect(() => {
@@ -1002,6 +986,7 @@ export default function ProductShotGeneratorSection() {
 
         const historyItem: ProductshotHistoryItem = {
           asset_id: result.asset_id, // 保存资产ID
+          download_url: result.download_url ?? null,
           url: result.asset_id
             ? `/api/assets/${result.asset_id}`
             : result.download_url,
@@ -1635,7 +1620,12 @@ export default function ProductShotGeneratorSection() {
                     (item) => item.url === previewImageUrl
                   );
                   if (historyItem) {
-                    downloadFromUrl(historyItem.url, historyItem.scene);
+                    downloadFromUrl(
+                      historyItem.url,
+                      historyItem.scene,
+                      historyItem.asset_id,
+                      historyItem.download_url
+                    );
                   } else {
                     handleDownload();
                   }
@@ -1797,7 +1787,14 @@ export default function ProductShotGeneratorSection() {
                     size="icon"
                     className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
                     title="Download product shot"
-                    onClick={() => downloadFromUrl(item.url, item.scene)}
+                    onClick={() =>
+                      downloadFromUrl(
+                        item.url,
+                        item.scene,
+                        item.asset_id,
+                        item.download_url
+                      )
+                    }
                   >
                     <DownloadIcon className="h-4 w-4 text-gray-600" />
                   </Button>

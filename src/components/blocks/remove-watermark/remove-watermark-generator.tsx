@@ -176,6 +176,8 @@ interface RemovalHistoryItem {
   watermarkType: WatermarkType;
   quality: QualityLevel;
   createdAt: number;
+  asset_id?: string | null;
+  download_url?: string | null;
 }
 
 export default function RemoveWatermarkGeneratorSection() {
@@ -204,6 +206,7 @@ export default function RemoveWatermarkGeneratorSection() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const lastResultMeta = useRef<{ assetId?: string | null; downloadUrl?: string | null } | null>(null);
 
   // Demo image states
   const [selectedDemoImage, setSelectedDemoImage] = useState<string>('');
@@ -293,6 +296,8 @@ export default function RemoveWatermarkGeneratorSection() {
             const mapped = items
               .map((it: any) => ({
                 id: it.id,
+                asset_id: it.asset_id || it.assetId || null,
+                download_url: it.download_url || it.downloadUrl || null,
                 originalImage: it.originalImageUrl || it.originalImage,
                 processedImage: it.processedImageUrl || it.processedImage,
                 method: it.method || 'auto',
@@ -590,6 +595,11 @@ export default function RemoveWatermarkGeneratorSection() {
       if (result.success && result.public_url) {
         console.log('✅ Watermark removal successful:', result);
 
+        lastResultMeta.current = {
+          assetId: result.asset_id ?? null,
+          downloadUrl: result.download_url ?? null,
+        };
+
         setProcessedImage(result.public_url);
 
         // Update credits (unified)
@@ -638,6 +648,8 @@ export default function RemoveWatermarkGeneratorSection() {
           watermarkType: selectedWatermarkType,
           quality: selectedQuality,
           createdAt: Date.now(),
+          asset_id: result.asset_id ?? null,
+          download_url: result.download_url ?? null,
         };
 
         const newHistory = [newHistoryItem, ...removalHistory.slice(0, 19)];
@@ -678,6 +690,7 @@ export default function RemoveWatermarkGeneratorSection() {
     } catch (error) {
       // 使用 console.warn 避免 Next.js 错误拦截
       console.warn('Watermark removal error:', error);
+      lastResultMeta.current = null;
 
       let errorMessage = 'Unknown error occurred';
       let userMessage = 'Failed to remove watermark. Please try again.';
@@ -750,38 +763,71 @@ export default function RemoveWatermarkGeneratorSection() {
 
   // Download handler
   const handleDownload = useCallback(
-    async (imageUrl: string, filename = 'watermark-removed.png') => {
+    async (
+      imageUrl: string,
+      filename = 'watermark-removed.png',
+      assetId?: string | null,
+      downloadUrl?: string | null
+    ) => {
       try {
-        let finalUrl = imageUrl;
-        if (finalUrl.startsWith('/api/assets/')) {
-          try {
-            const urlObj = new URL(finalUrl, window.location.origin);
-            const exp = urlObj.searchParams.get('exp');
-            const assetId = urlObj.searchParams.get('asset_id');
-            if (exp && assetId) {
-              const expiryTime = Number.parseInt(exp) * 1000;
-              const currentTime = Date.now();
-              if (expiryTime - currentTime <= 5 * 60 * 1000) {
-                const refreshRes = await fetch('/api/storage/sign-download', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  credentials: 'include',
-                  body: JSON.stringify({
-                    asset_id: assetId,
-                    display_mode: 'inline',
-                    expires_in: 3600,
-                  }),
-                });
-                if (refreshRes.ok) {
-                  const refreshData = await refreshRes.json();
-                  finalUrl = refreshData.url;
-                }
-              }
-            }
-          } catch {}
+        if (!imageUrl && !downloadUrl) {
+          toast.error('Download link unavailable');
+          return;
         }
 
-        const response = await fetch(finalUrl);
+        let finalUrl = downloadUrl || imageUrl;
+        let effectiveAssetId = assetId ?? null;
+
+        if (!effectiveAssetId && imageUrl?.startsWith('/api/assets/')) {
+          try {
+            const urlObj = new URL(imageUrl, window.location.origin);
+            effectiveAssetId = urlObj.pathname.split('/').pop() ?? null;
+          } catch {
+            // ignore parse errors
+          }
+        }
+
+        if (effectiveAssetId) {
+          try {
+            const refreshRes = await fetch('/api/storage/sign-download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                asset_id: effectiveAssetId,
+                display_mode: 'attachment',
+                expires_in: 3600,
+              }),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              finalUrl = refreshData.url;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch attachment download URL:', error);
+          }
+        }
+
+        if (!finalUrl) {
+          toast.error('Download link unavailable');
+          return;
+        }
+
+        if (finalUrl.startsWith('data:')) {
+          const link = document.createElement('a');
+          link.href = finalUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success('Image downloaded successfully!');
+          return;
+        }
+
+        const response = await fetch(finalUrl, { credentials: 'include' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
 
@@ -1009,7 +1055,14 @@ export default function RemoveWatermarkGeneratorSection() {
                     {/* Download and Delete buttons */}
                     <div className="flex items-center gap-3">
                       <Button
-                        onClick={() => handleDownload(processedImage)}
+                        onClick={() =>
+                          handleDownload(
+                            processedImage,
+                            'watermark-removed.png',
+                            lastResultMeta.current?.assetId ?? null,
+                            lastResultMeta.current?.downloadUrl ?? null
+                          )
+                        }
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50"
@@ -1150,7 +1203,9 @@ export default function RemoveWatermarkGeneratorSection() {
                       onClick={() =>
                         handleDownload(
                           item.processedImage,
-                          `watermark-removed-${item.id}.png`
+                          `watermark-removed-${item.id}.png`,
+                          item.asset_id ?? null,
+                          item.download_url ?? null
                         )
                       }
                     >
@@ -1262,7 +1317,17 @@ export default function RemoveWatermarkGeneratorSection() {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (previewImageUrl) {
-                    handleDownload(previewImageUrl, 'watermark-removed.png');
+                    const historyItem = removalHistory.find(
+                      (item) =>
+                        item.processedImage === previewImageUrl ||
+                        item.download_url === previewImageUrl
+                    );
+                    handleDownload(
+                      previewImageUrl,
+                      'watermark-removed.png',
+                      historyItem?.asset_id ?? lastResultMeta.current?.assetId ?? null,
+                      historyItem?.download_url ?? lastResultMeta.current?.downloadUrl ?? null
+                    );
                   }
                 }}
                 className="bg-yellow-500 hover:bg-yellow-600 text-black border-none shadow-lg transition-all duration-200 hover:scale-105"
