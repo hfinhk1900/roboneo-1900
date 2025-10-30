@@ -108,7 +108,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
             Reserved.
           </span>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+          <div className="flex flex-nowrap items-center justify-center gap-3 md:gap-4 overflow-x-auto">
             {/* <ThemeSelector /> */}
             <ModeSwitcherHorizontal />
             <a
@@ -122,7 +122,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on Startup Fame"
                 width="218"
                 height="30"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
             <a
@@ -136,7 +136,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on Twelve Tools"
                 width="200"
                 height="54"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
             <a
@@ -150,7 +150,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="yo.directory"
                 width="150"
                 height="54"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
             <a
@@ -188,7 +188,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Featured on ProductBurst"
                 width="160"
                 height="30"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
             {/* productburst-badge-end */}
@@ -203,7 +203,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Good AI Tools"
                 width="180"
                 height="54"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
             <a
@@ -217,7 +217,21 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 alt="Dang.ai"
                 width="150"
                 height="54"
-                className="h-5 sm:h-6 w-auto"
+                className="h-4 sm:h-5 w-auto"
+              />
+            </a>
+            <a
+              href="https://fazier.com/launches/roboneo.art"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+            >
+              <img
+                src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral"
+                alt="Fazier badge"
+                width="120"
+                height="40"
+                className="h-4 sm:h-5 w-auto"
               />
             </a>
           </div>
