@@ -6,14 +6,18 @@
  * - KIE Nano Banana Edit API: 高质量图像风格化，支持 job 轮询
  * - R2 Storage: For persisting generated images
  * - Sharp: For server-side image pre-processing
-*/
+ */
 
 import { NanoBananaProvider } from '@/ai/image/providers/nano-banana';
 import { CREDITS_PER_IMAGE } from '@/config/credits-config';
 import { getDb } from '@/db';
 import { assets } from '@/db/schema';
-import { generateAssetId } from '@/lib/asset-management';
+import {
+  STICKER_STYLE_CONFIGS,
+  type StickerStyle,
+} from '@/features/sticker/style-config';
 import { buildAssetUrls } from '@/lib/asset-links';
+import { generateAssetId } from '@/lib/asset-management';
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
@@ -26,18 +30,14 @@ import {
 } from '@/lib/idempotency';
 import { OPENAI_IMAGE_CONFIG, validateImageFile } from '@/lib/image-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { getLocalTimestr } from '@/lib/time-utils';
 import { getClientIp } from '@/lib/request-ip';
+import { getLocalTimestr } from '@/lib/time-utils';
 import {
+  type StoreUploadedImageResult,
   linkUploadedAsset,
   storeUploadedImage,
-  type StoreUploadedImageResult,
 } from '@/lib/uploaded-image';
 import { type NextRequest, NextResponse } from 'next/server';
-import {
-  STICKER_STYLE_CONFIGS,
-  type StickerStyle,
-} from '@/features/sticker/style-config';
 
 /**
  * Pre-processes an image to be a square RGBA PNG compatible with OpenAI
@@ -279,19 +279,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Preprocess Image
+    // 1. Store original uploaded image to R2
     const originalBuffer = Buffer.from(await imageFile.arrayBuffer());
-    try {
-      uploadSource = await storeUploadedImage({
-        buffer: originalBuffer,
-        contentType: imageFile.type,
-        originalFilename: imageFile.name,
-        userId: session.user.id,
-        tool: 'stickers',
-      });
-    } catch (error) {
-      console.warn('Failed to store uploaded sticker source image:', error);
-    }
+
+    // 上传原始图片到 R2，确保上传成功
+    uploadSource = await storeUploadedImage({
+      buffer: originalBuffer,
+      contentType: imageFile.type,
+      originalFilename: imageFile.name,
+      userId: session.user.id,
+      tool: 'stickers',
+    });
+    console.log('✅ Original image uploaded to R2:', uploadSource.url);
+
+    // 2. Preprocess Image for AI
     const preprocessed = await preprocessToSquareRGBA(originalBuffer);
     if (!preprocessed) {
       return NextResponse.json(
@@ -324,14 +325,17 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. 调用 Nano Banana (KIE) 生成贴纸
+    // ✅ 传递已上传的原始图片URL，避免重复上传
     const provider = new NanoBananaProvider(apiKey);
     console.log('🎨 Sending sticker request to Nano Banana (KIE)...');
+    console.log('📎 Using existing uploaded source image:', uploadSource.url);
     const generation = await provider.generateImage({
       prompt,
       imageBase64: preprocessed.base64Data,
       aspectRatio: '1:1',
       storageFolder: 'all-generated-images/stickers',
       sourceFolder: 'all-uploaded-images/stickers',
+      sourceUploadUrl: uploadSource.url, // ✅ 传递已上传的URL，避免重复上传
       watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
     });
 
@@ -377,7 +381,7 @@ export async function POST(req: NextRequest) {
         provider: generation.provider,
         model: generation.model,
         client_ip: clientIp,
-        upload_asset_id: uploadSource?.assetId ?? null,
+        upload_asset_id: uploadSource.assetId, // 关联原始上传图片
       }),
     });
 
@@ -418,7 +422,7 @@ export async function POST(req: NextRequest) {
         size: `${preprocessed.metadata.finalSize.width}x${preprocessed.metadata.finalSize.height}`,
         credits_used: CREDITS_PER_IMAGE,
         remaining_credits: remainingAfterDeduct ?? undefined,
-        upload_asset_id: uploadSource?.assetId ?? null,
+        upload_asset_id: uploadSource.assetId, // 返回原始图片ID
       },
       url: responseUrl,
       download_url: assetLinks.attachmentDownloadUrl,
@@ -427,9 +431,9 @@ export async function POST(req: NextRequest) {
       from_cache: false,
     } as const;
     if (typeof idStoreKey === 'string') setSuccess(idStoreKey, payload);
-    if (uploadSource) {
-      await linkUploadedAsset(uploadSource.assetId, assetId);
-    }
+
+    // 关联原始图片和生成图片
+    await linkUploadedAsset(uploadSource.assetId, assetId);
 
     try {
       const { logAIOperation } = await import('@/lib/ai-log');
@@ -531,9 +535,12 @@ export async function POST(req: NextRequest) {
       userMessage = 'Sticker generation timeout. Please try again.';
     }
 
-    return NextResponse.json({ error: userMessage, details: errorMessage }, {
-      status: statusCode,
-    });
+    return NextResponse.json(
+      { error: userMessage, details: errorMessage },
+      {
+        status: statusCode,
+      }
+    );
   }
 }
 
