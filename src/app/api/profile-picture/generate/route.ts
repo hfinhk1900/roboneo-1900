@@ -207,6 +207,7 @@ export async function POST(request: NextRequest) {
       storageFolder: 'all-generated-images/profile-pictures',
       sourceFolder: 'all-uploaded-images/profile-pictures',
       referenceImageBase64: reference_image,
+      sourceUploadUrl: uploadSource?.url,
     });
 
     console.log(

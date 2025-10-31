@@ -11,6 +11,7 @@ interface GenerateParams {
   storageFolder?: string;
   sourceFolder?: string;
   referenceImageBase64?: string;
+  sourceUploadUrl?: string | null;
 }
 
 interface GenerateResult {
@@ -95,12 +96,21 @@ export class NanoBananaProvider {
 
   private async prepareImageInput(
     imageBase64: string,
-    options: { forceUpload?: boolean; sourceFolder?: string } = {}
+    options: {
+      forceUpload?: boolean;
+      sourceFolder?: string;
+      existingUrl?: string | null;
+    } = {}
   ): Promise<{
     inline?: { image_base64: string; image_data_url: string };
     imageUrl?: string;
   }> {
-    const { forceUpload = false, sourceFolder } = options;
+    const { forceUpload = false, sourceFolder, existingUrl } = options;
+
+    if (existingUrl) {
+      return { imageUrl: existingUrl };
+    }
+
     const sanitized = this.sanitizeBase64(imageBase64);
     const rawBase64 = this.stripBase64Prefix(sanitized);
 
@@ -189,6 +199,7 @@ export class NanoBananaProvider {
       const imageInput = await this.prepareImageInput(params.imageBase64, {
         forceUpload: this.requiresImageUrl,
         sourceFolder: params.sourceFolder,
+        existingUrl: params.sourceUploadUrl,
       });
 
       if (this.requiresImageUrl) {
