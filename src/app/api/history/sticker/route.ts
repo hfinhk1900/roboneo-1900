@@ -6,6 +6,11 @@ import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
+import {
+  deleteServerCache,
+  getServerCache,
+  setServerCache,
+} from '@/lib/server-cache';
 
 // GET /api/history/sticker?limit=20&refresh_urls=true
 export async function GET(request: NextRequest) {
@@ -18,6 +23,11 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDb();
+    const cacheKey = `history:sticker:${session.user.id}`;
+    const cached = getServerCache<{ items: any[] }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
     const { searchParams } = new URL(request.url);
     const limitParam = searchParams.get('limit');
     const baseQuery = db
@@ -86,7 +96,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items: enriched });
+    const payload = { items: enriched };
+    setServerCache(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('GET /api/history/sticker error:', error);
     return NextResponse.json(
@@ -158,6 +170,7 @@ export async function POST(request: NextRequest) {
       style,
       createdAt,
     });
+    deleteServerCache(`history:sticker:${session.user.id}`);
 
     return NextResponse.json({
       id,

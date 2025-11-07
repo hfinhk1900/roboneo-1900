@@ -4,6 +4,11 @@ import { aibgHistory, assets } from '@/db/schema';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import {
+  deleteServerCache,
+  getServerCache,
+  setServerCache,
+} from '@/lib/server-cache';
 import { desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -18,6 +23,11 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDb();
+    const cacheKey = `history:aibg:${session.user.id}`;
+    const cached = getServerCache<{ items: any[] }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
 
@@ -88,7 +98,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items: enriched });
+    const payload = { items: enriched };
+    setServerCache(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Error fetching aibg history:', error);
     return NextResponse.json(
@@ -168,6 +180,7 @@ export async function POST(request: NextRequest) {
       createdAt,
     });
 
+    deleteServerCache(`history:aibg:${session.user.id}`);
     return NextResponse.json({
       id,
       url: finalUrl,

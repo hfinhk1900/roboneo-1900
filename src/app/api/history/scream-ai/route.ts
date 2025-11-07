@@ -5,6 +5,11 @@ import { assets, screamAiHistory } from '@/db/schema';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import {
+  deleteServerCache,
+  getServerCache,
+  setServerCache,
+} from '@/lib/server-cache';
 import { desc, eq } from 'drizzle-orm';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -23,6 +28,11 @@ export async function GET(request: NextRequest) {
     const limitParam = searchParams.get('limit');
 
     const db = await getDb();
+    const cacheKey = `history:scream-ai:${session.user.id}`;
+    const cached = getServerCache<{ items: any[] }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
     const query = db
       .select()
       .from(screamAiHistory)
@@ -54,7 +64,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items });
+    const payload = { items };
+    setServerCache(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Failed to fetch scream-ai history:', error);
     return NextResponse.json(
@@ -129,6 +141,8 @@ export async function POST(request: NextRequest) {
       watermarked: body.watermarked ?? true,
       createdAt,
     });
+
+    deleteServerCache(`history:scream-ai:${session.user.id}`);
 
     return NextResponse.json({
       id,

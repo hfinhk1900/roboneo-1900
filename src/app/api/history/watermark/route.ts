@@ -6,6 +6,11 @@ import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
+import {
+  deleteServerCache,
+  getServerCache,
+  setServerCache,
+} from '@/lib/server-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,6 +23,11 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDb();
+    const cacheKey = `history:watermark:${session.user.id}`;
+    const cached = getServerCache<{ items: any[] }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
     const { searchParams } = new URL(request.url);
     const limit = Number.parseInt(searchParams.get('limit') || '50');
 
@@ -80,7 +90,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items: enriched });
+    const payload = { items: enriched };
+    setServerCache(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Error fetching watermark history:', error);
     return NextResponse.json(
@@ -159,6 +171,8 @@ export async function POST(request: NextRequest) {
     });
 
     console.log(`✅ Watermark history item ${historyId} created successfully`);
+
+    deleteServerCache(`history:watermark:${session.user.id}`);
 
     return NextResponse.json({
       success: true,
