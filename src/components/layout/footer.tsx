@@ -103,151 +103,153 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
 
       <div className="border-t py-8">
         <Container className="px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-muted-foreground text-sm text-center md:text-left">
+          <span className="text-muted-foreground text-sm text-center md:text-left flex-shrink-0">
             &copy; {new Date().getFullYear()} {t('Metadata.name')} All Rights
             Reserved.
           </span>
 
-          <div className="flex flex-nowrap items-center justify-center gap-3 md:gap-4 overflow-x-auto">
-            {/* <ThemeSelector /> */}
-            <ModeSwitcherHorizontal />
-            <a
-              href="https://startupfa.me/s/roboneo?utm_source=roboneo.art"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://startupfa.me/badges/featured-badge-small.webp"
-                alt="Featured on Startup Fame"
-                width="218"
-                height="30"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://twelve.tools"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://twelve.tools/badge0-light.svg"
-                alt="Featured on Twelve Tools"
-                width="200"
-                height="54"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://yo.directory/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://cdn.prod.website-files.com/65c1546fa73ea974db789e3d/65e1e171f89ebfa7bd0129ac_yodirectory-featured.png"
-                alt="yo.directory"
-                width="150"
-                height="54"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://www.deepbluedirectory.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
-            >
-              Deep Blue Directory.com
-            </a>
-            <a
-              href="https://submithunt.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
-            >
-              <span
-                role="img"
-                aria-label="rocket"
-                className="text-sm sm:text-base"
+          <div className="w-full md:w-auto overflow-x-auto overflow-y-hidden footer-badges-scroll">
+            <div className="flex flex-nowrap items-center justify-start md:justify-end gap-3 md:gap-4 py-2 min-w-max">
+              {/* <ThemeSelector /> */}
+              <ModeSwitcherHorizontal />
+              <a
+                href="https://startupfa.me/s/roboneo?utm_source=roboneo.art"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
               >
-                🚀
-              </span>
-              <span>SubmitHunt</span>
-            </a>
-            {/* productburst-badge-start */}
-            <a
-              href="https://productburst.com/product/roboneo-art"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://3188a5210b07f4ad511bbcdc967bc67b.cdn.bubble.io/f1747781918344x939992978866771600/pB-Badge.png"
-                alt="Featured on ProductBurst"
-                width="160"
-                height="30"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            {/* productburst-badge-end */}
-            <a
-              href="https://goodaitools.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://goodaitools.com/assets/images/badge.png"
-                alt="Good AI Tools"
-                width="180"
-                height="54"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://dang.ai/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
-                alt="Dang.ai"
-                width="150"
-                height="54"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://fazier.com/launches/roboneo.art"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral"
-                alt="Fazier badge"
-                width="120"
-                height="40"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
-            <a
-              href="https://www.aidirectori.es"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-            >
-              <img
-                src="https://cdn.aidirectori.es/ai-tools/badges/dark-mode.png"
-                alt="AI Directories Badge"
-                width="150"
-                height="40"
-                className="h-4 sm:h-5 w-auto"
-              />
-            </a>
+                <img
+                  src="https://startupfa.me/badges/featured-badge-small.webp"
+                  alt="Featured on Startup Fame"
+                  width="218"
+                  height="30"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://twelve.tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://twelve.tools/badge0-light.svg"
+                  alt="Featured on Twelve Tools"
+                  width="200"
+                  height="54"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://yo.directory/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://cdn.prod.website-files.com/65c1546fa73ea974db789e3d/65e1e171f89ebfa7bd0129ac_yodirectory-featured.png"
+                  alt="yo.directory"
+                  width="150"
+                  height="54"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://www.deepbluedirectory.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+              >
+                Deep Blue Directory.com
+              </a>
+              <a
+                href="https://submithunt.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+              >
+                <span
+                  role="img"
+                  aria-label="rocket"
+                  className="text-sm sm:text-base"
+                >
+                  🚀
+                </span>
+                <span>SubmitHunt</span>
+              </a>
+              {/* productburst-badge-start */}
+              <a
+                href="https://productburst.com/product/roboneo-art"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://3188a5210b07f4ad511bbcdc967bc67b.cdn.bubble.io/f1747781918344x939992978866771600/pB-Badge.png"
+                  alt="Featured on ProductBurst"
+                  width="160"
+                  height="30"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              {/* productburst-badge-end */}
+              <a
+                href="https://goodaitools.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://goodaitools.com/assets/images/badge.png"
+                  alt="Good AI Tools"
+                  width="180"
+                  height="54"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://dang.ai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
+                  alt="Dang.ai"
+                  width="150"
+                  height="54"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://fazier.com/launches/roboneo.art"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral"
+                  alt="Fazier badge"
+                  width="120"
+                  height="40"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+              <a
+                href="https://www.aidirectori.es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <img
+                  src="https://cdn.aidirectori.es/ai-tools/badges/dark-mode.png"
+                  alt="AI Directories Badge"
+                  width="150"
+                  height="40"
+                  className="h-4 sm:h-5 w-auto"
+                />
+              </a>
+            </div>
           </div>
         </Container>
       </div>
