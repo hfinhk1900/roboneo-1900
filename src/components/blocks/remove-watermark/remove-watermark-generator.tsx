@@ -30,6 +30,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { LoginForm } from '@/components/auth/login-form';
 import { RegisterForm } from '@/components/auth/register-form';
+import { BeforeAfterSlider } from '@/components/ui/before-after-slider';
 import { LocaleLink } from '@/i18n/navigation';
 import { IndexedDBManager } from '@/lib/image-library/indexeddb-manager';
 import {
@@ -251,6 +252,10 @@ export default function RemoveWatermarkGeneratorSection() {
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] =
     useState(false);
+  const [showDemoComparison, setShowDemoComparison] = useState(false);
+  const [demoComparisonData, setDemoComparisonData] = useState<
+    (typeof DEMO_IMAGES)[0] | null
+  >(null);
 
   // History storage key
   const HISTORY_KEY = 'roboneo_watermark_removal_history_v1';
@@ -433,33 +438,17 @@ export default function RemoveWatermarkGeneratorSection() {
     [handleFileSelect]
   );
 
-  // Demo image click handling
+  // Demo image click handling - Show before/after comparison in right card
   const handleDemoImageClick = async (demoImage: (typeof DEMO_IMAGES)[0]) => {
     // Prevent multiple simultaneous processing
     if (isProcessing) {
       return;
     }
 
-    setIsProcessing(true);
-    setSelectedDemoImage(demoImage.afterSrc);
-    setSelectedDemoImageData(demoImage);
-
-    try {
-      // Simulate processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Set the processed result
-      setProcessedImage(demoImage.afterSrc);
-
-      // Demo result should NOT be saved to My Library/history
-
-      toast.success('Watermark removed successfully! ✨');
-    } catch (error) {
-      console.warn('Demo watermark removal error:', error);
-      toast.error('Failed to process demo image. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    // Show the comparison slider in the right card
+    setDemoComparisonData(demoImage);
+    setShowDemoComparison(true);
+    setProcessedImage(null); // Clear any previous processed image
   };
 
   const removeImage = useCallback(() => {
@@ -1037,6 +1026,40 @@ export default function RemoveWatermarkGeneratorSection() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ) : showDemoComparison && demoComparisonData ? (
+                  /* Demo Before/After Comparison Slider */
+                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                    {/* Before/After Slider */}
+                    <div className="relative w-full max-w-lg">
+                      <BeforeAfterSlider
+                        beforeImage={demoComparisonData.beforeSrc}
+                        afterImage={demoComparisonData.afterSrc}
+                        beforeLabel="Before"
+                        afterLabel="After"
+                        className="w-full aspect-square bg-gray-100 shadow-lg"
+                        aspectRatio="square"
+                      />
+                    </div>
+
+                    {/* Hint text and reset button */}
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-sm text-muted-foreground text-center">
+                        Drag the slider to compare before and after
+                      </p>
+                      <Button
+                        onClick={() => {
+                          setShowDemoComparison(false);
+                          setDemoComparisonData(null);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <XIcon className="h-4 w-4" />
+                        Close Preview
+                      </Button>
                     </div>
                   </div>
                 ) : processedImage ? (
