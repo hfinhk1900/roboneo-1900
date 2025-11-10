@@ -22,6 +22,12 @@ import {
 import { getRateLimitConfig } from '@/lib/config/rate-limit';
 import { ensureProductionEnv } from '@/lib/config/validate-env';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
+import {
+  clearKey,
+  getIdempotencyEntry,
+  makeIdempotencyKey,
+  setPending,
+} from '@/lib/idempotency';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { eq, sql } from 'drizzle-orm';
 import type { NextRequest } from 'next/server';
@@ -109,33 +115,53 @@ export async function POST(request: NextRequest) {
         : image_input;
       const approxBytes = Math.floor((base64Part.length * 3) / 4);
       const limit = 10 * 1024 * 1024;
-      if (approxBytes > limit) {
-        return NextResponse.json(
-          { error: 'Image too large', limitBytes: limit },
-          { status: 413 }
-        );
-      }
-    } catch (err) {
-      console.warn('Failed to estimate image size for scream-ai:', err);
+    if (approxBytes > limit) {
+      return NextResponse.json(
+        { error: 'Image too large', limitBytes: limit },
+        { status: 413 }
+      );
     }
+  } catch (err) {
+    console.warn('Failed to estimate image size for scream-ai:', err);
+  }
 
-    // Deduct credits up front
-    const { deductCreditsAction } = await import('@/actions/credits-actions');
-    const deduct = await deductCreditsAction({
-      userId,
-      amount: CREDITS_PER_IMAGE,
-    });
-    if (!deduct?.data?.success) {
+    const creditsDb = await getDb();
+    const creditsRow = await creditsDb
+      .select({ credits: user.credits })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    const availableCredits = creditsRow[0]?.credits ?? 0;
+    if (availableCredits < CREDITS_PER_IMAGE) {
       return NextResponse.json(
         {
           error: 'Insufficient credits',
           required: CREDITS_PER_IMAGE,
-          current: deduct?.data?.data?.currentCredits ?? 0,
+          current: availableCredits,
         },
         { status: 402 }
       );
     }
-    deductSucceeded = true;
+
+    const idempotencyKey = makeIdempotencyKey(
+      'scream-ai-generate',
+      userId,
+      'default'
+    );
+    const existingEntry = await getIdempotencyEntry(idempotencyKey);
+    if (existingEntry?.status === 'pending') {
+      return NextResponse.json(
+        { error: 'Another generation is already in progress' },
+        { status: 429 }
+      );
+    }
+    await setPending(idempotencyKey, 2 * 60 * 1000);
+    let pendingActive = true;
+    const releasePending = async () => {
+      if (!pendingActive) return;
+      pendingActive = false;
+      await clearKey(idempotencyKey);
+    };
 
     const apiKey = process.env.NANO_BANANA_API_KEY;
     if (!apiKey) {
@@ -146,138 +172,160 @@ export async function POST(request: NextRequest) {
     }
 
     const provider = new NanoBananaProvider(apiKey);
-
-    // Determine subscription (watermark)
-    let isSubscribed = false;
-    try {
-      const { getActiveSubscriptionAction } = await import(
-        '@/actions/get-active-subscription'
-      );
-      const sub = await getActiveSubscriptionAction({ userId });
-      isSubscribed = !!sub?.data?.data;
-    } catch (err) {
-      console.warn('Failed to determine subscription for scream-ai:', err);
-    }
-
-    // Build final prompt with optional custom prompt
-    let finalPrompt = preset.prompt.trim();
-    if (custom_prompt && custom_prompt.trim().length > 0) {
-      finalPrompt = `${finalPrompt}\n\nAdditional details: ${custom_prompt.trim()}`;
-    }
-    finalPrompt = `${finalPrompt}\n\n${IDENTITY_SUFFIX}`.trim();
-    const aspectRatio = aspect_ratio || '1:1';
-
     let uploadSource: StoreUploadedImageResult | null = null;
+
     try {
-      const decodedUpload = decodeBase64Image(image_input, 'image/png');
-      uploadSource = await storeUploadedImage({
-        buffer: decodedUpload.buffer,
-        contentType: decodedUpload.contentType,
+      // Deduct credits up front
+      const { deductCreditsAction } = await import('@/actions/credits-actions');
+      const deduct = await deductCreditsAction({
         userId,
-        tool: 'scream-ai',
+        amount: CREDITS_PER_IMAGE,
       });
-    } catch (error) {
-      console.warn('Failed to store uploaded scream-ai image:', error);
-    }
+      if (!deduct?.data?.success) {
+        return NextResponse.json(
+          {
+            error: 'Insufficient credits',
+            required: CREDITS_PER_IMAGE,
+            current: deduct?.data?.data?.currentCredits ?? 0,
+          },
+          { status: 402 }
+        );
+      }
+      deductSucceeded = true;
 
-    const generation = await provider.generateImage({
-      prompt: finalPrompt,
-      imageBase64: image_input,
-      aspectRatio,
-      negativePrompt: NEGATIVE_PROMPT,
-      watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
-      sourceFolder: 'all-uploaded-images/scream-ai',
-      sourceUploadUrl: uploadSource?.url,
-    });
+      // Determine subscription (watermark)
+      let isSubscribed = false;
+      try {
+        const { getActiveSubscriptionAction } = await import(
+          '@/actions/get-active-subscription'
+        );
+        const sub = await getActiveSubscriptionAction({ userId });
+        isSubscribed = !!sub?.data?.data;
+      } catch (err) {
+        console.warn('Failed to determine subscription for scream-ai:', err);
+      }
 
-    if (!generation.resultUrl) {
-      throw new Error('Failed to generate image URL');
-    }
+      // Build final prompt with optional custom prompt
+      let finalPrompt = preset.prompt.trim();
+      if (custom_prompt && custom_prompt.trim().length > 0) {
+        finalPrompt = `${finalPrompt}\n\nAdditional details: ${custom_prompt.trim()}`;
+      }
+      finalPrompt = `${finalPrompt}\n\n${IDENTITY_SUFFIX}`.trim();
+      const aspectRatio = aspect_ratio || '1:1';
 
-    const assetId = generateAssetId();
-    const db = await getDb();
+      try {
+        const decodedUpload = decodeBase64Image(image_input, 'image/png');
+        uploadSource = await storeUploadedImage({
+          buffer: decodedUpload.buffer,
+          contentType: decodedUpload.contentType,
+          userId,
+          tool: 'scream-ai',
+        });
+      } catch (error) {
+        console.warn('Failed to store uploaded scream-ai image:', error);
+      }
 
-    await db.insert(assets).values({
-      id: assetId,
-      key:
-        generation.storageKey ||
-        generation.resultUrl.split('/').pop() ||
-        `${assetId}.png`,
-      filename: `${assetId}.png`,
-      content_type: 'image/png',
-      size: generation.sizeBytes ?? 0,
-      user_id: userId,
-      metadata: JSON.stringify({
-        source: 'scream-ai',
-        presetId: preset.id,
-        presetName: preset.name,
-        provider: generation.provider,
-        model: generation.model,
+      const generation = await provider.generateImage({
+        prompt: finalPrompt,
+        imageBase64: image_input,
         aspectRatio,
-        watermarked: !isSubscribed,
-        client_ip: clientIp,
-        upload_asset_id: uploadSource?.assetId ?? null,
-      }),
-    });
-
-    if (uploadSource) {
-      await linkUploadedAsset(uploadSource.assetId, assetId);
-    }
-
-    const assetLinks = await buildAssetUrls({
-      assetId,
-      assetKey:
-        generation.storageKey ||
-        generation.resultUrl.split('/').pop() ||
-        `${assetId}.png`,
-      filename: `${assetId}.png`,
-      contentType: 'image/png',
-      expiresIn: 300,
-      displayMode: 'inline',
-    });
-    const viewUrl = assetLinks.stableUrl;
-    const downloadUrl = assetLinks.attachmentDownloadUrl;
-
-    await db.insert(screamAiHistory).values({
-      id: randomUUID(),
-      userId,
-      url: viewUrl,
-      presetId: preset.id,
-      aspectRatio,
-      assetId,
-      watermarked: !isSubscribed,
-      createdAt: new Date(),
-    });
-
-    try {
-      const { logAIOperation } = await import('@/lib/ai-log');
-      await logAIOperation({
-        userId,
-        operation: 'scream-ai',
-        mode: preset.id,
-        creditsUsed: CREDITS_PER_IMAGE,
-        status: 'success',
+        negativePrompt: NEGATIVE_PROMPT,
+        watermarkText: isSubscribed ? undefined : 'ROBONEO.ART',
+        sourceFolder: 'all-uploaded-images/scream-ai',
+        sourceUploadUrl: uploadSource?.url,
       });
-    } catch (err) {
-      console.warn('Failed to log AI operation (scream-ai):', err);
+
+      if (!generation.resultUrl) {
+        throw new Error('Failed to generate image URL');
+      }
+
+      const assetId = generateAssetId();
+      const db = await getDb();
+
+      await db.insert(assets).values({
+        id: assetId,
+        key:
+          generation.storageKey ||
+          generation.resultUrl.split('/').pop() ||
+          `${assetId}.png`,
+        filename: `${assetId}.png`,
+        content_type: 'image/png',
+        size: generation.sizeBytes ?? 0,
+        user_id: userId,
+        metadata: JSON.stringify({
+          source: 'scream-ai',
+          presetId: preset.id,
+          presetName: preset.name,
+          provider: generation.provider,
+          model: generation.model,
+          aspectRatio,
+          watermarked: !isSubscribed,
+          client_ip: clientIp,
+          upload_asset_id: uploadSource?.assetId ?? null,
+        }),
+      });
+
+      if (uploadSource) {
+        await linkUploadedAsset(uploadSource.assetId, assetId);
+      }
+
+      const assetLinks = await buildAssetUrls({
+        assetId,
+        assetKey:
+          generation.storageKey ||
+          generation.resultUrl.split('/').pop() ||
+          `${assetId}.png`,
+        filename: `${assetId}.png`,
+        contentType: 'image/png',
+        expiresIn: 300,
+        displayMode: 'inline',
+      });
+      const viewUrl = assetLinks.stableUrl;
+      const downloadUrl = assetLinks.attachmentDownloadUrl;
+
+      await db.insert(screamAiHistory).values({
+        id: randomUUID(),
+        userId,
+        url: viewUrl,
+        presetId: preset.id,
+        aspectRatio,
+        assetId,
+        watermarked: !isSubscribed,
+        createdAt: new Date(),
+      });
+
+      try {
+        const { logAIOperation } = await import('@/lib/ai-log');
+        await logAIOperation({
+          userId,
+          operation: 'scream-ai',
+          mode: preset.id,
+          creditsUsed: CREDITS_PER_IMAGE,
+          status: 'success',
+        });
+      } catch (err) {
+        console.warn('Failed to log AI operation (scream-ai):', err);
+      }
+
+      const response: GenerateResponse = {
+        success: true,
+        asset_id: assetId,
+        view_url: viewUrl,
+        download_url: downloadUrl,
+        stable_url: assetLinks.stableUrl,
+        expires_at: assetLinks.expiresAt,
+        preset_id: preset.id,
+        preset_name: preset.name,
+        aspect_ratio: aspectRatio,
+        credits_used: CREDITS_PER_IMAGE,
+        remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
+        watermarked: !isSubscribed,
+      };
+
+      return NextResponse.json(response);
+    } finally {
+      await releasePending();
     }
-
-    const response: GenerateResponse = {
-      success: true,
-      asset_id: assetId,
-      view_url: viewUrl,
-      download_url: downloadUrl,
-      stable_url: assetLinks.stableUrl,
-      expires_at: assetLinks.expiresAt,
-      preset_id: preset.id,
-      preset_name: preset.name,
-      aspect_ratio: aspectRatio,
-      credits_used: CREDITS_PER_IMAGE,
-      remaining_credits: deduct?.data?.data?.remainingCredits ?? undefined,
-      watermarked: !isSubscribed,
-    };
-
-    return NextResponse.json(response);
   } catch (error) {
     console.error('Scream AI generation error:', error);
 

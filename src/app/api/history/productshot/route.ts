@@ -3,6 +3,11 @@ import { getDb } from '@/db';
 import { assets, productshotHistory } from '@/db/schema';
 import { buildAssetUrls } from '@/lib/asset-links';
 import { auth } from '@/lib/auth';
+import {
+  deleteServerCache,
+  getServerCache,
+  setServerCache,
+} from '@/lib/server-cache';
 import { enforceSameOriginCsrf } from '@/lib/csrf';
 import { desc, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -34,6 +39,12 @@ export async function GET(request: NextRequest) {
         : await baseQuery;
 
     // Convert legacy signed URLs to stable view URLs
+    const cacheKey = `history:productshot:${session.user.id}`;
+    const cached = getServerCache<{ items: any[] }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const converted = await Promise.all(
       items.map(async (item: any) => {
         let result = { ...item };
@@ -92,7 +103,9 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ items: converted });
+    const payload = { items: converted };
+    setServerCache(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('Error fetching productshot history:', error);
     return NextResponse.json(
@@ -164,6 +177,8 @@ export async function POST(request: NextRequest) {
       scene,
       createdAt,
     });
+
+    deleteServerCache(`history:productshot:${session.user.id}`);
     return NextResponse.json({
       id,
       url: finalUrl,

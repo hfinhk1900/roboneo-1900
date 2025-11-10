@@ -445,3 +445,39 @@ html {
     scroll-behavior: auto;
   }
 }
+
+/* Footer badges scrollbar - visible for better UX */
+.footer-badges-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209 213 219) transparent;
+}
+
+.footer-badges-scroll::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+}
+
+.footer-badges-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.footer-badges-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 3px;
+}
+
+.footer-badges-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(156 163 175);
+}
+
+.dark .footer-badges-scroll {
+  scrollbar-color: rgb(75 85 99) transparent;
+}
+
+.dark .footer-badges-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
+}
+
+.dark .footer-badges-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
+}

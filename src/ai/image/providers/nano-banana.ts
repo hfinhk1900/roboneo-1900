@@ -52,7 +52,9 @@ export class NanoBananaProvider {
       'https://api.kie.ai';
     this.timeoutMs =
       timeoutMs ?? Number(process.env.NANO_BANANA_TIMEOUT_MS || 60000);
-    this.pollIntervalMs = 2000; // Poll every 2 seconds
+    this.pollIntervalMs = Number(
+      process.env.NANO_BANANA_POLL_INTERVAL_MS || 5000
+    );
     this.model =
       process.env.NANO_BANANA_MODEL?.trim() || 'google/nano-banana-edit';
     this.requiresImageUrl = this.model.includes('nano-banana-edit');
